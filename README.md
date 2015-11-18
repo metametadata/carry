@@ -40,6 +40,7 @@ To deploy a build:
 
 ## References
 
-* [Elm-ish architecture examples in ClojureScript](https://github.com/metametadata/cljs-elmish-examples)
 * [TodoMVC in Elm](https://github.com/evancz/elm-todomvc)
 * [TodoMVC using Reagent](https://github.com/tastejs/todomvc/tree/gh-pages/examples/reagent)
+* [TodoMVC using re-frame](https://github.com/Day8/re-frame/tree/master/examples/todomvc)
+* [TodoMVC using Redux](https://github.com/rackt/redux/tree/master/examples/todomvc)
