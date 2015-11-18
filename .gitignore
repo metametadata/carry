@@ -1,0 +1,17 @@
+/cljs-elmish-todomvc.iml
+/.idea
+pom.xml
+pom.xml.asc
+*jar
+/lib/
+/classes/
+/target/
+/checkouts/
+.lein-deps-sum
+.lein-repl-history
+.lein-plugins/
+.lein-failures
+.nrepl-port
+/resources/public/js/compiled
+/figwheel_server.log
+.DS_Store
