@@ -1,7 +1,8 @@
-### [TodoMVC](http://todomvc.com/) using [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) 
-in ClojureScript using Reagent, core.match, Specter and hodgepodge.
+### [TodoMVC](http://todomvc.com/) using [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) in ClojureScript using Reagent, core.match, Specter and hodgepodge.
 
 [DEMO](http://metametadata.github.io/cljs-elmish-todomvc/)
+
+It's a follow-up to [cljs-elmish-examples](https://github.com/metametadata/cljs-elmish-examples). 
 
 ## Build
 
