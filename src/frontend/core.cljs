@@ -205,6 +205,11 @@
 
                    :component-did-update
                    (fn [this]
+                     (.focus (r/dom-node this)))
+
+                   ; this handler is needed in case app model is loaded from local storage
+                   :component-did-mount
+                   (fn [this]
                      (.focus (r/dom-node this)))}))
 
 (defn view-todo
@@ -290,6 +295,7 @@
         app (ui/connect model view-model view
                         (-> (new-control history storage)
                             ui/wrap-log-signals)
+
                         (-> reconcile
                             ui/wrap-log-actions
                             (wrap-persist-to-storage storage)))

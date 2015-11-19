@@ -1,7 +1,8 @@
 ; GUI architecture API
 (ns frontend.ui
   (:require [reagent.core :as r]
-            [cljs.pprint])
+            [cljs.pprint]
+            )
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
@@ -52,4 +53,7 @@
       ;(cljs.pprint/pprint model)
       ;(print "->")
       ;(cljs.pprint/pprint result)
+      ;(println "   " model)
+      ;(println "     ->")
+      ;(println "   " result)
       result)))

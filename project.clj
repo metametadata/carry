@@ -8,38 +8,37 @@
                  [funcool/hodgepodge "0.1.4"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
-            [lein-figwheel "0.5.0"]
-            ]
+            [lein-figwheel "0.5.0"]]
 
   :source-paths ["src"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
   :cljsbuild {
-    :builds [{:id "dev"
-              :source-paths ["src"]
+              :builds [{:id           "dev"
+                        :source-paths ["src"]
 
-              :figwheel { :on-jsload "frontend.core/on-js-reload"
-                         }
+                        :figwheel     {:on-jsload "frontend.core/on-js-reload"
+                                       }
 
-              :compiler {:main frontend.core
-                         :asset-path "js/compiled/out"
-                         :output-to "resources/public/js/compiled/frontend.js"
-                         :output-dir "resources/public/js/compiled/out"
-                         :source-map-timestamp true }}
-             {:id "min"
-              :source-paths ["src"]
-              :compiler {:output-to "resources/public/js/compiled/frontend.js"
-                         :main frontend.core
-                         :optimizations :advanced
-                         :pretty-print false}}]}
+                        :compiler     {:main                 frontend.core
+                                       :asset-path           "js/compiled/out"
+                                       :output-to            "resources/public/js/compiled/frontend.js"
+                                       :output-dir           "resources/public/js/compiled/out"
+                                       :source-map-timestamp true}}
+                       {:id           "min"
+                        :source-paths ["src"]
+                        :compiler     {:output-to     "resources/public/js/compiled/frontend.js"
+                                       :main          frontend.core
+                                       :optimizations :advanced
+                                       :pretty-print  false}}]}
 
   :figwheel {
              ;; :http-server-root "public" ;; default and assumes "resources" 
              ;; :server-port 3449 ;; default
              ;; :server-ip "127.0.0.1" 
 
-             :css-dirs ["resources/public/css"] ;; watch and update CSS
+             :css-dirs ["resources/public/css"]             ;; watch and update CSS
 
              ;; Start an nREPL server into the running figwheel process
              ;; :nrepl-port 7888
