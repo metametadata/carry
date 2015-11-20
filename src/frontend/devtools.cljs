@@ -12,10 +12,12 @@
 (defn init
   "Creates a fresh dev-model instance."
   []
-  {; list of [id signal]
-   :signals (list)
+  {:initial-model        nil
+   :initial-model-saved? false
+   ; list of [id signal]
+   :signals              (list)
    ; list of [id source-signal-id action]
-   :actions (list)})
+   :actions              (list)})
 
 (defn -signal-event
   [signal]
@@ -53,7 +55,9 @@
               (if (coll? action)
                 [:div
                  [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
-                [:div>strong (pr-str action)])])]))]]))
+                [:div>strong (pr-str action)])])]))]
+     [:strong "initial model:"]
+     [:div (pr-str (:initial-model @dev-model))]]))
 
 (defn view
   "Renders app view with devtools. dev-model must be a ratom."
@@ -94,6 +98,13 @@
   [reconcile dev-model]
   (fn wrapped-reconcile
     [model wrapped-action]
+    ; catch initial model
+    (when-not (:initial-model-saved? @dev-model)
+      (swap! dev-model assoc
+             :initial-model model
+             :initial-model-saved? true))
+
+    ; handle action
     (let [[source-signal-id unwrapped-action]
           (match wrapped-action
                  ; ok, we have a wrapped action, thanks to devtools controller middleware
