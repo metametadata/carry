@@ -7,7 +7,8 @@
 (ns frontend.devtools
   (:require [reagent.core :as r]
             [cljs.pprint]
-            [cljs.core.match :refer-macros [match]]))
+            [cljs.core.match :refer-macros [match]]
+            [com.rpl.specter :as s]))
 
 (defn init
   "Creates a fresh dev-model instance."
@@ -16,7 +17,7 @@
    :initial-model-saved? false
    ; list of [id signal]
    :signals              (list)
-   ; list of [id source-signal-id action]
+   ; list of {id source-signal-id enabled? action}
    :actions              (list)})
 
 (defn -signal-event
@@ -25,7 +26,29 @@
 
 (defn -action-event
   [source-signal-id action]
-  [(random-uuid) source-signal-id action])
+  {:id               (random-uuid)
+   :source-signal-id source-signal-id
+   :enabled?         true
+   :action           action})
+
+(defn -update-actions*
+  "model must be immutable."
+  [model pred f & args]
+  (s/transform [:actions s/ALL pred]
+               #(apply f % args)
+               model))
+
+(defn -update-action
+  "model must be immutable."
+  [model id f & args]
+  (apply -update-actions* model #(= (:id %) id) f args))
+
+(defn -toggle-action
+  "dev-model is a ratom."
+  [dev-model id]
+  (swap! dev-model
+         -update-action id
+         update :enabled? not))
 
 (defn -devtools-view
   "dev-model must be a ratom."
@@ -48,10 +71,17 @@
              [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (rest signal))]
              [:span [:strong (pr-str signal)]])
 
-           (for [[id _signal-id_ action] (filter #(= (second %) signal-id) (:actions @dev-model))]
+           (for [{:keys [id enabled? action]} (filter #(= (:source-signal-id %) signal-id)
+                                                      (:actions @dev-model))]
              ^{:key id}
-             [:div {:style {:margin-left "10px"}}
+             [:div {:style {:margin-left "10px"
+                            :color       (if enabled? "inherit" "grey")}}
               "⇣"
+              [:button {:style    {:cursor          "pointer"
+                                   :text-decoration "underline"}
+                        :on-click #(-toggle-action dev-model id)}
+               (if enabled? "OFF" "ON")]
+
               (if (coll? action)
                 [:div
                  [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
