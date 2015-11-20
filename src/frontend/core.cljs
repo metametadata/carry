@@ -277,7 +277,7 @@
 (defonce history (doto (Html5History.)
                    (.setEnabled true)))
 
-(defonce model (r/atom (init)))
+(def model (r/atom (init)))
 (def dev-model (r/atom (devtools/init)))
 
 (defn main
