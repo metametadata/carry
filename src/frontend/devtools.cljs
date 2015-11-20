@@ -58,18 +58,18 @@
 (defn view
   "Renders app view with devtools. dev-model must be a ratom."
   [dev-model app]
-  (fn [_dev-model_ _app_]
-    [:div
-     [(:view app)]
+  [(fn []
+     [:div
+      [(:view app)]
 
-     [:div {:style {:position   "fixed"
-                    :right      0
-                    :top        0
-                    :bottom     0
-                    :z-index    1000
-                    :width      "30%"
-                    :box-shadow "-2px 0 7px 0 rgba(0, 0, 0, 0.5)"}}
-      [-devtools-view dev-model]]]))
+      [:div {:style {:position   "fixed"
+                     :right      0
+                     :top        0
+                     :bottom     0
+                     :z-index    1000
+                     :width      "30%"
+                     :box-shadow "-2px 0 7px 0 rgba(0, 0, 0, 0.5)"}}
+       [-devtools-view dev-model]]])])
 
 (defn wrap-dispatch-action
   "Attaches signal source to action."

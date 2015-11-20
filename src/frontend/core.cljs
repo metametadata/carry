@@ -63,29 +63,22 @@
    {:key :active :title "Active" :href "#/active" :token "/active"}
    {:key :completed :title "Completed" :href "#/completed" :token "/completed"}])
 
-(defn on-navigate
-  [token dispatch]
-  (println "token =" token)
-  (when-let [match (->> visibility-spec
-                        (filter #(= (:token %) token))
-                        first)]
-    (println " route match =" match)
-    (dispatch [:set-visibility (:key match)])))
-
 (defn new-control
-  [history storage]
+  [storage]
   (fn control
     [_model_ signal dispatch]
     (match signal
            :on-connect
-           (do
-             ; load model from storage
-             (dispatch [:load (:model storage)])
+           (dispatch [:load (:model storage)])
 
-             ; TODO: make navigation a signal by starting routing from main function
-             ; start routing
-             (goog.events/listen history EventType/NAVIGATE #(on-navigate (.-token %) dispatch))
-             (on-navigate (.getToken history) dispatch))
+           [:on-navigate token]
+           (do
+             (println "token =" token)
+             (when-let [match (->> visibility-spec
+                                   (filter #(= (:token %) token))
+                                   first)]
+               (println " route match =" match)
+               (dispatch [:set-visibility (:key match)])))
 
            [:on-update-field val] (dispatch [:update-field val])
            :on-add (dispatch :add)
@@ -291,20 +284,26 @@
   []
   (println "Hi.")
 
-  ; clear listeners in case of hotloading
-  (goog.events/removeAll history)
-
   (let [storage hp/local-storage
         app (ui/connect model view-model view
-                        (-> (new-control history storage)
+                        (-> (new-control storage)
                             #_ui/wrap-log-signals
-                            ; TODO: why commenting this middleware doesn't show changes in hotreloaded devtools?
                             (devtools/wrap-control dev-model))
 
                         (-> reconcile
                             #_ui/wrap-log-actions
                             (wrap-persist-to-storage storage)
                             (devtools/wrap-reconcile dev-model)))]
+    (letfn [(dispatch-navigate
+              [token]
+              ((:dispatch-signal app) [:on-navigate token]))]
+      ; clear listeners in case of hotloading
+      (goog.events/removeAll history)
+
+      ; start routing
+      (goog.events/listen history EventType/NAVIGATE #(dispatch-navigate (.-token %)))
+      (dispatch-navigate (.getToken history)))
+
     (r/render-component [devtools/view dev-model app] (. js/document (getElementById "root")))
     app))
 
