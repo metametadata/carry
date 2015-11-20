@@ -1,9 +1,7 @@
 ; GUI architecture API
 (ns frontend.ui
   (:require [reagent.core :as r]
-            [cljs.pprint]
-            )
-  (:require-macros [reagent.ratom :refer [reaction]]))
+            [cljs.pprint]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn connect

@@ -1,5 +1,6 @@
 (ns frontend.core
   (:require [frontend.ui :as ui]
+            [frontend.devtools :as devtools]
             [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]
             [com.rpl.specter :as s]
@@ -81,6 +82,7 @@
              ; load model from storage
              (dispatch [:load (:model storage)])
 
+             ; TODO: make navigation a signal by starting routing from main function
              ; start routing
              (goog.events/listen history EventType/NAVIGATE #(on-navigate (.-token %) dispatch))
              (on-navigate (.getToken history) dispatch))
@@ -283,6 +285,7 @@
                    (.setEnabled true)))
 
 (defonce model (r/atom (init)))
+(def dev-model (r/atom (devtools/init)))
 
 (defn main
   []
@@ -294,13 +297,15 @@
   (let [storage hp/local-storage
         app (ui/connect model view-model view
                         (-> (new-control history storage)
-                            ui/wrap-log-signals)
+                            #_ui/wrap-log-signals
+                            ; TODO: why commenting this middleware doesn't show changes in hotreloaded devtools?
+                            (devtools/wrap-control dev-model))
 
                         (-> reconcile
-                            ui/wrap-log-actions
-                            (wrap-persist-to-storage storage)))
-        app-view (fn [] [(:view app)])]
-    (r/render-component app-view (. js/document (getElementById "app")))
+                            #_ui/wrap-log-actions
+                            (wrap-persist-to-storage storage)
+                            (devtools/wrap-reconcile dev-model)))]
+    (r/render-component [devtools/view dev-model app] (. js/document (getElementById "root")))
     app))
 
 ; to be accessed from REPL
