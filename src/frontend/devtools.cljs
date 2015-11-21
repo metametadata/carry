@@ -73,19 +73,43 @@
   (swap! dev-model -update-action id update :enabled? not)
   (-replay dev-model))
 
+(defn -orphaned-signal?
+  [dev-model [signal-id _ :as _signal_]]
+  (empty? (filter #(= (:source-signal-id %) signal-id)
+                  (:actions @dev-model))))
+
+(defn -sweep
+  [dev-model]
+  ; remove disabled actions
+  (swap! dev-model update :actions #(filter :enabled? %))
+
+  ; remove signals without actions
+  (swap! dev-model
+         update :signals #(remove (partial -orphaned-signal? dev-model) %)))
+
 (defn -devtools-view
   "dev-model must be a ratom."
   [dev-model]
   (fn [_dev-model_]
-    [:section {:style {:width            "100%"
-                       :height           "100%"
-                       :overflow-y       "auto"
-                       :background-color "#2A2F3A"
-                       :padding-left     "5px"
-                       :color            "white"}}
-     [:header
-      #_[:button {:style    {:cursor "pointer" :text-decoration "underline"}
-                  :on-click #(-replay dev-model)} "REPLAY"]]
+    [:div {:style {:width            "100%"
+                   :height           "100%"
+                   :overflow-y       "auto"
+                   :background-color "#2A2F3A"
+                   :padding-left     "5px"
+                   :color            "white"}}
+
+     [:div {:style {:text-align          "center"
+                    :border-bottom-width 1
+                    :border-bottom-style "solid"
+                    :border-color        "#4F5A65"}}
+      [:button {:style    {:font-weight      "bold"
+                           :cursor           "pointer"
+                           :padding          4
+                           :margin           "5px 3px"
+                           :border-radius    3
+                           :background-color "rgb(79, 90, 101)"}
+                :title    "Removes disabled actions and \"orphaned\" signals from history"
+                :on-click #(-sweep dev-model)} "Sweep"]]
 
      [:div
       (doall
@@ -111,7 +135,7 @@
                 [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
                 [:div [:strong (pr-str action)]])])]))]
      [:hr]
-     [:strong "initial model:"]
+     [:strong "Initial model:"]
      [:div (pr-str (:initial-model @dev-model))]]))
 
 (defn view
