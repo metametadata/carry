@@ -13,7 +13,8 @@
 (defn init
   "Creates a fresh dev-model instance."
   []
-  {:initial-model        nil
+  {:dispatch-action      nil
+   :initial-model        nil
    :initial-model-saved? false
    ; list of [id signal]
    :signals              (list)
@@ -31,6 +32,11 @@
    :enabled?         true
    :action           action})
 
+(defn -is-action-event?
+  [x]
+  (and (map? x)
+       (= (set (keys x)) #{:id :source-signal-id :enabled? :action})))
+
 (defn -update-actions*
   "model must be immutable."
   [model pred f & args]
@@ -43,12 +49,28 @@
   [model id f & args]
   (apply -update-actions* model #(= (:id %) id) f args))
 
+(defn -reset-model-to-initial-state
+  "dev-model must be a ratom. Sends special devtools action understood by wrapped reconciler."
+  [dev-model]
+  ((:dispatch-action @dev-model) :-reset-model))
+
+(defn -replay
+  "dev-model must be a ratom. Replays all the enabled actions from the initial model."
+  [dev-model]
+  (-reset-model-to-initial-state dev-model)
+
+  (let [actions (:actions @dev-model)]
+    (swap! dev-model assoc :actions (list))
+    (doseq [action actions]
+      (if (:enabled? action)
+        ((:dispatch-action @dev-model) action)
+        (swap! dev-model update :actions concat [action])))))
+
 (defn -toggle-action
   "dev-model is a ratom."
   [dev-model id]
-  (swap! dev-model
-         -update-action id
-         update :enabled? not))
+  (swap! dev-model -update-action id update :enabled? not)
+  (-replay dev-model))
 
 (defn -devtools-view
   "dev-model must be a ratom."
@@ -60,32 +82,33 @@
                        :background-color "#2A2F3A"
                        :padding-left     "5px"
                        :color            "white"}}
-     [:header>h3 "devtools log"]
+     [:header
+      #_[:button {:style    {:cursor "pointer" :text-decoration "underline"}
+                  :on-click #(-replay dev-model)} "REPLAY"]]
+
      [:div
       (doall
         (for [[signal-id signal] (reverse (:signals @dev-model))]
           ^{:key signal-id}
-          [:div
-           "➙ "
+          [:div {:title "Signal"}
+           "⤤ "
            (if (coll? signal)
              [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (rest signal))]
-             [:span [:strong (pr-str signal)]])
+             [:strong (pr-str signal)])
 
            (for [{:keys [id enabled? action]} (filter #(= (:source-signal-id %) signal-id)
                                                       (:actions @dev-model))]
              ^{:key id}
-             [:div {:style {:margin-left "10px"
-                            :color       (if enabled? "inherit" "grey")}}
-              "⇣"
-              [:button {:style    {:cursor          "pointer"
-                                   :text-decoration "underline"}
-                        :on-click #(-toggle-action dev-model id)}
-               (if enabled? "OFF" "ON")]
+             [:div {:style    {:cursor      "pointer"
+                               :margin-left "10px"
+                               :color       (if enabled? "inherit" "grey")}
+                    :on-click #(-toggle-action dev-model id)
+                    :title    "Click to enable/disable this action"}
 
               (if (coll? action)
-                [:div
-                 [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
-                [:div>strong (pr-str action)])])]))]
+                [:div "⇣" [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
+                [:div "⇣" [:strong (pr-str action)]])])]))]
+     [:hr]
      [:strong "initial model:"]
      [:div (pr-str (:initial-model @dev-model))]]))
 
@@ -105,47 +128,51 @@
                      :box-shadow "-2px 0 7px 0 rgba(0, 0, 0, 0.5)"}}
        [-devtools-view dev-model]]])])
 
-(defn wrap-dispatch-action
-  "Attaches signal source to action."
+(defn wrap-dispatch-action-event
+  "Will wrap dispatched actions into action events."
   [dispatch-action source-signal-id]
-  (fn wrapped-dispatch-action
+  (fn dispatch-action-event
     [action]
-    (dispatch-action {:source-signal-id source-signal-id
-                      :action           action})))
+    (dispatch-action (-action-event source-signal-id action))))
 
 (defn wrap-control
   "dev-model must be a ratom."
   [control dev-model]
   (fn wrapped-control
     [model signal dispatch]
+    ; at the beginning save dispatch function to be able to replay actions later
+    (when-not (:dispatch-action @dev-model)
+      (swap! dev-model assoc :dispatch-action dispatch))
+
     (let [[signal-id _signal_ :as signal-event] (-signal-event signal)
-          wrapped-dispatch (wrap-dispatch-action dispatch signal-id)]
+          dispatch-action-event (wrap-dispatch-action-event dispatch signal-id)]
       (swap! dev-model update :signals concat [signal-event])
-      (control model signal wrapped-dispatch))))
+      (control model signal dispatch-action-event))))
 
 (defn wrap-reconcile
   "dev-model must be a ratom."
   [reconcile dev-model]
-  (fn wrapped-reconcile
-    [model wrapped-action]
-    ; catch initial model
-    (when-not (:initial-model-saved? @dev-model)
-      (swap! dev-model assoc
-             :initial-model model
-             :initial-model-saved? true))
+  (letfn [(wrapped-reconcile [model action]
+            ; catch initial model state
+            (when-not (:initial-model-saved? @dev-model)
+              (swap! dev-model assoc
+                     :initial-model model
+                     :initial-model-saved? true))
 
-    ; handle action
-    (let [[source-signal-id unwrapped-action]
-          (match wrapped-action
-                 ; ok, we have a wrapped action, thanks to devtools controller middleware
-                 {:source-signal-id signal-id :action action}
-                 [signal-id action]
+            (if (= action :-reset-model)
+              ; special devtools action
+              (:initial-model @dev-model)
 
-                 ; for other actions: generate an "unknown signal" event (e.g. for easier action dispatching from REPL)
-                 action
-                 (let [[unknown-singal-id _signal_ :as unknown-signal-event] (-signal-event :-unknown-signal)]
-                   (swap! dev-model update :signals concat [unknown-signal-event])
-                   [unknown-singal-id action]))
-          event (-action-event source-signal-id unwrapped-action)]
-      (swap! dev-model update :actions concat [event])
-      (reconcile model unwrapped-action))))
+              ; handle action event
+              (let [action-event
+                    (if (-is-action-event? action)
+                      ; ok, it's already an event coming from controller wrapped by devtools
+                      action
+
+                      ; for other bare actions (e.g. when dispatching from REPL) generate an "unknown signal" event
+                      (let [[unknown-singal-id _signal_ :as unknown-signal-event] (-signal-event :-unknown-signal)]
+                        (swap! dev-model update :signals concat [unknown-signal-event])
+                        (-action-event unknown-singal-id action)))]
+                (swap! dev-model update :actions concat [action-event])
+                (reconcile model (:action action-event)))))]
+    wrapped-reconcile))
