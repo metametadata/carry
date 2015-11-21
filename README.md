@@ -2,7 +2,10 @@
 
 [DEMO](http://metametadata.github.io/cljs-elmish-todomvc/)
 
-It's a follow-up to [cljs-elmish-examples](https://github.com/metametadata/cljs-elmish-examples). 
+It's a follow-up to [cljs-elmish-examples](https://github.com/metametadata/cljs-elmish-examples).
+
+## Highlights
+* has built-in timetravel debugger (aka devtools)
 
 ## Build
 
