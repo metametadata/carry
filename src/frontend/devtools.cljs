@@ -3,6 +3,7 @@
 ;   Wrapped control gets a signal and generates an id for it, then passes this id and action as a map
 ;   so that the wrapped reconcile can decode it later.
 ;   Metadata cannot be used instead of map wrapping, because action can be a keyword which cannot have metadata.
+; Devtools should be the top middleware, otherwise it's not guaranteed to work correctly.
 ; 2) render devtools/view instead of app view;
 (ns frontend.devtools
   (:require [reagent.core :as r]
@@ -91,7 +92,7 @@
         (for [[signal-id signal] (reverse (:signals @dev-model))]
           ^{:key signal-id}
           [:div {:title "Signal"}
-           "⤤ "
+           "→ "
            (if (coll? signal)
              [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (rest signal))]
              [:strong (pr-str signal)])
@@ -99,15 +100,16 @@
            (for [{:keys [id enabled? action]} (filter #(= (:source-signal-id %) signal-id)
                                                       (:actions @dev-model))]
              ^{:key id}
-             [:div {:style    {:cursor      "pointer"
-                               :margin-left "10px"
-                               :color       (if enabled? "inherit" "grey")}
+             [:div {:style    {:cursor           "pointer"
+                               :margin-left      "10px"
+                               :background-color "rgb(79, 90, 101)"
+                               :color            (if enabled? "inherit" "grey")}
                     :on-click #(-toggle-action dev-model id)
                     :title    "Click to enable/disable this action"}
 
               (if (coll? action)
-                [:div "⇣" [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
-                [:div "⇣" [:strong (pr-str action)]])])]))]
+                [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
+                [:div [:strong (pr-str action)]])])]))]
      [:hr]
      [:strong "initial model:"]
      [:div (pr-str (:initial-model @dev-model))]]))
@@ -140,7 +142,8 @@
   [control dev-model]
   (fn wrapped-control
     [model signal dispatch]
-    ; at the beginning save dispatch function to be able to replay actions later
+    ; if devtools is the top middleware then the dispatch fn is going to always be the same because (i.e. we get tio signals from app and an original action dispatcher)
+    ; so at the beginning we can save dispatch function to be able to replay actions later
     (when-not (:dispatch-action @dev-model)
       (swap! dev-model assoc :dispatch-action dispatch))
 
