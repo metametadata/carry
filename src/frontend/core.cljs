@@ -1,7 +1,7 @@
 (ns frontend.core
   (:require [frontend.devtools :as devtools]
             [frontend.todos :as todos]
-            [cljs.core.match :refer-macros [match]]
+            [frontend.persistence-middleware :as persistence]
             [reagent.core :as r]
             [hodgepodge.core :as hp]
             [goog.events]
@@ -9,15 +9,6 @@
   (:import goog.history.Html5History))
 
 (enable-console-print!)
-
-;;;;;;;;;;;;;;;;;;;;;;;; Middleware
-(defn wrap-persist-to-storage
-  [reconcile storage]
-  (fn wrapped-reconcile
-    [model action]
-    (let [result (reconcile model action)]
-      (assoc! storage :model result)
-      result)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; App
 ; defonce is needed for hotloading
@@ -32,9 +23,11 @@
         app (devtools/connect (devtools/init (todos/init))
                               todos/view-model
                               todos/view
-                              (todos/new-control storage)
+                              (-> todos/control
+                                  (persistence/wrap-control storage))
                               (-> todos/reconcile
-                                  (wrap-persist-to-storage storage)))]
+                                  (persistence/wrap-reconcile storage)))]
+    ; routing
     (letfn [(dispatch-navigate
               [token]
               ((:dispatch-signal app) [:component [:on-navigate token]]))]
