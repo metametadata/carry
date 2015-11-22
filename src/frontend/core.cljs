@@ -24,14 +24,12 @@
 (defonce history (doto (Html5History.)
                    (.setEnabled true)))
 
-(def model (r/atom (devtools/init (todos/init))))
-
 (defn main
   []
   (println "Hi.")
 
   (let [storage hp/local-storage
-        app (devtools/connect model
+        app (devtools/connect (devtools/init (todos/init))
                               todos/view-model
                               todos/view
                               (todos/new-control storage)

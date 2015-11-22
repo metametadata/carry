@@ -188,7 +188,7 @@
       [-devtools-view model dispatch]]]))
 
 (defn connect
-  "Given dev-model ratom and the component's parts creates a devtools wrapper for it.
+  "Given dev-model initial value and the component's parts creates a devtools wrapper for it.
   Returns the same structure as ui/connect."
   [dev-model component-view-model component-view component-control component-reconcile]
   (ui/connect dev-model

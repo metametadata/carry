@@ -5,27 +5,30 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn connect
-  "Model must be a ratom.
+  "Model must be immutable.
   Control can be a non-pure function.
   View-model, view and reconcile must be pure functions.
   Returns a map with:
       :view,
       :dispatch-signal (it can be used to dispatch signal not only from the view),
+      :model ratom (this is exposed mainly for debugging),
       :dispatch-action (this is exposed mainly for debugging).
 
   Automatically fires an :on-connect signal.
 
   Data flow:
-  model -> (view-model) -> (view) -signal-> (control) -action-> (reconcile) -> model"
+  model -> (view-model) -> (view) -signal-> (control) -action-> (reconcile) -> model -> etc."
   [model view-model view control reconcile]
   ; for now dispatch functions return nil to make API even smaller
-  (let [dispatch-action (fn [a] (do (swap! model reconcile a) nil))
-        dispatch-signal (fn [s] (do (control @model s dispatch-action) nil))
-        connected-view (fn [] [view (view-model @model) dispatch-signal])]
+  (let [model-atom (r/atom model)
+        dispatch-action (fn [a] (do (swap! model-atom reconcile a) nil))
+        dispatch-signal (fn [s] (do (control @model-atom s dispatch-action) nil))
+        connected-view (fn [] [view (view-model @model-atom) dispatch-signal])]
     (dispatch-signal :on-connect)
     {:view            connected-view
-     :dispatch-action dispatch-action
-     :dispatch-signal dispatch-signal}))
+     :dispatch-signal dispatch-signal
+     :model           model-atom
+     :dispatch-action dispatch-action}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Utils
 (defn tagged
