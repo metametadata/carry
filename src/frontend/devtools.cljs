@@ -1,96 +1,129 @@
-; How to add devtools to your app:
-; 1) on ui/connect apply devtools middleware to control and reconcile functions;
-;   Wrapped control gets a signal and generates an id for it, then passes this id and action as a map
-;   so that the wrapped reconcile can decode it later.
-;   Metadata cannot be used instead of map wrapping, because action can be a keyword which cannot have metadata.
-; Devtools should be the top middleware, otherwise it's not guaranteed to work correctly.
-; 2) render devtools/view instead of app view;
 (ns frontend.devtools
-  (:require [reagent.core :as r]
-            [cljs.pprint]
+  (:require [frontend.ui :as ui]
+            [reagent.core :as r]
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s]))
 
+;;;;;;;;;;;;;;;;;;; Init
 (defn init
-  "Creates a fresh dev-model instance."
-  []
-  {:dispatch-action      nil
-   :initial-model        nil
-   :initial-model-saved? false
+  "Creates a fresh dev-model instance using wrapped component model."
+  [component-model]
+  {:component      component-model
+   :initial-model  component-model
+
    ; list of [id signal]
-   :signals              (list)
+   :signals        (list)
+   :next-signal-id 0
+
    ; list of {id source-signal-id enabled? action}
-   :actions              (list)})
+   :actions        (list)
+   :next-action-id 0})
 
 (defn -signal-event
-  [signal]
-  [(random-uuid) signal])
+  [id signal]
+  [id signal])
 
 (defn -action-event
-  [source-signal-id action]
-  {:id               (random-uuid)
-   :source-signal-id source-signal-id
-   :enabled?         true
-   :action           action})
-
-(defn -is-action-event?
-  [x]
-  (and (map? x)
-       (= (set (keys x)) #{:id :source-signal-id :enabled? :action})))
+  [signal-id id action]
+  {:id        id
+   :signal-id signal-id
+   :enabled?  true
+   :action    action})
 
 (defn -update-actions*
-  "model must be immutable."
   [model pred f & args]
   (s/transform [:actions s/ALL pred]
                #(apply f % args)
                model))
 
 (defn -update-action
-  "model must be immutable."
   [model id f & args]
   (apply -update-actions* model #(= (:id %) id) f args))
 
-(defn -reset-model-to-initial-state
-  "dev-model must be a ratom. Sends special devtools action understood by wrapped reconciler."
-  [dev-model]
-  ((:dispatch-action @dev-model) :-reset-model))
+;;;;;;;;;;;;;;;;;;;;;;;; Control
+(defn new-control
+  [component-control]
+  (fn control
+    [model signal dispatch]
+    (match signal
+           :on-connect
+           (control model [:component :on-connect] dispatch) ; "refeed" tagged signal for less duplicated code
 
-(defn -replay
-  "dev-model must be a ratom. Replays all the enabled actions from the initial model."
-  [dev-model]
-  (-reset-model-to-initial-state dev-model)
+           [:on-toggle-action id]
+           (do
+             (dispatch [:toggle-action id])
+             (dispatch :replay))
 
-  (let [actions (:actions @dev-model)]
-    (swap! dev-model assoc :actions (list))
-    (doseq [action actions]
-      (if (:enabled? action)
-        ((:dispatch-action @dev-model) action)
-        (swap! dev-model update :actions concat [action])))))
+           :on-sweep
+           (dispatch :sweep)
 
-(defn -toggle-action
-  "dev-model is a ratom."
-  [dev-model id]
-  (swap! dev-model -update-action id update :enabled? not)
-  (-replay dev-model))
+           [:component s]
+           (let [[signal-id _ :as signal-event] (-signal-event (:next-signal-id model) s)]
+             (component-control (:component model) s #(dispatch [:component signal-id %]))
+             (dispatch [:record-signal-event signal-event])))))
 
+;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn -orphaned-signal?
-  [dev-model [signal-id _ :as _signal_]]
-  (empty? (filter #(= (:source-signal-id %) signal-id)
-                  (:actions @dev-model))))
+  "Orphaned signal has no actions."
+  [model [signal-id _ :as _signal_]]
+  (empty? (filter #(= (:signal-id %) signal-id)
+                  (:actions model))))
 
-(defn -sweep
-  [dev-model]
-  ; remove disabled actions
-  (swap! dev-model update :actions #(filter :enabled? %))
+(defn new-reconcile
+  [component-reconcile]
+  (fn reconcile
+    [model action]
+    (match action
+           [:record-signal-event signal-event]
+           (-> model
+               (update :signals concat [signal-event])
+               (update :next-signal-id inc))
 
-  ; remove signals without actions
-  (swap! dev-model
-         update :signals #(remove (partial -orphaned-signal? dev-model) %)))
+           [:toggle-action id]
+           (-update-action model id update :enabled? not)
 
+           :replay
+           ; applies enabled recorded actions to the initial component model
+           (assoc model :component
+                        (reduce component-reconcile
+                                (:initial-model model)
+                                (->> (:actions model)
+                                     (filter :enabled?)
+                                     (map :action))))
+
+           :sweep
+           (as-> model m
+                 (update m :actions #(filter :enabled? %))
+                 (update m :signals #(remove (partial -orphaned-signal? m) %)))
+
+           [:component signal-id a]
+           (-> model
+               (update :component component-reconcile a)
+               (update :actions concat [(-action-event signal-id (:next-action-id model) a)])
+               (update :next-action-id inc))
+
+           ; for bare component actions (e.g. when dispatching from REPL) use an "unknown signal" event
+           [:component a]
+           (let [[singal-id _ :as unknown-signal-event] (-signal-event (:next-signal-id model)
+                                                                       :-unknown-signal)]
+             (-> model
+                 (update :component component-reconcile a)
+                 (update :signals concat [unknown-signal-event])
+                 (update :next-signal-id inc)
+                 (update :actions concat [(-action-event singal-id (:next-action-id model) a)])
+                 (update :next-action-id inc))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;; View model
+(defn new-view-model
+  [component-view-model]
+  (fn view-model
+    [model]
+    (assoc model :component-view-model (component-view-model (:component model)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;; View
 (defn -devtools-view
-  "dev-model must be a ratom."
-  [dev-model]
-  (fn [_dev-model_]
+  [model dispatch]
+  (fn [model dispatch]
     [:div {:style {:width            "100%"
                    :height           "100%"
                    :overflow-y       "auto"
@@ -109,11 +142,11 @@
                            :border-radius    3
                            :background-color "rgb(79, 90, 101)"}
                 :title    "Removes disabled actions and \"orphaned\" signals from history"
-                :on-click #(-sweep dev-model)} "Sweep"]]
+                :on-click #(dispatch :on-sweep)} "Sweep"]]
 
      [:div
       (doall
-        (for [[signal-id signal] (reverse (:signals @dev-model))]
+        (for [[signal-id signal] (reverse (:signals model))]
           ^{:key signal-id}
           [:div {:title "Signal"}
            "→ "
@@ -121,14 +154,14 @@
              [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (rest signal))]
              [:strong (pr-str signal)])
 
-           (for [{:keys [id enabled? action]} (filter #(= (:source-signal-id %) signal-id)
-                                                      (:actions @dev-model))]
+           (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
+                                                      (:actions model))]
              ^{:key id}
              [:div {:style    {:cursor           "pointer"
                                :margin-left      "10px"
                                :background-color "rgb(79, 90, 101)"
                                :color            (if enabled? "inherit" "grey")}
-                    :on-click #(-toggle-action dev-model id)
+                    :on-click #(dispatch [:on-toggle-action id])
                     :title    "Click to enable/disable this action"}
 
               (if (coll? action)
@@ -136,70 +169,32 @@
                 [:div [:strong (pr-str action)]])])]))]
      [:hr]
      [:strong "Initial model:"]
-     [:div (pr-str (:initial-model @dev-model))]]))
+     [:div (pr-str (:initial-model model))]]))
 
-(defn view
-  "Renders app view with devtools. dev-model must be a ratom."
-  [dev-model app]
-  [(fn []
-     [:div
-      [(:view app)]
+(defn new-view
+  [component-view]
+  (fn view
+    [model dispatch]
+    [:div
+     [component-view (:component-view-model model) (ui/tagged dispatch :component)]
 
-      [:div {:style {:position   "fixed"
-                     :right      0
-                     :top        0
-                     :bottom     0
-                     :z-index    1000
-                     :width      "30%"
-                     :box-shadow "-2px 0 7px 0 rgba(0, 0, 0, 0.5)"}}
-       [-devtools-view dev-model]]])])
+     [:div {:style {:position   "fixed"
+                    :right      0
+                    :top        0
+                    :bottom     0
+                    :z-index    1000
+                    :width      "30%"
+                    :box-shadow "-2px 0 7px 0 rgba(0, 0, 0, 0.5)"}}
+      [-devtools-view model dispatch]]]))
 
-(defn wrap-dispatch-action-event
-  "Will wrap dispatched actions into action events."
-  [dispatch-action source-signal-id]
-  (fn dispatch-action-event
-    [action]
-    (dispatch-action (-action-event source-signal-id action))))
-
-(defn wrap-control
-  "dev-model must be a ratom."
-  [control dev-model]
-  (fn wrapped-control
-    [model signal dispatch]
-    ; if devtools is the top middleware then the dispatch fn is going to always be the same because (i.e. we get tio signals from app and an original action dispatcher)
-    ; so at the beginning we can save dispatch function to be able to replay actions later
-    (when-not (:dispatch-action @dev-model)
-      (swap! dev-model assoc :dispatch-action dispatch))
-
-    (let [[signal-id _signal_ :as signal-event] (-signal-event signal)
-          dispatch-action-event (wrap-dispatch-action-event dispatch signal-id)]
-      (swap! dev-model update :signals concat [signal-event])
-      (control model signal dispatch-action-event))))
-
-(defn wrap-reconcile
-  "dev-model must be a ratom."
-  [reconcile dev-model]
-  (letfn [(wrapped-reconcile [model action]
-            ; catch initial model state
-            (when-not (:initial-model-saved? @dev-model)
-              (swap! dev-model assoc
-                     :initial-model model
-                     :initial-model-saved? true))
-
-            (if (= action :-reset-model)
-              ; special devtools action
-              (:initial-model @dev-model)
-
-              ; handle action event
-              (let [action-event
-                    (if (-is-action-event? action)
-                      ; ok, it's already an event coming from controller wrapped by devtools
-                      action
-
-                      ; for other bare actions (e.g. when dispatching from REPL) generate an "unknown signal" event
-                      (let [[unknown-singal-id _signal_ :as unknown-signal-event] (-signal-event :-unknown-signal)]
-                        (swap! dev-model update :signals concat [unknown-signal-event])
-                        (-action-event unknown-singal-id action)))]
-                (swap! dev-model update :actions concat [action-event])
-                (reconcile model (:action action-event)))))]
-    wrapped-reconcile))
+(defn connect
+  "Given dev-model ratom and the component's parts creates a devtools wrapper for it.
+  Returns the same structure as ui/connect."
+  [dev-model component-view-model component-view component-control component-reconcile]
+  (ui/connect dev-model
+              (new-view-model component-view-model)
+              (new-view component-view)
+              (-> (new-control component-control)
+                  ui/wrap-log-signals)
+              (-> (new-reconcile component-reconcile)
+                  ui/wrap-log-actions)))

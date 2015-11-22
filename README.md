@@ -5,7 +5,12 @@
 It's a follow-up to [cljs-elmish-examples](https://github.com/metametadata/cljs-elmish-examples).
 
 ## Highlights
-* has built-in time traveling debugger with ability to enable/disable any past action and to sweep disabled actions
+* Time traveling debugger with ability to enable/disable any past action and to sweep disabled actions
+* REPL can dispatch signals and actions to app:
+
+    frontend.core=> ((:dispatch-signal app) [:component :on-toggle-all])
+    
+    frontend.core=> ((:dispatch-action app) [:component :toggle-all])
 
 ## Build
 
