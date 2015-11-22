@@ -5,6 +5,7 @@
 It's a follow-up to [cljs-elmish-examples](https://github.com/metametadata/cljs-elmish-examples).
 
 ## Highlights
+* Model is persisted in local storage.
 * Time traveling debugger with ability to enable/disable any past action and to sweep disabled actions
 * REPL can dispatch signals and actions to app:
 
