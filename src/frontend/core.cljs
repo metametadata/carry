@@ -24,9 +24,9 @@
                               todos/view-model
                               todos/view
                               (-> todos/control
-                                  (persistence/wrap-control storage))
+                                  (persistence/wrap-control storage :model))
                               (-> todos/reconcile
-                                  (persistence/wrap-reconcile storage)))]
+                                  (persistence/wrap-reconcile storage :model)))]
     ; routing
     (letfn [(dispatch-navigate
               [token]

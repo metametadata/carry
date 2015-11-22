@@ -4,18 +4,18 @@
   (:require [cljs.core.match :refer-macros [match]]))
 
 (defn wrap-control
-  [control storage]
+  [control storage key]
   (fn control-reconcile
     [model signal dispatch]
     (when (= :on-connect signal)
-      (let [storage-model (get storage :model :not-found)]
+      (let [storage-model (get storage key :not-found)]
         (when-not (= storage-model :not-found)
           (dispatch [:reset-from-storage storage-model]))))
 
     (control model signal dispatch)))
 
 (defn wrap-reconcile
-  [reconcile storage]
+  [reconcile storage key]
   (fn wrapped-reconcile
     [model action]
     (match action
@@ -23,5 +23,5 @@
 
            :else
            (let [result (reconcile model action)]
-             (assoc! storage :model result)
+             (assoc! storage key result)
              result))))
