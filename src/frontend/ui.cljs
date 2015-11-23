@@ -5,7 +5,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn connect
-  "Model must be immutable. First signal can be nil if it should not be fired.
+  "Initial model must be immutable. Initial signal can be nil if it should not be fired.
   Control can be a non-pure function.
   View-model, view and reconcile must be pure functions.
 
@@ -19,13 +19,13 @@
 
   Data flow:
   model -> (view-model) -> (view) -signal-> (control) -action-> (reconcile) -> model -> etc."
-  [[model first-signal :as _init_] view-model view control reconcile]
+  [[model signal :as _initial_] view-model view control reconcile]
   ; for now dispatch functions return nil to make API even smaller
   (let [model-atom (r/atom model)
         dispatch-action (fn [a] (do (swap! model-atom reconcile a) nil))
         dispatch-signal (fn [s] (do (control @model-atom s dispatch-action) nil))
         connected-view (fn [] [view (view-model @model-atom) dispatch-signal])]
-    (some-> first-signal dispatch-signal)
+    (some-> signal dispatch-signal)
 
     {:view            connected-view
      :dispatch-signal dispatch-signal

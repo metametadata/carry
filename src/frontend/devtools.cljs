@@ -7,7 +7,7 @@
 ;;;;;;;;;;;;;;;;;;; Init
 (defn init
   "Creates a fresh dev-model instance using wrapped component init."
-  [[component-model component-first-signal :as _component-init_]]
+  [[component-model component-signal :as _component-initial_]]
   [{:component      component-model
     :initial-model  component-model
 
@@ -19,8 +19,8 @@
     :actions        (list)
     :next-action-id 0}
 
-   (when component-first-signal
-     [:component component-first-signal])])
+   (when component-signal
+     [:component component-signal])])
 
 (defn -signal-event
   [id signal]
@@ -188,10 +188,11 @@
       [-devtools-view model dispatch]]]))
 
 (defn connect
-  "Given dev-model initial value and the component's parts creates a devtools wrapper for it.
+  "Given a model initial value and the component's parts creates a devtools wrapper for it.
   Returns the same structure as ui/connect."
-  [[dev-model first-signal :as _dev-init_] component-view-model component-view component-control component-reconcile]
-  (ui/connect [dev-model first-signal]
+  [[_dev-model_ _dev-signal_ :as dev-initial]
+   component-view-model component-view component-control component-reconcile]
+  (ui/connect dev-initial
               (new-view-model component-view-model)
               (new-view component-view)
               (-> (new-control component-control)

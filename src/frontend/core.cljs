@@ -20,8 +20,8 @@
   (println "Hi.")
 
   (let [storage hp/local-storage
-        [_ todos-first-signal :as todos-init] (todos/init)
-        app (devtools/connect (devtools/init todos-init)
+        [_ todos-first-signal :as todos-initial] (todos/init)
+        app (devtools/connect (devtools/init todos-initial)
                               todos/view-model
                               todos/view
                               (-> todos/control
