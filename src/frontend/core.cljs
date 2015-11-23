@@ -20,12 +20,12 @@
   (println "Hi.")
 
   (let [storage hp/local-storage
-        [_ todos-first-signal :as todos-initial] (todos/init)
+        [_ todos-initial-signal :as todos-initial] (todos/init)
         app (devtools/connect todos-initial
                               todos/view-model
                               todos/view
                               (-> todos/control
-                                  (persistence/wrap-control todos-first-signal storage :model nil))
+                                  (persistence/wrap-control todos-initial-signal storage :model nil))
                               (-> todos/reconcile
                                   (persistence/wrap-reconcile storage :model nil))
                               storage)]
