@@ -22,8 +22,8 @@
   [[model signal :as _initial_] view-model view control reconcile]
   ; for now dispatch functions return nil to make API even smaller
   (let [model-atom (r/atom model)
-        dispatch-action (fn [a] (do (swap! model-atom reconcile a) nil))
-        dispatch-signal (fn [s] (do (control @model-atom s dispatch-action) nil))
+        dispatch-action (fn [a] (swap! model-atom reconcile a) nil)
+        dispatch-signal (fn [s] (control @model-atom s dispatch-action) nil)
         connected-view (fn [] [view (view-model @model-atom) dispatch-signal])]
     (some-> signal dispatch-signal)
 
