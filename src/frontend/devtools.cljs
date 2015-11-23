@@ -66,6 +66,7 @@
 
                ; and let component handle its initial signal
                (if-not (nil? (:initial-signal model))
+                 ; note that outdated model is passed, but it's safe because :component key hasn't changed after clearing
                  (control model [:component (:initial-signal model)] dispatch))))
 
            [:on-toggle-action id]
