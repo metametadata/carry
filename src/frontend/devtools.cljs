@@ -189,11 +189,9 @@
       [-devtools-view model dispatch]]]))
 
 (defn connect
-  "Given a model initial value and the component's parts creates a devtools wrapper for it.
-  Returns the same structure as ui/connect."
-  [[_dev-model_ _dev-signal_ :as dev-initial]
-   component-view-model component-view component-control component-reconcile]
-  (ui/connect dev-initial
+  "Given component's parts creates a devtools wrapper for it. Returns the same structure as ui/connect."
+  [component-initial component-view-model component-view component-control component-reconcile]
+  (ui/connect (init component-initial)
               (new-view-model component-view-model)
               (new-view component-view)
               (-> (new-control component-control)
