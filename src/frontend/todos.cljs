@@ -2,7 +2,9 @@
 (ns frontend.todos
   (:require [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]
-            [com.rpl.specter :as s]))
+            [com.rpl.specter :as s]
+            [goog.events]
+            [goog.history.EventType :as EventType]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Model
 (defn init-todo
@@ -57,31 +59,30 @@
    {:key :active :title "Active" :href "#/active" :token "/active"}
    {:key :completed :title "Completed" :href "#/completed" :token "/completed"}])
 
-(defn control
-  [_model_ signal dispatch]
-  (match signal
-         ; just for demonstration
-         :on-init (dispatch :sample-action)
+(defn new-control
+  [history]
+  (fn control
+    [_model_ signal dispatch]
+    (match signal
+           :on-init
+           (do
+             ; start routing
+             (goog.events/listen history EventType/NAVIGATE #(dispatch [:navigate (.-token %)]))
+             (dispatch [:navigate (.getToken history)])
 
-         [:on-navigate token]
-         (do
-           (println " token =" (pr-str token))
-           (when-let [match (->> visibility-spec
-                                 (filter #(= (:token %) token))
-                                 first)]
-             (println "  route match =" (pr-str match))
-             (dispatch [:set-visibility (:key match)])))
+             ; just for demonstration
+             (dispatch :sample-action))
 
-         [:on-update-field val] (dispatch [:update-field val])
-         :on-add (dispatch :add)
-         [:on-toggle id] (dispatch [:toggle id])
-         :on-toggle-all (dispatch :toggle-all)
-         [:on-start-editing id] (dispatch [:start-editing id])
-         [:on-stop-editing id] (dispatch [:stop-editing id])
-         [:on-cancel-editing id] (dispatch [:cancel-editing id])
-         [:on-update-todo id val] (dispatch [:update-todo id val])
-         [:on-remove id] (dispatch [:remove id])
-         :on-clear-completed (dispatch :clear-completed)))
+           [:on-update-field val] (dispatch [:update-field val])
+           :on-add (dispatch :add)
+           [:on-toggle id] (dispatch [:toggle id])
+           :on-toggle-all (dispatch :toggle-all)
+           [:on-start-editing id] (dispatch [:start-editing id])
+           [:on-stop-editing id] (dispatch [:stop-editing id])
+           [:on-cancel-editing id] (dispatch [:cancel-editing id])
+           [:on-update-todo id val] (dispatch [:update-todo id val])
+           [:on-remove id] (dispatch [:remove id])
+           :on-clear-completed (dispatch :clear-completed))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn reconcile
@@ -90,8 +91,14 @@
          ; do nothing, only for a demo
          :sample-action model
 
-         [:set-visibility key]
-         (assoc model :visibility key)
+         [:navigate token]
+         (do
+           (println " token =" (pr-str token))
+           (when-let [match (->> visibility-spec
+                                 (filter #(= (:token %) token))
+                                 first)]
+             (println "  route match =" (pr-str match))
+             (assoc model :visibility (:key match))))
 
          [:update-field val]
          (assoc model :field val)
