@@ -2,14 +2,17 @@
   (:require [frontend.ui :as ui]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]]
-            [com.rpl.specter :as s]))
+            [com.rpl.specter :as s]
+            [frontend.persistence-middleware :as persistence]))
 
 ;;;;;;;;;;;;;;;;;;; Init
 (defn init
   "Creates a fresh dev-model instance using wrapped component init."
   [[component-model component-signal :as _component-initial_]]
   [{:component      component-model
+
     :initial-model  component-model
+    :initial-signal component-signal
 
     ; list of [id signal]
     :signals        (list)
@@ -17,11 +20,11 @@
 
     ; list of {id source-signal-id enabled? action}
     :actions        (list)
-    :next-action-id 0}
+    :next-action-id 0
 
-   ; start by dispatching initial component signal
-   (when component-signal
-     [:component component-signal])])
+    :persist?       true}
+
+   :on-connect])
 
 (defn -signal-event
   [id signal]
@@ -49,14 +52,37 @@
   [component-control]
   (fn control
     [model signal dispatch]
+    ;(println signal ": model = " model)
     (match signal
+           :on-connect
+           (if (:persist? model)
+             ; simply replay all actions loaded from storage
+             (dispatch :replay)
+
+             ; previously developer decided to not persist a session, but it's loaded by middleware anyway..
+             (do
+               ; so let's clear the session for a fresh start..
+               (dispatch :clear-history)
+
+               ; and let component handle its initial signal
+               (if-not (nil? (:initial-signal model))
+                 (control model [:component (:initial-signal model)] dispatch))))
+
            [:on-toggle-action id]
            (do
              (dispatch [:toggle-action id])
              (dispatch :replay))
 
+           :on-toggle-persist
+           (dispatch :toggle-persist)
+
            :on-sweep
            (dispatch :sweep)
+
+           :on-reset
+           (do
+             (dispatch :clear-history)
+             (dispatch :replay))
 
            [:component s]
            (let [[signal-id _ :as signal-event] (-signal-event (:next-signal-id model) s)]
@@ -75,6 +101,10 @@
   (fn reconcile
     [model action]
     (match action
+           :clear-history
+           (assoc model :signals (list)
+                        :actions (list))
+
            [:record-signal-event signal-event]
            (-> model
                (update :signals concat [signal-event])
@@ -91,6 +121,9 @@
                                 (->> (:actions model)
                                      (filter :enabled?)
                                      (map :action))))
+
+           :toggle-persist
+           (update model :persist? not)
 
            :sweep
            (as-> model m
@@ -135,6 +168,12 @@
                   :border-bottom-width 1
                   :border-bottom-style "solid"
                   :border-color        "#4F5A65"}}
+    [:input.toggle {:title     "Persist actions and signals?"
+                    :type      "checkbox"
+                    :checked   (:persist? model)
+                    :on-change #(dispatch :on-toggle-persist)}
+     "Persist session"]
+
     [:button {:style    {:font-weight      "bold"
                          :cursor           "pointer"
                          :padding          4
@@ -142,7 +181,16 @@
                          :border-radius    3
                          :background-color "rgb(79, 90, 101)"}
               :title    "Removes disabled actions and \"orphaned\" signals from history"
-              :on-click #(dispatch :on-sweep)} "Sweep"]]
+              :on-click #(dispatch :on-sweep)} "Sweep"]
+
+    [:button {:style    {:font-weight      "bold"
+                         :cursor           "pointer"
+                         :padding          4
+                         :margin           "5px 3px"
+                         :border-radius    3
+                         :background-color "rgb(79, 90, 101)"}
+              :title    "Removes all actions and signals resetting the model to initial state"
+              :on-click #(dispatch :on-reset)} "Reset"]]
 
    [:div
     (doall
@@ -189,11 +237,17 @@
 
 (defn connect
   "Given component's parts creates a devtools wrapper for it. Returns the same structure as ui/connect."
-  [component-initial component-view-model component-view component-control component-reconcile]
-  (ui/connect (init component-initial)
-              (new-view-model component-view-model)
-              (new-view component-view)
-              (-> (new-control component-control)
-                  ui/wrap-log-signals)
-              (-> (new-reconcile component-reconcile)
-                  ui/wrap-log-actions)))
+  [component-initial component-view-model component-view component-control component-reconcile storage]
+  ; blacklisted keys are provided by component init and should not be overwritten by middleware
+  ; (otherwise, on hot reload, we will not see changes after after modifying component init code)
+  ; thus they also don't need to be saved
+  (let [non-persisted-keys #{:initial-model :initial-signal}]
+    (ui/connect (init component-initial)
+                (new-view-model component-view-model)
+                (new-view component-view)
+                (-> (new-control component-control)
+                    (persistence/wrap-control :on-connect storage :devtools non-persisted-keys)
+                    ui/wrap-log-signals)
+                (-> (new-reconcile component-reconcile)
+                    (persistence/wrap-reconcile storage :devtools non-persisted-keys)
+                    ui/wrap-log-actions))))

@@ -25,19 +25,20 @@
                               todos/view-model
                               todos/view
                               (-> todos/control
-                                  (persistence/wrap-control todos-first-signal storage :model))
+                                  (persistence/wrap-control todos-first-signal storage :model nil))
                               (-> todos/reconcile
-                                  (persistence/wrap-reconcile storage :model)))]
+                                  (persistence/wrap-reconcile storage :model nil))
+                              storage)]
     ; routing
     (letfn [(dispatch-navigate
-              [token]
-              ((:dispatch-signal app) [:component [:on-navigate token]]))]
-      ; clear listeners in case of hotloading
-      (goog.events/removeAll history)
+                [token]
+                ((:dispatch-signal app) [:component [:on-navigate token]]))]
+        ; clear listeners in case of hotloading
+        (goog.events/removeAll history)
 
-      ; start routing
-      (goog.events/listen history EventType/NAVIGATE #(dispatch-navigate (.-token %)))
-      (dispatch-navigate (.getToken history)))
+        ; start routing
+        (goog.events/listen history EventType/NAVIGATE #(dispatch-navigate (.-token %)))
+        (dispatch-navigate (.getToken history)))
 
     (r/render-component [(:view app)] (. js/document (getElementById "root")))
     app))

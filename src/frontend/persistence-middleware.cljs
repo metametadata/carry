@@ -4,20 +4,26 @@
   (:require [cljs.core.match :refer-macros [match]]))
 
 (defn wrap-control
-  "On load-signal middleware will load the model from storage and send the signal further to the component."
-  [control load-signal storage key]
+  "On load-signal middleware will load the model from storage and send the signal further with updated model to the component.
+  Blacklist should contain model keys which will not be loaded from storage."
+  [control load-signal storage key load-blacklist]
   (fn control-reconcile
     [model signal dispatch]
-    (when (= load-signal signal)
+    (if (= load-signal signal)
       (let [storage-model (get storage key :not-found)]
-        (when-not (= storage-model :not-found)
-          (dispatch [:reset-from-storage storage-model]))))
+        (when (not= storage-model :not-found)
+          (let [new-model (merge storage-model (select-keys model load-blacklist))]
+            ; update model
+            (dispatch [:reset-from-storage new-model])
 
-    ; now let wrapped component handle the signal
-    (control model signal dispatch)))
+            ; also let component handle the loaded state
+            (control new-model signal dispatch))))
+      ; else - hand signal further to component
+      (control model signal dispatch))))
 
 (defn wrap-reconcile
-  [reconcile storage key]
+  "Blacklist should contain model keys which will not be saved to storage."
+  [reconcile storage key save-blacklist]
   (fn wrapped-reconcile
     [model action]
     (match action
@@ -25,6 +31,7 @@
            data
 
            :else
-           (let [result (reconcile model action)]
-             (assoc! storage key result)
+           (let [result (reconcile model action)
+                 whitelist (clojure.set/difference (set (keys result)) save-blacklist)]
+             (assoc! storage key (select-keys result whitelist))
              result))))
