@@ -20,11 +20,12 @@
   (println "Hi.")
 
   (let [storage hp/local-storage
-        app (devtools/connect (devtools/init (todos/init))
+        [_ todos-first-signal :as todos-init] (todos/init)
+        app (devtools/connect (devtools/init todos-init)
                               todos/view-model
                               todos/view
                               (-> todos/control
-                                  (persistence/wrap-control storage :model))
+                                  (persistence/wrap-control todos-first-signal storage :model))
                               (-> todos/reconcile
                                   (persistence/wrap-reconcile storage :model)))]
     ; routing

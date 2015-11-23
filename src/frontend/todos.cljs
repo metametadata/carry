@@ -15,12 +15,13 @@
 
 (defn init
   []
-  {:field      ""
-   :visibility :all
-   ; list of maps {:id :title :completed :editing}
-   :todos      (list (init-todo 1 "Finish this project")
-                     (init-todo 2 "Take a bath"))
-   :next-id    3})
+  [{:field      ""
+    :visibility :all
+    ; list of maps {:id :title :completed :editing}
+    :todos      (list (init-todo 1 "Finish this project")
+                      (init-todo 2 "Take a bath"))
+    :next-id    3}
+   :on-init])
 
 (defn update-todos*
   [model pred f & args]
@@ -59,15 +60,16 @@
 (defn control
   [_model_ signal dispatch]
   (match signal
-         :on-connect nil
+         ; just for demonstration
+         :on-init (dispatch :sample-action)
 
          [:on-navigate token]
          (do
-           (println "token =" token)
+           (println " token =" (pr-str token))
            (when-let [match (->> visibility-spec
                                  (filter #(= (:token %) token))
                                  first)]
-             (println " route match =" match)
+             (println "  route match =" (pr-str match))
              (dispatch [:set-visibility (:key match)])))
 
          [:on-update-field val] (dispatch [:update-field val])
@@ -85,10 +87,8 @@
 (defn reconcile
   [model action]
   (match action
-         [:load new-model]
-         (if new-model
-           new-model
-           model)
+         ; do nothing, only for a demo
+         :sample-action model
 
          [:set-visibility key]
          (assoc model :visibility key)
