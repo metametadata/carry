@@ -19,6 +19,7 @@
     :actions        (list)
     :next-action-id 0}
 
+   ; start by dispatching initial component signal
    (when component-signal
      [:component component-signal])])
 
