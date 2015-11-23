@@ -124,53 +124,52 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (defn -devtools-view
   [model dispatch]
-  (fn [model dispatch]
-    [:div {:style {:width            "100%"
-                   :height           "100%"
-                   :overflow-y       "auto"
-                   :background-color "#2A2F3A"
-                   :padding-left     "5px"
-                   :color            "white"}}
+  [:div {:style {:width            "100%"
+                 :height           "100%"
+                 :overflow-y       "auto"
+                 :background-color "#2A2F3A"
+                 :padding-left     "5px"
+                 :color            "white"}}
 
-     [:div {:style {:text-align          "center"
-                    :border-bottom-width 1
-                    :border-bottom-style "solid"
-                    :border-color        "#4F5A65"}}
-      [:button {:style    {:font-weight      "bold"
-                           :cursor           "pointer"
-                           :padding          4
-                           :margin           "5px 3px"
-                           :border-radius    3
-                           :background-color "rgb(79, 90, 101)"}
-                :title    "Removes disabled actions and \"orphaned\" signals from history"
-                :on-click #(dispatch :on-sweep)} "Sweep"]]
+   [:div {:style {:text-align          "center"
+                  :border-bottom-width 1
+                  :border-bottom-style "solid"
+                  :border-color        "#4F5A65"}}
+    [:button {:style    {:font-weight      "bold"
+                         :cursor           "pointer"
+                         :padding          4
+                         :margin           "5px 3px"
+                         :border-radius    3
+                         :background-color "rgb(79, 90, 101)"}
+              :title    "Removes disabled actions and \"orphaned\" signals from history"
+              :on-click #(dispatch :on-sweep)} "Sweep"]]
 
-     [:div
-      (doall
-        (for [[signal-id signal] (reverse (:signals model))]
-          ^{:key signal-id}
-          [:div {:title "Signal"}
-           "→ "
-           (if (coll? signal)
-             [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (rest signal))]
-             [:strong (pr-str signal)])
+   [:div
+    (doall
+      (for [[signal-id signal] (reverse (:signals model))]
+        ^{:key signal-id}
+        [:div {:title "Signal"}
+         "→ "
+         (if (coll? signal)
+           [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (rest signal))]
+           [:strong (pr-str signal)])
 
-           (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
-                                                      (:actions model))]
-             ^{:key id}
-             [:div {:style    {:cursor           "pointer"
-                               :margin-left      "10px"
-                               :background-color "rgb(79, 90, 101)"
-                               :color            (if enabled? "inherit" "grey")}
-                    :on-click #(dispatch [:on-toggle-action id])
-                    :title    "Click to enable/disable this action"}
+         (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
+                                                    (:actions model))]
+           ^{:key id}
+           [:div {:style    {:cursor           "pointer"
+                             :margin-left      "10px"
+                             :background-color "rgb(79, 90, 101)"
+                             :color            (if enabled? "inherit" "grey")}
+                  :on-click #(dispatch [:on-toggle-action id])
+                  :title    "Click to enable/disable this action"}
 
-              (if (coll? action)
-                [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
-                [:div [:strong (pr-str action)]])])]))]
-     [:hr]
-     [:strong "Initial model:"]
-     [:div (pr-str (:initial-model model))]]))
+            (if (coll? action)
+              [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
+              [:div [:strong (pr-str action)]])])]))]
+   [:hr]
+   [:strong "Initial model:"]
+   [:div (pr-str (:initial-model model))]])
 
 (defn new-view
   [component-view]
