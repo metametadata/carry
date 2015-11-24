@@ -66,12 +66,14 @@
     (match signal
            :on-init
            (do
-             ; start routing
-             (goog.events/listen history EventType/NAVIGATE #(dispatch [:navigate (.-token %)]))
+             ; dispatch the current route
              (dispatch [:navigate (.getToken history)])
 
-             ; just for demonstration
              (dispatch :sample-action))
+
+           ; this signal must come from the component owner which listens to history events
+           [:on-navigate token]
+           (dispatch [:navigate token])
 
            [:on-update-field val] (dispatch [:update-field val])
            :on-add (dispatch :add)
