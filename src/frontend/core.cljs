@@ -29,14 +29,10 @@
                               (-> todos/reconcile
                                   (persistence/wrap-reconcile storage :model nil))
                               storage)]
-    (letfn [(dispatch-navigate
-              [token]
-              ((:dispatch-signal app) [:component [:on-navigate token]]))]
-      ; clear listeners in case of hotloading
-      (goog.events/removeAll history)
-
-      ; start listening
-      (goog.events/listen history EventType/NAVIGATE #(dispatch-navigate (.-token %))))
+    ; clear previous listeners which can be there after hot reload
+    (goog.events/removeAll history)
+    (goog.events/listen history EventType/NAVIGATE
+                        #((:dispatch-signal app) [:component [:on-navigate (.-token %)]]))
 
     (r/render-component [(:view app)] (. js/document (getElementById "root")))
     app))
