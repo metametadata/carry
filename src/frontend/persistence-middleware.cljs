@@ -7,17 +7,21 @@
   "On load-signal middleware will load the model from storage and send the signal further with updated model to the component.
   Blacklist should contain model keys which will not be loaded from storage."
   [control load-signal storage key load-blacklist]
-  (fn control-reconcile
+  (fn wrapped-control
     [model signal dispatch]
     (if (= load-signal signal)
       (let [storage-model (get storage key :not-found)]
-        (when (not= storage-model :not-found)
+        (if (not= storage-model :not-found)
           (let [new-model (merge storage-model (select-keys model load-blacklist))]
             ; update model
             (dispatch [:reset-from-storage new-model])
 
             ; also let component handle the loaded state
-            (control new-model signal dispatch))))
+            (control new-model signal dispatch))
+
+          ; else - hand signal further to component
+          (control model signal dispatch)))
+
       ; else - hand signal further to component
       (control model signal dispatch))))
 
