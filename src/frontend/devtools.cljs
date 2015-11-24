@@ -207,6 +207,7 @@
            ^{:key id}
            [:div {:style    {:cursor           "pointer"
                              :margin-left      "10px"
+                             :margin-top       "3px"
                              :background-color "rgb(79, 90, 101)"
                              :color            (if enabled? "inherit" "grey")}
                   :on-click #(dispatch [:on-toggle-action id])
