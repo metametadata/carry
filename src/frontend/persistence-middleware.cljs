@@ -9,21 +9,23 @@
   [control load-signal storage key load-blacklist]
   (fn wrapped-control
     [model signal dispatch]
-    (if (= load-signal signal)
+    (if-not (= signal load-signal)
+      ; not loaded-signal - hand signal further to component
+      (control model signal dispatch)
+
+      ; else
       (let [storage-model (get storage key :not-found)]
-        (if (not= storage-model :not-found)
+        (if (= storage-model :not-found)
+          ; no model in storage - hand signal further to component
+          (control model signal dispatch)
+
+          ; else
           (let [new-model (merge storage-model (select-keys model load-blacklist))]
             ; update model
-            (dispatch [:reset-from-storage new-model])
+            (dispatch [::reset-from-storage new-model])
 
-            ; also let component handle the loaded state
-            (control new-model signal dispatch))
-
-          ; else - hand signal further to component
-          (control model signal dispatch)))
-
-      ; else - hand signal further to component
-      (control model signal dispatch))))
+            ; with updated model hand signal further to component
+            (control new-model signal dispatch)))))))
 
 (defn wrap-reconcile
   "Blacklist should contain model keys which will not be saved to storage."
@@ -31,7 +33,7 @@
   (fn wrapped-reconcile
     [model action]
     (match action
-           [:reset-from-storage data]
+           [::reset-from-storage data]
            data
 
            :else

@@ -22,7 +22,7 @@
     :actions        (list)
     :next-action-id 0
 
-    :persist?       true}
+    :persist?       false}
 
    :on-connect])
 
