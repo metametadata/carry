@@ -15,8 +15,6 @@
       :model ratom (this is exposed mainly for debugging),
       :dispatch-action (this is exposed mainly for debugging).
 
-  Automatically fires an :on-connect signal.
-
   Data flow:
   model -> (view-model) -> (view) -signal-> (control) -action-> (reconcile) -> model -> etc."
   [[model signal :as _initial_] view-model view control reconcile]

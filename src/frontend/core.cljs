@@ -19,6 +19,9 @@
   []
   (println "Hi.")
 
+  ; clear previous listeners which can be there after hot reload
+  (goog.events/removeAll history)
+
   (let [storage hp/local-storage
         [_ todos-initial-signal :as todos-initial] (todos/init)
         app (devtools/connect todos-initial
@@ -26,11 +29,10 @@
                               todos/view
                               (-> (todos/new-control history)
                                   (persistence/wrap-control todos-initial-signal storage :model nil))
-                              (-> todos/reconcile
+                              (-> (todos/new-reconcile history)
                                   (persistence/wrap-reconcile storage :model nil))
                               storage)]
-    ; clear previous listeners which can be there after hot reload
-    (goog.events/removeAll history)
+    ; start signaling on navigation events
     (goog.events/listen history EventType/NAVIGATE
                         #((:dispatch-signal app) [:component [:on-navigate (.-token %)]]))
 

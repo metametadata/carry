@@ -55,6 +55,7 @@
     (match signal
            :on-connect
            (if (:persist? model)
+             ; replay loaded actions
              (dispatch :replay)
 
              ; developer decided to not persist a session, but it's loaded by middleware anyway..
@@ -63,7 +64,7 @@
                (dispatch :clear-history)
 
                ; and let component handle its initial signal
-               ; note: outdated model is passed, but it's safe because :component key hasn't changed after clearing
+               ; note: outdated model is passed, but it's safe because :component model hasn't changed after clearing
                (let [s (:initial-signal model)]
                  (when-not (nil? s)
                    (control model [:component s] dispatch)))))
