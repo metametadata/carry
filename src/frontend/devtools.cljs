@@ -18,7 +18,7 @@
     :signal-events  (list)
     :next-signal-id 0
 
-    ; list of {id source-signal-id enabled? action}
+    ; list of {id signal-id enabled? action}
     :action-events  (list)
     :next-action-id 0
 
@@ -69,6 +69,11 @@
                  (when-not (nil? s)
                    (control model [:component s] dispatch)))))
 
+           [:on-toggle-signal id]
+           (do
+             (dispatch [:toggle-signal id])
+             (dispatch :replay))
+
            [:on-toggle-action id]
            (do
              (dispatch [:toggle-action id])
@@ -110,6 +115,13 @@
            (-> model
                (update :signal-events concat [signal-event])
                (update :next-signal-id inc))
+
+           [:toggle-signal id]
+           (let [all-actions-enabled? (->> (:action-events model)
+                                           (filter #(= (:signal-id %) id))
+                                           (every? :enabled?))]
+             (-update-action-events* model #(= (:signal-id %) id)
+                                     assoc :enabled? (not all-actions-enabled?)))
 
            [:toggle-action id]
            (-update-action-event model id update :enabled? not)
@@ -173,7 +185,7 @@
                   :border-bottom-width 1
                   :border-bottom-style "solid"
                   :border-color        "#4F5A65"}}
-    [:input.toggle {:title     "Persist actions and signals?"
+    [:input.toggle {:title     "Persist debug session into local storage?"
                     :type      "checkbox"
                     :checked   (:persist? model)
                     :on-change #(dispatch :on-toggle-persist)}
@@ -202,10 +214,13 @@
       (for [[signal-id signal] (reverse (:signal-events model))]
         ^{:key signal-id}
         [:div {:title "Signal"}
-         "→ "
-         (if (coll? signal)
-           [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (rest signal))]
-           [:strong (pr-str signal)])
+         [:div {:style    {:cursor "pointer"}
+                :on-click #(dispatch [:on-toggle-signal signal-id])
+                :title    "Click to enable/disable all actions dispatched from this signal"}
+          "→ "
+          (if (coll? signal)
+            [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (rest signal))]
+            [:strong (pr-str signal)])]
 
          (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
                                                     (:action-events model))]
