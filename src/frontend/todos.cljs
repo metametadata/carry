@@ -92,6 +92,9 @@
   (fn reconcile
     [model action]
     (match action
+           ; required be devtools
+           :dev-identity model
+
            ; do nothing, only for a demo
            :sample-action model
 

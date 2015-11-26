@@ -116,12 +116,16 @@
 
            :replay
            ; applies enabled recorded actions to the initial component model
-           (assoc model :component
-                        (reduce component-reconcile
-                                (:initial-model model)
-                                (->> (:action-events model)
-                                     (filter :enabled?)
-                                     (map :action))))
+           (let [enabled-actions (->> (:action-events model)
+                                      (filter :enabled?)
+                                      (map :action))]
+             (assoc model :component
+                          (reduce component-reconcile
+                                  (:initial-model model)
+                                  ; Identity action goes through all the component's middleware and does nothing.
+                                  ; Why is it needed? Example: component's persistence middleware must be able to
+                                  ; save initial-model even when enabled-actions is empty.
+                                  (concat [:dev-identity] enabled-actions))))
 
            :toggle-persist
            (update model :persist? not)
@@ -238,7 +242,8 @@
       [-devtools-view model dispatch]]]))
 
 (defn connect
-  "Given component's parts creates a devtools wrapper for it. Returns the same structure as ui/connect."
+  "Given component's parts creates a devtools wrapper for it. Returns the same structure as ui/connect.
+  For replay to work correctly component is required to implement a :dev-identity action which returns the same model."
   [component-initial component-view-model component-view component-control component-reconcile storage]
   ; blacklisted keys are provided by component init and should not be overwritten by middleware
   ; (otherwise, on hot reload, we will not see changes after after modifying component init code)
