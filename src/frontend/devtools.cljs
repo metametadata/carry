@@ -15,11 +15,11 @@
     :initial-signal component-signal
 
     ; list of [id signal]
-    :signals        (list)
+    :signal-events  (list)
     :next-signal-id 0
 
     ; list of {id source-signal-id enabled? action}
-    :actions        (list)
+    :action-events  (list)
     :next-action-id 0
 
     :persist?       false}
@@ -37,15 +37,15 @@
    :enabled?  true
    :action    action})
 
-(defn -update-actions*
+(defn -update-action-events*
   [model pred f & args]
-  (s/transform [:actions s/ALL pred]
+  (s/transform [:action-events s/ALL pred]
                #(apply f % args)
                model))
 
-(defn -update-action
+(defn -update-action-event
   [model id f & args]
-  (apply -update-actions* model #(= (:id %) id) f args))
+  (apply -update-action-events* model #(= (:id %) id) f args))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
 (defn new-control
@@ -95,7 +95,7 @@
   "Orphaned signal has no actions."
   [model [signal-id _ :as _signal_]]
   (empty? (filter #(= (:signal-id %) signal-id)
-                  (:actions model))))
+                  (:action-events model))))
 
 (defn new-reconcile
   [component-reconcile]
@@ -103,23 +103,23 @@
     [model action]
     (match action
            :clear-history
-           (assoc model :signals (list)
-                        :actions (list))
+           (assoc model :signal-events (list)
+                        :action-events (list))
 
            [:record-signal-event signal-event]
            (-> model
-               (update :signals concat [signal-event])
+               (update :signal-events concat [signal-event])
                (update :next-signal-id inc))
 
            [:toggle-action id]
-           (-update-action model id update :enabled? not)
+           (-update-action-event model id update :enabled? not)
 
            :replay
            ; applies enabled recorded actions to the initial component model
            (assoc model :component
                         (reduce component-reconcile
                                 (:initial-model model)
-                                (->> (:actions model)
+                                (->> (:action-events model)
                                      (filter :enabled?)
                                      (map :action))))
 
@@ -128,13 +128,13 @@
 
            :sweep
            (as-> model m
-                 (update m :actions #(filter :enabled? %))
-                 (update m :signals #(remove (partial -orphaned-signal? m) %)))
+                 (update m :action-events #(filter :enabled? %))
+                 (update m :signal-events #(remove (partial -orphaned-signal? m) %)))
 
            [:component signal-id a]
            (-> model
                (update :component component-reconcile a)
-               (update :actions concat [(-action-event signal-id (:next-action-id model) a)])
+               (update :action-events concat [(-action-event signal-id (:next-action-id model) a)])
                (update :next-action-id inc))
 
            ; for bare component actions (e.g. when dispatching from REPL) use an "unknown signal" event
@@ -143,9 +143,9 @@
                                                                        :-unknown-signal)]
              (-> model
                  (update :component component-reconcile a)
-                 (update :signals concat [unknown-signal-event])
+                 (update :signal-events concat [unknown-signal-event])
                  (update :next-signal-id inc)
-                 (update :actions concat [(-action-event singal-id (:next-action-id model) a)])
+                 (update :action-events concat [(-action-event singal-id (:next-action-id model) a)])
                  (update :next-action-id inc))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
@@ -195,7 +195,7 @@
 
    [:div
     (doall
-      (for [[signal-id signal] (reverse (:signals model))]
+      (for [[signal-id signal] (reverse (:signal-events model))]
         ^{:key signal-id}
         [:div {:title "Signal"}
          "→ "
@@ -204,7 +204,7 @@
            [:strong (pr-str signal)])
 
          (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
-                                                    (:actions model))]
+                                                    (:action-events model))]
            ^{:key id}
            [:div {:style    {:cursor           "pointer"
                              :margin-left      "10px"
