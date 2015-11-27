@@ -17,8 +17,8 @@
 
   Data flow:
   model -> (view-model) -> (view) -signal-> (control) -action-> (reconcile) -> model -> etc."
-  [{:keys [init view-model view control reconcile] :as _spec_}]
-  (let [[model initial-signal] (init)
+  [{:keys [init initial-signal view-model view control reconcile] :as _spec_}]
+  (let [model (init)
         model-ratom (r/atom model)]
     ; for now dispatch functions return nil to make API even smaller
     (letfn [(dispatch-action [action] (swap! model-ratom reconcile action) nil)

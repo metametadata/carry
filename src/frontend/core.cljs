@@ -25,7 +25,7 @@
 
   (let [storage hp/local-storage
         app (ui/connect-reagent (-> (todos/new-spec history)
-                                    (persistence/wrap :on-init storage :model nil)
+                                    (persistence/wrap storage :model nil)
                                     (devtools/wrap storage :devtools)))]
 
     ; start signaling on navigation events

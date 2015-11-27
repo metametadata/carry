@@ -42,7 +42,8 @@
 (defn wrap
   "On load-signal middleware will load the model from storage and send the signal further with updated model to the component.
   Blacklist should contain model keys which will not be saved and loaded."
-  [spec load-signal storage key blacklist]
+  [spec storage key blacklist]
+  {:pre [(not (nil? (:initial-signal spec)))]}
   (-> spec
-      (update :control -wrap-control load-signal storage key blacklist)
+      (update :control -wrap-control (:initial-signal spec) storage key blacklist)
       (update :reconcile -wrap-reconcile storage key blacklist)))

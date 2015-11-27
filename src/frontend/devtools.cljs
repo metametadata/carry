@@ -7,25 +7,23 @@
 
 ;;;;;;;;;;;;;;;;;;; Init
 (defn -wrap-init
-  [component-init]
+  [component-init component-initial-signal]
   (fn init []
-    (let [[component-model component-signal] (component-init)]
-      [{:component      component-model
+    (let [component-model (component-init)]
+      {:component      component-model
 
-        :initial-model  component-model
-        :initial-signal component-signal
+       :initial-model  component-model
+       :initial-signal component-initial-signal
 
-        ; list of [id signal]
-        :signal-events  (list)
-        :next-signal-id 0
+       ; list of [id signal]
+       :signal-events  (list)
+       :next-signal-id 0
 
-        ; list of {id signal-id enabled? action}
-        :action-events  (list)
-        :next-action-id 0
+       ; list of {id signal-id enabled? action}
+       :action-events  (list)
+       :next-action-id 0
 
-        :persist?       false}
-
-       :on-connect])))
+       :persist?       false})))
 
 (defn -signal-event
   [id signal]
@@ -265,13 +263,14 @@
   "Wraps a component into devtools instnace.
   For replay to work correctly component is required to implement a :dev-identity action which returns the same model."
   [spec storage storage-key]
-  (-> {:init       (-wrap-init (:init spec))
-       :view-model (-wrap-view-model (:view-model spec))
-       :view       (-wrap-view (:view spec))
-       :control    (-wrap-control (:control spec))
-       :reconcile  (-wrap-reconcile (:reconcile spec))}
+  (-> {:init           (-wrap-init (:init spec) (:initial-signal spec))
+       :initial-signal :on-connect
+       :view-model     (-wrap-view-model (:view-model spec))
+       :view           (-wrap-view (:view spec))
+       :control        (-wrap-control (:control spec))
+       :reconcile      (-wrap-reconcile (:reconcile spec))}
       ; blacklisted keys are provided on init and should not be overwritten by middleware
       ; (otherwise, on hot reload, we will not see changes after after modifying component init code)
       ; thus they also don't need to be saved
-      (persistence/wrap :on-connect storage storage-key #{:initial-model :initial-signal})
+      (persistence/wrap storage storage-key #{:initial-model :initial-signal})
       ui/wrap-log))

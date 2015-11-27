@@ -17,13 +17,12 @@
 
 (defn -init
   []
-  [{:field      ""
-    :visibility :all
-    ; list of maps {:id :title :completed :editing}
-    :todos      (list (-init-todo 1 "Finish this project")
-                      (-init-todo 2 "Take a bath"))
-    :next-id    3}
-   :on-init])
+  {:field      ""
+   :visibility :all
+   ; list of maps {:id :title :completed :editing}
+   :todos      (list (-init-todo 1 "Finish this project")
+                     (-init-todo 2 "Take a bath"))
+   :next-id    3})
 
 (defn -update-todos*
   [model pred f & args]
@@ -153,12 +152,12 @@
              (if (clojure.string/blank? title)
                (-remove-todo model id)
                (-update-todos model #(assoc % :editing? false
-                                             :original-title ""))))
+                                              :original-title ""))))
 
            [:cancel-editing id]
            (-update-todo model id #(assoc % :editing? false
-                                           :title (:original-title %)
-                                           :original-title ""))
+                                            :title (:original-title %)
+                                            :original-title ""))
 
            [:update-todo id val]
            (-update-todo model id assoc :title val)
@@ -285,8 +284,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Spec
 (defn new-spec
   [history]
-  {:init       -init
-   :view-model -view-model
-   :view       -view
-   :control    (-new-control history)
-   :reconcile  (-new-reconcile history)})
+  {:init           -init
+   :initial-signal :on-init
+   :view-model     -view-model
+   :view           -view
+   :control        (-new-control history)
+   :reconcile      (-new-reconcile history)})
