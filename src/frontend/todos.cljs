@@ -63,7 +63,7 @@
   (fn control
     [_model_ signal dispatch]
     (match signal
-           :on-init
+           :on-connect
            (do
              ; dispatch the current route
              (dispatch [:navigate (.getToken history)])
@@ -71,8 +71,7 @@
              (dispatch :sample-action))
 
            ; this signal must come from the component owner which listens to history events
-           [:on-navigate token]
-           (dispatch [:navigate token])
+           [:on-navigate token] (dispatch [:navigate token])
 
            [:on-update-field val] (dispatch [:update-field val])
            :on-add (dispatch :add)
@@ -285,7 +284,6 @@
 (defn new-spec
   [history]
   {:init           -init
-   :initial-signal :on-init
    :view-model     -view-model
    :view           -view
    :control        (-new-control history)

@@ -7,13 +7,11 @@
 
 ;;;;;;;;;;;;;;;;;;; Init
 (defn -wrap-init
-  [component-init component-initial-signal]
+  [component-init]
   (fn init []
     (let [component-model (component-init)]
       {:component      component-model
-
        :initial-model  component-model
-       :initial-signal component-initial-signal
 
        ; list of [id signal]
        :signal-events  (list)
@@ -64,9 +62,7 @@
 
                ; and let component handle its initial signal
                ; note: outdated model is passed, but it's safe because :component model hasn't changed after clearing
-               (let [s (:initial-signal model)]
-                 (when-not (nil? s)
-                   (control model [:component s] dispatch)))))
+               (control model [:component :on-connect] dispatch)))
 
            [:on-toggle-signal id]
            (do
@@ -263,8 +259,7 @@
   "Wraps a component into devtools instnace.
   For replay to work correctly component is required to implement a :dev-identity action which returns the same model."
   [spec storage storage-key]
-  (-> {:init           (-wrap-init (:init spec) (:initial-signal spec))
-       :initial-signal :on-connect
+  (-> {:init           (-wrap-init (:init spec))
        :view-model     (-wrap-view-model (:view-model spec))
        :view           (-wrap-view (:view spec))
        :control        (-wrap-control (:control spec))
@@ -272,5 +267,5 @@
       ; blacklisted keys are provided on init and should not be overwritten by middleware
       ; (otherwise, on hot reload, we will not see changes after after modifying component init code)
       ; thus they also don't need to be saved
-      (persistence/wrap storage storage-key #{:initial-model :initial-signal})
+      (persistence/wrap storage storage-key #{:initial-model})
       ui/wrap-log))

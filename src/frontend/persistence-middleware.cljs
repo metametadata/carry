@@ -4,11 +4,11 @@
   (:require [cljs.core.match :refer-macros [match]]))
 
 (defn -wrap-control
-  [control load-signal storage key load-blacklist]
+  [control storage key load-blacklist]
   (fn wrapped-control
     [model signal dispatch]
-    (if-not (= signal load-signal)
-      ; not loaded-signal - hand signal further to component
+    (if-not (= signal :on-connect)
+      ; hand signal further to component
       (control model signal dispatch)
 
       ; else
@@ -43,7 +43,6 @@
   "On load-signal middleware will load the model from storage and send the signal further with updated model to the component.
   Blacklist should contain model keys which will not be saved and loaded."
   [spec storage key blacklist]
-  {:pre [(not (nil? (:initial-signal spec)))]}
   (-> spec
-      (update :control -wrap-control (:initial-signal spec) storage key blacklist)
+      (update :control -wrap-control storage key blacklist)
       (update :reconcile -wrap-reconcile storage key blacklist)))
