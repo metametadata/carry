@@ -4,31 +4,32 @@
             [cljs.pprint]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
-(defn connect
-  "Initial model must be immutable. Initial signal can be nil if it should not be fired.
-  Control can be a non-pure function.
-  View-model, view and reconcile must be pure functions.
+(defn connect-reagent
+  "Given a component spec map returns a connected component which can be rendered using Reagent.
 
-  Returns a map with:
-      :view,
-      :dispatch-signal (it can be used to dispatch signal not only from the view),
+  :control can be a non-pure function, :init, :view-model, :view and :reconcile must be pure functions.
+
+  Dispatches :on-connect signal and returns a map with:
+      :view (Reagent view function),
+      :dispatch-signal (it can be used to dispatch signals not only from the view),
       :model ratom (this is exposed mainly for debugging),
       :dispatch-action (this is exposed mainly for debugging).
 
   Data flow:
   model -> (view-model) -> (view) -signal-> (control) -action-> (reconcile) -> model -> etc."
-  [[model signal :as _initial_] view-model view control reconcile]
-  ; for now dispatch functions return nil to make API even smaller
-  (let [model-atom (r/atom model)
-        dispatch-action (fn [a] (swap! model-atom reconcile a) nil)
-        dispatch-signal (fn [s] (control @model-atom s dispatch-action) nil)
-        connected-view (fn [] [view (view-model @model-atom) dispatch-signal])]
-    (some-> signal dispatch-signal)
+  [{:keys [init view-model view control reconcile] :as _spec_}]
+  (let [model (init)
+        model-ratom (r/atom model)]
+    ; for now dispatch functions return nil to make API even smaller
+    (letfn [(dispatch-action [action] (swap! model-ratom reconcile action) nil)
+            (dispatch-signal [signal] (control @model-ratom signal dispatch-action) nil)
+            (reagent-view [] [view (view-model @model-ratom) dispatch-signal])]
+      (dispatch-signal :on-connect)
 
-    {:view            connected-view
-     :dispatch-signal dispatch-signal
-     :model           model-atom
-     :dispatch-action dispatch-action}))
+      {:view            reagent-view
+       :dispatch-signal dispatch-signal
+       :model           model-ratom
+       :dispatch-action dispatch-action})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Utils
 (defn tagged
@@ -39,25 +40,19 @@
     [x]
     (f [tag x])))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Control Middlewares
-(defn wrap-log-signals
-  [control]
-  (fn wrapped-control
-    [model signal dispatch]
-    (println "signal =" signal)
-    (control model signal dispatch)))
-
-;;;;;;;;;;;;;;;;;;;;;;;; Reconcile Middlewares
-(defn wrap-log-actions
-  [reconcile]
-  (fn wrapped-reconcile
-    [model action]
-    (println "  action =" action)
-    (let [result (reconcile model action)]
-      ;(cljs.pprint/pprint model)
-      ;(print "->")
-      ;(cljs.pprint/pprint result)
-      ;(println "   " model)
-      ;(println "     ->")
-      ;(println "   " result)
-      result)))
+;;;;;;;;;;;;;;;;;;;;;;;; Middleware
+(defn wrap-log
+  [spec]
+  (-> spec
+      (update :control #(fn control
+                         [model signal dispatch]
+                         (println "signal =" signal)
+                         (% model signal dispatch)))
+      (update :reconcile #(fn reconcile
+                           [model action]
+                           (println "  action =" action)
+                           (let [result (% model action)]
+                             ;(println "   " model)
+                             ;(println "     ->")
+                             ;(println "   " result)
+                             result)))))

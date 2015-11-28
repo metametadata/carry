@@ -7,7 +7,7 @@
             [goog.history.EventType :as EventType]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Model
-(defn init-todo
+(defn -init-todo
   [id title]
   {:id             id
    :title          title
@@ -15,56 +15,55 @@
    :original-title ""
    :editing?       false})
 
-(defn init
+(defn -init
   []
-  [{:field      ""
-    :visibility :all
-    ; list of maps {:id :title :completed :editing}
-    :todos      (list (init-todo 1 "Finish this project")
-                      (init-todo 2 "Take a bath"))
-    :next-id    3}
-   :on-init])
+  {:field      ""
+   :visibility :all
+   ; list of maps {:id :title :completed :editing}
+   :todos      (list (-init-todo 1 "Finish this project")
+                     (-init-todo 2 "Take a bath"))
+   :next-id    3})
 
-(defn update-todos*
+(defn -update-todos*
   [model pred f & args]
   (s/transform [:todos s/ALL pred]
                #(apply f % args)
                model))
 
-(defn update-todo
+(defn -update-todo
   [model id f & args]
-  (apply update-todos* model #(= (:id %) id) f args))
+  (apply -update-todos* model #(= (:id %) id) f args))
 
-(defn update-todos
+(defn -update-todos
   [model f & args]
-  (apply update-todos* model (constantly true) f args))
+  (apply -update-todos* model (constantly true) f args))
 
-(defn find-todo
+(defn -find-todo
   [model id]
   (->> (:todos model)
        (filter #(= (:id %) id))
        first))
 
-(defn remove-todos
+(defn -remove-todos
   [model pred]
   (update model :todos #(remove pred %)))
 
-(defn remove-todo
+(defn -remove-todo
   [model id]
-  (remove-todos model #(= (:id %) id)))
+  (-remove-todos model #(= (:id %) id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
-(def visibility-spec
+(def -visibility-spec
   [{:key :all :title "All" :href "#" :token ""}
    {:key :active :title "Active" :href "#/active" :token "/active"}
    {:key :completed :title "Completed" :href "#/completed" :token "/completed"}])
 
-(defn new-control
+(defn -new-control
   [history]
   (fn control
     [_model_ signal dispatch]
     (match signal
-           :on-init
+           :on-connect
            (do
              ; dispatch the current route
              (dispatch [:navigate (.getToken history)])
@@ -72,8 +71,7 @@
              (dispatch :sample-action))
 
            ; this signal must come from the component owner which listens to history events
-           [:on-navigate token]
-           (dispatch [:navigate token])
+           [:on-navigate token] (dispatch [:navigate token])
 
            [:on-update-field val] (dispatch [:update-field val])
            :on-add (dispatch :add)
@@ -87,7 +85,7 @@
            :on-clear-completed (dispatch :clear-completed))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
-(defn new-reconcile
+(defn -new-reconcile
   [history]
   (fn reconcile
     [model action]
@@ -113,7 +111,7 @@
                (println "      REPLACING TOKEN TO" (pr-str token))
                (.replaceToken history token))
 
-             (if-let [match (->> visibility-spec
+             (if-let [match (->> -visibility-spec
                                  (filter #(= (:token %) token))
                                  first)]
                (do
@@ -132,45 +130,45 @@
                (-> model
                    (assoc :field "")
                    (update :next-id inc)
-                   (update :todos concat [(init-todo (:next-id model) title)]))))
+                   (update :todos concat [(-init-todo (:next-id model) title)]))))
 
            [:toggle id]
-           (update-todo model id update :completed? not)
+           (-update-todo model id update :completed? not)
 
            :toggle-all
            (let [all-completed? (every? :completed? (:todos model))]
-             (update-todos model assoc :completed? (not all-completed?)))
+             (-update-todos model assoc :completed? (not all-completed?)))
 
            [:start-editing id]
            (-> model
-               (update-todos #(assoc % :editing? (= (:id %) id)))
-               (update-todo id #(assoc % :original-title (:title %))))
+               (-update-todos #(assoc % :editing? (= (:id %) id)))
+               (-update-todo id #(assoc % :original-title (:title %))))
 
            [:stop-editing id]
-           (let [title (-> (find-todo model id)
+           (let [title (-> (-find-todo model id)
                            :title
                            clojure.string/trim)]
              (if (clojure.string/blank? title)
-               (remove-todo model id)
-               (update-todos model #(assoc % :editing? false
-                                             :original-title ""))))
+               (-remove-todo model id)
+               (-update-todos model #(assoc % :editing? false
+                                              :original-title ""))))
 
            [:cancel-editing id]
-           (update-todo model id #(assoc % :editing? false
-                                           :title (:original-title %)
-                                           :original-title ""))
+           (-update-todo model id #(assoc % :editing? false
+                                            :title (:original-title %)
+                                            :original-title ""))
 
            [:update-todo id val]
-           (update-todo model id assoc :title val)
+           (-update-todo model id assoc :title val)
 
            [:remove id]
-           (remove-todo model id)
+           (-remove-todo model id)
 
            :clear-completed
-           (remove-todos model :completed?))))
+           (-remove-todos model :completed?))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
-(defn view-model
+(defn -view-model
   [model]
   (assoc model
     :todos (filter (case (:visibility model)
@@ -189,32 +187,32 @@
     :all-completed? (every? :completed? (:todos model))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
-(defn enter-key?
+(defn -enter-key?
   [e]
   (= (.-keyCode e) 13))
 
-(defn escape-key?
+(defn -escape-key?
   [e]
   (= (.-keyCode e) 27))
 
-(defn view-header
+(defn -view-header
   [field dispatch]
   [:header.header
    [:h1 "todos"]
    [:input.new-todo {:placeholder "What needs to be done?"
                      :value       field
                      :on-change   #(dispatch [:on-update-field (.. % -target -value)])
-                     :on-key-down #(when (enter-key? %) (dispatch :on-add))}]])
+                     :on-key-down #(when (-enter-key? %) (dispatch :on-add))}]])
 
-(defn view-todo-input
+(defn -view-todo-input
   "Note that |editing?| is passed only to trigger :component-did-update to set focus on the state change."
   [_id_ _title_ _editing?_ _dispatch_]
   (r/create-class {:reagent-render
                    (fn [id title _editing?_ dispatch]
                      [:input.edit {:value       title
                                    :on-change   #(dispatch [:on-update-todo id (.. % -target -value)])
-                                   :on-key-down #(cond (enter-key? %) (dispatch [:on-stop-editing id])
-                                                       (escape-key? %) (dispatch [:on-cancel-editing id]))
+                                   :on-key-down #(cond (-enter-key? %) (dispatch [:on-stop-editing id])
+                                                       (-escape-key? %) (dispatch [:on-cancel-editing id]))
                                    :on-blur     #(dispatch [:on-stop-editing id])}])
 
                    :component-did-update
@@ -226,7 +224,7 @@
                    (fn [this]
                      (.focus (r/dom-node this)))}))
 
-(defn view-todo
+(defn -view-todo
   [{:keys [id title editing? completed?] :as _todo_} dispatch]
   [:li {:class (cond editing? "editing" completed? "completed")}
    [:div.view
@@ -238,9 +236,9 @@
 
     [:button.destroy {:on-click #(dispatch [:on-remove id])}]]
 
-   [view-todo-input id title editing? dispatch]])
+   [-view-todo-input id title editing? dispatch]])
 
-(defn view-todo-list
+(defn -view-todo-list
   [todos all-completed? dispatch]
   [:section.main
    [:input.toggle-all {:type      "checkbox"
@@ -251,16 +249,16 @@
    [:ul.todo-list
     (for [todo todos]
       ^{:key (:id todo)}
-      [view-todo todo dispatch])]])
+      [-view-todo todo dispatch])]])
 
-(defn view-footer
+(defn -view-footer
   [active-count has-completed-todos? visibility dispatch]
   [:footer.footer
    [:span.todo-count
     [:strong active-count] (str " " (if (= active-count 1) "item" "items")
                                 " left")]
    [:ul.filters
-    (for [{:keys [key title href]} visibility-spec]
+    (for [{:keys [key title href]} -visibility-spec]
       ^{:key key}
       [:li
        [:a
@@ -271,13 +269,22 @@
    (if has-completed-todos?
      [:button.clear-completed {:on-click #(dispatch :on-clear-completed)} "Clear completed"])])
 
-(defn view
+(defn -view
   [{:keys [field todos has-todos? active-count has-completed-todos? all-completed? visibility] :as _view-model_}
    dispatch]
   [:section.todoapp
-   [view-header field dispatch]
+   [-view-header field dispatch]
 
    (if has-todos?
      [:div
-      [view-todo-list todos all-completed? dispatch]
-      [view-footer active-count has-completed-todos? visibility dispatch]])])
+      [-view-todo-list todos all-completed? dispatch]
+      [-view-footer active-count has-completed-todos? visibility dispatch]])])
+
+;;;;;;;;;;;;;;;;;;;;;;;; Spec
+(defn new-spec
+  [history]
+  {:init           -init
+   :view-model     -view-model
+   :view           -view
+   :control        (-new-control history)
+   :reconcile      (-new-reconcile history)})

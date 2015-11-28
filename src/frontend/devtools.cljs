@@ -6,25 +6,22 @@
             [frontend.persistence-middleware :as persistence]))
 
 ;;;;;;;;;;;;;;;;;;; Init
-(defn init
-  "Creates a fresh dev-model instance using wrapped component init."
-  [[component-model component-signal :as _component-initial_]]
-  [{:component      component-model
+(defn -wrap-init
+  [component-init]
+  (fn init []
+    (let [component-model (component-init)]
+      {:component      component-model
+       :initial-model  component-model
 
-    :initial-model  component-model
-    :initial-signal component-signal
+       ; list of [id signal]
+       :signal-events  (list)
+       :next-signal-id 0
 
-    ; list of [id signal]
-    :signal-events  (list)
-    :next-signal-id 0
+       ; list of {id signal-id enabled? action}
+       :action-events  (list)
+       :next-action-id 0
 
-    ; list of {id signal-id enabled? action}
-    :action-events  (list)
-    :next-action-id 0
-
-    :persist?       false}
-
-   :on-connect])
+       :persist?       false})))
 
 (defn -signal-event
   [id signal]
@@ -48,7 +45,7 @@
   (apply -update-action-events* model #(= (:id %) id) f args))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
-(defn new-control
+(defn -wrap-control
   [component-control]
   (fn control
     [model signal dispatch]
@@ -65,9 +62,7 @@
 
                ; and let component handle its initial signal
                ; note: outdated model is passed, but it's safe because :component model hasn't changed after clearing
-               (let [s (:initial-signal model)]
-                 (when-not (nil? s)
-                   (control model [:component s] dispatch)))))
+               (control model [:component :on-connect] dispatch)))
 
            [:on-toggle-signal id]
            (do
@@ -102,11 +97,14 @@
   (empty? (filter #(= (:signal-id %) signal-id)
                   (:action-events model))))
 
-(defn new-reconcile
+(defn -wrap-reconcile
   [component-reconcile]
   (fn reconcile
     [model action]
     (match action
+           :dev-identity
+           model
+
            :clear-history
            (assoc model :signal-events (list)
                         :action-events (list))
@@ -165,7 +163,7 @@
                  (update :next-action-id inc))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
-(defn new-view-model
+(defn -wrap-view-model
   [component-view-model]
   (fn view-model
     [model]
@@ -240,9 +238,9 @@
    [:strong "Initial model:"]
    [:div (pr-str (:initial-model model))]])
 
-(defn new-view
+(defn -wrap-view
   [component-view]
-  (fn view
+  (fn devtools-view
     [model dispatch]
     [:div
      [component-view (:component-view-model model) (ui/tagged dispatch :component)]
@@ -256,21 +254,18 @@
                     :box-shadow "-2px 0 7px 0 rgba(0, 0, 0, 0.5)"}}
       [-devtools-view model dispatch]]]))
 
-(defn connect
-  "Given component's parts creates a devtools wrapper for it. Returns the same structure as ui/connect.
+;;;;;;;;;;;;;;;;;;;;;;;; Middleware
+(defn new-spec
+  "Wraps a component into devtools instnace.
   For replay to work correctly component is required to implement a :dev-identity action which returns the same model."
-  [component-initial component-view-model component-view component-control component-reconcile storage]
-  ; blacklisted keys are provided by component init and should not be overwritten by middleware
-  ; (otherwise, on hot reload, we will not see changes after after modifying component init code)
-  ; thus they also don't need to be saved
-  (let [non-persisted-keys #{:initial-model :initial-signal}
-        [_ initial-signal :as initial] (init component-initial)]
-    (ui/connect initial
-                (new-view-model component-view-model)
-                (new-view component-view)
-                (-> (new-control component-control)
-                    (persistence/wrap-control initial-signal storage :devtools non-persisted-keys)
-                    ui/wrap-log-signals)
-                (-> (new-reconcile component-reconcile)
-                    (persistence/wrap-reconcile storage :devtools non-persisted-keys)
-                    ui/wrap-log-actions))))
+  [spec storage storage-key]
+  (-> {:init           (-wrap-init (:init spec))
+       :view-model     (-wrap-view-model (:view-model spec))
+       :view           (-wrap-view (:view spec))
+       :control        (-wrap-control (:control spec))
+       :reconcile      (-wrap-reconcile (:reconcile spec))}
+      ; blacklisted keys are provided on init and should not be overwritten by middleware
+      ; (otherwise, on hot reload, we will not see changes after after modifying component init code)
+      ; thus they also don't need to be saved
+      (persistence/wrap storage storage-key #{:initial-model})
+      ui/wrap-log))
