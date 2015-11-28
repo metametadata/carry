@@ -255,7 +255,7 @@
       [-devtools-view model dispatch]]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
-(defn wrap
+(defn new-spec
   "Wraps a component into devtools instnace.
   For replay to work correctly component is required to implement a :dev-identity action which returns the same model."
   [spec storage storage-key]
