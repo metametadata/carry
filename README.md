@@ -6,12 +6,16 @@ It's a follow-up to [cljs-elmish-examples](https://github.com/metametadata/cljs-
 
 ## Highlights
 * Model is persisted in local storage.
-* Time traveling debugger with ability to enable/disable any past action and to sweep disabled actions
+* Time traveling debugger (devtools) with persistence and ability to enable/disable any action and to sweep disabled actions.
 * REPL can dispatch signals and actions to app:
 
-    frontend.core=> ((:dispatch-signal app) [:component :on-toggle-all])
+```
+frontend.core=> ((:dispatch-signal app) [:component :on-toggle-all])
+...
     
-    frontend.core=> ((:dispatch-action app) [:component :toggle-all])
+frontend.core=> ((:dispatch-action app) [:component :toggle-all])
+...
+```
 
 ## Build
 
@@ -53,3 +57,24 @@ To deploy a build:
 * [TodoMVC using Reagent](https://github.com/tastejs/todomvc/tree/gh-pages/examples/reagent)
 * [TodoMVC using re-frame](https://github.com/Day8/re-frame/tree/master/examples/todomvc)
 * [TodoMVC using Redux](https://github.com/rackt/redux/tree/master/examples/todomvc)
+* [DevTools for Redux](https://github.com/gaearon/redux-devtools)
+* [cerebral.js debugger](https://chrome.google.com/webstore/detail/cerebral-debugger/ddefoknoniaeoikpgneklcbjlipfedbb?hl=en)
+
+## TODO
+
+```
+- bug: :on-stop-editing is dispatched twice
+- bug: enabling/disabling :start-editing action fires :on-stop-editing on its own
+- bug in devtools and navigation: toggling :navigate actions fires and records new signals? smt. strange happens
+- bug? raise exception from inside todos/reconcile -> stack trace doesnt show the root source of exception
+
+- navigation: todos action must not trigger navigation event on replaceToken, because it can be catched twice by another component?
+- navigation: on devtools replay the history stack should probably also grow on each navigation action
+
+- devtools:
+  - feature: be able to catch errors and stop on them/show them in corresponding actions (as in redux)
+  - feature: be able to inspect model and/or view-model at each step
+  - rf: button styles are duplicated
+
+- ?: i dont like adding :dev-identity action manually only for devtools to work
+```
