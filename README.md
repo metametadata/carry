@@ -17,6 +17,25 @@ frontend.core=> ((:dispatch-action app) [:component :toggle-all])
 ...
 ```
 
+## TODO
+
+```
+- bug: :on-stop-editing is dispatched twice
+- bug: enabling/disabling :start-editing action fires :on-stop-editing on its own
+- bug in devtools and navigation: toggling :navigate actions fires and records new signals? smt. strange happens
+- bug? raise exception from inside todos/reconcile -> stack trace doesnt show the root source of exception
+
+- navigation: todos action must not trigger navigation event on replaceToken, because it can be catched twice by another component?
+- navigation: on devtools replay the history stack should probably also grow on each navigation action
+
+- devtools:
+  - feature: be able to catch errors and stop on them/show them in corresponding actions (as in redux)
+  - feature: be able to inspect model and/or view-model at each step
+  - rf: button styles are duplicated
+
+- ?: i dont like adding :dev-identity action manually only for devtools to work
+```
+
 ## Build
 
 To get an interactive development environment run:
@@ -59,22 +78,3 @@ To deploy a build:
 * [TodoMVC using Redux](https://github.com/rackt/redux/tree/master/examples/todomvc)
 * [DevTools for Redux](https://github.com/gaearon/redux-devtools)
 * [cerebral.js debugger](https://chrome.google.com/webstore/detail/cerebral-debugger/ddefoknoniaeoikpgneklcbjlipfedbb?hl=en)
-
-## TODO
-
-```
-- bug: :on-stop-editing is dispatched twice
-- bug: enabling/disabling :start-editing action fires :on-stop-editing on its own
-- bug in devtools and navigation: toggling :navigate actions fires and records new signals? smt. strange happens
-- bug? raise exception from inside todos/reconcile -> stack trace doesnt show the root source of exception
-
-- navigation: todos action must not trigger navigation event on replaceToken, because it can be catched twice by another component?
-- navigation: on devtools replay the history stack should probably also grow on each navigation action
-
-- devtools:
-  - feature: be able to catch errors and stop on them/show them in corresponding actions (as in redux)
-  - feature: be able to inspect model and/or view-model at each step
-  - rf: button styles are duplicated
-
-- ?: i dont like adding :dev-identity action manually only for devtools to work
-```

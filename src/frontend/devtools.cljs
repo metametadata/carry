@@ -256,7 +256,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn new-spec
-  "Wraps a component into devtools instnace.
+  "Wraps a component into devtools instance.
   For replay to work correctly component is required to implement a :dev-identity action which returns the same model."
   [spec storage storage-key]
   (-> {:init           (-wrap-init (:init spec))

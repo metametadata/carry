@@ -15,7 +15,7 @@
    :original-title ""
    :editing?       false})
 
-(defn -init
+(defn init
   []
   {:field      ""
    :visibility :all
@@ -58,7 +58,7 @@
    {:key :active :title "Active" :href "#/active" :token "/active"}
    {:key :completed :title "Completed" :href "#/completed" :token "/completed"}])
 
-(defn -new-control
+(defn new-control
   [history]
   (fn control
     [_model_ signal dispatch]
@@ -85,7 +85,7 @@
            :on-clear-completed (dispatch :clear-completed))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
-(defn -new-reconcile
+(defn new-reconcile
   [history]
   (fn reconcile
     [model action]
@@ -168,7 +168,7 @@
            (-remove-todos model :completed?))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
-(defn -view-model
+(defn view-model
   [model]
   (assoc model
     :todos (filter (case (:visibility model)
@@ -269,7 +269,7 @@
    (if has-completed-todos?
      [:button.clear-completed {:on-click #(dispatch :on-clear-completed)} "Clear completed"])])
 
-(defn -view
+(defn view
   [{:keys [field todos has-todos? active-count has-completed-todos? all-completed? visibility] :as _view-model_}
    dispatch]
   [:section.todoapp
@@ -283,8 +283,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Spec
 (defn new-spec
   [history]
-  {:init           -init
-   :view-model     -view-model
-   :view           -view
-   :control        (-new-control history)
-   :reconcile      (-new-reconcile history)})
+  {:init           init
+   :view-model     view-model
+   :view           view
+   :control        (new-control history)
+   :reconcile      (new-reconcile history)})

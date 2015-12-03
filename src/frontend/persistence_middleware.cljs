@@ -40,7 +40,7 @@
              result))))
 
 (defn wrap
-  "On load-signal middleware will load the model from storage and send the signal further with updated model to the component.
+  "On :on-connect signal middleware will load the model from storage and send the signal further with updated model to the component.
   Blacklist should contain model keys which will not be saved and loaded."
   [spec storage key blacklist]
   (-> spec

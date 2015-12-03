@@ -9,6 +9,8 @@
 
   :control can be a non-pure function, :init, :view-model, :view and :reconcile must be pure functions.
 
+  init-args will be passed to :init function.
+
   Dispatches :on-connect signal and returns a map with:
       :view (Reagent view function),
       :dispatch-signal (it can be used to dispatch signals not only from the view),
@@ -16,9 +18,13 @@
       :dispatch-action (this is exposed mainly for debugging).
 
   Data flow:
+  (init)
+  |
+  V
   model -> (view-model) -> (view) -signal-> (control) -action-> (reconcile) -> model -> etc."
-  [{:keys [init view-model view control reconcile] :as _spec_}]
-  (let [model (init)
+  [{:keys [init view-model view control reconcile] :as _spec_}
+   init-args]
+  (let [model (apply init init-args)
         model-ratom (r/atom model)]
     ; for now dispatch functions return nil to make API even smaller
     (letfn [(dispatch-action [action] (swap! model-ratom reconcile action) nil)
