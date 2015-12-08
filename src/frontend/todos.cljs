@@ -2,9 +2,7 @@
 (ns frontend.todos
   (:require [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]
-            [com.rpl.specter :as s]
-            [goog.events]
-            [goog.history.EventType :as EventType]))
+            [com.rpl.specter :as s]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Model
 (defn -init-todo
@@ -170,21 +168,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn view-model
   [model]
-  (assoc model
-    :todos (filter (case (:visibility model)
-                     :all (constantly true)
-                     :active (complement :completed?)
-                     :completed :completed?)
-                   (:todos model))
-    :has-todos? (-> (:todos model) count pos?)
-    :active-count (->> (:todos model)
-                       (filter (complement :completed?))
-                       count)
-    :has-completed-todos? (->> (:todos model)
-                               (filter :completed?)
-                               count
-                               pos?)
-    :all-completed? (every? :completed? (:todos model))))
+  (-> model
+      (select-keys [:field :visibility])
+      (assoc :todos (filter (case (:visibility model)
+                              :all (constantly true)
+                              :active (complement :completed?)
+                              :completed :completed?)
+                            (:todos model))
+             :has-todos? (-> (:todos model) count pos?)
+             :active-count (->> (:todos model)
+                                (filter (complement :completed?))
+                                count)
+             :has-completed-todos? (->> (:todos model)
+                                        (filter :completed?)
+                                        count
+                                        pos?)
+             :all-completed? (every? :completed? (:todos model)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (defn -enter-key?
@@ -283,8 +282,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Spec
 (defn new-spec
   [history]
-  {:init           init
-   :view-model     view-model
-   :view           view
-   :control        (new-control history)
-   :reconcile      (new-reconcile history)})
+  {:init       init
+   :view-model view-model
+   :view       view
+   :control    (new-control history)
+   :reconcile  (new-reconcile history)})
