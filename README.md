@@ -5,9 +5,15 @@
 It's a follow-up to [cljs-elmish-examples](https://github.com/metametadata/cljs-elmish-examples).
 
 ## Highlights
-* Model is persisted in local storage.
-* Time traveling debugger (devtools) with persistence and ability to enable/disable any action and to sweep disabled actions.
-* REPL can dispatch signals and actions to app:
+* Time traveling debugger (devtools) with persistence and ability to enable/disable any action (inspired by 
+[redux-devtools](https://github.com/gaearon/redux-devtools)).
+When devtools persistence is on, it replays previously saved actions on tab load. Try it with Figwheel hot reloading.
+* In order to achieve better performance view-model now receives a model ratom and is expected to return Reagent reactions.
+Previously the whole view was re-rendered on every model change, but now components are re-rendered only on changes 
+to reaction values. Reactions are memoized and are able to observe one another preventing unnecessary recalculations.
+This approach is borrowed from [re-frame](https://github.com/Day8/re-frame#subscribe).
+* Model is persisted in local storage using persistence middleware.
+* REPL can dispatch signals and actions to app (:component tag is needed, because app is wrapped by devtools):
 
 ```
 frontend.core=> ((:dispatch-signal app) [:component :on-toggle-all])

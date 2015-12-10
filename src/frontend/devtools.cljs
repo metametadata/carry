@@ -1,9 +1,11 @@
+; Devtools component. It is expected to be used with ui/connect-reactive-reagent.
 (ns frontend.devtools
   (:require [frontend.ui :as ui]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s]
-            [frontend.persistence-middleware :as persistence]))
+            [frontend.persistence-middleware :as persistence])
+  (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;; Init
 (defn -wrap-init
@@ -167,25 +169,27 @@
   [component-view-model]
   (fn view-model
     [model]
-    (assoc model :component-view-model (component-view-model (:component model)))))
+    (-> model
+        (ui/track-keys [:initial-model :persist? :signal-events :action-events])
+        (assoc :component-view-model (component-view-model (reaction (:component @model)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (defn -devtools-view
-  [model dispatch]
+  [{:keys [persist? initial-model signal-events action-events] :as _view-model_}
+   dispatch]
   [:div {:style {:width            "100%"
                  :height           "100%"
                  :overflow-y       "auto"
                  :background-color "#2A2F3A"
                  :padding-left     "5px"
                  :color            "white"}}
-
    [:div {:style {:text-align          "center"
                   :border-bottom-width 1
                   :border-bottom-style "solid"
                   :border-color        "#4F5A65"}}
     [:input.toggle {:title     "Persist debug session into local storage?"
                     :type      "checkbox"
-                    :checked   (:persist? model)
+                    :checked   @persist?
                     :on-change #(dispatch :on-toggle-persist)}
      "Persist session"]
 
@@ -209,7 +213,7 @@
 
    [:div
     (doall
-      (for [[signal-id signal] (reverse (:signal-events model))]
+      (for [[signal-id signal] (reverse @signal-events)]
         ^{:key signal-id}
         [:div {:title "Signal"}
          [:div {:style    {:cursor "pointer"}
@@ -221,7 +225,7 @@
             [:strong (pr-str signal)])]
 
          (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
-                                                    (:action-events model))]
+                                                    @action-events)]
            ^{:key id}
            [:div {:style    {:cursor           "pointer"
                              :margin-left      "10px"
@@ -236,14 +240,14 @@
               [:div [:strong (pr-str action)]])])]))]
    [:hr]
    [:strong "Initial model:"]
-   [:div (pr-str (:initial-model model))]])
+   [:div (pr-str @initial-model)]])
 
 (defn -wrap-view
   [component-view]
   (fn devtools-view
-    [model dispatch]
+    [view-model dispatch]
     [:div
-     [component-view (:component-view-model model) (ui/tagged dispatch :component)]
+     [component-view (:component-view-model view-model) (ui/tagged dispatch :component)]
 
      [:div {:style {:position   "fixed"
                     :right      0
@@ -252,18 +256,18 @@
                     :z-index    1000
                     :width      "30%"
                     :box-shadow "-2px 0 7px 0 rgba(0, 0, 0, 0.5)"}}
-      [-devtools-view model dispatch]]]))
+      [-devtools-view view-model dispatch]]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn new-spec
   "Wraps a component into devtools instance.
   For replay to work correctly component is required to implement a :dev-identity action which returns the same model."
   [spec storage storage-key]
-  (-> {:init           (-wrap-init (:init spec))
-       :view-model     (-wrap-view-model (:view-model spec))
-       :view           (-wrap-view (:view spec))
-       :control        (-wrap-control (:control spec))
-       :reconcile      (-wrap-reconcile (:reconcile spec))}
+  (-> {:init       (-wrap-init (:init spec))
+       :view-model (-wrap-view-model (:view-model spec))
+       :view       (-wrap-view (:view spec))
+       :control    (-wrap-control (:control spec))
+       :reconcile  (-wrap-reconcile (:reconcile spec))}
       ; blacklisted keys are provided on init and should not be overwritten by middleware
       ; (otherwise, on hot reload, we will not see changes after after modifying component init code)
       ; thus they also don't need to be saved

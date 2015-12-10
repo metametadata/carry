@@ -24,11 +24,10 @@
   (goog.events/removeAll history)
 
   (let [storage hp/local-storage
-        app (ui/connect-reagent (-> (todos/new-spec history)
-                                    (persistence/wrap storage :model nil)
-                                    (devtools/new-spec storage :devtools))
-                                [])]
-
+        app (ui/connect-reactive-reagent (-> (todos/new-spec history)
+                                             (persistence/wrap storage :model nil)
+                                             (devtools/new-spec storage :devtools))
+                                         [])]
     ; start signaling on navigation events
     (goog.events/listen history EventType/NAVIGATE
                         #((:dispatch-signal app) [:component [:on-navigate (.-token %)]]))

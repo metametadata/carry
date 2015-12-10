@@ -1,7 +1,8 @@
 ; GUI architecture API
 (ns frontend.ui
   (:require [reagent.core :as r]
-            [cljs.pprint]))
+            [cljs.pprint])
+  (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn connect-reagent
@@ -37,6 +38,26 @@
        :model           model-ratom
        :dispatch-action dispatch-action})))
 
+(defn connect-reactive-reagent
+  "Works the same as connect-reagent, but view-model now receives a model ratom and is expected to return Reagent reactions.
+  Inspired by re-frame subscriptions, see: https://github.com/Day8/re-frame#subscribe
+
+  This approach allows tweaking view-model/view code for better performance."
+  [{:keys [init view-model view control reconcile] :as _spec_}
+   init-args]
+  (let [model (apply init init-args)
+        model-ratom (r/atom model)]
+    ; for now dispatch functions return nil to make API even smaller
+    (letfn [(dispatch-action [action] (swap! model-ratom reconcile action) nil)
+            (dispatch-signal [signal] (control @model-ratom signal dispatch-action) nil)
+            (reagent-view [] [view (view-model model-ratom) dispatch-signal])]
+      (dispatch-signal :on-connect)
+
+      {:view            reagent-view
+       :dispatch-signal dispatch-signal
+       :model           model-ratom
+       :dispatch-action dispatch-action})))
+
 ;;;;;;;;;;;;;;;;;;;;;;;; Utils
 (defn tagged
   "Function decorator which prepends a tag to the single argument.
@@ -45,6 +66,13 @@
   (fn tagged-fn
     [x]
     (f [tag x])))
+
+(defn track-keys
+  "Returns a map containing Reagent reactions to map entries specified by keys."
+  [map-ratom keyseq]
+  (into {}
+        (for [key keyseq]
+          [key (reaction (get @map-ratom key))])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn wrap-log
