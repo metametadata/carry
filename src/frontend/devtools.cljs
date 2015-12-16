@@ -58,13 +58,10 @@
              (dispatch :replay)
 
              ; developer decided to not persist a session, but it's loaded by middleware anyway..
-             (do
-               ; so let's clear the session for a fresh start..
-               (dispatch :clear-history)
-
-               ; and let component handle its initial signal
-               ; note: outdated model is passed, but it's safe because :component model hasn't changed after clearing
-               (control model [:component :on-connect] dispatch)))
+             ; so let's clear the session for a fresh start..
+             (-> (dispatch :clear-history)
+                 ; and let component handle its initial signal
+                 (control [:component :on-connect] dispatch)))
 
            [:on-toggle-signal id]
            (do
@@ -89,7 +86,7 @@
 
            [:component s]
            (let [[signal-id _ :as signal-event] (-signal-event (:next-signal-id model) s)]
-             (component-control (:component model) s #(dispatch [:component signal-id %]))
+             (component-control (:component model) s #(:component (dispatch [:component signal-id %])))
              (dispatch [:record-signal-event signal-event])))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile

@@ -5,18 +5,23 @@
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
-(defn connect-reagent
+(defn connect-reactive-reagent
   "Given a component spec map returns a connected component which can be rendered using Reagent.
 
   :control can be a non-pure function, :init, :view-model, :view and :reconcile must be pure functions.
 
+  view-model receives a model ratom and is expected to return Reagent reactions (inspired by re-frame subscriptions,
+  see: https://github.com/Day8/re-frame#subscribe).
+
   init-args will be passed to :init function.
 
-  Dispatches :on-connect signal and returns a map with:
-      :view (Reagent view function),
-      :dispatch-signal (it can be used to dispatch signals not only from the view),
-      :model ratom (this is exposed mainly for debugging),
-      :dispatch-action (this is exposed mainly for debugging).
+  Dispatches :on-connect signal and returns a map with following keys:
+      :view - Reagent view function
+      :dispatch-signal - it can be used to dispatch signals not only from the view, always returns nil
+
+      these are exposed mainly for debugging:
+      :model - Reagent atom
+      :dispatch-action - the same function which is passed into control, returns a new model
 
   Data flow:
   (init)
@@ -27,28 +32,7 @@
    init-args]
   (let [model (apply init init-args)
         model-ratom (r/atom model)]
-    ; for now dispatch functions return nil to make API even smaller
-    (letfn [(dispatch-action [action] (swap! model-ratom reconcile action) nil)
-            (dispatch-signal [signal] (control @model-ratom signal dispatch-action) nil)
-            (reagent-view [] [view (view-model @model-ratom) dispatch-signal])]
-      (dispatch-signal :on-connect)
-
-      {:view            reagent-view
-       :dispatch-signal dispatch-signal
-       :model           model-ratom
-       :dispatch-action dispatch-action})))
-
-(defn connect-reactive-reagent
-  "Works the same as connect-reagent, but view-model now receives a model ratom and is expected to return Reagent reactions.
-  Inspired by re-frame subscriptions, see: https://github.com/Day8/re-frame#subscribe
-
-  This approach allows tweaking view-model/view code for better performance."
-  [{:keys [init view-model view control reconcile] :as _spec_}
-   init-args]
-  (let [model (apply init init-args)
-        model-ratom (r/atom model)]
-    ; for now dispatch functions return nil to make API even smaller
-    (letfn [(dispatch-action [action] (swap! model-ratom reconcile action) nil)
+    (letfn [(dispatch-action [action] (swap! model-ratom reconcile action))
             (dispatch-signal [signal] (control @model-ratom signal dispatch-action) nil)
             (reagent-view [] [view (view-model model-ratom) dispatch-signal])]
       (dispatch-signal :on-connect)

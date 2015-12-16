@@ -40,6 +40,8 @@ frontend.core=> ((:dispatch-action app) [:component :toggle-all])
   - rf: button styles are duplicated
 
 - ?: i dont like adding :dev-identity action manually only for devtools to work
+
+- ?: also be able to replay only signals
 ```
 
 ## Build

@@ -17,11 +17,9 @@
 
 (defn init
   []
-  {:lolka      123
-
-   :field      ""
+  {:field      ""
    :visibility :all
-   ; list of maps {:id :title :completed :editing}
+   ; list of maps
    :todos      (list (-init-todo 1 "Finish this project")
                      (-init-todo 2 "Take a bath"))
    :next-id    3})
@@ -67,9 +65,7 @@
     (match signal
            :on-connect
            (do
-             ; dispatch the current route
              (dispatch [:navigate (.getToken history)])
-
              (dispatch :sample-action))
 
            ; this signal must come from the component owner which listens to history events
