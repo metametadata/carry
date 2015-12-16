@@ -60,17 +60,18 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn wrap-log
-  [spec]
-  (-> spec
-      (update :control #(fn control
-                         [model signal dispatch]
-                         (println "signal =" signal)
-                         (% model signal dispatch)))
-      (update :reconcile #(fn reconcile
-                           [model action]
-                           (println "  action =" action)
-                           (let [result (% model action)]
-                             ;(println "   " model)
-                             ;(println "     ->")
-                             ;(println "   " result)
-                             result)))))
+  ([spec] (wrap-log spec ""))
+  ([spec prefix]
+   (-> spec
+       (update :control #(fn control
+                          [model signal dispatch]
+                          (println prefix "signal =" signal)
+                          (% model signal dispatch)))
+       (update :reconcile #(fn reconcile
+                            [model action]
+                            (println prefix "  action =" action)
+                            (let [result (% model action)]
+                              ;(println prefix "   " model)
+                              ;(println prefix "     ->")
+                              ;(println prefix "   " result)
+                              result))))))

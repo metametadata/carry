@@ -101,19 +101,19 @@
            ;;;;;
            [:navigate token]
            (do
-             (println "    token =" (pr-str token))
+             ;(println "    token =" (pr-str token))
 
              ; only update address bar when its value differs from incoming token
              ; otherwise, navigation event will be triggered leading to infinite recursion error
              (when-not (= token (.getToken history))
-               (println "      REPLACING TOKEN TO" (pr-str token))
+               ;(println "      REPLACING TOKEN TO" (pr-str token))
                (.replaceToken history token))
 
              (if-let [match (->> -visibility-spec
                                  (filter #(= (:token %) token))
                                  first)]
                (do
-                 (println "      route match =" (pr-str match))
+                 ;(println "      route match =" (pr-str match))
                  (assoc model :visibility (:key match)))
 
                model))

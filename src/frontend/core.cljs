@@ -26,7 +26,9 @@
   (let [storage hp/local-storage
         app (ui/connect-reactive-reagent (-> (todos/new-spec history)
                                              (persistence/wrap storage :model nil)
-                                             (devtools/new-spec storage :devtools))
+                                             (ui/wrap-log "   [app]")
+                                             (devtools/new-spec storage :devtools)
+                                             (ui/wrap-log "[devtools]"))
                                          [])]
     ; start signaling on navigation events
     (goog.events/listen history EventType/NAVIGATE

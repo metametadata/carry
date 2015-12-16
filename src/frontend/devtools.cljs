@@ -268,5 +268,4 @@
       ; blacklisted keys are provided on init and should not be overwritten by middleware
       ; (otherwise, on hot reload, we will not see changes after after modifying component init code)
       ; thus they also don't need to be saved
-      (persistence/wrap storage storage-key #{:initial-model})
-      ui/wrap-log))
+      (persistence/wrap storage storage-key #{:initial-model})))
