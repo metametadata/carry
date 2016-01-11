@@ -30,11 +30,14 @@
   [id signal])
 
 (defn -action-event
-  [signal-id id action]
+  [signal-id id action result]
   {:id        id
    :signal-id signal-id
    :enabled?  true
-   :action    action})
+   :action    action
+
+   ; this key only makes sense for enabled actions
+   :result    result})
 
 (defn -update-action-events*
   [model pred f & args]
@@ -45,6 +48,12 @@
 (defn -update-action-event
   [model id f & args]
   (apply -update-action-events* model #(= (:id %) id) f args))
+
+(defn -find-action
+  [model id]
+  (->> (:action-events model)
+       (filter #(= (:id %) id))
+       first))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
 (defn -wrap-control
@@ -72,6 +81,9 @@
            (do
              (dispatch [:toggle-action id])
              (dispatch :replay))
+
+           [:on-log-action-result id]
+           (println (pr-str (:result (-find-action model id))))
 
            :on-toggle-persist
            (dispatch :toggle-persist)
@@ -123,18 +135,20 @@
            [:toggle-action id]
            (-update-action-event model id update :enabled? not)
 
+           ; Applies enabled recorded actions to the initial component model.
            :replay
-           ; applies enabled recorded actions to the initial component model
-           (let [enabled-actions (->> (:action-events model)
-                                      (filter :enabled?)
-                                      (map :action))]
-             (assoc model :component
-                          (reduce component-reconcile
-                                  (:initial-model model)
-                                  ; Identity action goes through all the component's middleware and does nothing.
-                                  ; Why is it needed? Example: component's persistence middleware must be able to
-                                  ; save initial-model even when enabled-actions is empty.
-                                  (concat [:dev-identity] enabled-actions))))
+           ; Identity action goes through all the component's middleware and does nothing.
+           ; Why is it needed? Example: component's persistence middleware must be able to
+           ; save initial-model even when enabled-actions is empty.
+           (loop [action-events (filter :enabled? (:action-events model))
+                  new-model (assoc model :component
+                                         (component-reconcile (:initial-model model) :dev-identity))]
+             (if-let [{:keys [id action]} (first action-events)]
+               (recur (rest action-events)
+                      (as-> new-model m
+                            (update m :component component-reconcile action)
+                            (-update-action-event m id assoc :result (:component m))))
+               new-model))
 
            :toggle-persist
            (update model :persist? not)
@@ -145,21 +159,18 @@
                  (update m :signal-events #(remove (partial -orphaned-signal? m) %)))
 
            [:component signal-id a]
-           (-> model
-               (update :component component-reconcile a)
-               (update :action-events concat [(-action-event signal-id (:next-action-id model) a)])
-               (update :next-action-id inc))
+           (as-> model m
+                 (update m :component component-reconcile a)
+                 (update m :action-events concat [(-action-event signal-id (:next-action-id m) a (:component m))])
+                 (update m :next-action-id inc))
 
-           ; for bare component actions (e.g. when dispatching from REPL) use an "unknown signal" event
+           ; for bare component actions (e.g. when dispatching from REPL) create an "unknown signal" event
            [:component a]
-           (let [[singal-id _ :as unknown-signal-event] (-signal-event (:next-signal-id model)
-                                                                       :-unknown-signal)]
+           (let [[signal-id _ :as unknown-signal-event] (-signal-event (:next-signal-id model) :-unknown-signal)]
              (-> model
-                 (update :component component-reconcile a)
                  (update :signal-events concat [unknown-signal-event])
                  (update :next-signal-id inc)
-                 (update :action-events concat [(-action-event singal-id (:next-action-id model) a)])
-                 (update :next-action-id inc))))))
+                 (reconcile [:component signal-id a]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -wrap-view-model
@@ -178,7 +189,6 @@
                  :height           "100%"
                  :overflow-y       "auto"
                  :background-color "#2A2F3A"
-                 :padding-left     "5px"
                  :color            "white"}}
    [:div {:style {:text-align          "center"
                   :border-bottom-width 1
@@ -224,17 +234,30 @@
          (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
                                                     @action-events)]
            ^{:key id}
-           [:div {:style    {:cursor           "pointer"
-                             :margin-left      "10px"
-                             :margin-top       "3px"
-                             :background-color "rgb(79, 90, 101)"
-                             :color            (if enabled? "inherit" "grey")}
-                  :on-click #(dispatch [:on-toggle-action id])
-                  :title    "Click to enable/disable this action"}
+           [:div {:style {:display          "flex"
+                          :flex-direction   "row"
+                          :margin-left      "10px"
+                          :margin-top       "3px"
+                          :padding          "2px"
+                          :background-color "rgb(60, 70, 80)"
+                          :color            (if enabled? "inherit" "grey")}}
 
-            (if (coll? action)
-              [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (map pr-str (rest action)))]
-              [:div [:strong (pr-str action)]])])]))]
+            [:div {:style    {:cursor "pointer"}
+                   :on-click #(dispatch [:on-toggle-action id])
+                   :title    "Click to enable/disable this action"}
+             (if (coll? action)
+               [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (map pr-str (rest action)))]
+               [:div [:strong (pr-str action)]])]
+
+            (when enabled?
+              [:div {:style    {:font-weight      "bold"
+                                :cursor           "pointer"
+                                :margin-left      "5px"
+                                :border-radius    3
+                                :background-color "rgb(79, 90, 101)"}
+                     :on-click #(dispatch [:on-log-action-result id])
+                     :title    "Print model state after this action"}
+               "model"])])]))]
    [:hr]
    [:strong "Initial model:"]
    [:div (pr-str @initial-model)]])
