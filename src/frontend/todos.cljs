@@ -212,12 +212,15 @@
   "Note that |editing?| is passed only to trigger :component-did-update to set focus on the state change."
   [_id_ _title_ _editing?_ _dispatch_]
   (r/create-class {:reagent-render
-                   (fn [id title _editing?_ dispatch]
+                   (fn [id title editing? dispatch]
                      [:input.edit {:value       title
                                    :on-change   #(dispatch [:on-update-todo id (.. % -target -value)])
                                    :on-key-down #(cond (-enter-key? %) (dispatch [:on-stop-editing id])
                                                        (-escape-key? %) (dispatch [:on-cancel-editing id]))
-                                   :on-blur     #(dispatch [:on-stop-editing id])}])
+                                   ; the condition is only added to not pollute log with unneeded signals
+                                   ; in case blur is triggered after user clicks Enter or Esc
+                                   :on-blur     #(when editing?
+                                                  (dispatch [:on-stop-editing id]))}])
 
                    :component-did-update
                    (fn [this]

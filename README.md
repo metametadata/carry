@@ -26,7 +26,6 @@ frontend.core=> ((:dispatch-action app) [:component :toggle-all])
 ## TODO
 
 ```
-- bug: :on-stop-editing is dispatched twice
 - bug: enabling/disabling :start-editing action fires :on-stop-editing on its own
 - bug in devtools and navigation: toggling :navigate actions fires and records new signals? smt. strange happens
 - bug? raise exception from inside todos/reconcile -> stack trace doesnt show the root source of exception
