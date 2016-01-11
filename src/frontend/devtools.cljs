@@ -218,7 +218,7 @@
                 :title    "Click to enable/disable all actions dispatched from this signal"}
           "→ "
           (if (coll? signal)
-            [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (rest signal))]
+            [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (map pr-str (rest signal)))]
             [:strong (pr-str signal)])]
 
          (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
@@ -233,7 +233,7 @@
                   :title    "Click to enable/disable this action"}
 
             (if (coll? action)
-              [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (rest action))]
+              [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (map pr-str (rest action)))]
               [:div [:strong (pr-str action)]])])]))]
    [:hr]
    [:strong "Initial model:"]
