@@ -182,6 +182,18 @@
         (assoc :component-view-model (component-view-model (reaction (:component @model)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
+(defn -menu-button
+  [caption on-click title]
+  [:button {:style    {:font-weight      "bold"
+                       :cursor           "pointer"
+                       :padding          "4px"
+                       :margin           "5px 3px"
+                       :border-radius    "3px"
+                       :background-color "rgb(79, 90, 101)"}
+            :title    title
+            :on-click on-click}
+   caption])
+
 (defn -devtools-view
   [{:keys [persist? initial-model signal-events action-events] :as _view-model_}
    dispatch]
@@ -199,24 +211,8 @@
                     :checked   @persist?
                     :on-change #(dispatch :on-toggle-persist)}
      "Persist session"]
-
-    [:button {:style    {:font-weight      "bold"
-                         :cursor           "pointer"
-                         :padding          4
-                         :margin           "5px 3px"
-                         :border-radius    3
-                         :background-color "rgb(79, 90, 101)"}
-              :title    "Removes disabled actions and \"orphaned\" signals from history"
-              :on-click #(dispatch :on-sweep)} "Sweep"]
-
-    [:button {:style    {:font-weight      "bold"
-                         :cursor           "pointer"
-                         :padding          4
-                         :margin           "5px 3px"
-                         :border-radius    3
-                         :background-color "rgb(79, 90, 101)"}
-              :title    "Removes all actions and signals resetting the model to initial state"
-              :on-click #(dispatch :on-reset)} "Reset"]]
+    [-menu-button "Sweep" #(dispatch :on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
+    [-menu-button "Reset" #(dispatch :on-reset) "Removes all actions and signals resetting the model to initial state"]]
 
    [:div
     (doall
@@ -235,7 +231,6 @@
                                                     @action-events)]
            ^{:key id}
            [:div {:style {:display          "flex"
-                          :flex-direction   "row"
                           :margin-left      "10px"
                           :margin-top       "3px"
                           :padding          "2px"
@@ -253,7 +248,7 @@
               [:div {:style    {:font-weight      "bold"
                                 :cursor           "pointer"
                                 :margin-left      "5px"
-                                :border-radius    3
+                                :border-radius    "3px"
                                 :background-color "rgb(79, 90, 101)"}
                      :on-click #(dispatch [:on-log-action-result id])
                      :title    "Print model state after this action"}

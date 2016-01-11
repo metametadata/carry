@@ -27,7 +27,6 @@ frontend.core=> ((:dispatch-action app) [:component :toggle-all])
 
 ```
 - feature: devtools be able to catch errors and stop on them/show them in corresponding actions (as in redux)
-- rf: devtools button styles are duplicated
 
 - navigation: todos action must not trigger navigation event on replaceToken, because it can be catched twice by another component?
 - navigation: on devtools replay the history stack should probably also grow on each navigation action
