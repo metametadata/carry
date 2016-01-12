@@ -76,7 +76,10 @@
          [:on-cancel-editing id] (dispatch [:cancel-editing id])
          [:on-update-todo id val] (dispatch [:update-todo id val])
          [:on-remove id] (dispatch [:remove id])
-         :on-clear-completed (dispatch :clear-completed)))
+         :on-clear-completed (dispatch :clear-completed)
+
+         ; required by devtools
+         :on-devtools-did-replay nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn new-reconcile
@@ -84,9 +87,6 @@
   (fn reconcile
     [model action]
     (match action
-           ; required be devtools
-           :dev-identity model
-
            ; do nothing, only for a demo
            :sample-action model
 

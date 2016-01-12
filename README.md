@@ -26,9 +26,9 @@ frontend.core=> ((:dispatch-action app) [:component :toggle-all])
 ## TODO
 
 ```
+. rename to :on-devtools-did-replay
 - bug: after reset click Active, then disable this action in devtools -> UI updates, but navbar stays the same
 - feature: devtools be able to catch errors and stop on them/show them in corresponding actions (as in redux)
-- ?: i dont like adding :dev-identity action manually only for devtools to work
 - ?: also be able to replay only signals
 - bug? raise exception from inside todos/reconcile -> stack trace doesnt show the root source of exception
 ```

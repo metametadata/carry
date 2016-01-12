@@ -60,46 +60,55 @@
   [component-control]
   (fn control
     [model signal dispatch]
-    (match signal
-           :on-connect
-           (if (:persist? model)
-             ; replay loaded actions
-             (dispatch :replay)
+    (letfn [(replay []
+              ; Replay and notify wrapped component about replaying.
+              ; Notification signal is needed, for instance, to hit persistence middleware to save new component model.
+              (-> (dispatch :replay)
+                  :component
+                  (component-control :on-devtools-did-replay #(:component (dispatch [:component %])))))]
+      (match signal
+             ; required by devtools
+             :on-devtools-did-replay nil
 
-             ; developer decided to not persist a session, but it's loaded by middleware anyway..
-             ; so let's clear the session for a fresh start..
-             (-> (dispatch :clear-history)
-                 ; and let component handle its initial signal
-                 (control [:component :on-connect] dispatch)))
+             :on-connect
+             (if (:persist? model)
+               ; replay loaded actions
+               (replay)
 
-           [:on-toggle-signal id]
-           (do
-             (dispatch [:toggle-signal id])
-             (dispatch :replay))
+               ; developer decided to not persist a session, but it's loaded by middleware anyway..
+               ; so let's clear the session for a fresh start..
+               (-> (dispatch :clear-history)
+                   ; and let component handle its initial signal
+                   (control [:component :on-connect] dispatch)))
 
-           [:on-toggle-action id]
-           (do
-             (dispatch [:toggle-action id])
-             (dispatch :replay))
+             [:on-toggle-signal id]
+             (do
+               (dispatch [:toggle-signal id])
+               (replay))
 
-           [:on-log-action-result id]
-           (println (pr-str (:result (-find-action model id))))
+             [:on-toggle-action id]
+             (do
+               (dispatch [:toggle-action id])
+               (replay))
 
-           :on-toggle-persist
-           (dispatch :toggle-persist)
+             [:on-log-action-result id]
+             (println (pr-str (:result (-find-action model id))))
 
-           :on-sweep
-           (dispatch :sweep)
+             :on-toggle-persist
+             (dispatch :toggle-persist)
 
-           :on-reset
-           (do
-             (dispatch :clear-history)
-             (dispatch :replay))
+             :on-sweep
+             (dispatch :sweep)
 
-           [:component s]
-           (let [[signal-id _ :as signal-event] (-signal-event (:next-signal-id model) s)]
-             (component-control (:component model) s #(:component (dispatch [:component signal-id %])))
-             (dispatch [:record-signal-event signal-event])))))
+             :on-reset
+             (do
+               (dispatch :clear-history)
+               (replay))
+
+             [:component s]
+             (let [[signal-id _ :as signal-event] (-signal-event (:next-signal-id model) s)]
+               (component-control (:component model) s #(:component (dispatch [:component signal-id %])))
+               (dispatch [:record-signal-event signal-event]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn -orphaned-signal?
@@ -113,9 +122,6 @@
   (fn reconcile
     [model action]
     (match action
-           :dev-identity
-           model
-
            :clear-history
            (assoc model :signal-events (list)
                         :action-events (list))
@@ -135,14 +141,10 @@
            [:toggle-action id]
            (-update-action-event model id update :enabled? not)
 
-           ; Applies enabled recorded actions to the initial component model.
+           ; applies enabled actions to the initial component model
            :replay
-           ; Identity action goes through all the component's middleware and does nothing.
-           ; Why is it needed? Example: component's persistence middleware must be able to
-           ; save initial-model even when enabled-actions is empty.
            (loop [action-events (filter :enabled? (:action-events model))
-                  new-model (assoc model :component
-                                         (component-reconcile (:initial-model model) :dev-identity))]
+                  new-model (assoc model :component (:initial-model model))]
              (if-let [{:keys [id action]} (first action-events)]
                (recur (rest action-events)
                       (as-> new-model m
@@ -276,7 +278,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn new-spec
   "Wraps a component into devtools instance.
-  For replay to work correctly component is required to implement a :dev-identity action which returns the same model."
+  For replay to work correctly component is required to handle :on-devtools-did-replay signal."
   [spec storage storage-key]
   (-> {:init       (-wrap-init (:init spec))
        :view-model (-wrap-view-model (:view-model spec))
@@ -284,6 +286,6 @@
        :control    (-wrap-control (:control spec))
        :reconcile  (-wrap-reconcile (:reconcile spec))}
       ; blacklisted keys are provided on init and should not be overwritten by middleware
-      ; (otherwise, on hot reload, we will not see changes after after modifying component init code)
+      ; (otherwise, on hot reload, we will not see changes after modifying component init code)
       ; thus they also don't need to be saved
       (persistence/wrap storage storage-key #{:initial-model})))
