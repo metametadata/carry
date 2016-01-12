@@ -22,7 +22,7 @@
                                              (devtools/new-spec storage :devtools)
                                              (ui/wrap-log "[devtools]"))
                                          [])]
-    (router/set-listener router #((:dispatch-signal app) [:component [:on-navigate %]]))
+    (router/start-listening router #((:dispatch-signal app) [:component [:on-navigate %]]))
 
     (r/render-component [(:view app)] (. js/document (getElementById "root")))
     app))

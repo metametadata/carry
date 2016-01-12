@@ -59,29 +59,24 @@
    {:key :active :title "Active" :href "#/active" :token "/active"}
    {:key :completed :title "Completed" :href "#/completed" :token "/completed"}])
 
-(defn new-control
-  [router]
-  (fn control
-    [_model_ signal dispatch]
-    (match signal
-           :on-connect
-           (do
-             (dispatch [:navigate (router/token router)])
-             (dispatch :sample-action))
+(defn control
+  [_model_ signal dispatch]
+  (match signal
+         :on-connect (dispatch :sample-action)
 
-           ; this signal must come from the component owner which listens to history events
-           [:on-navigate token] (dispatch [:navigate token])
+         ; this signal must come from the component owner which listens to history events
+         [:on-navigate token] (dispatch [:navigate token])
 
-           [:on-update-field val] (dispatch [:update-field val])
-           :on-add (dispatch :add)
-           [:on-toggle id] (dispatch [:toggle id])
-           :on-toggle-all (dispatch :toggle-all)
-           [:on-start-editing id] (dispatch [:start-editing id])
-           [:on-stop-editing id] (dispatch [:stop-editing id])
-           [:on-cancel-editing id] (dispatch [:cancel-editing id])
-           [:on-update-todo id val] (dispatch [:update-todo id val])
-           [:on-remove id] (dispatch [:remove id])
-           :on-clear-completed (dispatch :clear-completed))))
+         [:on-update-field val] (dispatch [:update-field val])
+         :on-add (dispatch :add)
+         [:on-toggle id] (dispatch [:toggle id])
+         :on-toggle-all (dispatch :toggle-all)
+         [:on-start-editing id] (dispatch [:start-editing id])
+         [:on-stop-editing id] (dispatch [:stop-editing id])
+         [:on-cancel-editing id] (dispatch [:cancel-editing id])
+         [:on-update-todo id val] (dispatch [:update-todo id val])
+         [:on-remove id] (dispatch [:remove id])
+         :on-clear-completed (dispatch :clear-completed)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn new-reconcile
@@ -289,5 +284,5 @@
   {:init       init
    :view-model view-model
    :view       view
-   :control    (new-control router)
+   :control    control
    :reconcile  (new-reconcile router)})

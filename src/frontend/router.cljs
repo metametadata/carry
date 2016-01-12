@@ -5,7 +5,7 @@
   (:import goog.history.Html5History))
 
 (defprotocol RouterProtocol
-  (set-listener [this callback])
+  (start-listening [this callback])
   (token [this])
   (replace-token [this token]))
 
@@ -17,13 +17,17 @@
 
 (defrecord Router []
   RouterProtocol
-  (set-listener [_this callback]
+  (start-listening
+    [this callback]
     ; clear previous listeners which can be there after hot reload
     (goog.events/removeAll _history)
 
     ; start signaling on navigation events
     (goog.events/listen _history EventType/NAVIGATE #(when *_history-events-enabled?*
-                                                      (callback (.-token %)))))
+                                                      (callback (.-token %))))
+
+    ; also fire the initial event
+    (callback (token this)))
 
   (token
     [_this]
