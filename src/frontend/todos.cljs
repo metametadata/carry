@@ -3,7 +3,8 @@
   (:require [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]
             [com.rpl.specter :as s]
-            [frontend.ui :as ui])
+            [frontend.ui :as ui]
+            [frontend.router :as router])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Model
@@ -103,10 +104,8 @@
            (do
              ;(println "    token =" (pr-str token))
 
-             ; only update address bar when its value differs from incoming token
-             ; otherwise, navigation event will be triggered leading to infinite recursion error
-             (when-not (= token (.getToken history))
-               ;(println "      REPLACING TOKEN TO" (pr-str token))
+             (binding [router/*history-events-enabled?* false]
+               ;(println "      REPLACING TOKEN " (pr-str (.getToken history)) " -> " (pr-str token))
                (.replaceToken history token))
 
              (if-let [match (->> -visibility-spec
