@@ -26,7 +26,6 @@ frontend.core=> ((:dispatch-action app) [:component :toggle-all])
 ## TODO
 
 ```
-. rename to :on-devtools-did-replay
 - bug: after reset click Active, then disable this action in devtools -> UI updates, but navbar stays the same
 - feature: devtools be able to catch errors and stop on them/show them in corresponding actions (as in redux)
 - ?: also be able to replay only signals
