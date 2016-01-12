@@ -5,9 +5,7 @@
             [frontend.ui :as ui]
             [frontend.router :as router]
             [reagent.core :as r]
-            [hodgepodge.core :as hp]
-            [goog.events]
-            [goog.history.EventType :as EventType]))
+            [hodgepodge.core :as hp]))
 
 (enable-console-print!)
 
@@ -16,20 +14,15 @@
   []
   (println "Hi.")
 
-  ; clear previous listeners which can be there after hot reload
-  (goog.events/removeAll router/history)
-
-  (let [storage hp/local-storage
-        app (ui/connect-reactive-reagent (-> (todos/new-spec router/history)
+  (let [router (router/->Router)
+        storage hp/local-storage
+        app (ui/connect-reactive-reagent (-> (todos/new-spec router)
                                              (persistence/wrap storage :model nil)
                                              (ui/wrap-log "   [app]")
                                              (devtools/new-spec storage :devtools)
                                              (ui/wrap-log "[devtools]"))
                                          [])]
-    ; start signaling on navigation events
-    (goog.events/listen router/history EventType/NAVIGATE
-                        #(when router/*history-events-enabled?*
-                          ((:dispatch-signal app) [:component [:on-navigate (.-token %)]])))
+    (router/set-listener router #((:dispatch-signal app) [:component [:on-navigate %]]))
 
     (r/render-component [(:view app)] (. js/document (getElementById "root")))
     app))

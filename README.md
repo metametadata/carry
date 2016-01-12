@@ -26,6 +26,8 @@ frontend.core=> ((:dispatch-action app) [:component :toggle-all])
 ## TODO
 
 ```
+- ?: why (dispatch [:navigate (router/token router)]) should be in :on-connect?
+- bug: after reset click Active, then disable this action in devtools -> UI updates, but navbar stays the same
 - feature: devtools be able to catch errors and stop on them/show them in corresponding actions (as in redux)
 - ?: i dont like adding :dev-identity action manually only for devtools to work
 - ?: also be able to replay only signals

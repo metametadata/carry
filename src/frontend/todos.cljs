@@ -60,13 +60,13 @@
    {:key :completed :title "Completed" :href "#/completed" :token "/completed"}])
 
 (defn new-control
-  [history]
+  [router]
   (fn control
     [_model_ signal dispatch]
     (match signal
            :on-connect
            (do
-             (dispatch [:navigate (.getToken history)])
+             (dispatch [:navigate (router/token router)])
              (dispatch :sample-action))
 
            ; this signal must come from the component owner which listens to history events
@@ -85,7 +85,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn new-reconcile
-  [history]
+  [router]
   (fn reconcile
     [model action]
     (match action
@@ -103,10 +103,7 @@
            [:navigate token]
            (do
              ;(println "    token =" (pr-str token))
-
-             (binding [router/*history-events-enabled?* false]
-               ;(println "      REPLACING TOKEN " (pr-str (.getToken history)) " -> " (pr-str token))
-               (.replaceToken history token))
+             (router/replace-token router token)
 
              (if-let [match (->> -visibility-spec
                                  (filter #(= (:token %) token))
@@ -288,9 +285,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Spec
 (defn new-spec
-  [history]
+  [router]
   {:init       init
    :view-model view-model
    :view       view
-   :control    (new-control history)
-   :reconcile  (new-reconcile history)})
+   :control    (new-control router)
+   :reconcile  (new-reconcile router)})
