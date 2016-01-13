@@ -66,7 +66,14 @@
          :on-connect (dispatch :sample-action)
 
          ; will come from router middleware
-         [::routing/on-navigate token] (dispatch [:navigate token])
+         [::routing/on-navigate token]
+         (do
+           ;(println "    token =" (pr-str token))
+           (when-let [match (->> -visibility-spec
+                               (filter #(= (:token %) token))
+                               first)]
+             ;(println "      route match =" (pr-str match))
+             (dispatch [:set-visibility (:key match)])))
 
          ; will come from devtools
          ::devtools/on-did-replay nil
@@ -89,17 +96,8 @@
          ; do nothing, only for a demo
          :sample-action model
 
-         [:navigate token]
-         (do
-           ;(println "    token =" (pr-str token))
-           (if-let [match (->> -visibility-spec
-                               (filter #(= (:token %) token))
-                               first)]
-             (do
-               ;(println "      route match =" (pr-str match))
-               (assoc model :visibility (:key match)))
-
-             model))
+         [:set-visibility key]
+         (assoc model :visibility key)
 
          [:update-field val]
          (assoc model :field val)
