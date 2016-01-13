@@ -16,14 +16,13 @@
 
   (let [history (routing/->History)
         storage hp/local-storage
-        app (ui/connect-reactive-reagent (-> (todos/new-spec history)
+        app (ui/connect-reactive-reagent (-> todos/spec
+                                             (routing/wrap-routing history)
                                              (persistence/wrap storage :model nil)
                                              (ui/wrap-log "   [app]")
                                              (devtools/new-spec storage :devtools)
                                              (ui/wrap-log "[devtools]"))
                                          [])]
-    (routing/start-listening history #((:dispatch-signal app) [:component [:on-navigate %]]))
-
     (r/render-component [(:view app)] (. js/document (getElementById "root")))
     app))
 

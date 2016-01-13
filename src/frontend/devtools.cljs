@@ -65,10 +65,10 @@
               ; Notification signal is needed, for instance, to hit persistence middleware to save new component model.
               (-> (dispatch :replay)
                   :component
-                  (component-control :on-devtools-did-replay #(:component (dispatch [:component %])))))]
+                  (component-control ::on-did-replay #(:component (dispatch [:component %])))))]
       (match signal
              ; required by devtools
-             :on-devtools-did-replay nil
+             ::on-did-replay nil
 
              :on-connect
              (if (:persist? model)
@@ -278,7 +278,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn new-spec
   "Wraps a component into devtools instance.
-  For replay to work correctly component is required to handle :on-devtools-did-replay signal."
+  For replay to work correctly component is required to handle ::on-did-replay signal."
   [spec storage storage-key]
   (-> {:init       (-wrap-init (:init spec))
        :view-model (-wrap-view-model (:view-model spec))

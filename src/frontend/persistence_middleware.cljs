@@ -35,7 +35,7 @@
 
             ; else - update model and hand it with signal further to component
             (let [new-model (merge storage-model (select-keys model blacklist))]
-              (dispatch [::reset-from-storage new-model])
+              (dispatch [::-reset-from-storage new-model])
               (control new-model signal dispatch-and-save))))))))
 
 (defn -wrap-reconcile
@@ -43,7 +43,7 @@
   (fn wrapped-reconcile
     [model action]
     (match action
-           [::reset-from-storage data]
+           [::-reset-from-storage data]
            data
 
            :else

@@ -4,6 +4,7 @@
             [reagent.core :as r]
             [com.rpl.specter :as s]
             [frontend.ui :as ui]
+            [frontend.devtools :as devtools]
             [frontend.routing :as routing])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
@@ -64,8 +65,11 @@
   (match signal
          :on-connect (dispatch :sample-action)
 
-         ; this signal must come from the component owner which listens to history events
-         [:on-navigate token] (dispatch [:navigate token])
+         ; will come from router middleware
+         [::routing/on-navigate token] (dispatch [:navigate token])
+
+         ; will come from devtools
+         ::devtools/on-did-replay nil
 
          [:on-update-field val] (dispatch [:update-field val])
          :on-add (dispatch :add)
@@ -76,85 +80,73 @@
          [:on-cancel-editing id] (dispatch [:cancel-editing id])
          [:on-update-todo id val] (dispatch [:update-todo id val])
          [:on-remove id] (dispatch [:remove id])
-         :on-clear-completed (dispatch :clear-completed)
-
-         ; required by devtools
-         :on-devtools-did-replay nil))
+         :on-clear-completed (dispatch :clear-completed)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
-(defn new-reconcile
-  [history]
-  (fn reconcile
-    [model action]
-    (match action
-           ; do nothing, only for a demo
-           :sample-action model
+(defn reconcile
+  [model action]
+  (match action
+         ; do nothing, only for a demo
+         :sample-action model
 
-           ;;;;;
-           ; Actions must be pure, but this is an exception to the rule:
-           ; we need to update the address bar because action could have come from the devtools during replay.
-           ; Ideally, address bar should behave kinda like another reactjs input, it's what we try to simulate here.
-           ;;;;;
-           [:navigate token]
-           (do
-             ;(println "    token =" (pr-str token))
-             (routing/replace-token history token)
+         [:navigate token]
+         (do
+           ;(println "    token =" (pr-str token))
+           (if-let [match (->> -visibility-spec
+                               (filter #(= (:token %) token))
+                               first)]
+             (do
+               ;(println "      route match =" (pr-str match))
+               (assoc model :visibility (:key match)))
 
-             (if-let [match (->> -visibility-spec
-                                 (filter #(= (:token %) token))
-                                 first)]
-               (do
-                 ;(println "      route match =" (pr-str match))
-                 (assoc model :visibility (:key match)))
+             model))
 
-               model))
+         [:update-field val]
+         (assoc model :field val)
 
-           [:update-field val]
-           (assoc model :field val)
+         :add
+         (let [title (clojure.string/trim (:field model))]
+           (if (clojure.string/blank? title)
+             model
+             (-> model
+                 (assoc :field "")
+                 (update :next-id inc)
+                 (update :todos concat [(-init-todo (:next-id model) title)]))))
 
-           :add
-           (let [title (clojure.string/trim (:field model))]
-             (if (clojure.string/blank? title)
-               model
-               (-> model
-                   (assoc :field "")
-                   (update :next-id inc)
-                   (update :todos concat [(-init-todo (:next-id model) title)]))))
+         [:toggle id]
+         (-update-todo model id update :completed? not)
 
-           [:toggle id]
-           (-update-todo model id update :completed? not)
+         :toggle-all
+         (let [all-completed? (every? :completed? (:todos model))]
+           (-update-todos model assoc :completed? (not all-completed?)))
 
-           :toggle-all
-           (let [all-completed? (every? :completed? (:todos model))]
-             (-update-todos model assoc :completed? (not all-completed?)))
+         [:start-editing id]
+         (-> model
+             (-update-todos #(assoc % :editing? (= (:id %) id)))
+             (-update-todo id #(assoc % :original-title (:title %))))
 
-           [:start-editing id]
-           (-> model
-               (-update-todos #(assoc % :editing? (= (:id %) id)))
-               (-update-todo id #(assoc % :original-title (:title %))))
+         [:stop-editing id]
+         (let [title (-> (-find-todo model id)
+                         :title
+                         clojure.string/trim)]
+           (if (clojure.string/blank? title)
+             (-remove-todo model id)
+             (-update-todos model #(assoc % :editing? false
+                                            :original-title ""))))
 
-           [:stop-editing id]
-           (let [title (-> (-find-todo model id)
-                           :title
-                           clojure.string/trim)]
-             (if (clojure.string/blank? title)
-               (-remove-todo model id)
-               (-update-todos model #(assoc % :editing? false
-                                              :original-title ""))))
+         [:cancel-editing id]
+         (-update-todo model id #(assoc % :editing? false
+                                          :title (:original-title %)
+                                          :original-title ""))
 
-           [:cancel-editing id]
-           (-update-todo model id #(assoc % :editing? false
-                                            :title (:original-title %)
-                                            :original-title ""))
+         [:update-todo id val]
+         (-update-todo model id assoc :title val)
 
-           [:update-todo id val]
-           (-update-todo model id assoc :title val)
+         [:remove id]
+         (-remove-todo model id)
 
-           [:remove id]
-           (-remove-todo model id)
-
-           :clear-completed
-           (-remove-todos model :completed?))))
+         :clear-completed
+         (-remove-todos model :completed?)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn view-model
@@ -279,10 +271,9 @@
       [-view-footer @active-count @has-completed-todos? @visibility dispatch]])])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Spec
-(defn new-spec
-  [history]
+(def spec
   {:init       init
    :view-model view-model
    :view       view
    :control    control
-   :reconcile  (new-reconcile history)})
+   :reconcile  reconcile})

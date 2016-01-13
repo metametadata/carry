@@ -1,11 +1,12 @@
-; History object deals with browser url bar directly
 (ns frontend.routing
-  (:require [goog.events]
+  (:require [cljs.core.match :refer-macros [match]]
+            [goog.events]
             [goog.history.EventType :as EventType])
   (:import goog.history.Html5History))
 
+;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar directly.
 (defprotocol HistoryProtocol
-  (start-listening [this callback])
+  (-start-listening [this callback])
   (token [this])
   (replace-token [this token]))
 
@@ -17,7 +18,7 @@
 
 (defrecord History []
   HistoryProtocol
-  (start-listening
+  (-start-listening
     [this callback]
     ; clear previous listeners which can be there after hot reload
     (goog.events/removeAll _history)
@@ -37,3 +38,41 @@
     [_this token]
     (binding [*_history-events-enabled?* false]
       (.replaceToken _history token))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
+(defn -wrap-control
+  [control history]
+  (fn wrapped-control
+    [model signal dispatch]
+    (when (= signal :on-connect)
+      (-start-listening history #(do
+                                  (dispatch [::-replace-token %])
+                                  (control model [::on-navigate %] dispatch))))
+
+    (control model signal dispatch)))
+
+(defn -wrap-reconcile
+  [reconcile history]
+  (fn wrapped-reconcile
+    [model action]
+    (match action
+           ;;;;;
+           ; Actions must be pure, but this is an exception to the rule:
+           ; we need to update the address bar because action could have come from the devtools during replay.
+           ; Ideally, address bar should behave kinda like another reactjs input, it's what we try to simulate here.
+           ;;;;;
+           [::-replace-token token]
+           (do
+             (replace-token history token)
+             model)
+
+           :else
+           (reconcile model action))))
+
+(defn wrap-routing
+  "On :on-connect signal middleware starts listening to navigation events and will
+  dispatch [::on-navigate token] signals to the wrapped component."
+  [spec history]
+  (-> spec
+      (update :control -wrap-control history)
+      (update :reconcile -wrap-reconcile history)))
