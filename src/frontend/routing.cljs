@@ -1,10 +1,10 @@
-; Router is a record which can be passed around as an explicit dependency
-(ns frontend.router
+; History object deals with browser url bar directly
+(ns frontend.routing
   (:require [goog.events]
             [goog.history.EventType :as EventType])
   (:import goog.history.Html5History))
 
-(defprotocol RouterProtocol
+(defprotocol HistoryProtocol
   (start-listening [this callback])
   (token [this])
   (replace-token [this token]))
@@ -15,8 +15,8 @@
 
 (def ^:dynamic *_history-events-enabled?* true)
 
-(defrecord Router []
-  RouterProtocol
+(defrecord History []
+  HistoryProtocol
   (start-listening
     [this callback]
     ; clear previous listeners which can be there after hot reload

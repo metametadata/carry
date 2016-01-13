@@ -3,7 +3,7 @@
             [frontend.todos :as todos]
             [frontend.persistence-middleware :as persistence]
             [frontend.ui :as ui]
-            [frontend.router :as router]
+            [frontend.routing :as routing]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
 
@@ -14,15 +14,15 @@
   []
   (println "Hi.")
 
-  (let [router (router/->Router)
+  (let [history (routing/->History)
         storage hp/local-storage
-        app (ui/connect-reactive-reagent (-> (todos/new-spec router)
+        app (ui/connect-reactive-reagent (-> (todos/new-spec history)
                                              (persistence/wrap storage :model nil)
                                              (ui/wrap-log "   [app]")
                                              (devtools/new-spec storage :devtools)
                                              (ui/wrap-log "[devtools]"))
                                          [])]
-    (router/start-listening router #((:dispatch-signal app) [:component [:on-navigate %]]))
+    (routing/start-listening history #((:dispatch-signal app) [:component [:on-navigate %]]))
 
     (r/render-component [(:view app)] (. js/document (getElementById "root")))
     app))

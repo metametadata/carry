@@ -4,7 +4,7 @@
             [reagent.core :as r]
             [com.rpl.specter :as s]
             [frontend.ui :as ui]
-            [frontend.router :as router])
+            [frontend.routing :as routing])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Model
@@ -83,7 +83,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn new-reconcile
-  [router]
+  [history]
   (fn reconcile
     [model action]
     (match action
@@ -98,7 +98,7 @@
            [:navigate token]
            (do
              ;(println "    token =" (pr-str token))
-             (router/replace-token router token)
+             (routing/replace-token history token)
 
              (if-let [match (->> -visibility-spec
                                  (filter #(= (:token %) token))
@@ -280,9 +280,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Spec
 (defn new-spec
-  [router]
+  [history]
   {:init       init
    :view-model view-model
    :view       view
    :control    control
-   :reconcile  (new-reconcile router)})
+   :reconcile  (new-reconcile history)})
