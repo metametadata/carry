@@ -50,6 +50,12 @@
   [model id f & args]
   (apply -update-action-events* model #(= (:id %) id) f args))
 
+(defn -find-signal
+  [model id]
+  (->> (:signal-events model)
+       (filter #(= (first %) id))
+       first))
+
 (defn -find-action
   [model id]
   (->> (:action-events model)
@@ -71,8 +77,8 @@
             (handle-component-signal
               [model]
               (let [[signal-id _ :as signal-event] (-signal-event (:next-signal-id model) signal)]
-                (component-control (:component model) signal #(:component (dispatch [::component signal-id %])))
-                (dispatch [::record-signal-event signal-event])))]
+                (dispatch [::record-signal-event signal-event])
+                (component-control (:component model) signal #(:component (dispatch [::component signal-id %])))))]
       (match signal
              :on-connect
              (if (:persist? model)
@@ -168,10 +174,14 @@
 
            ; component action coming from specific signal
            [::component signal-id a]
-           (as-> model m
-                 (update m :component component-reconcile a)
-                 (update m :action-events concat [(-action-event signal-id (:next-action-id m) a (:component m))])
-                 (update m :next-action-id inc))
+           (if (-find-signal model signal-id)
+             (as-> model m
+                   (update m :component component-reconcile a)
+                   (update m :action-events concat [(-action-event signal-id (:next-action-id m) a (:component m))])
+                   (update m :next-action-id inc))
+
+             ; looks like originating signal could be already sweeped -> create "unknown signal" to record this action
+             (reconcile model a))
 
            ; for bare component actions (e.g. when dispatching from REPL) create an "unknown signal" event
            :else
