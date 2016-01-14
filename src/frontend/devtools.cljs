@@ -247,8 +247,7 @@
                [:div [:strong (pr-str action)]])]
 
             (when enabled?
-              [:div {:style    {:font-weight      "bold"
-                                :cursor           "pointer"
+              [:div {:style    {:cursor           "pointer"
                                 :margin-left      "5px"
                                 :border-radius    "3px"
                                 :background-color "rgb(79, 90, 101)"}

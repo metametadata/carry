@@ -15,7 +15,7 @@
 
   init-args will be passed to :init function.
 
-  Dispatches :on-connect signal and returns a map with following keys:
+  Dispatches :on-connect signal and returns a \"connected spec\" map with following keys:
       :view - Reagent view function
       :dispatch-signal - it can be used to dispatch signals not only from the view, always returns nil
 

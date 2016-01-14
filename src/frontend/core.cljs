@@ -17,16 +17,22 @@
   (let [history (routing/->History)
         storage hp/local-storage
         app (ui/connect-reactive-reagent (-> todos/spec
-                                             (routing/wrap-routing history)
+                                             (routing/wrap history)
                                              (persistence/wrap storage :model nil)
                                              (ui/wrap-log "   [app]")
                                              (devtools/new-spec storage :devtools)
                                              (ui/wrap-log "[devtools]"))
                                          [])]
+    ; explicitly start sending navigation signals after connecting (in order to be able to debug them in devtools)
+    (routing/start-signaling history app)
+
+    ; render app
     (r/render-component [(:view app)] (. js/document (getElementById "root")))
+
+    ; return app for future debugging
     app))
 
-; to be accessed from REPL
+; start app and make it accessible from REPL
 (def app (main))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff

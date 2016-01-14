@@ -4,52 +4,57 @@
             [goog.history.EventType :as EventType])
   (:import goog.history.Html5History))
 
-;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar directly.
+;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar directly
 (defprotocol HistoryProtocol
-  (-start-listening [this callback])
+  (start-signaling [this app])
   (token [this])
   (replace-token [this token]))
 
-; defonce is needed for hotloading
-(defonce _history (doto (Html5History.)
-                    (.setEnabled true)))
+; defonce is needed for hot reloading
+(defonce _goog-history (doto (Html5History.)
+                         (.setEnabled true)))
 
 (def ^:dynamic *_history-events-enabled?* true)
 
 (defrecord History []
   HistoryProtocol
-  (-start-listening
-    [this callback]
+  (start-signaling
+    [this connected-spec]
     ; clear previous listeners which can be there after hot reload
-    (goog.events/removeAll _history)
+    (goog.events/removeAll _goog-history)
 
-    ; start signaling on navigation events
-    (goog.events/listen _history EventType/NAVIGATE #(when *_history-events-enabled?*
-                                                      (callback (.-token %))))
+    (letfn [(callback [token] ((:dispatch-signal connected-spec) [:component [::on-navigate token]]))]
+      ; start signaling on navigation events
+      (goog.events/listen _goog-history EventType/NAVIGATE
+                          #(when *_history-events-enabled?*
+                            (callback (.-token %))))
 
-    ; also fire the initial event
-    (callback (token this)))
+      ; also fire the initial event
+      (callback (token this))))
 
   (token
     [_this]
-    (.getToken _history))
+    (.getToken _goog-history))
 
   (replace-token
     [_this token]
     (binding [*_history-events-enabled?* false]
-      (.replaceToken _history token))))
+      (.replaceToken _goog-history token))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn -wrap-control
-  [control history]
+  [control]
   (fn wrapped-control
     [model signal dispatch]
-    (when (= signal :on-connect)
-      (-start-listening history #(do
-                                  (dispatch [::-replace-token %])
-                                  (control model [::on-navigate %] dispatch))))
+    (match signal
+           ; update token (e.g. when signal comes during replay) and let wrapped component handle the signal
+           [::on-navigate %]
+           (do
+             (dispatch [::-replace-token %])
+             (control model [::on-navigate %] dispatch))
 
-    (control model signal dispatch)))
+           :else
+           (control model signal dispatch))))
 
 (defn -wrap-reconcile
   [reconcile history]
@@ -69,10 +74,10 @@
            :else
            (reconcile model action))))
 
-(defn wrap-routing
-  "On :on-connect signal middleware starts listening to navigation events and will
-  dispatch [::on-navigate token] signals to the wrapped component."
+(defn wrap
+  "Middleware handles [::on-navigate <token>] signal and dispatches it further to the component.
+  Also allows updating urlbar on devtools replay."
   [spec history]
   (-> spec
-      (update :control -wrap-control history)
+      (update :control -wrap-control)
       (update :reconcile -wrap-reconcile history)))
