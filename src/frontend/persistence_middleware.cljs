@@ -1,4 +1,4 @@
-; Middleware loads model from storage on specified signal and saves it into storage on every signal and
+; Middleware loads model from storage on :on-connect signal and saves it into storage on every signal and
 ; after every action dispatched from control.
 ; Storage is expected to be a transient map.
 (ns frontend.persistence-middleware

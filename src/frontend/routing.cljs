@@ -104,10 +104,11 @@
            (component-reconcile model action))))
 
 (defn wrap
-  "Middleware catches [::on-navigate <token>] signal, updates ::token in model and dispatches signal further to the component.
-  ::on-navigate handler must be idempotent, because it's not guaranteed that signal's token is different from the previous one.
-  In order to start sending signals invoke start-signaling after component is connected.
-  Keeps browser url bar in sync with ::token key in model."
+  "Middlware notifies component on browser navigation events and keeps browser url bar in sync with ::token key in model.
+
+  Catches [::on-navigate <token>] signal, updates ::token in model and dispatches signal further to the component.
+  ::on-navigate handler must be idempotent, because it's not guaranteed that signal's token is different from the last one.
+  In order to start sending signals invoke start-signaling after component is connected."
   [spec history]
   (-> spec
       (update :init -wrap-init)
