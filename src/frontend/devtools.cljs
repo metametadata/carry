@@ -1,4 +1,4 @@
-; Devtools component. It is expected to be used with ui/connect-reactive-reagent.
+; Devtools middleware. It is expected to be used with ui/connect-reactive-reagent.
 (ns frontend.devtools
   (:require [frontend.ui :as ui]
             [reagent.core :as r]
