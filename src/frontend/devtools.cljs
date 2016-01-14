@@ -65,7 +65,7 @@
               ; Notification signal is needed, for instance, to hit persistence middleware to save new component model.
               (-> (dispatch ::replay)
                   :component
-                  (component-control ::on-did-replay #(:component (dispatch [::component %])))))
+                  (component-control ::on-did-replay #(:component (dispatch %)))))
 
             (handle-component-signal
               [model]
@@ -165,6 +165,7 @@
                  (update m :action-events #(filter :enabled? %))
                  (update m :signal-events #(remove (partial -orphaned-signal? m) %)))
 
+           ; component action coming from specific signal
            [::component signal-id a]
            (as-> model m
                  (update m :component component-reconcile a)
@@ -172,12 +173,12 @@
                  (update m :next-action-id inc))
 
            ; for bare component actions (e.g. when dispatching from REPL) create an "unknown signal" event
-           [::component a]
-           (let [[signal-id _ :as unknown-signal-event] (-signal-event (:next-signal-id model) :-unknown-signal)]
+           :else
+           (let [[signal-id _ :as unknown-signal-event] (-signal-event (:next-signal-id model) ::unknown-signal)]
              (-> model
                  (update :signal-events concat [unknown-signal-event])
                  (update :next-signal-id inc)
-                 (reconcile [::component signal-id a]))))))
+                 (reconcile [::component signal-id action]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -wrap-view-model
