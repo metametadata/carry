@@ -38,8 +38,6 @@ frontend.core=> ((:dispatch-signal app) [::frontend.routing/on-navigate "/comple
 - bug: devtools: do not delete signals on sweep/reset but just hide them?
 because signals are async and maybe they will fire some action in the future - and this action won't be seen in devtools
 - feature: devtools: be able to catch errors and stop on them/show them in corresponding actions (as in redux)
-- ?: also be able to replay only signals (but how to replay unknown signals?)
-- bug? raise exception from inside todos/reconcile -> stack trace doesnt show the root source of exception
 ```
 
 ## Build
