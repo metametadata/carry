@@ -19,12 +19,11 @@
 
 (defn init
   []
-  {:field      ""
-   :visibility :all
+  {:field   ""
    ; list of maps
-   :todos      (list (-init-todo 1 "Finish this project")
-                     (-init-todo 2 "Take a bath"))
-   :next-id    3})
+   :todos   (list (-init-todo 1 "Finish this project")
+                  (-init-todo 2 "Take a bath"))
+   :next-id 3})
 
 (defn -update-todos*
   [model pred f & args]
@@ -55,25 +54,13 @@
   (-remove-todos model #(= (:id %) id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
-(def -visibility-spec
-  [{:key :all :title "All" :href "#" :token ""}
-   {:key :active :title "Active" :href "#/active" :token "/active"}
-   {:key :completed :title "Completed" :href "#/completed" :token "/completed"}])
-
 (defn control
   [_model_ signal dispatch]
   (match signal
          :on-connect (dispatch :sample-action)
 
          ; will come from router middleware
-         [::routing/on-navigate token]
-         (do
-           ;(println "    token =" (pr-str token))
-           (when-let [match (->> -visibility-spec
-                               (filter #(= (:token %) token))
-                               first)]
-             ;(println "      route match =" (pr-str match))
-             (dispatch [:set-visibility (:key match)])))
+         [::routing/on-navigate token] nil
 
          ; will come from devtools
          ::devtools/on-did-replay nil
@@ -95,9 +82,6 @@
   (match action
          ; do nothing, only for a demo
          :sample-action model
-
-         [:set-visibility key]
-         (assoc model :visibility key)
 
          [:update-field val]
          (assoc model :field val)
@@ -147,16 +131,29 @@
          (-remove-todos model :completed?)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
+(def -visibility-spec
+  [{:key :all :title "All" :href "#" :token ""}
+   {:key :active :title "Active" :href "#/active" :token "/active"}
+   {:key :completed :title "Completed" :href "#/completed" :token "/completed"}])
+
+(defn -visibility
+  [model]
+  (->> -visibility-spec
+       (filter #(= (:token %) (::routing/token model)))
+       first
+       :key))
+
 (defn view-model
   [model]
   ; reactions are extracted for better perfromance, e.g.:
   ; when input field changes most reactions will not be recalculated,
   ; because todos stay the same
   (let [todos (reaction (:todos @model))
-        visibility (reaction (:visibility @model))]
+        visibility (reaction (-visibility @model))]
     (-> model
-        (ui/track-keys [:field :visibility])
-        (assoc :has-todos? (reaction (-> @todos count pos?))
+        (ui/track-keys [:field])
+        (assoc :visibility visibility
+               :has-todos? (reaction (-> @todos count pos?))
                :todos (reaction (filter (case @visibility
                                           :all (constantly true)
                                           :active (complement :completed?)
