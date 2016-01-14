@@ -59,9 +59,6 @@
   (match signal
          :on-connect (dispatch :sample-action)
 
-         ; will come from router middleware
-         [::routing/on-navigate token] nil
-
          ; will come from devtools
          ::devtools/on-did-replay nil
 

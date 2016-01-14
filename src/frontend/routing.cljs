@@ -6,11 +6,11 @@
             [goog.history.EventType :as EventType])
   (:import goog.history.Html5History))
 
-;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar directly
+;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar
 (defprotocol HistoryProtocol
   (start-signaling [this app])
-  (token [this])
-  (replace-token [this token]))
+  (token [this] "Return current token.")
+  (replace-token [this token] "Replace token without firing navigation event."))
 
 ; defonce is needed for hot reloading
 (defonce _goog-history (doto (Html5History.)
@@ -85,8 +85,7 @@
     [model signal dispatch]
     (match signal
            [::on-navigate token]
-           (-> (dispatch [::-set-token token])
-               (component-control [::on-navigate token] dispatch))
+           (dispatch [::-set-token token])
 
            :else
            (component-control model signal dispatch))))
@@ -104,10 +103,8 @@
            (component-reconcile model action))))
 
 (defn wrap
-  "Middlware notifies component on browser navigation events and keeps browser url bar in sync with ::token key in model.
-
-  Catches [::on-navigate <token>] signal, updates ::token in model and dispatches signal further to the component.
-  ::on-navigate handler must be idempotent, because it's not guaranteed that signal's token is different from the last one.
+  "Middlware keeps browser url bar in sync with model.
+  Catches [::on-navigate <token>] signal, updates ::token in model.
   In order to start sending signals invoke start-signaling after component is connected."
   [spec history]
   (-> spec
