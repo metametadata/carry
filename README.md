@@ -32,12 +32,6 @@ frontend.core=> (require 'frontend.routing)
 frontend.core=> ((:dispatch-signal app) [::frontend.routing/on-navigate "/completed"])
 ```
 
-## TODO
-
-```  
-- feature: devtools: be able to catch errors and stop on them/show them in corresponding actions (as in redux)
-```
-
 ## Build
 
 To get an interactive development environment run:
