@@ -5,8 +5,8 @@
   (:require [cljs.core.match :refer-macros [match]]))
 
 (defn -wrap-control
-  [control storage key blacklist]
-  (fn wrapped-control
+  [component-control storage key blacklist]
+  (fn control
     [model signal dispatch]
     (letfn [(save
               [result]
@@ -22,7 +22,7 @@
             (save-and-control
               [model signal]
               (save model)                                  ; persist current model in case no action is dispatched
-              (control model signal dispatch-and-save))]
+              (component-control model signal dispatch-and-save))]
       (if-not (= signal :on-connect)
         ; hand signal further to component
         (save-and-control model signal)
@@ -36,18 +36,18 @@
             ; else - update model and hand it with signal further to component
             (let [new-model (merge storage-model (select-keys model blacklist))]
               (dispatch [::-reset-from-storage new-model])
-              (control new-model signal dispatch-and-save))))))))
+              (component-control new-model signal dispatch-and-save))))))))
 
 (defn -wrap-reconcile
-  [reconcile]
-  (fn wrapped-reconcile
+  [component-reconcile]
+  (fn reconcile
     [model action]
     (match action
            [::-reset-from-storage data]
            data
 
            :else
-           (reconcile model action))))
+           (component-reconcile model action))))
 
 (defn wrap
   "On :on-connect signal middleware will load the model from storage and send the signal further with updated model to the component.
