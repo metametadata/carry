@@ -1,7 +1,8 @@
 (ns frontend.routing
   (:require [cljs.core.match :refer-macros [match]]
             [goog.events]
-            [goog.history.EventType :as EventType])
+            [goog.history.EventType :as EventType]
+            [frontend.devtools :as devtools])
   (:import goog.history.Html5History))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar directly
@@ -23,7 +24,7 @@
     ; clear previous listeners which can be there after hot reload
     (goog.events/removeAll _goog-history)
 
-    (letfn [(callback [token] ((:dispatch-signal connected-spec) [:component [::on-navigate token]]))]
+    (letfn [(callback [token] ((:dispatch-signal connected-spec) [::devtools/component [::on-navigate token]]))]
       ; start signaling on navigation events
       (goog.events/listen _goog-history EventType/NAVIGATE
                           #(when *_history-events-enabled?*

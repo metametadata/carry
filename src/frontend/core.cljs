@@ -20,7 +20,7 @@
                                              (routing/wrap history)
                                              (persistence/wrap storage :model nil)
                                              (ui/wrap-log "   [app]")
-                                             (devtools/new-spec storage :devtools)
+                                             (devtools/wrap storage :devtools)
                                              (ui/wrap-log "[devtools]"))
                                          [])]
     ; explicitly start sending navigation signals after connecting (in order to be able to debug them in devtools)

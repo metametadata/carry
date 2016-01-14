@@ -63,13 +63,10 @@
     (letfn [(replay []
               ; Replay and notify wrapped component about replaying.
               ; Notification signal is needed, for instance, to hit persistence middleware to save new component model.
-              (-> (dispatch :replay)
+              (-> (dispatch ::replay)
                   :component
-                  (component-control ::on-did-replay #(:component (dispatch [:component %])))))]
+                  (component-control ::on-did-replay #(:component (dispatch [::component %])))))]
       (match signal
-             ; required by devtools
-             ::on-did-replay nil
-
              :on-connect
              (if (:persist? model)
                ; replay loaded actions
@@ -77,38 +74,41 @@
 
                ; developer decided to not persist a session, but it's loaded by middleware anyway..
                ; so let's clear the session for a fresh start..
-               (-> (dispatch :clear-history)
+               (-> (dispatch ::clear-history)
                    ; and let component handle its initial signal
-                   (control [:component :on-connect] dispatch)))
+                   (control [::component :on-connect] dispatch)))
 
-             [:on-toggle-signal id]
+             ; required if devtools is wrapped by another devtools
+             ::on-did-replay nil
+
+             [::on-toggle-signal id]
              (do
-               (dispatch [:toggle-signal id])
+               (dispatch [::toggle-signal id])
                (replay))
 
-             [:on-toggle-action id]
+             [::on-toggle-action id]
              (do
-               (dispatch [:toggle-action id])
+               (dispatch [::toggle-action id])
                (replay))
 
-             [:on-log-action-result id]
+             [::on-log-action-result id]
              (println (pr-str (:result (-find-action model id))))
 
-             :on-toggle-persist
-             (dispatch :toggle-persist)
+             ::on-toggle-persist
+             (dispatch ::toggle-persist)
 
-             :on-sweep
-             (dispatch :sweep)
+             ::on-sweep
+             (dispatch ::sweep)
 
-             :on-reset
+             ::on-reset
              (do
-               (dispatch :clear-history)
+               (dispatch ::clear-history)
                (replay))
 
-             [:component s]
+             [::component s]
              (let [[signal-id _ :as signal-event] (-signal-event (:next-signal-id model) s)]
-               (component-control (:component model) s #(:component (dispatch [:component signal-id %])))
-               (dispatch [:record-signal-event signal-event]))))))
+               (component-control (:component model) s #(:component (dispatch [::component signal-id %])))
+               (dispatch [::record-signal-event signal-event]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn -orphaned-signal?
@@ -122,27 +122,27 @@
   (fn reconcile
     [model action]
     (match action
-           :clear-history
+           ::clear-history
            (assoc model :signal-events (list)
                         :action-events (list))
 
-           [:record-signal-event signal-event]
+           [::record-signal-event signal-event]
            (-> model
                (update :signal-events concat [signal-event])
                (update :next-signal-id inc))
 
-           [:toggle-signal id]
+           [::toggle-signal id]
            (let [all-actions-enabled? (->> (:action-events model)
                                            (filter #(= (:signal-id %) id))
                                            (every? :enabled?))]
              (-update-action-events* model #(= (:signal-id %) id)
                                      assoc :enabled? (not all-actions-enabled?)))
 
-           [:toggle-action id]
+           [::toggle-action id]
            (-update-action-event model id update :enabled? not)
 
            ; applies enabled actions to the initial component model
-           :replay
+           ::replay
            (loop [action-events (filter :enabled? (:action-events model))
                   new-model (assoc model :component (:initial-model model))]
              (if-let [{:keys [id action]} (first action-events)]
@@ -152,27 +152,27 @@
                             (-update-action-event m id assoc :result (:component m))))
                new-model))
 
-           :toggle-persist
+           ::toggle-persist
            (update model :persist? not)
 
-           :sweep
+           ::sweep
            (as-> model m
                  (update m :action-events #(filter :enabled? %))
                  (update m :signal-events #(remove (partial -orphaned-signal? m) %)))
 
-           [:component signal-id a]
+           [::component signal-id a]
            (as-> model m
                  (update m :component component-reconcile a)
                  (update m :action-events concat [(-action-event signal-id (:next-action-id m) a (:component m))])
                  (update m :next-action-id inc))
 
            ; for bare component actions (e.g. when dispatching from REPL) create an "unknown signal" event
-           [:component a]
+           [::component a]
            (let [[signal-id _ :as unknown-signal-event] (-signal-event (:next-signal-id model) :-unknown-signal)]
              (-> model
                  (update :signal-events concat [unknown-signal-event])
                  (update :next-signal-id inc)
-                 (reconcile [:component signal-id a]))))))
+                 (reconcile [::component signal-id a]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -wrap-view-model
@@ -211,10 +211,10 @@
     [:input.toggle {:title     "Persist debug session into local storage?"
                     :type      "checkbox"
                     :checked   @persist?
-                    :on-change #(dispatch :on-toggle-persist)}
+                    :on-change #(dispatch ::on-toggle-persist)}
      "Persist session"]
-    [-menu-button "Sweep" #(dispatch :on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
-    [-menu-button "Reset" #(dispatch :on-reset) "Removes all actions and signals resetting the model to initial state"]]
+    [-menu-button "Sweep" #(dispatch ::on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
+    [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]]
 
    [:div
     (doall
@@ -222,7 +222,7 @@
         ^{:key signal-id}
         [:div {:title "Signal"}
          [:div {:style    {:cursor "pointer"}
-                :on-click #(dispatch [:on-toggle-signal signal-id])
+                :on-click #(dispatch [::on-toggle-signal signal-id])
                 :title    "Click to enable/disable all actions dispatched from this signal"}
           "→ "
           (if (coll? signal)
@@ -240,7 +240,7 @@
                           :color            (if enabled? "inherit" "grey")}}
 
             [:div {:style    {:cursor "pointer"}
-                   :on-click #(dispatch [:on-toggle-action id])
+                   :on-click #(dispatch [::on-toggle-action id])
                    :title    "Click to enable/disable this action"}
              (if (coll? action)
                [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (map pr-str (rest action)))]
@@ -251,7 +251,7 @@
                                 :margin-left      "5px"
                                 :border-radius    "3px"
                                 :background-color "rgb(79, 90, 101)"}
-                     :on-click #(dispatch [:on-log-action-result id])
+                     :on-click #(dispatch [::on-log-action-result id])
                      :title    "Print model state after this action"}
                "model"])])]))]
    [:hr]
@@ -263,7 +263,7 @@
   (fn devtools-view
     [view-model dispatch]
     [:div
-     [component-view (:component-view-model view-model) (ui/tagged dispatch :component)]
+     [component-view (:component-view-model view-model) (ui/tagged dispatch ::component)]
 
      [:div {:style {:position   "fixed"
                     :right      0
@@ -275,8 +275,8 @@
       [-devtools-view view-model dispatch]]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
-(defn new-spec
-  "Wraps a component into devtools instance.
+(defn wrap
+  "Adds devtools to a component.
   For replay to work correctly component is required to handle ::on-did-replay signal."
   [spec storage storage-key]
   (-> {:init       (-wrap-init (:init spec))
