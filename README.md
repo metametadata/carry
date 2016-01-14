@@ -13,22 +13,32 @@ Previously the whole view was re-rendered on every model change, but now compone
 to reaction values. Reactions are memoized and are able to observe one another preventing unnecessary recalculations.
 This approach is borrowed from [re-frame](https://github.com/Day8/re-frame#subscribe).
 * Model is persisted in local storage using persistence middleware.
-* REPL can dispatch signals and actions to app (:component tag is needed, because app is wrapped by devtools):
+* REPL can dispatch signals and actions to app:
 
 ```
-frontend.core=> ((:dispatch-signal app) [:component :on-toggle-all])
+frontend.core=> (ns frontend.core)
+frontend.core=> ((:dispatch-signal app) :on-toggle-all)
 ...
     
-frontend.core=> ((:dispatch-action app) [:component :toggle-all])
+frontend.core=> ((:dispatch-action app) :toggle-all)
 ...
+```
+
+* Routing middleware syncs url bar with `(::token model)`, in a sense, treating url bar as an "input".
+* It's possible to change current URL from REPL:
+
+```
+frontend.core=> (require 'frontend.routing)
+frontend.core=> ((:dispatch-signal app) [::frontend.routing/on-navigate "/completed"])
 ```
 
 ## TODO
 
-```
-- bug: after reset click Active, then disable this action in devtools -> UI updates, but navbar stays the same
-- feature: devtools be able to catch errors and stop on them/show them in corresponding actions (as in redux)
-- ?: also be able to replay only signals
+```  
+- bug: devtools: do not delete signals on sweep/reset but just hide them?
+because signals are async and maybe they will fire some action in the future - and this action won't be seen in devtools
+- feature: devtools: be able to catch errors and stop on them/show them in corresponding actions (as in redux)
+- ?: also be able to replay only signals (but how to replay unknown signals?)
 - bug? raise exception from inside todos/reconcile -> stack trace doesnt show the root source of exception
 ```
 

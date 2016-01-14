@@ -1,5 +1,7 @@
 (ns frontend.routing
-  (:require [cljs.core.match :refer-macros [match]]
+  (:require [frontend.ui :as ui]
+            [cljs.core.match :refer-macros [match]]
+            [reagent.core :as r]
             [goog.events]
             [goog.history.EventType :as EventType])
   (:import goog.history.Html5History))
@@ -42,42 +44,74 @@
       (.replaceToken _goog-history token))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
+(defn -wrap-init
+  "Sets initial token."
+  [component-init]
+  (fn init
+    [& args]
+    (-> (apply component-init args)
+        (assoc ::token ""))))
+
+(defn -wrap-view-model
+  "Adds reaction to token."
+  [component-view-model]
+  (fn view-model
+    [model]
+    (merge (component-view-model model)
+           (ui/track-keys model [::token]))))
+
+(defn -url-bar
+  "Invisible view which updates browser's bar on model changes."
+  [history token]
+  (r/create-class
+    {:display-name          "-url-bar"
+     :reagent-render        (fn [_history _token] [:span])
+     :component-did-mount   #(replace-token history token)
+     :component-will-update (fn [_ [_ _history token]] (replace-token history token))}))
+
+(defn -wrap-view
+  "Adds url bar updater."
+  [component-view history]
+  (fn view
+    [view-model dispatch]
+    [:div
+     [-url-bar history @(::token view-model)]
+     [component-view view-model dispatch]]))
+
 (defn -wrap-control
-  [control]
-  (fn wrapped-control
+  "Updates token in model on navigation signal and lets wrapped component handle the signal."
+  [component-control]
+  (fn control
     [model signal dispatch]
     (match signal
-           ; update token (e.g. when signal comes during replay) and let wrapped component handle the signal
-           [::on-navigate %]
-           (do
-             (dispatch [::-replace-token %])
-             (control model [::on-navigate %] dispatch))
+           [::on-navigate token]
+           (-> (dispatch [::-set-token token])
+               (component-control [::on-navigate token] dispatch))
 
            :else
-           (control model signal dispatch))))
+           (component-control model signal dispatch))))
 
 (defn -wrap-reconcile
-  [reconcile history]
-  (fn wrapped-reconcile
+  "Updates the token."
+  [component-reconcile]
+  (fn reconcile
     [model action]
     (match action
-           ;;;;;
-           ; Actions must be pure, but this is an exception to the rule:
-           ; we need to update the address bar because action could have come from the devtools during replay.
-           ; Ideally, address bar should behave kinda like another reactjs input, it's what we try to simulate here.
-           ;;;;;
-           [::-replace-token token]
-           (do
-             (replace-token history token)
-             model)
+           [::-set-token token]
+           (assoc model ::token token)
 
            :else
-           (reconcile model action))))
+           (component-reconcile model action))))
 
 (defn wrap
-  "Middleware handles [::on-navigate <token>] signal and dispatches it further to the component.
-  Also allows updating urlbar on devtools replay."
+  "Middleware catches [::on-navigate <token>] signal, updates ::token in model and dispatches signal further to the component.
+  ::on-navigate handler must be idempotent, because it's not guaranteed that signal's token is different from the previous one.
+  In order to start sending signals invoke start-signaling after component is connected.
+  Keeps browser url bar in sync with ::token key in model."
   [spec history]
   (-> spec
+      (update :init -wrap-init)
+      (update :view-model -wrap-view-model)
+      (update :view -wrap-view history)
       (update :control -wrap-control)
-      (update :reconcile -wrap-reconcile history)))
+      (update :reconcile -wrap-reconcile)))
