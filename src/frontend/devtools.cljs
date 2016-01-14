@@ -286,11 +286,13 @@
   "Adds devtools to a component.
   For replay to work correctly component is required to handle ::on-did-replay signal."
   [spec storage storage-key]
-  (-> {:init       (-wrap-init (:init spec))
-       :view-model (-wrap-view-model (:view-model spec))
-       :view       (-wrap-view (:view spec))
-       :control    (-wrap-control (:control spec))
-       :reconcile  (-wrap-reconcile (:reconcile spec))}
+  (-> spec
+      (update :init -wrap-init)
+      (update :view-model -wrap-view-model)
+      (update :view -wrap-view)
+      (update :control -wrap-control)
+      (update :reconcile -wrap-reconcile)
+
       ; blacklisted keys are provided on init and should not be overwritten by middleware
       ; (otherwise, on hot reload, we will not see changes after modifying component init code)
       ; thus they also don't need to be saved
