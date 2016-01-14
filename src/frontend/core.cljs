@@ -22,7 +22,7 @@
                                              (ui/wrap-log "   [app]")
                                              (devtools/wrap storage :devtools)
                                              (ui/wrap-log "[devtools]"))
-                                         [])]
+                                         [["Finish this project" "Take a bath"]])]
     ; explicitly start sending navigation signals after connecting (in order to be able to debug them in devtools)
     (routing/start-signaling history app)
 

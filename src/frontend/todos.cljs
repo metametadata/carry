@@ -18,12 +18,13 @@
    :editing?       false})
 
 (defn init
-  []
+  [todo-titles]
   {:field   ""
    ; list of maps
-   :todos   (list (-init-todo 1 "Finish this project")
-                  (-init-todo 2 "Take a bath"))
-   :next-id 3})
+   :todos   (->> todo-titles
+                 (map-indexed vector)
+                 (map (partial apply -init-todo)))
+   :next-id (count todo-titles)})
 
 (defn -update-todos*
   [model pred f & args]
@@ -257,7 +258,7 @@
   [:section.todoapp
    [-view-header @field dispatch]
 
-   (if has-todos?
+   (if @has-todos?
      [:div
       [-view-todo-list @todos @all-completed? dispatch]
       [-view-footer @active-count @has-completed-todos? @visibility dispatch]])])
