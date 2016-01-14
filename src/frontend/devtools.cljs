@@ -65,7 +65,13 @@
               ; Notification signal is needed, for instance, to hit persistence middleware to save new component model.
               (-> (dispatch ::replay)
                   :component
-                  (component-control ::on-did-replay #(:component (dispatch [::component %])))))]
+                  (component-control ::on-did-replay #(:component (dispatch [::component %])))))
+
+            (handle-component-signal
+              [model]
+              (let [[signal-id _ :as signal-event] (-signal-event (:next-signal-id model) signal)]
+                (component-control (:component model) signal #(:component (dispatch [::component signal-id %])))
+                (dispatch [::record-signal-event signal-event])))]
       (match signal
              :on-connect
              (if (:persist? model)
@@ -75,8 +81,8 @@
                ; developer decided to not persist a session, but it's loaded by middleware anyway..
                ; so let's clear the session for a fresh start..
                (-> (dispatch ::clear-history)
-                   ; and let component handle its initial signal
-                   (control [::component :on-connect] dispatch)))
+                   ; and let component handle its initial signal with latest model
+                   handle-component-signal))
 
              ; required if devtools is wrapped by another devtools
              ::on-did-replay nil
@@ -105,10 +111,9 @@
                (dispatch ::clear-history)
                (replay))
 
-             [::component s]
-             (let [[signal-id _ :as signal-event] (-signal-event (:next-signal-id model) s)]
-               (component-control (:component model) s #(:component (dispatch [::component signal-id %])))
-               (dispatch [::record-signal-event signal-event]))))))
+             ; wrapped component signal
+             :else
+             (handle-component-signal model)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn -orphaned-signal?
@@ -263,7 +268,7 @@
   (fn devtools-view
     [view-model dispatch]
     [:div
-     [component-view (:component-view-model view-model) (ui/tagged dispatch ::component)]
+     [component-view (:component-view-model view-model) dispatch]
 
      [:div {:style {:position   "fixed"
                     :right      0
