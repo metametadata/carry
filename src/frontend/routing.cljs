@@ -47,12 +47,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn -wrap-init
-  "Sets initial token."
+  "Sets ::token to empty string if component didn't already set it."
   [component-init]
   (fn init
     [& args]
-    (-> (apply component-init args)
-        (assoc ::token ""))))
+    (merge {::token ""} (apply component-init args))))
 
 (defn -wrap-view-model
   "Adds reaction to token."
@@ -107,7 +106,8 @@
 (defn wrap
   "Middlware keeps browser url bar in sync with model.
   Catches [::on-navigate <token>] signal, updates ::token in model.
-  In order to start sending signals invoke start-signaling after component is connected."
+  In order to start sending ::on-navigate signals invoke (start-signaling history component) after component is connected.
+  Component can set initial ::token in its (init)."
   [spec history]
   (-> spec
       (update :init -wrap-init)
