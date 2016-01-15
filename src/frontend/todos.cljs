@@ -130,16 +130,22 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (def -visibility-spec
-  [{:key :all :title "All" :href "#" :token ""}
-   {:key :active :title "Active" :href "#/active" :token "/active"}
-   {:key :completed :title "Completed" :href "#/completed" :token "/completed"}])
+  ; multiple tokens are supported mostly for :all case:
+  ; on navigating to base url the token is "", but on clicking the link the token becomes "/"
+  [{:key :all :title "All" :href "#/" :tokens #{"" "/"}}
+   {:key :active :title "Active" :href "#/active" :tokens #{"/active"}}
+   {:key :completed :title "Completed" :href "#/completed" :tokens #{"/completed"}}])
 
 (defn -visibility
   [model]
-  (->> -visibility-spec
-       (filter #(= (:token %) (::routing/token model)))
-       first
-       :key))
+  (if-let [result (->> -visibility-spec
+                    (filter #(contains? (:tokens %) (::routing/token model)))
+                    first
+                    :key)]
+    result
+    (do
+      (.error js/console "Could not determine visibility for token" (pr-str (::routing/token model)))
+      (-> -visibility-spec first :key))))
 
 (defn view-model
   [model]
