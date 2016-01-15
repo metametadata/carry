@@ -39,9 +39,11 @@
     (.getToken _goog-history))
 
   (replace-token
-    [_this token]
-    (binding [*_history-events-enabled?* false]
-      (.replaceToken _goog-history token))))
+    [this new-token]
+    ; the check fixes a case when setting already set "" token leads to unnecessarily adding "/#" to url
+    (when (not= new-token (token this))
+      (binding [*_history-events-enabled?* false]
+        (.replaceToken _goog-history new-token)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn -wrap-init
