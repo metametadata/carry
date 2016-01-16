@@ -1,4 +1,4 @@
-; Devtools middleware. It is expected to be used with ui/connect-reactive-reagent.
+; Devtools middleware.
 (ns frontend.devtools
   (:require [frontend.ui :as ui]
             [reagent.core :as r]
@@ -294,7 +294,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn wrap
   "Adds devtools to a component.
-  For replay to work correctly component is required to handle ::on-did-replay signal."
+  For replay to work correctly component is required to handle ::on-did-replay signal.
+  Middleware is expected to be used with ui/connect-reactive-reagent."
   [spec storage storage-key]
   (-> spec
       (update :init -wrap-init)

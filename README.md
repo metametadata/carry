@@ -32,6 +32,13 @@ frontend.core=> (require 'frontend.routing)
 frontend.core=> ((:dispatch-signal app) [::frontend.routing/on-navigate "/completed"])
 ```
 
+* It's possible to inspect the current state of view-model from REPL:
+
+```
+frontend.core=> (:visibility (:component-view-model (:view-model app)))
+#<Reaction 41: :completed>
+```
+
 ## Build
 
 To get an interactive development environment run:

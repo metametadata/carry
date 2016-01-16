@@ -46,6 +46,7 @@
         (.replaceToken _goog-history new-token)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
+;;; Init
 (defn -wrap-init
   "Sets ::token to empty string if component didn't already set it."
   [component-init]
@@ -53,6 +54,7 @@
     [& args]
     (merge {::token ""} (apply component-init args))))
 
+;;; View-model
 (defn -wrap-view-model
   "Adds reaction to token."
   [component-view-model]
@@ -61,11 +63,12 @@
     (merge (component-view-model model)
            (ui/track-keys model [::token]))))
 
+;;; View
 (defn -url-bar
   "Invisible view which updates browser's bar on model changes."
   [history token]
   (r/create-class
-    {:display-name          "-url-bar"
+    {:display-name          "routing-url-bar"
      :reagent-render        (fn [_history _token] [:span])
      :component-did-mount   #(replace-token history token)
      :component-will-update (fn [_ [_ _history token]] (replace-token history token))}))
@@ -79,6 +82,7 @@
      [-url-bar history @(::token view-model)]
      [component-view view-model dispatch]]))
 
+;;; Control
 (defn -wrap-control
   "Updates token in model on navigation signal and lets wrapped component handle the signal."
   [component-control]
@@ -91,6 +95,7 @@
            :else
            (component-control model signal dispatch))))
 
+;;; Reconcile
 (defn -wrap-reconcile
   "Updates the token."
   [component-reconcile]
@@ -103,11 +108,16 @@
            :else
            (component-reconcile model action))))
 
+;;; Middleware
 (defn wrap
-  "Middlware keeps browser url bar in sync with model.
-  Catches [::on-navigate <token>] signal, updates ::token in model.
+  "Routing middleware which allows component react to navigation events by observing model changes.
+
+  Catches [::on-navigate <token>] signal, then updates ::token in model, adds ::token key into view-model.
   In order to start sending ::on-navigate signals invoke (start-signaling history component) after component is connected.
-  Component can set initial ::token in its (init)."
+  If ::token changes in model (e.g. by toggling action in devtools), then current url is updated using new token.
+  Component can set initial ::token in its (init).
+
+  Middleware is expected to be used with ui/connect-reactive-reagent."
   [spec history]
   (-> spec
       (update :init -wrap-init)

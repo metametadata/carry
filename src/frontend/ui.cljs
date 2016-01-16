@@ -11,7 +11,7 @@
   :control can be a non-pure function, :init, :view-model, :view and :reconcile must be pure functions.
 
   view-model receives a model ratom and is expected to return Reagent reactions (inspired by re-frame subscriptions,
-  see: https://github.com/Day8/re-frame#subscribe).
+  see: https://github.com/Day8/re-frame#subscribe). This function is called only once.
 
   init-args will be passed to :init function.
 
@@ -21,6 +21,7 @@
 
       these are exposed mainly for debugging:
       :model - Reagent atom
+      :view-model - view-model instance which was passed to view
       :dispatch-action - the same function which is passed into control, returns a new model
 
   Data flow:
@@ -31,15 +32,18 @@
   [{:keys [init view-model view control reconcile] :as _spec_}
    init-args]
   (let [model (apply init init-args)
-        model-ratom (r/atom model)]
+        model-ratom (r/atom model)
+        view-model (view-model model-ratom)]
     (letfn [(dispatch-action [action] (swap! model-ratom reconcile action))
             (dispatch-signal [signal] (control @model-ratom signal dispatch-action) nil)
-            (reagent-view [] [view (view-model model-ratom) dispatch-signal])]
+            (reagent-view [] [view view-model dispatch-signal])]
       (dispatch-signal :on-connect)
 
       {:view            reagent-view
        :dispatch-signal dispatch-signal
+
        :model           model-ratom
+       :view-model      view-model
        :dispatch-action dispatch-action})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Utils

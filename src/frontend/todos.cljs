@@ -139,9 +139,9 @@
 (defn -visibility
   [model]
   (if-let [result (->> -visibility-spec
-                    (filter #(contains? (:tokens %) (::routing/token model)))
-                    first
-                    :key)]
+                       (filter #(contains? (:tokens %) (::routing/token model)))
+                       first
+                       :key)]
     result
     (do
       (.error js/console "Could not determine visibility for token" (pr-str (::routing/token model)))
