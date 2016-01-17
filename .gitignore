@@ -12,6 +12,7 @@ pom.xml.asc
 .lein-plugins/
 .lein-failures
 .nrepl-port
+/resources/private
 /resources/public/js/compiled
 /figwheel_server.log
 .DS_Store

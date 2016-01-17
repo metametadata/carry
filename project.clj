@@ -7,31 +7,37 @@
                  [com.rpl/specter "0.8.0"]
                  [funcool/hodgepodge "0.1.4"]]
 
-  :plugins [[lein-cljsbuild "1.1.0"]
-            [lein-figwheel "0.5.0"]]
+  :plugins [[lein-cljsbuild "1.1.1"]
+            [lein-figwheel "0.5.0"]
+            [lein-doo "0.1.6"]]
 
   :source-paths ["src"]
 
-  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+  :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
   :cljsbuild {
               :builds [{:id           "dev"
                         :source-paths ["src"]
-
-                        :figwheel     {:on-jsload "frontend.core/on-js-reload"
-                                       }
-
-                        :compiler     {:main                 frontend.core
+                        :compiler     {:main                 prod.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
                                        :output-dir           "resources/public/js/compiled/out"
-                                       :source-map-timestamp true}}
+                                       :source-map-timestamp true}
+                        :figwheel     {:on-jsload "prod.core/on-js-reload"}}
+
                        {:id           "min"
                         :source-paths ["src"]
-                        :compiler     {:output-to     "resources/public/js/compiled/frontend.js"
-                                       :main          frontend.core
+                        :compiler     {:main          prod.core
+                                       :output-to     "resources/public/js/compiled/frontend.js"
                                        :optimizations :advanced
-                                       :pretty-print  false}}]}
+                                       :pretty-print  false}}
+
+                       {:id           "test"
+                        :source-paths ["src/frontend" "test"]
+                        :compiler     {:main          'unit.runner
+                                       :output-to     "resources/private/js/compiled/testable.js"
+                                       :output-dir    "resources/private/js/compiled/out"
+                                       :optimizations :whitespace}}]}
 
   :figwheel {
              ;; :http-server-root "public" ;; default and assumes "resources" 

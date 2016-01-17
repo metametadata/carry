@@ -1,4 +1,4 @@
-(ns frontend.core
+(ns prod.core
   (:require [frontend.devtools :as devtools]
             [frontend.todos :as todos]
             [frontend.persistence-middleware :as persistence]

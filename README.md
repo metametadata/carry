@@ -58,6 +58,10 @@ get a Browser Connected REPL. An easy way to try it is:
 
 and you should see an alert in the browser window.
 
+To run tests:
+
+    lein doo phantom test once
+
 To clean all compiled files:
 
     lein clean
@@ -72,7 +76,7 @@ get live reloading, nor a REPL.
 To deploy a build:
  
     ghp-import -p resources/public
-
+    
 ## References
 
 * [TodoMVC in Elm](https://github.com/evancz/elm-todomvc)
