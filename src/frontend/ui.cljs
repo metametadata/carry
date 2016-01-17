@@ -39,8 +39,8 @@
             (reagent-view [] [view view-model dispatch-signal])]
       (dispatch-signal :on-connect)
 
-      {:view            reagent-view
-       :dispatch-signal dispatch-signal
+      {:dispatch-signal dispatch-signal
+       :view            reagent-view
 
        :model           model-ratom
        :view-model      view-model
