@@ -3,5 +3,8 @@
             [doo.runner :refer-macros [doo-tests]]
             [unit.todos]))
 
+; for debugging using println
+(enable-console-print!)
+
 (doo-tests
   'unit.todos)

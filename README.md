@@ -58,9 +58,13 @@ get a Browser Connected REPL. An easy way to try it is:
 
 and you should see an alert in the browser window.
 
-To run tests:
+To run tests once:
 
     lein doo phantom test once
+    
+or quickly re-run on code changes:
+    
+    lein doo phantom test auto
 
 To clean all compiled files:
 

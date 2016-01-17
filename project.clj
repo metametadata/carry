@@ -1,11 +1,15 @@
 (defproject cljs-elmish-todomvc "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
+
                  [reagent "0.5.1" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "0.13.3-0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [com.rpl/specter "0.8.0"]
-                 [funcool/hodgepodge "0.1.4"]]
+                 [funcool/hodgepodge "0.1.4"]
+
+                 ; for tests:
+                 [org.clojure/test.check "0.9.0"]]
 
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0"]
