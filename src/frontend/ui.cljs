@@ -69,13 +69,13 @@
    (-> spec
        (update :control #(fn control
                           [model signal dispatch]
-                          (println prefix "signal =" (pr-str signal))
+                          (println (str prefix "signal =") (pr-str signal))
                           (% model signal dispatch)))
        (update :reconcile #(fn reconcile
                             [model action]
-                            (println prefix "  action =" (pr-str action))
+                            (println (str prefix "  action =") (pr-str action))
                             (let [result (% model action)]
-                              #_(println prefix "   " (pr-str model))
-                              #_(println prefix "     ->")
-                              #_(println prefix "   " (pr-str result))
+                              #_(println (str prefix "   ") (pr-str model))
+                              #_(println (str prefix "     ->"))
+                              #_(println (str prefix "   ") (pr-str result))
                               result))))))

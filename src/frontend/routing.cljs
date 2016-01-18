@@ -117,7 +117,9 @@
   If ::token changes in model (e.g. by toggling action in devtools), then current url is updated using new token.
   Component can set initial ::token in its (init).
 
-  Middleware is expected to be used with ui/connect-reactive-reagent."
+  Middleware is expected to be used with ui/connect-reactive-reagent.
+
+  History depndency is needed to be able to update url bar from model."
   [spec history]
   (-> spec
       (update :init -wrap-init)

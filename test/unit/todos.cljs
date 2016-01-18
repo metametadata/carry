@@ -23,7 +23,7 @@
 (defn new-app
   "Create app component instance, run provided signals, return updated component."
   [signals]
-  (let [app (ui/connect-reactive-reagent (-> todos/spec
+  (let [app (ui/connect-reactive-reagent (-> (todos/new-spec nil)
                                              #_ui/wrap-log)
                                          [])]
     (dorun (map (:dispatch-signal app) signals))
@@ -36,7 +36,7 @@
 
 (defn ids-unique?
   [app]
-  (apply distinct? (map :id (:todos @(:model app)))))
+  (apply distinct? (map :id @(:todos (:view-model app)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Generators
 (def gen-todo-title
@@ -64,7 +64,8 @@
       100
       [signals gen-signals-add-todos]
       (let [app (new-app signals)]
-        (is (= (/ (count signals) 2) (count (:todos @(:model app)))) "self-test: number of created todos")
+        (is (= (/ (count signals) 2) (count @(:todos (:view-model app))))
+            "self-test: number of created todos")
 
         (is (ids-unique? app))))))
 

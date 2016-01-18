@@ -16,12 +16,11 @@
 
   (let [history (routing/->History)
         storage hp/local-storage
-        app (ui/connect-reactive-reagent (-> todos/spec
-                                             (routing/wrap history)
+        app (ui/connect-reactive-reagent (-> (todos/new-spec history)
                                              (persistence/wrap storage :model nil)
-                                             (ui/wrap-log "   [app]")
+                                             (ui/wrap-log "   [app] ")
                                              (devtools/wrap storage :devtools)
-                                             (ui/wrap-log "[devtools]"))
+                                             (ui/wrap-log "[devtools] "))
                                          [["Finish this project" "Take a bath"]])]
     ; explicitly start sending navigation signals after connecting (in order to be able to debug them in devtools)
     (routing/start-signaling history app)
