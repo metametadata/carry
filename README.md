@@ -16,11 +16,11 @@ This approach is borrowed from [re-frame](https://github.com/Day8/re-frame#subsc
 * REPL can dispatch signals and actions to app:
 
 ```
-frontend.core=> (ns frontend.core)
-frontend.core=> ((:dispatch-signal app) :on-toggle-all)
+cljs.user=> (ns prod.core)
+prod.core=> ((:dispatch-signal app) :on-toggle-all)
 ...
     
-frontend.core=> ((:dispatch-action app) :toggle-all)
+prod.core=> ((:dispatch-action app) :toggle-all)
 ...
 ```
 
@@ -28,15 +28,15 @@ frontend.core=> ((:dispatch-action app) :toggle-all)
 * It's possible to change current URL from REPL:
 
 ```
-frontend.core=> (require 'frontend.routing)
-frontend.core=> ((:dispatch-signal app) [::frontend.routing/on-navigate "/completed"])
+prod.core=> (require 'frontend.routing)
+prod.core=> ((:dispatch-signal app) [::frontend.routing/on-navigate "/completed"])
 ```
 
 * It's possible to inspect the current state of view-model from REPL:
 
 ```
-frontend.core=> (:visibility (:component-view-model (:view-model app)))
-#<Reaction 41: :completed>
+prod.core=> @(:visibility (:component-view-model (:view-model app)))
+:completed
 ```
 
 ## Build
