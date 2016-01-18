@@ -11,10 +11,9 @@
 (defmethod ct/report [::ct/default :my-shrunk] [m]
   (newline)
   (println "\nPROPERTY TEST FAILED"
-           "\nSmallest case:" (pr-str (-> m :shrunk :smallest))
-           "\nDETAILS:"
+           "\nCase:" (with-out-str (cljs.pprint/pprint (:fail m)))
+           "\nShrunk:" (with-out-str (cljs.pprint/pprint (-> m :shrunk :smallest)))
            "\nNum tests:" (:num-tests m)
-           "\nCase:" (pr-str (:fail m))
            "\nSeed:" (:seed m)))
 
 (defn my-shrunk-report [m]
@@ -28,7 +27,12 @@
                                              #_ui/wrap-log)
                                          [])]
     (dorun (map (:dispatch-signal app) signals))
-    app))
+
+    (specify! app
+      IPrintWithWriter
+      ; do not print the full app structure in test reports
+      (-pr-writer [_ writer _opts]
+        (-write writer "#<App>")))))
 
 (defn ids-unique?
   [app]
