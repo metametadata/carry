@@ -9,7 +9,8 @@
                  [funcool/hodgepodge "0.1.4"]
 
                  ; for tests:
-                 [org.clojure/test.check "0.9.0"]]
+                 [org.clojure/test.check "0.9.0"]
+                 [com.gfredericks/test.chuck "0.2.5"]]
 
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0"]
