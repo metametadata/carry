@@ -8,15 +8,16 @@
     [frontend.ui :as ui]))
 
 ;;;;;;;;;;;;;;;; Customize reporting of test.chuck
-(defmethod ct/report [::ct/default :my-shrunk] [m]
-  (newline)
+(defmethod ct/report [::ct/default :my-shrunk]
+  [m]
   (println "\nPROPERTY TEST FAILED"
            "\nCase:" (with-out-str (cljs.pprint/pprint (:fail m)))
            "\nShrunk:" (with-out-str (cljs.pprint/pprint (-> m :shrunk :smallest)))
            "\nNum tests:" (:num-tests m)
            "\nSeed:" (:seed m)))
 
-(defn my-shrunk-report [m]
+(defn my-shrunk-report
+  [m]
   (merge (dissoc m :result) {:type :my-shrunk}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Helpers
