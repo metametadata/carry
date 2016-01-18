@@ -11,8 +11,8 @@
 (defmethod ct/report [::ct/default :my-shrunk]
   [m]
   (println "\nPROPERTY TEST FAILED"
-           "\nCase:" (with-out-str (cljs.pprint/pprint (:fail m)))
-           "\nShrunk:" (with-out-str (cljs.pprint/pprint (-> m :shrunk :smallest)))
+           "\nCase:" (pr-str (:fail m))
+           "\n\nShrunk:" (with-out-str (cljs.pprint/pprint (-> m :shrunk :smallest)))
            "\nNum tests:" (:num-tests m)
            "\nSeed:" (:seed m)))
 
@@ -40,21 +40,18 @@
   (apply distinct? (map :id @(:todos (:view-model app)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Generators
-(def gen-todo-title
-  (gen/such-that (complement clojure.string/blank?) gen/string-alphanumeric))
-
-(def gen-signal-add-todo
-  (gen/fmap #(-> [[:on-update-field %] :on-add]) gen-todo-title))
+; title is hardcoded, because we are not interested in testing different string values
+(def signals-add-todo
+  [[:on-update-field "some title"] :on-add])
 
 (def gen-signals-add-todos
-  (gen/not-empty
-    (gen/fmap
-      (partial apply concat)
-      (gen/vector gen-signal-add-todo))))
+  (->> gen/s-pos-int                                        ; the desired number of todos
+       (gen/fmap #(->> (take % (repeat signals-add-todo))
+                       (apply concat)))))
 
 #_(deftest debug
-    (doseq [signals (gen/sample gen-signals-add-todos 5)]
-      (println (count signals) (pr-str signals))))
+  (doseq [signals (gen/sample gen-signals-add-todos 10)]
+    (println (count signals) (pr-str signals))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Tests
 (deftest property-tests
