@@ -58,20 +58,22 @@
        (reductions + add-pattern)))
 
 (defn gen-add-toggle-pattern
-  "Generator which turns every :available-ids into random :toggle-pattern."
-  [adds-with-ids]
+  "Generator which replaces each :available-ids with random :toggle-pattern."
+  [add-pattern-with-available-ids]
   (letfn [(gen-toggle-pattern [available-ids]
             (gen/vector
               (gen/elements available-ids)
-              1 7))]
-    ; TODO: try to use gen/let to unwind this code?
-    (apply gen/tuple
-           (map (fn [pattern]
-                  (gen/fmap #(-> pattern
-                                 (dissoc :available-ids)
-                                 (assoc :toggle-pattern %))
-                            (gen-toggle-pattern (:available-ids pattern))))
-                adds-with-ids))))
+              1 7))
+
+          (gen-chunk-with-toggle-pattern [chunk]
+            (gen/let
+              [toggle-pattern (gen-toggle-pattern (:available-ids chunk))]
+              (-> chunk
+                  (dissoc :available-ids)
+                  (assoc :toggle-pattern toggle-pattern))))]
+    (->> add-pattern-with-available-ids
+         (map gen-chunk-with-toggle-pattern)
+         (apply gen/tuple))))
 
 (defn signals-toggles
   [toggle-pattern]
