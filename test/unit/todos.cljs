@@ -3,6 +3,7 @@
     [cljs.test :as ct :refer-macros [deftest is testing]]
     [clojure.test.check.generators :as gen :include-macros true]
     [com.gfredericks.test.chuck.clojure-test :refer-macros [checking for-all]]
+    [cljs.core.match :refer-macros [match]]
 
     [frontend.todos :as todos]
     [frontend.ui :as ui]))
@@ -88,7 +89,7 @@
 ; Generates a sequence of signals for adding adding and randomly toggling items
 (def gen-signals-adds-and-toggles
   (gen/let
-    [add-pattern (gen/not-empty (gen/vector gen/s-pos-int))
+    [add-pattern (gen/vector (gen/choose 1 3) 1 4)
      ; e.g. generates: [1 3] <- first add 1 item, then add 3 items
      add-pattern-with-available-ids (gen/return (add-available-ids add-pattern))
      ; ({:adds 1, :available-ids (0)} <- id=0 is available after adding 1 item
@@ -107,11 +108,11 @@
     ))
 
 #_(deftest debug
-  (doseq [signals (gen/sample gen-signals-adds-and-toggles 5)]
-    ;(println (count signals))
-    (cljs.pprint/pprint signals)))
+    (doseq [signals (gen/sample gen-signals-adds-and-toggles 5)]
+      ;(println (count signals))
+      (cljs.pprint/pprint signals)))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Tests
+;;;;;;;;;;;;;;;;;;;;;;;; Property Tests
 (deftest property-tests
   (with-redefs
     [com.gfredericks.test.chuck.clojure-test/shrunk-report my-shrunk-report]
@@ -124,3 +125,46 @@
             "self-test: number of created todos")
 
         (is (ids-unique? app))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;; Stateful Property Tests
+(deftest stateful-property-tests
+  (with-redefs
+    [com.gfredericks.test.chuck.clojure-test/shrunk-report my-shrunk-report]
+    (checking
+      "after randomly adding and toggling todos"
+      100
+      [signals gen-signals-adds-and-toggles]
+      ; 0 initialize real and test models
+      (let [app (new-app nil)
+            test-model (atom {:todos   {}                   ; {<id> <completed?>}
+                              :next-id 0
+                              :field   ""})]
+        (doseq [s signals]
+          ; 1 modify real model
+          ((:dispatch-signal app) s)
+
+          ; 2 modify test model
+          (swap! test-model
+                 (fn [m]
+                   (match s
+                          [:on-update-field val]
+                          (assoc m :field val)
+
+                          :on-add
+                          (-> m
+                              (update :todos assoc (:next-id m) false)
+                              (update :next-id inc))
+
+                          [:on-toggle id]
+                          (update-in m [:todos id] not))))
+
+          ; 3 check postconditions
+          (match s
+                 [:on-toggle id]
+                 (let [real-todos @(:todos (:view-model app))
+                       real-pattern (into {}
+                                          (map #(-> [(:id %) (:completed? %)]) real-todos))
+                       test-pattern (:todos @test-model)]
+                   (is (= real-pattern test-pattern) "toggled todos must have expected state"))
+
+                 :else nil))))))

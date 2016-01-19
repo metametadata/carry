@@ -22,7 +22,10 @@
                                              (devtools/wrap storage :devtools)
                                              (ui/wrap-log "[devtools] "))
                                          [["Finish this project" "Take a bath"]])]
-    ; explicitly start sending navigation signals after connecting (in order to be able to debug them in devtools)
+    ; Explicitly start sending navigation signals after connecting in order to be able to debug them in devtools.
+    ; Maaaybe we could put this code into todos/:on-connect signal,
+    ; but - because of devtools - it would not execute on replays (on persisted devtools sessions),
+    ; because only actions are replayed.
     (routing/start-signaling history app)
 
     ; render app
