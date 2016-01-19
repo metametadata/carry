@@ -1,7 +1,7 @@
 (ns unit.todos
   (:require
     [cljs.test :as ct :refer-macros [deftest is testing]]
-    [clojure.test.check.generators :as gen]
+    [clojure.test.check.generators :as gen :include-macros true]
     [com.gfredericks.test.chuck.clojure-test :refer-macros [checking for-all]]
 
     [frontend.todos :as todos]
@@ -40,65 +40,62 @@
   (apply distinct? (map :id @(:todos (:view-model app)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; gen-signals-add-todos
-(defn signals-add-todos
+(defn signals-adds
   [num]
   ; title is hardcoded, because we are not interested in testing different string values
   (->> (take num (repeat [[:on-update-field "some title"] :on-add]))
        (apply concat)))
 
-(def gen-signals-add-todos
-  (gen/fmap signals-add-todos gen/s-pos-int))
+(def gen-signals-adds
+  (gen/fmap signals-adds gen/s-pos-int))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; gen-signals-add-and-toggle-todos
-(defn with-ids
-  [adds-pattern]
+(defn add-available-ids
+  [add-pattern]
   (map #(-> {:adds          %1
              :available-ids (range %2)})
-       adds-pattern
-       (reductions + adds-pattern)))
+       add-pattern
+       (reductions + add-pattern)))
 
-(defn gen-toggle-pattern
-  [available-ids]
-  (gen/vector
-    (gen/elements available-ids)
-    1 7))
-
-(defn gen-with-toggle-patterns
-  "Generator which creates :toggle-pattern instead of every :available-ids."
+(defn gen-add-toggle-pattern
+  "Generator which turns every :available-ids into random :toggle-pattern."
   [adds-with-ids]
-  (apply gen/tuple
-         (map (fn [pattern]
-                (gen/fmap #(-> pattern
-                               (dissoc :available-ids)
-                               (assoc :toggle-pattern %))
-                          (gen-toggle-pattern (:available-ids pattern))))
-              adds-with-ids)))
+  (letfn [(gen-toggle-pattern [available-ids]
+            (gen/vector
+              (gen/elements available-ids)
+              1 7))]
+    ; TODO: try to use gen/let to unwind this code?
+    (apply gen/tuple
+           (map (fn [pattern]
+                  (gen/fmap #(-> pattern
+                                 (dissoc :available-ids)
+                                 (assoc :toggle-pattern %))
+                            (gen-toggle-pattern (:available-ids pattern))))
+                adds-with-ids))))
 
-(defn signals-toggle-todos
-  [pattern]
-  (map #(-> [:on-toggle %]) pattern))
+(defn signals-toggles
+  [toggle-pattern]
+  (map #(-> [:on-toggle %]) toggle-pattern))
 
-(defn signals-add-and-toggle-todos
-  [adds-with-toggles-pattern]
-  (mapcat #(concat (signals-add-todos (:adds %))
-                   (signals-toggle-todos (:toggle-pattern %)))
-          adds-with-toggles-pattern))
+(defn signals-adds-and-toggles
+  [add-toggle-pattern]
+  (mapcat #(concat (signals-adds (:adds %))
+                   (signals-toggles (:toggle-pattern %)))
+          add-toggle-pattern))
 
-; Generates a sequence of signals which adds and randomly toggles items
-(def gen-signals-add-and-toggle-todos
-  (let [gen-adds-pattern (gen/not-empty (gen/vector gen/s-pos-int))
-        ; e.g. generates: [1 3] <- first add 1 item, then add 3 items
-        gen-adds-pattern-with-ids (gen/fmap with-ids gen-adds-pattern)
-        ; becomes:
-        ; ({:adds 1, :available-ids (0)} <- id=0 is available after adding 1 item
-        ;  {:adds 3, :available-ids (0 1 2 3)}) <- after this step ids 0-3 are available
-        gen-adds-with-toggles-pattern (gen/bind gen-adds-pattern-with-ids gen-with-toggle-patterns)
-        ; e.g. generates:
-        ; ({:adds 1, :toggle-pattern [0 0]} <- toggle item 0 twice
-        ;  {:adds 3, :toggle-pattern [3 1 1 2]}) <- toggle 3, then 1, etc.
-        ]
-    (gen/fmap signals-add-and-toggle-todos gen-adds-with-toggles-pattern)
-    ; finally:
+; Generates a sequence of signals for adding adding and randomly toggling items
+(def gen-signals-adds-and-toggles
+  (gen/let
+    [add-pattern (gen/not-empty (gen/vector gen/s-pos-int))
+     ; e.g. generates: [1 3] <- first add 1 item, then add 3 items
+     add-pattern-with-available-ids (gen/return (add-available-ids add-pattern))
+     ; ({:adds 1, :available-ids (0)} <- id=0 is available after adding 1 item
+     ;  {:adds 3, :available-ids (0 1 2 3)}) <- after this step ids 0-3 are available
+     add-toggle-pattern (gen-add-toggle-pattern add-pattern-with-available-ids)
+     ; ({:adds 1, :toggle-pattern [0 0]} <- toggle item 0 twice
+     ;  {:adds 3, :toggle-pattern [3 1 1 2]}) <- toggle 3, then 1, etc.
+     ]
+    (signals-adds-and-toggles add-toggle-pattern)
     ;([:on-update-field "some title"] :on-add
     ;  [:on-toggle 0] [:on-toggle 0]
     ;  [:on-update-field "some title"] :on-add
@@ -108,7 +105,7 @@
     ))
 
 #_(deftest debug
-  (doseq [signals (gen/sample gen-signals-add-and-toggle-todos 6)]
+  (doseq [signals (gen/sample gen-signals-adds-and-toggles 5)]
     ;(println (count signals))
     (cljs.pprint/pprint signals)))
 
@@ -119,7 +116,7 @@
     (checking
       "after adding todos"
       100
-      [signals gen-signals-add-todos]
+      [signals gen-signals-adds]
       (let [app (new-app signals)]
         (is (= (/ (count signals) 2) (count @(:todos (:view-model app))))
             "self-test: number of created todos")
