@@ -59,10 +59,9 @@
 
 (defn gen-toggle-pattern
   [available-ids]
-  (gen/not-empty
-    (gen/vector
-      (gen/elements available-ids)
-      1 7)))
+  (gen/vector
+    (gen/elements available-ids)
+    1 7))
 
 (defn gen-with-toggle-patterns
   "Generator which creates :toggle-pattern instead of every :available-ids."
