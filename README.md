@@ -24,12 +24,12 @@ prod.core=> ((:dispatch-action app) :toggle-all)
 ...
 ```
 
-* Routing middleware syncs url bar with `(::token model)`, in a sense, treating url bar as an "input".
+* Routing middleware syncs url bar with `(:frontend.routing/token model)`, in a sense, treating url bar as an "input".
 * It's possible to change current URL from REPL:
 
 ```
 prod.core=> (require 'frontend.routing)
-prod.core=> ((:dispatch-signal app) [::frontend.routing/on-navigate "/completed"])
+prod.core=> ((:dispatch-signal app) [:frontend.routing/on-navigate "/completed"])
 ```
 
 * It's possible to inspect the current state of view-model from REPL:
@@ -38,6 +38,11 @@ prod.core=> ((:dispatch-signal app) [::frontend.routing/on-navigate "/completed"
 prod.core=> @(:visibility (:component-view-model (:view-model app)))
 :completed
 ```
+
+* Simple property-based tests are implemented to demonstrate that 
+it's possible to generate "user" signals and check the properties of the view model (see `property-tests`);
+ inspired by [om.next demo](https://github.com/omcljs/om/wiki/Applying-Property-Based-Testing-to-User-Interfaces).
+ Also implemented is the "naive" stateful style test (see `stateful-property-tests`).
 
 ## Build
 
