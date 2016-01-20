@@ -14,8 +14,10 @@
   (println "\nPROPERTY TEST FAILED"
            "\nCase:" (pr-str (:fail m))
            "\n\nShrunk:" (with-out-str (cljs.pprint/pprint (-> m :shrunk :smallest)))
-           "\nNum tests:" (:num-tests m)
-           "\nSeed:" (:seed m)))
+           (str "\nnum-tests: " (:num-tests m)
+                ", total-nodes-visited: " (-> m :shrunk :total-nodes-visited)
+                ", depth: " (-> m :shrunk :depth)
+                ", seed: " (:seed m))))
 
 (defn my-shrunk-report
   [m]
@@ -86,7 +88,7 @@
                    (signals-toggles (:toggle-pattern %)))
           add-toggle-pattern))
 
-; Generates a sequence of signals for adding adding and randomly toggling items
+; Generates a sequence of signals for adding and randomly toggling items
 (def gen-signals-adds-and-toggles
   (gen/let
     [add-pattern (gen/vector (gen/choose 1 3) 1 4)
@@ -156,7 +158,9 @@
                               (update :next-id inc))
 
                           [:on-toggle id]
-                          (update-in m [:todos id] not))))
+                          (do
+                            (is (contains? (:todos m) id) "self-test: toggled item must be already added")
+                            (update-in m [:todos id] not)))))
 
           ; 3 check postconditions
           (match s
