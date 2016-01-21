@@ -16,12 +16,12 @@
 
   (let [history (routing/->History)
         storage hp/local-storage
-        app (ui/connect-reactive-reagent (-> (todos/new-spec history)
-                                             (persistence/wrap storage :model nil)
-                                             (ui/wrap-log "   [app] ")
-                                             (devtools/wrap storage :devtools)
-                                             (ui/wrap-log "[devtools] "))
-                                         [["Finish this project" "Take a bath"]])]
+        app-spec (-> (todos/new-spec history)
+                     (persistence/wrap storage :model)
+                     (ui/wrap-log "   [app] ")
+                     (devtools/wrap storage :devtools)
+                     (ui/wrap-log "[devtools] "))
+        app (ui/connect-reactive-reagent app-spec [["Finish this project" "Take a bath"]])]
     ; Explicitly start sending navigation signals after connecting in order to be able to debug them in devtools.
     ; Maaaybe we could put this code into todos/:on-connect signal,
     ; but - because of devtools - it would not execute on replays (on persisted devtools sessions),

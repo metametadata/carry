@@ -52,7 +52,9 @@
 (defn wrap
   "On :on-connect signal middleware will load the model from storage and send the signal further with updated model to the component.
   Blacklist should contain model keys which will not be saved and loaded."
-  [spec storage key blacklist]
-  (-> spec
-      (update :control -wrap-control storage key blacklist)
-      (update :reconcile -wrap-reconcile)))
+  ([spec storage key]
+   (wrap spec storage key nil))
+  ([spec storage key blacklist]
+   (-> spec
+       (update :control -wrap-control storage key blacklist)
+       (update :reconcile -wrap-reconcile))))
