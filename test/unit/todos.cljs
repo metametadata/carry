@@ -1,12 +1,10 @@
 (ns unit.todos
   (:require
+    [unit.utils :as u]
     [cljs.test :as ct :refer-macros [deftest is testing]]
     [clojure.test.check.generators :as gen :include-macros true]
-    [com.gfredericks.test.chuck.clojure-test :refer-macros [checking for-all]]
-    [cljs.core.match :refer-macros [match]]
-
-    [frontend.todos :as todos]
-    [frontend.ui :as ui]))
+    [com.gfredericks.test.chuck.clojure-test :refer-macros [checking]]
+    [cljs.core.match :refer-macros [match]]))
 
 ;;;;;;;;;;;;;;;; Customize reporting of test.chuck
 (defmethod ct/report [::ct/default :my-shrunk]
@@ -23,98 +21,26 @@
   [m]
   (merge (dissoc m :result) {:type :my-shrunk}))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Helpers
-(defn new-app
-  "Create app component instance, run provided signals, return updated component."
-  [signals]
-  (let [app (ui/connect-reactive-reagent (-> (todos/new-spec nil)
-                                             #_ui/wrap-log)
-                                         [])]
-    (dorun (map (:dispatch-signal app) signals))
-
-    (specify! app
-      IPrintWithWriter
-      ; do not print the full app structure in test reports
-      (-pr-writer [_ writer _opts]
-        (-write writer "#<App>")))))
-
-(defn ids-unique?
-  [app]
-  (apply distinct? (map :id @(:todos (:view-model app)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;; gen-signals-add-todos
-(defn signals-adds
-  [num]
-  ; title is hardcoded, because we are not interested in testing different string values
-  (->> (take num (repeat [[:on-update-field "some title"] :on-add]))
-       (apply concat)))
-
+;;;;;;;;;;;;;;;;;;;;;;;; Property Tests
 (def gen-signals-adds
-  (gen/fmap signals-adds gen/s-pos-int))
-
-;;;;;;;;;;;;;;;;;;;;;;;; gen-signals-add-and-toggle-todos
-(defn add-available-ids
-  [add-pattern]
-  (map #(-> {:adds          %1
-             :available-ids (range %2)})
-       add-pattern
-       (reductions + add-pattern)))
-
-(defn gen-add-toggle-pattern
-  "Generator which replaces each :available-ids with random :toggle-pattern."
-  [add-pattern-with-available-ids]
-  (letfn [(gen-toggle-pattern [available-ids]
-            (gen/vector
-              (gen/elements available-ids)
-              1 7))
-
-          (gen-chunk-with-toggle-pattern [chunk]
-            (gen/let
-              [toggle-pattern (gen-toggle-pattern (:available-ids chunk))]
-              (-> chunk
-                  (dissoc :available-ids)
-                  (assoc :toggle-pattern toggle-pattern))))]
-    (->> add-pattern-with-available-ids
-         (map gen-chunk-with-toggle-pattern)
-         (apply gen/tuple))))
-
-(defn signals-toggles
-  [toggle-pattern]
-  (map #(-> [:on-toggle %]) toggle-pattern))
-
-(defn signals-adds-and-toggles
-  [add-toggle-pattern]
-  (mapcat #(concat (signals-adds (:adds %))
-                   (signals-toggles (:toggle-pattern %)))
-          add-toggle-pattern))
-
-; Generates a sequence of signals for adding and randomly toggling items
-(def gen-signals-adds-and-toggles
   (gen/let
-    [add-pattern (gen/vector (gen/choose 1 3) 1 4)
-     ; e.g. generates: [1 3] <- first add 1 item, then add 3 items
-     add-pattern-with-available-ids (gen/return (add-available-ids add-pattern))
-     ; ({:adds 1, :available-ids (0)} <- id=0 is available after adding 1 item
-     ;  {:adds 3, :available-ids (0 1 2 3)}) <- after this step ids 0-3 are available
-     add-toggle-pattern (gen-add-toggle-pattern add-pattern-with-available-ids)
-     ; ({:adds 1, :toggle-pattern [0 0]} <- toggle item 0 twice
-     ;  {:adds 3, :toggle-pattern [3 1 1 2]}) <- toggle 3, then 1, etc.
-     ]
-    (signals-adds-and-toggles add-toggle-pattern)
-    ;([:on-update-field "some title"] :on-add
-    ;  [:on-toggle 0] [:on-toggle 0]
-    ;  [:on-update-field "some title"] :on-add
-    ;  [:on-update-field "some title"] :on-add
-    ;  [:on-update-field "some title"] :on-add
-    ;  [:on-toggle 3] [:on-toggle 1] [:on-toggle 1] [:on-toggle 2])
-    ))
+    [adds-num gen/s-pos-int]
+    ; title is hardcoded, because we are not interested in testing different string values
+    (gen/return (->> [[:on-update-field "some title"] :on-add]
+                     repeat
+                     (take adds-num)
+                     (apply concat)))))
 
 #_(deftest debug
-    (doseq [signals (gen/sample gen-signals-adds-and-toggles 5)]
+    (doseq [signals (gen/sample gen-signals-adds 5)]
       ;(println (count signals))
       (cljs.pprint/pprint signals)))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Property Tests
+(defn duplicates [seq]
+  (for [[v freq] (frequencies seq)
+        :when (> freq 1)]
+    v))
+
 (deftest property-tests
   (with-redefs
     [com.gfredericks.test.chuck.clojure-test/shrunk-report my-shrunk-report]
@@ -122,53 +48,76 @@
       "after adding todos"
       100
       [signals gen-signals-adds]
-      (let [app (new-app signals)]
+      (let [app (u/new-app)]
+        (dorun (map (:dispatch-signal app) signals))
+
         (is (= (/ (count signals) 2) (count @(:todos (:view-model app))))
             "self-test: number of created todos")
 
-        (is (ids-unique? app))))))
+        (is (empty? (->> app :view-model :todos deref (map :id) duplicates))
+            "item ids must be unique")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Stateful Property Tests
 (deftest stateful-property-tests
   (with-redefs
     [com.gfredericks.test.chuck.clojure-test/shrunk-report my-shrunk-report]
-    (checking
-      "after randomly adding and toggling todos"
-      100
-      [signals gen-signals-adds-and-toggles]
-      ; 0 initialize real and test models
-      (let [app (new-app nil)
-            test-model (atom {:todos   {}                   ; {<id> <completed?>}
+    ; setup
+    (let [initial-test-model {:todos   {}                   ; {<id> <completed?>}
                               :next-id 0
-                              :field   ""})]
-        (doseq [s signals]
-          ; 1 modify real model
-          ((:dispatch-signal app) s)
+                              :field   ""}]
+      (letfn
+        [; returns modified test-model depending on handled signal
+         (next-step
+           [test-model signal]
+           (match signal
+                  [:on-update-field val]
+                  (assoc test-model :field val)
 
-          ; 2 modify test model
-          (swap! test-model
-                 (fn [m]
-                   (match s
-                          [:on-update-field val]
-                          (assoc m :field val)
+                  :on-add
+                  (if (= "" (:field test-model))
+                    test-model
+                    (-> test-model
+                        (update :todos assoc (:next-id test-model) false)
+                        (assoc :field "")
+                        (update :next-id inc)))
 
-                          :on-add
-                          (-> m
-                              (update :todos assoc (:next-id m) false)
-                              (update :next-id inc))
+                  [:on-toggle id]
+                  (do
+                    (assert (contains? (:todos test-model) id)
+                            (str "self-test: toggled item must be already added: " id))
+                    (update-in test-model [:todos id] not))))
 
-                          [:on-toggle id]
-                          (do
-                            (is (contains? (:todos m) id) "self-test: toggled item must be already added")
-                            (update-in m [:todos id] not)))))
+         ; based on current test model returns a generator which produces next allowed signal
+         (gen-next-signal
+           [test-model]
+           (if (not= (:field test-model) "")
+             ; we are not interested in several updates in a row, so add new item ASAP after field update
+             (gen/return :on-add)
 
-          ; 3 check postconditions
-          (match s
-                 [:on-toggle id]
-                 (let [real-todos @(:todos (:view-model app))
-                       real-pattern (into {}
-                                          (map #(-> [(:id %) (:completed? %)]) real-todos))
-                       test-pattern (:todos @test-model)]
-                   (is (= real-pattern test-pattern) "toggled todos must have expected state"))
+             (if-let [available-ids (keys (:todos test-model))]
+               (gen/one-of [(gen/return [:on-update-field "some-title"])
+                            (gen/fmap #(-> [:on-toggle %])
+                                      (gen/elements available-ids))])
+               (gen/return [:on-update-field "some-title"]))))
 
-                 :else nil))))))
+         ; given the handled signal and updated models checks if they are in expected state
+         ; returns nil or a string describing a failure
+         (postcondition
+           [signal real-model test-model]
+           (match signal
+                  [:on-toggle id]
+                  (let [real-todos @(:todos (:view-model real-model))
+                        real-pattern (into {}
+                                           (map #(-> [(:id %) (:completed? %)]) real-todos))
+                        expected-pattern (:todos test-model)]
+                    (when (not= expected-pattern real-pattern)
+                      (str "Toggled todos must have expected state: " (pr-str expected-pattern)
+                           "\nbut got: " (pr-str real-pattern))))
+
+                  :else nil))]
+        (checking
+          "after randomly adding and toggling todos"
+          10000
+          [signals (u/gen-signals initial-test-model next-step gen-next-signal)]
+          ;(println "> " (clojure.string/join "" (repeat (count signals) ".")) (count signals))
+          (u/check-signals initial-test-model signals next-step postcondition))))))
