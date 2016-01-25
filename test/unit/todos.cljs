@@ -96,8 +96,9 @@
 
              (if-let [available-ids (keys (:todos test-model))]
                (gen/one-of [(gen/return [:on-update-field "some-title"])
-                            (gen/fmap #(-> [:on-toggle %])
-                                      (gen/elements available-ids))])
+                            (gen/let
+                              [id (gen/elements available-ids)]
+                              [:on-toggle id])])
                (gen/return [:on-update-field "some-title"]))))
 
          ; given the handled signal and updated models checks if they are in expected state
