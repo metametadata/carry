@@ -42,7 +42,8 @@
                         :compiler     {:main          'unit.runner
                                        :output-to     "resources/private/js/compiled/testable.js"
                                        :output-dir    "resources/private/js/compiled/out"
-                                       :optimizations :whitespace}}]}
+                                       :optimizations :none
+                                       }}]}
 
   :figwheel {
              ;; :http-server-root "public" ;; default and assumes "resources" 
