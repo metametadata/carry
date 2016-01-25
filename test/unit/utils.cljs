@@ -39,7 +39,7 @@
       [len gen/s-pos-int]
       (gen-signals-using-length len initial-test-model))))
 
-(defn check-signals
+(defn stateful-check
   "Executes signals against app and test model. After each step executes postcondition.
   Execution is stopped with test report if postcondition fails."
   [initial-test-model signals next-step postcondition]
@@ -53,5 +53,5 @@
         (if-let [desc (postcondition s app @test-model)]
           ; fail using (is ..) in order to generate test.chuck report
           (is nil (str "postcondition was not met after handling singal: " (pr-str s)
-                         "\nDetails:\n" desc))
+                       "\nDetails:\n" desc))
           (recur (rest ss)))))))

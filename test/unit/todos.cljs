@@ -120,4 +120,4 @@
           10000
           [signals (u/gen-signals initial-test-model next-step gen-next-signal)]
           ;(println "> " (clojure.string/join "" (repeat (count signals) ".")) (count signals))
-          (u/check-signals initial-test-model signals next-step postcondition))))))
+          (u/stateful-check initial-test-model signals next-step postcondition))))))
