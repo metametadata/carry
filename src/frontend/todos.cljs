@@ -70,9 +70,9 @@
          :on-toggle-all (dispatch :toggle-all)
 
          [:on-start-editing id] (dispatch [:start-editing id])
+         [:on-update-todo id val] (dispatch [:update-todo id val])
          [:on-stop-editing id] (dispatch [:stop-editing id])
          [:on-cancel-editing id] (dispatch [:cancel-editing id])
-         [:on-update-todo id val] (dispatch [:update-todo id val])
 
          [:on-remove id] (dispatch [:remove id])
 
@@ -94,7 +94,7 @@
              model
              (-> model
                  (assoc :field "")
-                 (update :next-id inc)
+                 (update :next-id inc #_(min (inc %) 3))    ; commented is the code which will make tests fail
                  (update :todos concat [(-init-todo (:next-id model) title)]))))
 
          [:toggle id]
@@ -109,6 +109,9 @@
              (-update-todos #(assoc % :editing? (= (:id %) id)))
              (-update-todo id #(assoc % :original-title (:title %))))
 
+         [:update-todo id val]
+         (-update-todo model id assoc :title val)
+
          [:stop-editing id]
          (let [title (-> (-find-todo model id)
                          :title
@@ -122,9 +125,6 @@
          (-update-todo model id #(assoc % :editing? false
                                           :title (:original-title %)
                                           :original-title ""))
-
-         [:update-todo id val]
-         (-update-todo model id assoc :title val)
 
          [:remove id]
          (-remove-todo model id)
@@ -282,4 +282,5 @@
        :view       view
        :control    control
        :reconcile  reconcile}
+      ; apply middleware
       (routing/wrap history)))
