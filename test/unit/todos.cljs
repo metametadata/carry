@@ -118,7 +118,7 @@
                   :else nil))]
         (checking
           "after randomly adding and toggling todos"
-          10000
+          100
           [signals (u/gen-signals initial-test-model next-step gen-next-signal)]
           ;(println "> " (clojure.string/join "" (repeat (count signals) ".")) (count signals))
           (u/stateful-check initial-test-model signals next-step postcondition))))))
