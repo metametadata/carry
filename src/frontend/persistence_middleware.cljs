@@ -1,60 +1,69 @@
-; Middleware loads model from storage on :on-connect signal and saves it into storage on every signal and
-; after every action dispatched from control.
-; Storage is expected to be a transient map.
 (ns frontend.persistence-middleware
   (:require [cljs.core.match :refer-macros [match]]))
 
 (defn -wrap-control
-  [component-control storage key blacklist]
+  [component-control key]
   (fn control
     [model signal dispatch]
-    (letfn [(save
-              [result]
-              (let [save-whitelist (clojure.set/difference (set (keys result)) blacklist)]
-                (assoc! storage key (select-keys result save-whitelist))))
+    (match signal
+           [::-on-load-from-storage key loaded-model]
+           (dispatch [::-load-from-storage key loaded-model])
 
-            (dispatch-and-save
-              [action]
-              (let [result (dispatch action)]
-                (save result)
-                result))
-
-            (save-and-control
-              [model signal]
-              (save model)                                  ; persist current model in case no action is dispatched
-              (component-control model signal dispatch-and-save))]
-      (if-not (= signal :on-connect)
-        ; hand signal further to component
-        (save-and-control model signal)
-
-        ; :on-connect signal
-        (let [storage-model (get storage key :not-found)]
-          (if (= storage-model :not-found)
-            ; no model in storage - hand signal further to component
-            (save-and-control model signal)
-
-            ; else - update model and hand it with signal further to component
-            (let [new-model (merge storage-model (select-keys model blacklist))]
-              (dispatch [::-reset-from-storage new-model])
-              (component-control new-model signal dispatch-and-save))))))))
+           :else
+           (component-control model signal dispatch))))
 
 (defn -wrap-reconcile
-  [component-reconcile]
+  [component-reconcile key blacklist]
   (fn reconcile
     [model action]
     (match action
-           [::-reset-from-storage data]
-           data
+           ; it's important to apply blacklist using the most actual model, that's why we do it in action
+           [::-load-from-storage key loaded-model]
+           (merge loaded-model (select-keys model blacklist))
 
            :else
            (component-reconcile model action))))
 
-(defn wrap
-  "On :on-connect signal middleware will load the model from storage and send the signal further with updated model to the component.
-  Blacklist should contain model keys which will not be saved and loaded."
+; TODO: duplicated code
+(defn -after-do
+  [f1 f2]
+  (fn [& args]
+    (apply f1 args)
+    (apply f2 args)))
+
+(defn -save
+  [storage key blacklist model]
+  (let [save-whitelist (clojure.set/difference (set (keys model)) blacklist)]
+    (assoc! storage key (select-keys model save-whitelist))))
+
+(defn add
+  "On start middleware will load the model from storage.
+  Saves model into storage on every change.
+  Storage is expected to be a transient map.
+  Optional :blacklist should contain model keys which will not be saved and loaded.
+  Optional :load-wrapper allows decorating model update function(e.g. it's possible to cancel loading based on loaded data)."
   ([spec storage key]
-   (wrap spec storage key nil))
-  ([spec storage key blacklist]
-   (-> spec
-       (update :control -wrap-control storage key blacklist)
-       (update :reconcile -wrap-reconcile))))
+   (add spec storage key nil))
+
+  ([spec storage key {:keys [blacklist load-wrapper] :or {blacklist #{} load-wrapper identity} :as _options}]
+   (assert (set? blacklist) (str "actual value: " (pr-str blacklist)))
+
+   (letfn [(load-from-storage
+             [loaded-model dispatch-signal _current-model]
+             (dispatch-signal [::-on-load-from-storage key loaded-model]))]
+     (-> spec
+         ; Key is injected into wrappers in case several persistence middlewares are applied to the same spec.
+         ; Without key the load signal would be always handled by the "top" persistence layer.
+         (update :control -wrap-control key)
+         (update :reconcile -wrap-reconcile key blacklist)
+         (update :on-start -after-do
+                 (fn [model dispatch-signal]
+                   (println "[persistence] start, loading from" (pr-str key))
+
+                   (let [loaded-model (get storage key :not-found)]
+                     (when (not= loaded-model :not-found)
+                       ((load-wrapper load-from-storage) loaded-model dispatch-signal @model)))
+
+                   (add-watch model [:persistence-watcher key]
+                              (fn [_key _atom _old-state new-state]
+                                (-save storage key blacklist new-state)))))))))

@@ -4,7 +4,6 @@
             [reagent.core :as r]
             [com.rpl.specter :as s]
             [frontend.ui :as ui]
-            [frontend.devtools :as devtools]
             [frontend.routing :as routing])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
@@ -17,7 +16,7 @@
    :original-title ""
    :editing?       false})
 
-(defn init
+(defn new-model
   [todo-titles]
   {:field   ""
    ; list of maps
@@ -58,11 +57,6 @@
 (defn control
   [_model_ signal dispatch]
   (match signal
-         :on-connect (dispatch :sample-action)
-
-         ; will come from devtools
-         ::devtools/on-did-replay nil
-
          [:on-update-field val] (dispatch [:update-field val])
          :on-add (dispatch :add)
 
@@ -274,13 +268,21 @@
       [-view-todo-list @todos @all-completed? dispatch]
       [-view-footer @active-count @has-completed-todos? @visibility dispatch]])])
 
+;;;;;;;;;;;;;;;;;;;;;;;; on start
+(defn on-start
+  [_model _dispatch-signal]
+  (println "[todos] custom start code"))
+
+;;;;;;;;;;;;;;;;;;;;;;;; on stop
+(defn on-stop
+  [_model _dispatch-signal]
+  (println "[todos] custom stop code"))
+
 ;;;;;;;;;;;;;;;;;;;;;;;; Spec
 (defn new-spec
-  [history]
-  (-> {:init       init
-       :view-model view-model
-       :view       view
-       :control    control
-       :reconcile  reconcile}
-      ; apply middleware
-      (routing/wrap history)))
+  [todo-titles]
+  {:initial-model (new-model todo-titles)
+   :control       control
+   :reconcile     reconcile
+   :on-start      on-start
+   :on-stop       on-stop})

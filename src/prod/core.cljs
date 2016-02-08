@@ -1,8 +1,8 @@
 (ns prod.core
-  (:require [frontend.devtools :as devtools]
-            [frontend.todos :as todos]
-            [frontend.persistence-middleware :as persistence]
+  (:require [frontend.todos :as todos]
             [frontend.ui :as ui]
+            [frontend.devtools :as devtools]
+            [frontend.persistence-middleware :as persistence]
             [frontend.routing :as routing]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
@@ -14,30 +14,44 @@
   []
   (println "Hi.")
 
-  (let [history (routing/->History)
+  (let [; define external dependencies
+        history (routing/->History)
         storage hp/local-storage
-        app-spec (-> (todos/new-spec history)
-                     (persistence/wrap storage :model)
-                     (ui/wrap-log "   [app] ")
-                     (devtools/wrap storage :devtools)
-                     (ui/wrap-log "[devtools] "))
-        app (ui/connect-reactive-reagent app-spec [["Finish this project" "Take a bath"]])]
-    ; Explicitly start sending navigation signals after connecting in order to be able to debug them in devtools.
-    ; Maaaybe we could put this code into todos/:on-connect signal,
-    ; but - because of devtools - it would not execute on replays (on persisted devtools sessions),
-    ; because only actions are replayed.
-    (routing/start-signaling history app)
 
-    ; render app
-    (r/render-component [(:view app)] (. js/document (getElementById "root")))
+        ; define spec
+        app-spec (-> (todos/new-spec ["Finish this project" "Take a bath"])
+                     ; TODO: explicit blacklisting of debugger is not cool
+                     (persistence/add storage :model {:blacklist #{::devtools/debugger}})
+                     (routing/add history)
+                     (devtools/add-debugger storage :debugger-model)
+                     (ui/add-logging "[debugger] "))
 
-    ; return app for future debugging
-    app))
+        ; create app from spec
+        app (ui/create app-spec)
+
+        ; add GUI
+        [view-model view] (ui/connect-ui app todos/view-model todos/view)
+
+        ; add debugger GUI
+        [_ debugger-view] (devtools/connect-debugger-ui app)]
+    ; perform initial side effects
+    ((:start app))
+
+    ; render
+    (r/render-component [:div view debugger-view]
+                        (. js/document (getElementById "root")))
+
+    ; return for future debugging
+    (assoc app :view-model view-model)))
 
 ; start app and make it accessible from REPL
 (def app (main))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
-(defn on-js-reload
+(defn before-jsload
+  []
+  ((:stop app)))
+
+(defn on-jsload
   []
   #_(. js/console clear))

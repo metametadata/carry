@@ -1,60 +1,44 @@
-; GUI architecture API
 (ns frontend.ui
   (:require [reagent.core :as r]
             [cljs.pprint])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
-(defn connect-reactive-reagent
-  "Given a component spec map returns a connected component which can be rendered using Reagent.
+(defn create
+  "Constructs a component from a spec."
+  [{:keys [initial-model control reconcile on-start on-stop] :as _spec}]
+  (assert (map? initial-model))
+  (assert (fn? control))
+  (assert (fn? reconcile))
+  (assert (fn? on-start))
+  (assert (fn? on-stop))
 
-  :control can be a non-pure function, :init, :view-model, :view and :reconcile must be pure functions.
+  (let [model-ratom (r/atom initial-model)
+        model-ratom-readonly (reaction @model-ratom)
+        dispatch-action (fn [action] (swap! model-ratom reconcile action))
+        dispatch-signal (fn [signal] (control @model-ratom signal dispatch-action) nil)
+        component {:model            model-ratom-readonly
+                   :dispatch-signal  dispatch-signal
+                   :start            #(on-start model-ratom-readonly dispatch-signal)
+                   :stop             #(on-stop model-ratom-readonly dispatch-signal)
 
-  view-model receives a model ratom and is expected to return Reagent reactions (inspired by re-frame subscriptions,
-  see: https://github.com/Day8/re-frame#subscribe). This function is called only once.
+                   :-model           dispatch-action
+                   :-dispatch-action dispatch-action}]
+    component))
 
-  init-args will be passed to :init function.
+(defn connect-ui
+  "Returns a pair of connected view-model and view."
+  [{:keys [model dispatch-signal] :as _app} view-model view]
+  (assert model)
+  (assert dispatch-signal)
+  (assert view-model)
+  (assert view)
 
-  Dispatches :on-connect signal and returns a \"connected spec\" map with following keys:
-      :view - Reagent view function
-      :dispatch-signal - it can be used to dispatch signals not only from the view, always returns nil
-
-      these are exposed mainly for debugging:
-      :model - Reagent atom
-      :view-model - view-model instance which was passed to view
-      :dispatch-action - the same function which is passed into control, returns a new model
-
-  Data flow:
-  (init)
-  |
-  V
-  model -> (view-model) -> (view) -signal-> (control) -action-> (reconcile) -> model -> etc."
-  [{:keys [init view-model view control reconcile] :as _spec_}
-   init-args]
-  (let [model (apply init init-args)
-        model-ratom (r/atom model)
-        view-model (view-model model-ratom)]
-    (letfn [(dispatch-action [action] (swap! model-ratom reconcile action))
-            (dispatch-signal [signal] (control @model-ratom signal dispatch-action) nil)
-            (reagent-view [] [view view-model dispatch-signal])]
-      (dispatch-signal :on-connect)
-
-      {:dispatch-signal dispatch-signal
-       :view            reagent-view
-
-       :model           model-ratom
-       :view-model      view-model
-       :dispatch-action dispatch-action})))
+  (let [comp-view-model (view-model model)
+        reagent-view [view comp-view-model dispatch-signal]]
+    [comp-view-model reagent-view]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Utils
-(defn tagged
-  "Function decorator which prepends a tag to the single argument.
-  I.e. it transforms an arg x to [tag x]."
-  [f tag]
-  (fn tagged-fn
-    [x]
-    (f [tag x])))
-
 (defn track-keys
   "Returns a map containing Reagent reactions to map entries specified by keys."
   [map-ratom keyseq]
@@ -63,9 +47,11 @@
           [key (reaction (get @map-ratom key))])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
-(defn wrap-log
-  ([spec] (wrap-log spec ""))
+(defn add-logging
+  ([spec] (add-logging spec ""))
   ([spec prefix]
+   (assert (:control spec))
+   (assert (:reconcile spec))
    (-> spec
        (update :control #(fn control
                           [model signal dispatch]

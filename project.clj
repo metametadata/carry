@@ -28,7 +28,8 @@
                                        :output-to            "resources/public/js/compiled/frontend.js"
                                        :output-dir           "resources/public/js/compiled/out"
                                        :source-map-timestamp true}
-                        :figwheel     {:on-jsload "prod.core/on-js-reload"}}
+                        :figwheel     {:on-jsload "prod.core/on-jsload"
+                                       :before-jsload "prod.core/before-jsload"}}
 
                        {:id           "min"
                         :source-paths ["src"]
