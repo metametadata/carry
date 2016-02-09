@@ -46,8 +46,7 @@
    (add spec storage key nil))
 
   ([spec storage key {:keys [blacklist load-wrapper] :or {blacklist #{} load-wrapper identity} :as _options}]
-   (assert (set? blacklist) (str "actual value: " (pr-str blacklist)))
-
+   {:pre [(set? blacklist)]}
    (letfn [(load-from-storage
              [loaded-model dispatch-signal _current-model]
              (dispatch-signal [::-on-load-from-storage key loaded-model]))]

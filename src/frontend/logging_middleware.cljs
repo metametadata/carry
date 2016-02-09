@@ -3,8 +3,7 @@
 (defn add
   ([spec] (add spec ""))
   ([spec prefix]
-   (assert (:control spec))
-   (assert (:reconcile spec))
+   {:pre [(:control spec) (:reconcile spec)]}
    (-> spec
        (update :control #(fn control
                           [model signal dispatch]

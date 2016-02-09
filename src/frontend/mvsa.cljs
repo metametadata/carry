@@ -5,14 +5,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn create
-  "Constructs a component from a spec."
+  "Constructs an app from a spec."
   [{:keys [initial-model control reconcile on-start on-stop] :as _spec}]
-  (assert (map? initial-model))
-  (assert (fn? control))
-  (assert (fn? reconcile))
-  (assert (fn? on-start))
-  (assert (fn? on-stop))
-
+  {:pre [(map? initial-model) (fn? control) (fn? reconcile) (fn? on-start) (fn? on-stop)]}
   (let [model-ratom (r/atom initial-model)
         model-ratom-readonly (reaction @model-ratom)
         dispatch-action (fn [action] (swap! model-ratom reconcile action))
@@ -29,11 +24,7 @@
 (defn connect-ui
   "Returns a pair of connected view-model and view."
   [{:keys [model dispatch-signal] :as _app} view-model view]
-  (assert model)
-  (assert dispatch-signal)
-  (assert view-model)
-  (assert view)
-
+  {:pre [model (fn? dispatch-signal) (fn? view-model) (fn? view)]}
   (let [comp-view-model (view-model model)
         reagent-view [view comp-view-model dispatch-signal]]
     [comp-view-model reagent-view]))
