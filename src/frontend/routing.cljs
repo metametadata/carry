@@ -1,5 +1,6 @@
 (ns frontend.routing
-  (:require [cljs.core.match :refer-macros [match]]
+  (:require [frontend.mvsa :as mvsa]
+            [cljs.core.match :refer-macros [match]]
             [goog.events]
             [goog.history.EventType :as EventType])
   (:import goog.history.Html5History))
@@ -71,18 +72,6 @@
            (component-reconcile model action))))
 
 ;;; Middleware
-(defn -wrap-after
-  [f1 f2]
-  (fn [& args]
-    (apply f1 args)
-    (apply f2 args)))
-
-(defn -wrap-before
-  [f1 f2]
-  (fn [& args]
-    (apply f2 args)
-    (apply f1 args)))
-
 (defn add
   "Routing middleware which allows component react to navigation events by observing model changes.
 
@@ -99,7 +88,7 @@
         (update :initial-model -wrap-initial-model)
         (update :control -wrap-control)
         (update :reconcile -wrap-reconcile)
-        (update :on-start -wrap-after
+        (update :on-start mvsa/wrap-after
                 (fn [model dispatch-signal]
                   (println "[routing] start singaling navigation events")
                   (->> (listen history #(dispatch-signal [::-on-navigate %]))
@@ -108,7 +97,7 @@
                   (add-watch model :routing-watcher
                              (fn [_key _atom _old-state new-state]
                                (replace-token history (::token new-state))))))
-        (update :on-stop -wrap-before
+        (update :on-stop mvsa/wrap-before
                 (fn [_model _dispatch-signal]
                   (println "[routing] stop")
                   (@unlisten))))))

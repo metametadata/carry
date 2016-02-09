@@ -1,5 +1,6 @@
 (ns frontend.persistence-middleware
-  (:require [cljs.core.match :refer-macros [match]]))
+  (:require [frontend.mvsa :as mvsa]
+            [cljs.core.match :refer-macros [match]]))
 
 (defn -wrap-control
   [component-control key]
@@ -23,13 +24,6 @@
 
            :else
            (component-reconcile model action))))
-
-; TODO: duplicated code
-(defn -after-do
-  [f1 f2]
-  (fn [& args]
-    (apply f1 args)
-    (apply f2 args)))
 
 (defn -save
   [storage key blacklist model]
@@ -55,7 +49,7 @@
          ; Without key the load signal would be always handled by the "top" persistence layer.
          (update :control -wrap-control key)
          (update :reconcile -wrap-reconcile key blacklist)
-         (update :on-start -after-do
+         (update :on-start mvsa/wrap-after
                  (fn [model dispatch-signal]
                    (println "[persistence] start, loading from" (pr-str key))
 
