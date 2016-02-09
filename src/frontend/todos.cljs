@@ -1,4 +1,3 @@
-; TodoMVC component
 (ns frontend.todos
   (:require [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]

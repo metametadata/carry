@@ -3,7 +3,7 @@
             [cljs.core.match :refer-macros [match]]))
 
 (defn -wrap-control
-  [component-control key]
+  [app-control key]
   (fn control
     [model signal dispatch]
     (match signal
@@ -11,10 +11,10 @@
            (dispatch [::-load-from-storage key loaded-model])
 
            :else
-           (component-control model signal dispatch))))
+           (app-control model signal dispatch))))
 
 (defn -wrap-reconcile
-  [component-reconcile key blacklist]
+  [app-reconcile key blacklist]
   (fn reconcile
     [model action]
     (match action
@@ -23,7 +23,7 @@
            (merge loaded-model (select-keys model blacklist))
 
            :else
-           (component-reconcile model action))))
+           (app-reconcile model action))))
 
 (defn -save
   [storage key blacklist model]

@@ -8,19 +8,19 @@
 
 ;;;;;;;;;;;;;;;;;;; Init
 (defn -wrap-initial-model
-  [component-initial-model]
-  (assoc component-initial-model ::debugger
-                                 {:initial-model  component-initial-model
+  [app-initial-model]
+  (assoc app-initial-model ::debugger
+                           {:initial-model  app-initial-model
 
-                                  ; list of [id signal]
-                                  :signal-events  (list)
-                                  :next-signal-id 0
+                            ; list of [id signal]
+                            :signal-events  (list)
+                            :next-signal-id 0
 
-                                  ; list of {id signal-id enabled? action}
-                                  :action-events  (list)
-                                  :next-action-id 0
+                            ; list of {id signal-id enabled? action}
+                            :action-events  (list)
+                            :next-action-id 0
 
-                                  :persist?       false}))
+                            :persist?       false}))
 
 (defn -signal-event
   [id signal]
@@ -64,45 +64,42 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
 (defn -wrap-control
-  [component-control]
+  [app-control]
   (fn control
     [model signal dispatch]
-    (letfn [(handle-component-signal
-              [model]
-              (let [[signal-id _ :as signal-event] (-signal-event (-> model ::debugger :next-signal-id) signal)]
-                (dispatch [::record-signal-event signal-event])
-                (component-control model signal #(dispatch [::component-action signal-id %]))))]
-      (match signal
-             ::on-did-load-from-storage
-             (dispatch ::replay)
+    (match signal
+           ::on-did-load-from-storage
+           (dispatch ::replay)
 
-             [::on-toggle-signal id]
-             (do
-               (dispatch [::toggle-signal id])
-               (dispatch ::replay))
+           [::on-toggle-signal id]
+           (do
+             (dispatch [::toggle-signal id])
+             (dispatch ::replay))
 
-             [::on-toggle-action id]
-             (do
-               (dispatch [::toggle-action id])
-               (dispatch ::replay))
+           [::on-toggle-action id]
+           (do
+             (dispatch [::toggle-action id])
+             (dispatch ::replay))
 
-             [::on-log-action-result id]
-             (-> (-find-action model id) :result pr-str println)
+           [::on-log-action-result id]
+           (-> (-find-action model id) :result pr-str println)
 
-             ::on-toggle-persist
-             (dispatch ::toggle-persist)
+           ::on-toggle-persist
+           (dispatch ::toggle-persist)
 
-             ::on-sweep
-             (dispatch ::sweep)
+           ::on-sweep
+           (dispatch ::sweep)
 
-             ::on-reset
-             (do
-               (dispatch ::clear-history)
-               (dispatch ::replay))
+           ::on-reset
+           (do
+             (dispatch ::clear-history)
+             (dispatch ::replay))
 
-             ; wrapped component signal
-             :else
-             (handle-component-signal model)))))
+           ; app signal
+           :else
+           (let [[signal-id _ :as signal-event] (-signal-event (-> model ::debugger :next-signal-id) signal)]
+             (dispatch [::record-signal-event signal-event])
+             (app-control model signal #(dispatch [::app-action signal-id %]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn -orphaned-signal?
@@ -112,7 +109,7 @@
                   (-> model ::debugger :action-events))))
 
 (defn -wrap-reconcile
-  [component-reconcile]
+  [app-reconcile]
   (fn reconcile
     [model action]
     (match action
@@ -138,14 +135,14 @@
            [::toggle-action id]
            (-update-action-event model id update :enabled? not)
 
-           ; applies enabled actions to the initial component model
+           ; applies enabled actions to the initial app model
            ::replay
            (loop [action-events (filter :enabled? (-> model ::debugger :action-events))
                   new-model (-> model ::debugger :initial-model (assoc ::debugger (::debugger model)))]
              (if-let [{:keys [id action]} (first action-events)]
                (recur (rest action-events)
                       (as-> new-model m
-                            (component-reconcile m action)
+                            (app-reconcile m action)
                             (-update-action-event m id assoc :result (dissoc m ::debugger))))
                new-model))
 
@@ -157,11 +154,11 @@
                  (update-in m [::debugger :action-events] #(filter :enabled? %))
                  (update-in m [::debugger :signal-events] #(remove (partial -orphaned-signal? m) %)))
 
-           ; component action coming from specific signal
-           [::component-action signal-id a]
+           ; app action coming from specific signal
+           [::app-action signal-id a]
            (if (-find-signal model signal-id)
              (as-> model m
-                   (component-reconcile m a)
+                   (app-reconcile m a)
                    (update-in m [::debugger :action-events] concat [(-action-event signal-id
                                                                                    (-> m ::debugger :next-action-id)
                                                                                    a
@@ -171,13 +168,13 @@
              ; looks like originating signal could be already sweeped -> create "unknown signal" to record this action
              (reconcile model a))
 
-           ; for bare component actions (e.g. when dispatching from REPL) create an "unknown signal" event
+           ; for bare app actions (e.g. when dispatching from REPL) create an "unknown signal" event
            :else
            (let [[signal-id _ :as unknown-signal-event] (-signal-event (-> model ::debugger :next-signal-id) ::unknown-signal)]
              (-> model
                  (update-in [::debugger :signal-events] concat [unknown-signal-event])
                  (update-in [::debugger :next-signal-id] inc)
-                 (reconcile [::component-action signal-id action]))))))
+                 (reconcile [::app-action signal-id action]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -view-model
@@ -273,13 +270,13 @@
     [loaded-model dispatch-signal current-model]
     (when (-> loaded-model ::debugger :persist?)
       (-> loaded-model
-          ; otherwise, on hot reload, we will not see changes after modifying component init code
+          ; otherwise, on hot reload, we will not see changes after modifying app init code
           (update ::debugger merge (-> current-model ::debugger (select-keys [:initial-model])))
           (load-from-storage dispatch-signal current-model))
       (dispatch-signal ::on-did-load-from-storage))))
 
 (defn add-debugger
-  "Adds debugger to a component."
+  "Adds debugger to the app."
   [spec storage storage-key]
   (-> spec
       (update :initial-model -wrap-initial-model)
@@ -288,6 +285,5 @@
       (persistence/add storage storage-key {:load-wrapper -wrap-load-from-storage})))
 
 (defn connect-debugger-ui
-  ""
   [app]
   (mvsa/connect-ui app -view-model -view))

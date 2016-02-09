@@ -30,7 +30,7 @@
         app (mvsa/create app-spec)
 
         ; add GUI
-        [view-model view] (mvsa/connect-ui app todos/view-model todos/view)
+        [app-view-model app-view] (mvsa/connect-ui app todos/view-model todos/view)
 
         ; add debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]
@@ -38,11 +38,11 @@
     ((:start app))
 
     ; render
-    (r/render-component [:div view debugger-view]
+    (r/render-component [:div app-view debugger-view]
                         (. js/document (getElementById "root")))
 
     ; return for future debugging
-    (assoc app :view-model view-model)))
+    (assoc app :view-model app-view-model)))
 
 ; start app and make it accessible from REPL
 (def app (main))

@@ -41,14 +41,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 ;;; Init
 (defn -wrap-initial-model
-  "Sets ::token to empty string if component didn't already set it."
-  [component-initial-model]
-  (merge {::token ""} component-initial-model))
+  "Sets ::token to empty string if app didn't already set it."
+  [app-initial-model]
+  (merge {::token ""} app-initial-model))
 
 ;;; Control
 (defn -wrap-control
-  "Updates token in model on navigation signal and lets wrapped component handle the signal."
-  [component-control]
+  "Updates token in model on navigation signal and lets wrapped app handle the signal."
+  [app-control]
   (fn control
     [model signal dispatch]
     (match signal
@@ -56,12 +56,12 @@
            (dispatch [::-set-token token])
 
            :else
-           (component-control model signal dispatch))))
+           (app-control model signal dispatch))))
 
 ;;; Reconcile
 (defn -wrap-reconcile
   "Updates the token."
-  [component-reconcile]
+  [app-reconcile]
   (fn reconcile
     [model action]
     (match action
@@ -69,15 +69,15 @@
            (assoc model ::token token)
 
            :else
-           (component-reconcile model action))))
+           (app-reconcile model action))))
 
 ;;; Middleware
 (defn add
-  "Routing middleware which allows component react to navigation events by observing model changes.
+  "Routing middleware which allows app react to navigation events by observing model changes.
 
   After start begins catching navigation events, updates ::token in model accordingly.
   If ::token changes in model (e.g. by toggling action in frontend.debugger), then current url is updated using new token.
-  Component can set initial ::token in its (init).
+  App can set initial ::token in its (init).
 
   Middleware is expected to be used with ui/add-reactive-ui.
 

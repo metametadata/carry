@@ -12,22 +12,22 @@
         model-ratom-readonly (reaction @model-ratom)
         dispatch-action (fn [action] (swap! model-ratom reconcile action))
         dispatch-signal (fn [signal] (control @model-ratom signal dispatch-action) nil)
-        component {:model            model-ratom-readonly
-                   :dispatch-signal  dispatch-signal
-                   :start            #(on-start model-ratom-readonly dispatch-signal)
-                   :stop             #(on-stop model-ratom-readonly dispatch-signal)
+        app {:model            model-ratom-readonly
+             :dispatch-signal  dispatch-signal
+             :start            #(on-start model-ratom-readonly dispatch-signal)
+             :stop             #(on-stop model-ratom-readonly dispatch-signal)
 
-                   :-model           dispatch-action
-                   :-dispatch-action dispatch-action}]
-    component))
+             :-model           dispatch-action
+             :-dispatch-action dispatch-action}]
+    app))
 
 (defn connect-ui
   "Returns a pair of connected view-model and view."
   [{:keys [model dispatch-signal] :as _app} view-model view]
   {:pre [model (fn? dispatch-signal) (fn? view-model) (fn? view)]}
-  (let [comp-view-model (view-model model)
-        reagent-view [view comp-view-model dispatch-signal]]
-    [comp-view-model reagent-view]))
+  (let [app-view-model (view-model model)
+        app-view [view app-view-model dispatch-signal]]
+    [app-view-model app-view]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Helpers
 (defn track-keys
