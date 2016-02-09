@@ -1,3 +1,5 @@
+# README IS TEMPORARILY OUT OF DATE
+
 ### [TodoMVC](http://todomvc.com/) using [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) in ClojureScript using Reagent, core.match, Specter and hodgepodge.
 
 [DEMO](http://metametadata.github.io/cljs-elmish-todomvc/)

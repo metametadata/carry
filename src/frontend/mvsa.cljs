@@ -1,4 +1,4 @@
-(ns frontend.ui
+(ns frontend.mvsa
   (:require [reagent.core :as r]
             [cljs.pprint])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -45,23 +45,3 @@
   (into {}
         (for [key keyseq]
           [key (reaction (get @map-ratom key))])))
-
-;;;;;;;;;;;;;;;;;;;;;;;; Middleware
-(defn add-logging
-  ([spec] (add-logging spec ""))
-  ([spec prefix]
-   (assert (:control spec))
-   (assert (:reconcile spec))
-   (-> spec
-       (update :control #(fn control
-                          [model signal dispatch]
-                          (println (str prefix "signal =") (pr-str signal))
-                          (% model signal dispatch)))
-       (update :reconcile #(fn reconcile
-                            [model action]
-                            (println (str prefix "  action =") (pr-str action))
-                            (let [result (% model action)]
-                              #_(println (str prefix "   ") (pr-str model))
-                              #_(println (str prefix "     ->"))
-                              #_(println (str prefix "   ") (pr-str result))
-                              result))))))

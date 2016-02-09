@@ -1,8 +1,9 @@
 (ns prod.core
   (:require [frontend.todos :as todos]
-            [frontend.ui :as ui]
+            [frontend.mvsa :as mvsa]
             [frontend.devtools :as devtools]
             [frontend.persistence-middleware :as persistence]
+            [frontend.logging-middleware :as logging]
             [frontend.routing :as routing]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
@@ -24,13 +25,13 @@
                      (persistence/add storage :model {:blacklist #{::devtools/debugger}})
                      (routing/add history)
                      (devtools/add-debugger storage :debugger-model)
-                     (ui/add-logging "[debugger] "))
+                     (logging/add "[debugger] "))
 
         ; create app from spec
-        app (ui/create app-spec)
+        app (mvsa/create app-spec)
 
         ; add GUI
-        [view-model view] (ui/connect-ui app todos/view-model todos/view)
+        [view-model view] (mvsa/connect-ui app todos/view-model todos/view)
 
         ; add debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]

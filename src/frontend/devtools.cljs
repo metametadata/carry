@@ -1,5 +1,5 @@
 (ns frontend.devtools
-  (:require [frontend.ui :as ui]
+  (:require [frontend.mvsa :as mvsa]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s]
@@ -182,8 +182,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -view-model
   [model]
-  (ui/track-keys (reaction (::debugger @model))
-                 [:initial-model :persist? :signal-events :action-events]))
+  (mvsa/track-keys (reaction (::debugger @model))
+                   [:initial-model :persist? :signal-events :action-events]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (defn -menu-button
@@ -290,4 +290,4 @@
 (defn connect-debugger-ui
   ""
   [app]
-  (ui/connect-ui app -view-model -view))
+  (mvsa/connect-ui app -view-model -view))

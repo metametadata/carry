@@ -3,7 +3,7 @@
   (:require [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]
             [com.rpl.specter :as s]
-            [frontend.ui :as ui]
+            [frontend.mvsa :as mvsa]
             [frontend.routing :as routing])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
@@ -154,7 +154,7 @@
   (let [todos (reaction (:todos @model))
         visibility (reaction (-visibility @model))]
     (-> model
-        (ui/track-keys [:field])
+        (mvsa/track-keys [:field])
         (assoc :visibility visibility
                :has-todos? (reaction (-> @todos count pos?))
                :todos (reaction (filter (case @visibility
