@@ -33,12 +33,13 @@
 (defn add
   "On start middleware will load the model from storage.
   Saves model into storage on every change.
+  Several middlewares can safely wrap the same spec as long as they use different storage keys.
+
   Storage is expected to be a transient map.
-  Optional :blacklist should contain model keys which will not be saved and loaded.
-  Optional :load-wrapper allows decorating model update function(e.g. it's possible to cancel loading based on loaded data)."
+  Optional :blacklist set should contain model keys which will not be saved and loaded.
+  Optional :load-wrapper allows decorating model update function (e.g. it's possible to cancel loading based on loaded data)."
   ([spec storage key]
    (add spec storage key nil))
-
   ([spec storage key {:keys [blacklist load-wrapper] :or {blacklist #{} load-wrapper identity} :as _options}]
    {:pre [(set? blacklist)]}
    (letfn [(load-from-storage
@@ -53,10 +54,10 @@
                  (fn [model dispatch-signal]
                    (println "[persistence] start, loading from" (pr-str key))
 
-                   (let [loaded-model (get storage key :not-found)]
-                     (when (not= loaded-model :not-found)
-                       ((load-wrapper load-from-storage) loaded-model dispatch-signal @model)))
-
                    (add-watch model [:persistence-watcher key]
                               (fn [_key _atom _old-state new-state]
-                                (-save storage key blacklist new-state)))))))))
+                                (-save storage key blacklist new-state)))
+
+                   (let [loaded-model (get storage key :not-found)]
+                     (when (not= loaded-model :not-found)
+                       ((load-wrapper load-from-storage) loaded-model dispatch-signal @model)))))))))

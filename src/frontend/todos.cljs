@@ -150,22 +150,22 @@
   ; reactions are extracted for better perfromance, e.g.:
   ; when input field changes most reactions will not be recalculated,
   ; because todos stay the same
-  (let [todos (reaction (:todos @model))
+  (let [all-todos (reaction (:todos @model))
         visibility (reaction (-visibility @model))]
     (-> model
         (mvsa/track-keys [:field])
         (assoc :visibility visibility
-               :has-todos? (reaction (-> @todos count pos?))
+               :has-todos? (reaction (-> @all-todos count pos?))
                :todos (reaction (filter (case @visibility
                                           :all (constantly true)
                                           :active (complement :completed?)
                                           :completed :completed?)
-                                        @todos))
-               :all-completed? (reaction (every? :completed? @todos))
-               :active-count (reaction (->> @todos
+                                        @all-todos))
+               :all-completed? (reaction (every? :completed? @all-todos))
+               :active-count (reaction (->> @all-todos
                                             (filter (complement :completed?))
                                             count))
-               :has-completed-todos? (reaction (->> @todos
+               :has-completed-todos? (reaction (->> @all-todos
                                                     (filter :completed?)
                                                     count
                                                     pos?))))))
@@ -267,12 +267,12 @@
       [-view-todo-list @todos @all-completed? dispatch]
       [-view-footer @active-count @has-completed-todos? @visibility dispatch]])])
 
-;;;;;;;;;;;;;;;;;;;;;;;; on start
+;;;;;;;;;;;;;;;;;;;;;;;; Start
 (defn on-start
   [_model _dispatch-signal]
   (println "[todos] custom start code"))
 
-;;;;;;;;;;;;;;;;;;;;;;;; on stop
+;;;;;;;;;;;;;;;;;;;;;;;; Stop
 (defn on-stop
   [_model _dispatch-signal]
   (println "[todos] custom stop code"))

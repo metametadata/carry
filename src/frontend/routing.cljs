@@ -75,13 +75,9 @@
 (defn add
   "Routing middleware which allows app react to navigation events by observing model changes.
 
-  After start begins catching navigation events, updates ::token in model accordingly.
-  If ::token changes in model (e.g. by toggling action in frontend.debugger), then current url is updated using new token.
-  App can set initial ::token in its (init).
-
-  Middleware is expected to be used with ui/add-reactive-ui.
-
-  History dependency is needed to be able to update url bar from model."
+  After start it begins catching navigation events and updates ::token in model accordingly.
+  If ::token changes in model (e.g. by toggling action in debugger), then current url is updated using new token.
+  App can set initial ::token in its initial-model."
   [spec history]
   (let [unlisten (atom nil)]
     (-> spec

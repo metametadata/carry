@@ -28,12 +28,12 @@
                      (logging/add "[debugger] "))
 
         ; create app from spec
-        app (mvsa/create app-spec)
+        app (mvsa/app app-spec)
 
-        ; add GUI
+        ; create GUI
         [app-view-model app-view] (mvsa/connect-ui app todos/view-model todos/view)
 
-        ; add debugger GUI
+        ; create debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]
     ; perform initial side effects
     ((:start app))

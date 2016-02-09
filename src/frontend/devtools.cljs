@@ -277,7 +277,11 @@
       (dispatch-signal ::on-did-load-from-storage))))
 
 (defn add-debugger
-  "Adds debugger to the app."
+  "Adds debugging capabilities to the app.
+   All signals and actions will be recorded and stored in the model.
+   After app is created use |connect-debugger-ui| for rendering the debugger.
+   For correct work it must be the last middleware wrapping the app and
+   also make sure to blacklist ::debugger key if your app uses persistence middleware."
   [spec storage storage-key]
   (-> spec
       (update :initial-model -wrap-initial-model)
@@ -286,5 +290,6 @@
       (persistence/add storage storage-key {:load-wrapper -wrap-load-from-storage})))
 
 (defn connect-debugger-ui
+  "Returns [debugger-view-model debugger-view]. App spec must be wrapped by |add-debugger|."
   [app]
   (mvsa/connect-ui app -view-model -view))

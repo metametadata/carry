@@ -1,6 +1,7 @@
 (ns frontend.logging-middleware)
 
 (defn add
+  "Will print all signals and actions to console."
   ([spec] (add spec ""))
   ([spec prefix]
    {:pre [(:control spec) (:reconcile spec)]}
