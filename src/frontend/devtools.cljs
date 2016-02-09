@@ -268,6 +268,7 @@
   [load-from-storage]
   (fn wrapped-load-from-storage
     [loaded-model dispatch-signal current-model]
+    ; load only if user set the flag during previous session
     (when (-> loaded-model ::debugger :persist?)
       (-> loaded-model
           ; otherwise, on hot reload, we will not see changes after modifying app init code

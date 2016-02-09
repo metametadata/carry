@@ -21,6 +21,7 @@
 
         ; define spec
         app-spec (-> (todos/new-spec ["Finish this project" "Take a bath"])
+                     ; debugger deals with persistence itself, so let's blacklist it here to get rid of conflicts
                      (persistence/add storage :model {:blacklist #{::devtools/debugger}})
                      (routing/add history)
                      (devtools/add-debugger storage :debugger-model)
