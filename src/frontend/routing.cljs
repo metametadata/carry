@@ -3,7 +3,8 @@
             [cljs.core.match :refer-macros [match]]
             [goog.events]
             [goog.history.EventType :as EventType])
-  (:import goog.history.Html5History))
+  (:import goog.history.Html5History)
+  (:require-macros [reagent.ratom :refer [reaction run!]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar
 (defprotocol HistoryProtocol
@@ -90,9 +91,8 @@
                   (->> (listen history #(dispatch-signal [::-on-navigate %]))
                        (reset! unlisten))
 
-                  (add-watch model :routing-watcher
-                             (fn [_key _atom _old-state new-state]
-                               (replace-token history (::token new-state))))))
+                  (let [token (reaction (::token @model))]
+                    (run! (replace-token history @token)))))
         (update :on-stop mvsa/wrap-before
                 (fn [_model _dispatch-signal]
                   (println "[routing] stop")

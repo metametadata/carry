@@ -1,6 +1,7 @@
 (ns frontend.persistence-middleware
   (:require [frontend.mvsa :as mvsa]
-            [cljs.core.match :refer-macros [match]]))
+            [cljs.core.match :refer-macros [match]])
+  (:require-macros [reagent.ratom :refer [run!]]))
 
 (defn -wrap-control
   [app-control key]
@@ -52,12 +53,10 @@
          (update :reconcile -wrap-reconcile key blacklist)
          (update :on-start mvsa/wrap-after
                  (fn [model dispatch-signal]
-                   (println "[persistence] start, loading from" (pr-str key))
-
-                   (add-watch model [:persistence-watcher key]
-                              (fn [_key _atom _old-state new-state]
-                                (-save storage key blacklist new-state)))
+                   (println "[persistence] start, key =" (pr-str key))
 
                    (let [loaded-model (get storage key :not-found)]
                      (when (not= loaded-model :not-found)
-                       ((load-wrapper load-from-storage) loaded-model dispatch-signal @model)))))))))
+                       ((load-wrapper load-from-storage) loaded-model dispatch-signal @model)))
+
+                   (run! (-save storage key blacklist @model))))))))
