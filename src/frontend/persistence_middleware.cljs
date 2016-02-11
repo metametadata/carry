@@ -37,6 +37,7 @@
   Several middlewares can safely wrap the same spec as long as they use different storage keys.
 
   Storage is expected to be a transient map.
+  If this middleware is applioed to spec several times then all keys must differ; otherwise, behavior is undefined.
   Optional :blacklist set should contain model keys which will not be saved and loaded.
   Optional :load-wrapper allows decorating model update function (e.g. it's possible to cancel loading based on loaded data)."
   ([spec storage key]
