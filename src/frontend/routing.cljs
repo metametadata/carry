@@ -12,17 +12,13 @@
   (token [this] "Return current token.")
   (replace-token [this token] "Replace token without firing navigation event."))
 
-; defonce is needed for hot reloading
-(defonce _goog-history (doto (Html5History.)
-                         (.setEnabled true)))
-
 (def ^:dynamic *_history-events-enabled?* true)
 
-(defrecord History []
+(defrecord History [-goog-history]
   HistoryProtocol
   (listen
     [this callback]
-    (let [key (goog.events/listen _goog-history EventType/NAVIGATE
+    (let [key (goog.events/listen -goog-history EventType/NAVIGATE
                                   #(when *_history-events-enabled?*
                                     (callback (.-token %))))]
       (callback (token this))
@@ -30,14 +26,19 @@
 
   (token
     [_this]
-    (.getToken _goog-history))
+    (.getToken -goog-history))
 
   (replace-token
     [this new-token]
     ; the check fixes a case when setting already set "" token leads to unnecessarily adding "/#" to url
     (when (not= new-token (token this))
       (binding [*_history-events-enabled?* false]
-        (.replaceToken _goog-history new-token)))))
+        (.replaceToken -goog-history new-token)))))
+
+(defn new-history
+  []
+  (->History (doto (Html5History.)
+               (.setEnabled true))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 ;;; Init

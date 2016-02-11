@@ -16,7 +16,7 @@
   (println "Hi.")
 
   (let [; define external dependencies
-        history (routing/->History)
+        history (routing/new-history)
         storage hp/local-storage
 
         ; define spec
