@@ -45,11 +45,11 @@
   "Arguments:
   view-model - function which, given a model ratom, returns Reagent reactions; inspired by re-frame
   subscriptions, see: https://github.com/Day8/re-frame#subscribe; returned value will be passed to a view:
-  view - Reagent view function with args: [view-model-return-value dispatch-signal]
+  view - Reagent compoment function with args: [view-model-return-value dispatch-signal]
 
   Note that view-model function will be called only once.
 
-  Returns a pair of: view-model value (mostly for testing/debugging) and argless view to be rendered by Reagent."
+  Returns a pair of: view-model value (mostly for testing/debugging) and argless component to be rendered by Reagent."
   [{:keys [model dispatch-signal] :as _app} view-model view]
   {:pre [model (fn? dispatch-signal) (fn? view-model) (fn? view)]}
   (let [app-view-model (view-model model)
