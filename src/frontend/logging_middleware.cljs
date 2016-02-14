@@ -1,4 +1,5 @@
-(ns frontend.logging-middleware)
+(ns frontend.logging-middleware
+  (:require [frontend.mvsa :as mvsa]))
 
 (defn add
   "Will print all signals and actions to console."
@@ -6,15 +7,9 @@
   ([spec prefix]
    {:pre [(:control spec) (:reconcile spec)]}
    (-> spec
-       (update :control #(fn control
-                          [model signal dispatch]
-                          (println (str prefix "signal =") (pr-str signal))
-                          (% model signal dispatch)))
-       (update :reconcile #(fn reconcile
-                            [model action]
-                            (println (str prefix "  action =") (pr-str action))
-                            (let [result (% model action)]
-                              #_(println (str prefix "   ") (pr-str model))
-                              #_(println (str prefix "     ->"))
-                              #_(println (str prefix "   ") (pr-str result))
-                              result))))))
+       (update :control mvsa/wrap-before
+               (fn [_model signal _dispatch]
+                 (println (str prefix "signal =") (pr-str signal))))
+       (update :reconcile mvsa/wrap-before
+               (fn [_model action]
+                 (println (str prefix "  action =") (pr-str action)))))))
