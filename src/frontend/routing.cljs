@@ -86,7 +86,7 @@
         (update :initial-model -wrap-initial-model)
         (update :control -wrap-control)
         (update :reconcile -wrap-reconcile)
-        (update :on-start mvsa/wrap-after
+        (update :on-start mvsa/after-do
                 (fn [model dispatch-signal]
                   (println "[routing] start singaling navigation events")
                   (->> (listen history #(dispatch-signal [::-on-navigate %]))
@@ -94,7 +94,7 @@
 
                   (let [token (reaction (::token @model))]
                     (run! (replace-token history @token)))))
-        (update :on-stop mvsa/wrap-before
+        (update :on-stop mvsa/before-do
                 (fn [_model _dispatch-signal]
                   (println "[routing] stop")
                   (@unlisten))))))

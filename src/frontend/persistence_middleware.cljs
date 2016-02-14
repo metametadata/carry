@@ -52,7 +52,7 @@
          ; Without key the load signal would be always handled by the "top" persistence layer.
          (update :control -wrap-control key)
          (update :reconcile -wrap-reconcile key blacklist)
-         (update :on-start mvsa/wrap-after
+         (update :on-start mvsa/after-do
                  (fn [model dispatch-signal]
                    (println "[persistence] start, key =" (pr-str key))
 
