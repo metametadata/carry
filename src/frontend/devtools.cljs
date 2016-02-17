@@ -213,11 +213,11 @@
                    :border-bottom-width 1
                    :border-bottom-style "solid"
                    :border-color        "#4F5A65"}}
-     [:input.toggle {:title     "Persist debug session into local storage?"
-                     :type      "checkbox"
-                     :checked   @persist?
-                     :on-change #(dispatch ::on-toggle-persist)}
-      "Persist session"]
+     [:input#persist-toggle.toggle {:title     "Persist debug session into local storage?"
+                                    :type      "checkbox"
+                                    :checked   @persist?
+                                    :on-change #(dispatch ::on-toggle-persist)}]
+     [:label {:for "persist-toggle"} "Persist session"]
      [-menu-button "Sweep" #(dispatch ::on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
      [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]]
 
