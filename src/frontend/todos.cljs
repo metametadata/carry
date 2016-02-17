@@ -275,9 +275,10 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Spec
 (defn new-spec
-  [todo-titles]
-  {:initial-model (new-model todo-titles)
-   :control       control
-   :reconcile     reconcile
-   :on-start      on-start
-   :on-stop       on-stop})
+  [history todo-titles]
+  (-> {:initial-model (new-model todo-titles)
+       :control       control
+       :reconcile     reconcile
+       :on-start      on-start
+       :on-stop       on-stop}
+      (routing/add history)))
