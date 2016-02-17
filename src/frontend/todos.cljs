@@ -75,9 +75,6 @@
 (defn reconcile
   [model action]
   (match action
-         ; do nothing, only for a demo
-         :sample-action model
-
          [:update-field val]
          (assoc model :field val)
 
@@ -127,8 +124,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (def -visibility-spec
-  ; multiple tokens are supported mostly for :all case:
-  ; on navigating to base url the token is "", but on clicking the link the token becomes "/"
+  ; multiple tokens are supported mostly for :all case,
+  ; because on navigating to base url the token is "", but on clicking the link the token becomes "/"
   [{:key :all :title "All" :href "#/" :tokens #{"" "/"}}
    {:key :active :title "Active" :href "#/active" :tokens #{"/active"}}
    {:key :completed :title "Completed" :href "#/completed" :tokens #{"/completed"}}])
@@ -141,7 +138,7 @@
                        :key)]
     result
     (do
-      ; we don't use .error because PhantomJS somehow stops on it on running testing
+      ; we don't use .error because PhantomJS somehow stops on it on running tests
       (.log js/console "ERROR: Could not determine visibility for token" (pr-str (::routing/token model)) ". Will use some default visibility.")
       (-> -visibility-spec first :key))))
 
@@ -247,11 +244,10 @@
    [:ul.filters
     (for [{:keys [key title href]} -visibility-spec]
       ^{:key key}
-      [:li
-       [:a
-        {:href  href
-         :class (if (= visibility key) "selected")}
-        title]])]
+      [:li [:a
+            {:href  href
+             :class (if (= visibility key) "selected")}
+            title]])]
 
    (if has-completed-todos?
      [:button.clear-completed {:on-click #(dispatch :on-clear-completed)} "Clear completed"])])
@@ -262,7 +258,7 @@
   [:section.todoapp
    [-view-header @field dispatch]
 
-   (if @has-todos?
+   (when @has-todos?
      [:div
       [-view-todo-list @todos @all-completed? dispatch]
       [-view-footer @active-count @has-completed-todos? @visibility dispatch]])])
