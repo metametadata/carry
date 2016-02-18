@@ -20,7 +20,7 @@
 
   :cljsbuild {
               :builds [#_{:id           "dev"
-                        :source-paths ["src" "../../src"]
+                        :source-paths ["src"]
                         :compiler     {:main                 core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
