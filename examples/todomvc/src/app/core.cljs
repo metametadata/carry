@@ -1,5 +1,5 @@
-(ns prod.core
-  (:require [frontend.todos :as todos]
+(ns app.core
+  (:require [app.todos :as todos]
             [mvsa.core :as mvsa]
             [mvsa.routing :as routing]
             [mvsa.persistence-middleware :as persistence]

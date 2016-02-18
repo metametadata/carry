@@ -1,4 +1,4 @@
-(ns frontend.todos
+(ns app.todos
   (:require [mvsa.core :as mvsa]
             [mvsa.routing :as routing]
             [cljs.core.match :refer-macros [match]]
