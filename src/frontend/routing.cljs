@@ -1,5 +1,5 @@
 (ns frontend.routing
-  (:require [frontend.mvsa :as mvsa]
+  (:require [frontend.core :as mvsa]
             [cljs.core.match :refer-macros [match]]
             [goog.events]
             [goog.history.EventType :as EventType])

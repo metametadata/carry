@@ -2,7 +2,7 @@
   (:require [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]
             [com.rpl.specter :as s]
-            [frontend.mvsa :as mvsa]
+            [frontend.core :as mvsa]
             [frontend.routing :as routing])
   (:require-macros [reagent.ratom :refer [reaction]]))
 

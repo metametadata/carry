@@ -1,4 +1,4 @@
-(ns frontend.mvsa
+(ns frontend.core
   (:require [reagent.core :as r]
             [cljs.pprint])
   (:require-macros [reagent.ratom :refer [reaction]]))

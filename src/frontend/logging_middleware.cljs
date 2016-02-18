@@ -1,5 +1,5 @@
 (ns frontend.logging-middleware
-  (:require [frontend.mvsa :as mvsa]))
+  (:require [frontend.core :as mvsa]))
 
 (defn add
   "Will print all signals and actions to console."

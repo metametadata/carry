@@ -1,6 +1,6 @@
 (ns prod.core
   (:require [frontend.todos :as todos]
-            [frontend.mvsa :as mvsa]
+            [frontend.core :as mvsa]
             [frontend.devtools :as devtools]
             [frontend.persistence-middleware :as persistence]
             [frontend.logging-middleware :as logging]

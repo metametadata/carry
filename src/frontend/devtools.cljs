@@ -1,5 +1,5 @@
 (ns frontend.devtools
-  (:require [frontend.mvsa :as mvsa]
+  (:require [frontend.core :as mvsa]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s]

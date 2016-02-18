@@ -1,7 +1,7 @@
 (ns unit.utils
   (:require
     [frontend.todos :as todos]
-    [frontend.mvsa :as ui]
+    [frontend.core :as ui]
     [cljs.test :refer-macros [is]]
     [clojure.test.check.generators :as gen :include-macros true]))
 
