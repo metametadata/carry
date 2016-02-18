@@ -1,10 +1,10 @@
 (ns prod.core
   (:require [frontend.todos :as todos]
-            [frontend.core :as mvsa]
-            [frontend.devtools :as devtools]
-            [frontend.persistence-middleware :as persistence]
-            [frontend.logging-middleware :as logging]
-            [frontend.routing :as routing]
+            [mvsa.core :as mvsa]
+            [mvsa.routing :as routing]
+            [mvsa.persistence-middleware :as persistence]
+            [mvsa.devtools :as devtools]
+            [mvsa.logging-middleware :as logging]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
 

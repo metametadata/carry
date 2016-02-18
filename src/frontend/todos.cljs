@@ -1,9 +1,9 @@
 (ns frontend.todos
-  (:require [cljs.core.match :refer-macros [match]]
+  (:require [mvsa.core :as mvsa]
+            [mvsa.routing :as routing]
+            [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]
-            [com.rpl.specter :as s]
-            [frontend.core :as mvsa]
-            [frontend.routing :as routing])
+            [com.rpl.specter :as s])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Model

@@ -1,5 +1,5 @@
-(ns frontend.persistence-middleware
-  (:require [frontend.core :as mvsa]
+(ns mvsa.persistence-middleware
+  (:require [mvsa.core :as mvsa]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [run!]]))
 

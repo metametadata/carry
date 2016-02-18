@@ -1,9 +1,9 @@
-(ns frontend.devtools
-  (:require [frontend.core :as mvsa]
+(ns mvsa.devtools
+  (:require [mvsa.core :as mvsa]
+            [mvsa.persistence-middleware :as persistence]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]]
-            [com.rpl.specter :as s]
-            [frontend.persistence-middleware :as persistence])
+            [com.rpl.specter :as s])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;; Init
