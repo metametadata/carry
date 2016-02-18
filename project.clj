@@ -1,4 +1,4 @@
-(defproject cljs-elmish-todomvc "0.1.0-SNAPSHOT"
+(defproject reagent-mvsa "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
 
