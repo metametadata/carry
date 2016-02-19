@@ -1,6 +1,5 @@
 (ns mvsa.core
-  (:require [reagent.core :as r]
-            [cljs.pprint])
+  (:require [reagent.core :as r])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
@@ -43,6 +42,7 @@
 
 (defn connect-ui
   "Arguments:
+  app - the app for which UI should be created
   view-model - function which, given a model ratom, returns Reagent reactions; inspired by re-frame
   subscriptions, see: https://github.com/Day8/re-frame#subscribe; returned value will be passed to a view:
   view - Reagent compoment function with args: [view-model-return-value dispatch-signal]
@@ -55,25 +55,3 @@
   (let [app-view-model (view-model model)
         app-view [view app-view-model dispatch-signal]]
     [app-view-model app-view]))
-
-;;;;;;;;;;;;;;;;;;;;;;;; Helpers
-(defn track-keys
-  "Returns a map containing Reagent reactions to map entries specified by keys.."
-  [map-ratom keyseq]
-  (into {}
-        (for [key keyseq]
-          [key (reaction (get @map-ratom key))])))
-
-(defn after-do
-  "Returns a new function which calls f1 and then calls f2. Useful in spec middleware for wrapping :on-start."
-  [f1 f2]
-  (fn [& args]
-    (apply f1 args)
-    (apply f2 args)))
-
-(defn before-do
-  "Returns a new function which calls f2 and then calls f1. Useful in spec middleware for wrapping :on-stop."
-  [f1 f2]
-  (fn [& args]
-    (apply f2 args)
-    (apply f1 args)))

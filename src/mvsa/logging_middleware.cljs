@@ -1,5 +1,5 @@
 (ns mvsa.logging-middleware
-  (:require [mvsa.core :as mvsa]))
+  (:require [mvsa.helpers :as helpers]))
 
 (defn add
   "Will print all signals and actions to console."
@@ -7,12 +7,12 @@
   ([spec prefix]
    {:pre [(:control spec) (:reconcile spec)]}
    (-> spec
-       (update :control mvsa/before-do
+       (update :control helpers/before-do
                (fn [_model signal _dispatch]
                  (.group js/console (str prefix "signal =") (pr-str signal))))
-       (update :control mvsa/after-do
+       (update :control helpers/after-do
                (fn [_model _signal _dispatch]
                  (.groupEnd js/console)))
-       (update :reconcile mvsa/before-do
+       (update :reconcile helpers/before-do
                (fn [_model action]
                  (println (str prefix "  action =") (pr-str action)))))))

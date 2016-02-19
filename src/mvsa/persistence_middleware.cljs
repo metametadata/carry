@@ -1,5 +1,5 @@
 (ns mvsa.persistence-middleware
-  (:require [mvsa.core :as mvsa]
+  (:require [mvsa.helpers :as helpers]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [run!]]))
 
@@ -52,7 +52,7 @@
          ; Without key the load signal would be always handled by the "top" persistence layer.
          (update :control -wrap-control key)
          (update :reconcile -wrap-reconcile key blacklist)
-         (update :on-start mvsa/after-do
+         (update :on-start helpers/after-do
                  (fn [model dispatch-signal]
                    (println "[persistence] start, key =" (pr-str key))
 

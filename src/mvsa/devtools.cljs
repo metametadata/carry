@@ -1,7 +1,7 @@
 (ns mvsa.devtools
   (:require [mvsa.core :as mvsa]
+            [mvsa.helpers :as helpers]
             [mvsa.persistence-middleware :as persistence]
-            [reagent.core :as r]
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -179,7 +179,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -view-model
   [model]
-  (mvsa/track-keys (reaction (::debugger @model))
+  (helpers/track-keys (reaction (::debugger @model))
                    [:initial-model :persist? :signal-events :action-events]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View

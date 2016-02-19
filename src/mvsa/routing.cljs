@@ -1,5 +1,5 @@
 (ns mvsa.routing
-  (:require [mvsa.core :as mvsa]
+  (:require [mvsa.helpers :as helpers]
             [cljs.core.match :refer-macros [match]]
             [goog.events]
             [goog.history.EventType :as EventType])
@@ -86,7 +86,7 @@
         (update :initial-model -wrap-initial-model)
         (update :control -wrap-control)
         (update :reconcile -wrap-reconcile)
-        (update :on-start mvsa/after-do
+        (update :on-start helpers/after-do
                 (fn [model dispatch-signal]
                   (println "[routing] start singaling navigation events")
                   (->> (listen history #(dispatch-signal [::-on-navigate %]))
@@ -94,7 +94,7 @@
 
                   (let [token (reaction (::token @model))]
                     (run! (replace-token history @token)))))
-        (update :on-stop mvsa/before-do
+        (update :on-stop helpers/before-do
                 (fn [_model _dispatch-signal]
                   (println "[routing] stop")
                   (@unlisten))))))

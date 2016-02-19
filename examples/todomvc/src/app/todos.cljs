@@ -1,5 +1,5 @@
 (ns app.todos
-  (:require [mvsa.core :as mvsa]
+  (:require [mvsa.helpers :as helpers]
             [mvsa.routing :as routing]
             [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]
@@ -150,7 +150,7 @@
   (let [all-todos (reaction (:todos @model))
         visibility (reaction (-visibility @model))]
     (-> model
-        (mvsa/track-keys [:field])
+        (helpers/track-keys [:field])
         (assoc :visibility visibility
                :has-todos? (reaction (-> @all-todos count pos?))
                :todos (reaction (filter (case @visibility
