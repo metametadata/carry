@@ -54,7 +54,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
 (defn control
-  [_model_ signal dispatch]
+  [_model signal dispatch]
   (match signal
          [:on-update-field val] (dispatch [:update-field val])
          :on-add (dispatch :add)
@@ -123,16 +123,9 @@
          (-remove-todos model :completed?)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
-(def -visibility-spec
-  ; multiple tokens are supported mostly for :all case,
-  ; because on navigating to base url the token is "", but on clicking the link the token becomes "/"
-  [{:key :all :title "All" :href "#/" :tokens #{"" "/"}}
-   {:key :active :title "Active" :href "#/active" :tokens #{"/active"}}
-   {:key :completed :title "Completed" :href "#/completed" :tokens #{"/completed"}}])
-
 (defn -visibility
-  [model]
-  (if-let [result (->> -visibility-spec
+  [visibility-spec model]
+  (if-let [result (->> visibility-spec
                        (filter #(contains? (:tokens %) (::routing/token model)))
                        first
                        :key)]
@@ -140,18 +133,25 @@
     (do
       ; we don't use .error because PhantomJS somehow stops on it on running tests
       (.log js/console "ERROR: Could not determine visibility for token" (pr-str (::routing/token model)) ". Will use some default visibility.")
-      (-> -visibility-spec first :key))))
+      (-> visibility-spec first :key))))
 
 (defn view-model
   [model]
   ; reactions are extracted for better perfromance, e.g.:
   ; when input field changes most reactions will not be recalculated,
   ; because todos stay the same
-  (let [all-todos (reaction (:todos @model))
-        visibility (reaction (-visibility @model))]
+  (let [; Multiple tokens are supported mostly for :all case,
+        ; because on navigating to base url the token is "", but on clicking the link the token becomes "/".
+        ; Although it's always the same, the spec is made a reaction for consistency with other keys.
+        visibility-spec (reaction [{:key :all :title "All" :href "#/" :tokens #{"" "/"}}
+                                   {:key :active :title "Active" :href "#/active" :tokens #{"/active"}}
+                                   {:key :completed :title "Completed" :href "#/completed" :tokens #{"/completed"}}])
+        all-todos (reaction (:todos @model))
+        visibility (reaction (-visibility @visibility-spec @model))]
     (-> model
         (helpers/track-keys [:field])
-        (assoc :visibility visibility
+        (assoc :visibility-spec visibility-spec
+               :visibility visibility
                :has-todos? (reaction (-> @all-todos count pos?))
                :todos (reaction (filter (case @visibility
                                           :all (constantly true)
@@ -187,7 +187,7 @@
 
 (defn -view-todo-input
   "Note that |editing?| is passed only to trigger :component-did-update to set focus on the state change."
-  [_id_ _title_ _editing?_ _dispatch_]
+  [_id _title _editing? _dispatch]
   (r/create-class {:reagent-render
                    (fn [id title editing? dispatch]
                      [:input.edit {:value       title
@@ -209,7 +209,7 @@
                      (.focus (r/dom-node this)))}))
 
 (defn -view-todo
-  [{:keys [id title editing? completed?] :as _todo_} dispatch]
+  [{:keys [id title editing? completed?] :as _todo} dispatch]
   [:li {:class (cond editing? "editing" completed? "completed")}
    [:div.view
     [:input.toggle {:type      "checkbox"
@@ -236,13 +236,13 @@
       [-view-todo todo dispatch])]])
 
 (defn -view-footer
-  [active-count has-completed-todos? visibility dispatch]
+  [active-count has-completed-todos? visibility visibility-spec dispatch]
   [:footer.footer
    [:span.todo-count
     [:strong active-count] (str " " (if (= active-count 1) "item" "items")
                                 " left")]
    [:ul.filters
-    (for [{:keys [key title href]} -visibility-spec]
+    (for [{:keys [key title href]} visibility-spec]
       ^{:key key}
       [:li [:a
             {:href  href
@@ -253,7 +253,8 @@
      [:button.clear-completed {:on-click #(dispatch :on-clear-completed)} "Clear completed"])])
 
 (defn view
-  [{:keys [field has-todos? todos all-completed? active-count has-completed-todos? visibility] :as _view-model_}
+  [{:keys [field has-todos? todos all-completed? active-count has-completed-todos? visibility visibility-spec]
+    :as   _view-model}
    dispatch]
   [:section.todoapp
    [-view-header @field dispatch]
@@ -261,7 +262,7 @@
    (when @has-todos?
      [:div
       [-view-todo-list @todos @all-completed? dispatch]
-      [-view-footer @active-count @has-completed-todos? @visibility dispatch]])])
+      [-view-footer @active-count @has-completed-todos? @visibility @visibility-spec dispatch]])])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Start
 (defn on-start
