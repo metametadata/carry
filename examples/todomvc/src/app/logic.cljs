@@ -99,11 +99,3 @@
 
          :clear-completed
          (-remove-todos model :completed?)))
-
-(defn on-start
-  [_model _dispatch-signal]
-  (println "[todos] custom start code"))
-
-(defn on-stop
-  [_model _dispatch-signal]
-  (println "[todos] custom stop code"))
