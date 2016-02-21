@@ -2,14 +2,11 @@
   (:require [app.spec :as spec]
             [app.view-model :refer [view-model]]
             [app.view :refer [view]]
-
             [app.middleware.routing :as routing]
             [app.middleware.persistence :as persistence]
             [app.middleware.devtools :as devtools]
             [app.middleware.logging :as logging]
-
             [mvsa.core :as mvsa]
-
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
 
