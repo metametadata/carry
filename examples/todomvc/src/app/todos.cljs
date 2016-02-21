@@ -1,6 +1,6 @@
 (ns app.todos
-  (:require [mvsa.helpers :as helpers]
-            [mvsa.routing :as routing]
+  (:require [app.middleware.routing :as routing]
+            [mvsa.helpers :as helpers]
             [cljs.core.match :refer-macros [match]]
             [reagent.core :as r]
             [com.rpl.specter :as s])

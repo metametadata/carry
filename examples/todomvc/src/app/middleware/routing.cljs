@@ -1,4 +1,4 @@
-(ns mvsa.routing
+(ns app.middleware.routing
   (:require [mvsa.helpers :as helpers]
             [cljs.core.match :refer-macros [match]]
             [goog.events]

@@ -1,4 +1,4 @@
-(ns mvsa.persistence-middleware
+(ns app.middleware.persistence
   (:require [mvsa.helpers :as helpers]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [run!]]))

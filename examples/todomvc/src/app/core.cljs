@@ -1,10 +1,10 @@
 (ns app.core
   (:require [app.todos :as todos]
+            [app.middleware.routing :as routing]
+            [app.middleware.persistence :as persistence]
+            [app.middleware.devtools :as devtools]
+            [app.middleware.logging :as logging]
             [mvsa.core :as mvsa]
-            [mvsa.routing :as routing]
-            [mvsa.persistence-middleware :as persistence]
-            [mvsa.devtools :as devtools]
-            [mvsa.logging-middleware :as logging]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
 

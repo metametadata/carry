@@ -1,7 +1,7 @@
-(ns mvsa.devtools
+(ns app.middleware.devtools
   (:require [mvsa.core :as mvsa]
             [mvsa.helpers :as helpers]
-            [mvsa.persistence-middleware :as persistence]
+            [app.middleware.persistence :as persistence]
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s])
   (:require-macros [reagent.ratom :refer [reaction]]))

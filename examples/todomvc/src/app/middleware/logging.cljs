@@ -1,4 +1,4 @@
-(ns mvsa.logging-middleware
+(ns app.middleware.logging
   (:require [mvsa.helpers :as helpers]))
 
 (defn add

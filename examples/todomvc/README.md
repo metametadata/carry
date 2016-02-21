@@ -1,5 +1,12 @@
 ### [TodoMVC](http://todomvc.com/) app
 
+### Features
+* routing
+* persistence
+* debugger
+* console logging
+* debuggable via REPL
+
 ## Build
 
 To get an interactive development environment run:
