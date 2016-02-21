@@ -5,6 +5,7 @@
 * persistence
 * debugger
 * console logging
+* model validation using [Schema](https://github.com/plumatic/schema)
 * debuggable via REPL
 
 ## Build

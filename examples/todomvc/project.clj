@@ -1,4 +1,5 @@
-(defproject todomvc "0.1.0-SNAPSHOT"
+(defproject
+  todomvc "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
 
@@ -7,6 +8,7 @@
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [com.rpl/specter "0.8.0"]
                  [funcool/hodgepodge "0.1.4"]
+                 [prismatic/schema "1.0.5"]
 
                  ; for tests:
                  #_[org.clojure/test.check "0.9.0"]
@@ -18,8 +20,7 @@
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
-  :cljsbuild {
-              :builds [{:id           "dev"
+  :cljsbuild {:builds [{:id           "dev"
                         :source-paths ["src" "../../src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
@@ -30,24 +31,24 @@
                                        :before-jsload "app.core/before-jsload"}}
 
                        #_{:id           "min"
-                        :source-paths ["src"]
-                        :compiler     {:main          app.core
-                                       :output-to     "resources/public/js/compiled/frontend.js"
-                                       :optimizations :advanced
-                                       :pretty-print  false}}
+                          :source-paths ["src"]
+                          :compiler     {:main          app.core
+                                         :output-to     "resources/public/js/compiled/frontend.js"
+                                         :optimizations :advanced
+                                         :pretty-print  false}}
 
                        #_{:id           "test"
-                        :source-paths ["src/frontend" "test"]
-                        :compiler     {:main          'unit.runner
-                                       :output-to     "resources/private/js/compiled/testable.js"
-                                       :output-dir    "resources/private/js/compiled/out"
-                                       :optimizations :none
-                                       }}]}
+                          :source-paths ["src/frontend" "test"]
+                          :compiler     {:main          'unit.runner
+                                         :output-to     "resources/private/js/compiled/testable.js"
+                                         :output-dir    "resources/private/js/compiled/out"
+                                         :optimizations :none
+                                         }}]}
 
   :figwheel {
-             ;; :http-server-root "public" ;; default and assumes "resources" 
+             ;; :http-server-root "public" ;; default and assumes "resources"
              ;; :server-port 3449 ;; default
-             ;; :server-ip "127.0.0.1" 
+             ;; :server-ip "127.0.0.1"
 
              :css-dirs ["resources/public/css"]             ;; watch and update CSS
 
@@ -73,5 +74,5 @@
              ;; :repl false
 
              ;; to configure a different figwheel logfile path
-             ;; :server-logfile "tmp/logs/figwheel-logfile.log" 
+             ;; :server-logfile "tmp/logs/figwheel-logfile.log"
              })
