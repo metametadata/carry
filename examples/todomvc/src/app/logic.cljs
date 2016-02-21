@@ -1,5 +1,6 @@
 (ns app.logic
   (:require [app.model :as m]
+            [com.rpl.specter :as s]
             [cljs.core.match :refer-macros [match]]))
 
 (defn control
@@ -20,6 +21,35 @@
 
          :on-clear-completed (dispatch :clear-completed)))
 
+
+(defn -update-todos*
+  [model pred f & args]
+  (s/transform [:todos s/ALL pred]
+               #(apply f % args)
+               model))
+
+(defn -update-todo
+  [model id f & args]
+  (apply -update-todos* model #(= (:id %) id) f args))
+
+(defn -update-todos
+  [model f & args]
+  (apply -update-todos* model (constantly true) f args))
+
+(defn -find-todo
+  [model id]
+  (->> (:todos model)
+       (filter #(= (:id %) id))
+       first))
+
+(defn -remove-todos
+  [model pred]
+  (update model :todos #(remove pred %)))
+
+(defn -remove-todo
+  [model id]
+  (-remove-todos model #(= (:id %) id)))
+
 (defn reconcile
   [model action]
   (match action
@@ -36,39 +66,39 @@
                  (update :todos concat [(m/init-todo (:next-id model) title)]))))
 
          [:toggle id]
-         (m/update-todo model id update :completed? not)
+         (-update-todo model id update :completed? not)
 
          :toggle-all
          (let [all-completed? (every? :completed? (:todos model))]
-           (m/update-todos model assoc :completed? (not all-completed?)))
+           (-update-todos model assoc :completed? (not all-completed?)))
 
          [:start-editing id]
          (-> model
-             (m/update-todos #(assoc % :editing? (= (:id %) id)))
-             (m/update-todo id #(assoc % :original-title (:title %))))
+             (-update-todos #(assoc % :editing? (= (:id %) id)))
+             (-update-todo id #(assoc % :original-title (:title %))))
 
          [:update-todo id val]
-         (m/update-todo model id assoc :title val)
+         (-update-todo model id assoc :title val)
 
          [:stop-editing id]
-         (let [title (-> (m/find-todo model id)
+         (let [title (-> (-find-todo model id)
                          :title
                          clojure.string/trim)]
            (if (clojure.string/blank? title)
-             (m/remove-todo model id)
-             (m/update-todos model #(assoc % :editing? false
-                                             :original-title ""))))
+             (-remove-todo model id)
+             (-update-todos model #(assoc % :editing? false
+                                            :original-title ""))))
 
          [:cancel-editing id]
-         (m/update-todo model id #(assoc % :editing? false
-                                           :title (:original-title %)
-                                           :original-title ""))
+         (-update-todo model id #(assoc % :editing? false
+                                          :title (:original-title %)
+                                          :original-title ""))
 
          [:remove id]
-         (m/remove-todo model id)
+         (-remove-todo model id)
 
          :clear-completed
-         (m/remove-todos model :completed?)))
+         (-remove-todos model :completed?)))
 
 (defn on-start
   [_model _dispatch-signal]
