@@ -1,5 +1,7 @@
 (ns app.core
   (:require [app.todos :as todos]
+            [app.view-model :refer [view-model]]
+            [app.view :refer [view]]
             [app.middleware.routing :as routing]
             [app.middleware.persistence :as persistence]
             [app.middleware.devtools :as devtools]
@@ -30,7 +32,7 @@
         app (mvsa/app app-spec)
 
         ; create GUI
-        [app-view-model app-view] (mvsa/connect-ui app todos/view-model todos/view)
+        [app-view-model app-view] (mvsa/connect-ui app view-model view)
 
         ; create debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]
