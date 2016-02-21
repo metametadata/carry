@@ -1,5 +1,5 @@
 (ns app.core
-  (:require [app.todos :as todos]
+  (:require [app.logic :as logic]
             [app.view-model :refer [view-model]]
             [app.view :refer [view]]
             [app.middleware.routing :as routing]
@@ -22,7 +22,7 @@
         storage hp/local-storage
 
         ; define spec
-        app-spec (-> (todos/new-spec history ["Finish this project" "Take a bath"])
+        app-spec (-> (logic/new-spec history ["Finish this project" "Take a bath"])
                      ; debugger deals with persistence itself, so let's blacklist it here to get rid of conflicts
                      (persistence/add storage :model {:blacklist #{::devtools/debugger}})
                      (devtools/add-debugger storage :debugger-model)

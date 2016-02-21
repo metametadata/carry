@@ -1,4 +1,4 @@
-(ns app.todos
+(ns app.logic
   (:require [app.middleware.routing :as routing]
             [mvsa.helpers :as helpers]
             [cljs.core.match :refer-macros [match]]
