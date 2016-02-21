@@ -1,7 +1,7 @@
 (ns app.spec
   (:require [app.model :refer [new-model]]
             [app.controller :refer [control]]
-            [app.logic :refer [reconcile]]
+            [app.reconciler :refer [reconcile]]
             [app.middleware.routing :as routing]))
 
 (defn new-spec

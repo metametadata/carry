@@ -1,4 +1,4 @@
-(ns app.logic
+(ns app.reconciler
   (:require [app.model :as m]
             [com.rpl.specter :as s]
             [cljs.core.match :refer-macros [match]]))

@@ -1,6 +1,7 @@
 (ns app.controller
   (:require [cljs.core.match :refer-macros [match]]))
 
+; Controller is kinda anemic in this example because all side-effects are performed in middlewares
 (defn control
   [_model signal dispatch]
   (match signal
