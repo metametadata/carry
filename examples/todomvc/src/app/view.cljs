@@ -1,15 +1,7 @@
 (ns app.view
   (:require [reagent.core :as r]))
 
-(defn -enter-key?
-  [e]
-  (= (.-keyCode e) 13))
-
-(defn -escape-key?
-  [e]
-  (= (.-keyCode e) 27))
-
-(defn -view-header
+(defn -header
   [field dispatch]
   [:header.header
    [:h1 "todos"]
@@ -18,7 +10,10 @@
                      :on-change   #(dispatch [:on-update-field (.. % -target -value)])
                      :on-key-down #(when (-enter-key? %) (dispatch :on-add))}]])
 
-(defn -view-todo-input
+(defn -enter-key? [e] (= (.-keyCode e) 13))
+(defn -escape-key? [e] (= (.-keyCode e) 27))
+
+(defn -todo-input
   "Note that |editing?| is passed only to trigger :component-did-update to set focus on the state change."
   [_id _title _editing? _dispatch]
   (r/create-class {:reagent-render
@@ -41,39 +36,36 @@
                    (fn [this]
                      (.focus (r/dom-node this)))}))
 
-(defn -view-todo
+(defn -todo
   [{:keys [id title editing? completed?] :as _todo} dispatch]
   [:li {:class (cond editing? "editing" completed? "completed")}
    [:div.view
     [:input.toggle {:type      "checkbox"
                     :checked   completed?
                     :on-change #(dispatch [:on-toggle id])}]
-
     [:label {:on-double-click #(dispatch [:on-start-editing id])} title]
-
     [:button.destroy {:on-click #(dispatch [:on-remove id])}]]
 
-   [-view-todo-input id title editing? dispatch]])
+   [-todo-input id title editing? dispatch]])
 
-(defn -view-todo-list
+(defn -todo-list
   [todos all-completed? dispatch]
   [:section.main
    [:input.toggle-all {:type      "checkbox"
                        :checked   all-completed?
                        :on-change #(dispatch :on-toggle-all)}]
    [:label {:for "toggle-all"} "Mark all as complete"]
-
    [:ul.todo-list
     (for [todo todos]
       ^{:key (:id todo)}
-      [-view-todo todo dispatch])]])
+      [-todo todo dispatch])]])
 
-(defn -view-footer
+(defn -footer
   [active-count has-completed-todos? visibility visibility-spec dispatch]
   [:footer.footer
    [:span.todo-count
-    [:strong active-count] (str " " (if (= active-count 1) "item" "items")
-                                " left")]
+    [:strong active-count] " " (if (= active-count 1) "item" "items") " left"]
+
    [:ul.filters
     (for [{:keys [key title href]} visibility-spec]
       ^{:key key}
@@ -82,7 +74,7 @@
              :class (if (= visibility key) "selected")}
             title]])]
 
-   (if has-completed-todos?
+   (when has-completed-todos?
      [:button.clear-completed {:on-click #(dispatch :on-clear-completed)} "Clear completed"])])
 
 (defn view
@@ -90,9 +82,9 @@
     :as   _view-model}
    dispatch]
   [:section.todoapp
-   [-view-header @field dispatch]
+   [-header @field dispatch]
 
    (when @has-todos?
      [:div
-      [-view-todo-list @todos @all-completed? dispatch]
-      [-view-footer @active-count @has-completed-todos? @visibility @visibility-spec dispatch]])])
+      [-todo-list @todos @all-completed? dispatch]
+      [-footer @active-count @has-completed-todos? @visibility @visibility-spec dispatch]])])
