@@ -10,4 +10,7 @@
   (-> spec
       (update :on-start helpers/after-do
               (fn [model _dispatch-signal]
-                (run! (s/validate schema @model))))))
+                (run!
+                  ; using console log for better printing in Chrome console
+                  (.log js/console "Validation problems:" (s/check schema @model))
+                  (throw (ex-info "Model validation failed. See more info above." {})))))))
