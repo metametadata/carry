@@ -2,21 +2,38 @@
   (:require [mvsa.core :as mvsa]
             [mvsa.helpers :as helpers]
             [app.middleware.persistence :as persistence]
+            [app.middleware.schema :as schema-middleware]
+            [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-;;;;;;;;;;;;;;;;;;; Init
+;;;;;;;;;;;;;;;;;;; Model
+(def Schema
+  {::debugger {:initial-model  {schema/Any schema/Any}
+
+               :signal-events  [(schema/pair schema/Int "id" schema/Any "signal")]
+               :next-signal-id schema/Int
+
+               :action-events  [{:id        schema/Int
+                                 :signal-id schema/Int
+                                 :enabled?  schema/Bool
+                                 :action    schema/Any
+                                 :result   {schema/Any schema/Any}}]
+               :next-action-id schema/Int
+
+               :persist?       schema/Bool}
+
+   schema/Any schema/Any})
+
 (defn -wrap-initial-model
   [app-initial-model]
   (assoc app-initial-model ::debugger
                            {:initial-model  app-initial-model
 
-                            ; list of [id signal]
                             :signal-events  (list)
                             :next-signal-id 0
 
-                            ; list of {id signal-id enabled? action}
                             :action-events  (list)
                             :next-action-id 0
 
@@ -180,7 +197,7 @@
 (defn -view-model
   [model]
   (helpers/track-keys (reaction (::debugger @model))
-                   [:initial-model :persist? :signal-events :action-events]))
+                      [:initial-model :persist? :signal-events :action-events]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (defn -menu-button
@@ -287,6 +304,7 @@
       (update :initial-model -wrap-initial-model)
       (update :control -wrap-control)
       (update :reconcile -wrap-reconcile)
+      (schema-middleware/add Schema)
       (persistence/add storage storage-key {:load-wrapper -wrap-load-from-storage})))
 
 (defn connect-debugger-ui

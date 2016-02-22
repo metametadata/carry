@@ -10,7 +10,7 @@
               :editing?       s/Bool}]
    :next-id s/Int
 
-   ; allow any additional keys to support keys added by middlewares
+   ; allow any additional keys in order to support keys added by middlewares
    s/Any    s/Any})
 
 (defn init-todo

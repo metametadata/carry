@@ -16,5 +16,5 @@
        :on-stop       (fn [_model _dispatch-signal] (println "[todos] stop"))}
       (schema/add model/Schema)
       (routing/add history)
-      ; debugger deals with persistence itself, so let's blacklist it here to get rid of conflicts
+      ; debugger deals with persistence itself, so we have to blacklist it here to get rid of loading conflicts
       (persistence/add storage :model {:blacklist #{::devtools/debugger}})))

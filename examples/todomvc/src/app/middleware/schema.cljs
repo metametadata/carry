@@ -6,8 +6,8 @@
 (defn add
   "Middleware will validate the model on every change using the specified schema.
   Throws an exception if validation fails."
-  ([spec schema]
-   (-> spec
-       (update :on-start helpers/after-do
-               (fn [model _dispatch-signal]
-                 (run! (s/validate schema @model)))))))
+  [spec schema]
+  (-> spec
+      (update :on-start helpers/after-do
+              (fn [model _dispatch-signal]
+                (run! (s/validate schema @model))))))
