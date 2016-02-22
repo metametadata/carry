@@ -13,7 +13,7 @@
                               (.group js/console (str prefix "signal =") (pr-str signal))
                               (control model signal dispatch)
 
-                              ; this clause guarantees that group is closed even in case of excpetion
+                              ; this clause guarantees that group is closed even in case of exception
                               (finally
                                 (.groupEnd js/console))))))
        (update :reconcile helpers/before-do

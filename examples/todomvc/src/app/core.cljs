@@ -3,7 +3,6 @@
             [app.view-model :refer [view-model]]
             [app.view :refer [view]]
             [app.middleware.routing :as routing]
-            [app.middleware.persistence :as persistence]
             [app.middleware.devtools :as devtools]
             [app.middleware.logging :as logging]
             [mvsa.core :as mvsa]
@@ -22,9 +21,7 @@
         storage hp/local-storage
 
         ; define spec
-        app-spec (-> (spec/new-spec history ["Finish this project" "Take a bath"])
-                     ; debugger deals with persistence itself, so let's blacklist it here to get rid of conflicts
-                     (persistence/add storage :model {:blacklist #{::devtools/debugger}})
+        app-spec (-> (spec/new-spec history storage ["Finish this project" "Take a bath"])
                      (devtools/add-debugger storage :debugger-model)
                      (logging/add "[debugger] "))
 
