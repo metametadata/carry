@@ -12,8 +12,8 @@
   (-> {:initial-model (model/new-model todo-titles)
        :control       control
        :reconcile     reconcile
-       :on-start      (fn [_model _dispatch-signal] (println "[todos] custom start code"))
-       :on-stop       (fn [_model _dispatch-signal] (println "[todos] custom stop code"))}
+       :on-start      (fn [_model _dispatch-signal] (println "[todos] start"))
+       :on-stop       (fn [_model _dispatch-signal] (println "[todos] stop"))}
       (schema/add model/Schema)
       (routing/add history)
       ; debugger deals with persistence itself, so let's blacklist it here to get rid of conflicts

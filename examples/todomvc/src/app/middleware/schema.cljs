@@ -10,5 +10,4 @@
    (-> spec
        (update :on-start helpers/after-do
                (fn [model _dispatch-signal]
-                 (println "[schema] start")
                  (run! (s/validate schema @model)))))))
