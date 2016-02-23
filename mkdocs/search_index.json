@@ -7,8 +7,13 @@
         }, 
         {
             "location": "/examples/", 
-            "text": "TodoMVC", 
+            "text": "TodoMVC\n\n\n\n\nrouting\n\n\npersistence\n\n\ntime travel debugger\n\n\nconsole logging\n\n\nmodel validation using \nSchema\n\n\ndebuggable via REPL\n\n\nhot reload using Figwheel", 
             "title": "Examples"
+        }, 
+        {
+            "location": "/examples/#todomvc", 
+            "text": "routing  persistence  time travel debugger  console logging  model validation using  Schema  debuggable via REPL  hot reload using Figwheel", 
+            "title": "TodoMVC"
         }, 
         {
             "location": "/dev-guide/", 
