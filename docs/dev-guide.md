@@ -2,9 +2,11 @@
 
 Project uses [MkDocs](http://www.mkdocs.org/) to generate documentation static site.
 
-Serve site locally with automatic build: `mkdocs serve`
+Serve site without examples locally with automatic build: `mkdocs serve`
 
-Build site into site folder: `mkdocs build --clean`
+Build site without examples into site folder: `mkdocs build --clean`
+
+Build site with examples (requires [PyInvoke](http://www.pyinvoke.org/)): `inv site`
 
 # Deploying
 
