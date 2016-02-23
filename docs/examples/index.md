@@ -6,6 +6,7 @@ All the examples can be found in [the Github repository](https://github.com/meta
 [Demo](/examples/todomvc/public/index.html)
 
 Features:
+
 * routing
 * local storage persistence
 * time travel debugger
