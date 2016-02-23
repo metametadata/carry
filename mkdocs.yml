@@ -1,0 +1,11 @@
+site_name: reagent-mvsa
+site_description: Project documentation for reagent-mvsa library.
+
+repo_url: https://github.com/metametadata/reagent-mvsa/
+
+theme: flatly
+
+pages:
+- Home: 'index.md'
+- Examples: 'examples/index.md'
+- Developer Guide: 'dev-guide.md'
