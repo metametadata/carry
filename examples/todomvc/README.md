@@ -1,13 +1,5 @@
 ### [TodoMVC](http://todomvc.com/) app
 
-### Features
-* routing
-* persistence
-* debugger
-* console logging
-* model validation using [Schema](https://github.com/plumatic/schema)
-* debuggable via REPL
-
 ## Build
 
 To get an interactive development environment run:
