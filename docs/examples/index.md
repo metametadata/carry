@@ -1,9 +1,15 @@
-# [TodoMVC](/examples/todomvc/public/index.html)
+All the examples can be found in [the Github repository](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc).
 
+# TodoMVC
+[Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc)
+
+[Demo](/examples/todomvc/public/index.html)
+
+Features:
 * routing
-* persistence
+* local storage persistence
 * time travel debugger
-* console logging
+* logging to console
 * model validation using [Schema](https://github.com/plumatic/schema)
 * debuggable via REPL
 * hot reload using Figwheel
