@@ -11,7 +11,8 @@ def site():
 
     site_path = os.path.join(os.getcwd(), "site")
     with chdir(os.path.join("examples", "todomvc")):
-        lein("cljsbuild once")
+        lein("clean")
+        lein("cljsbuild once min")
         shutil.copytree("resources",
                         os.path.join(site_path, "examples", "todomvc"))
 
