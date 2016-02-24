@@ -14,3 +14,4 @@ Features:
 * model validation using [Schema](https://github.com/plumatic/schema)
 * debuggable via REPL
 * hot reload using Figwheel
+* using [Specter](https://github.com/nathanmarz/specter) for updating model
