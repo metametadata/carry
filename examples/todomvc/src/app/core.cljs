@@ -14,7 +14,6 @@
 (chrome-devtools/enable-feature! :sanity-hints)
 (chrome-devtools/install!)
 
-;;;;;;;;;;;;;;;;;;;;;;;; App
 (defn main
   []
   (println "Hi.")
