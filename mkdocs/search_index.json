@@ -7,12 +7,17 @@
         }, 
         {
             "location": "/examples/", 
-            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\ndebuggable via REPL\n\n\nhot reload using Figwheel\n\n\nusing \nSpecter\n for updating model", 
+            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nTrivial example which features:\n\n\n\n\nhot reload using Figwheel\n\n\ndebuggable via REPL\n\n\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nusing \nSpecter\n for updating model\n\n\nhot reload using Figwheel\n\n\ndebuggable via REPL", 
             "title": "Examples"
         }, 
         {
+            "location": "/examples/#counter", 
+            "text": "Source code  Demo  Trivial example which features:   hot reload using Figwheel  debuggable via REPL", 
+            "title": "Counter"
+        }, 
+        {
             "location": "/examples/#todomvc", 
-            "text": "Source code  Demo  Features:   routing  local storage persistence  time travel debugger  logging to console  model validation using  Schema  debuggable via REPL  hot reload using Figwheel  using  Specter  for updating model", 
+            "text": "Source code  Demo  Features:   routing  local storage persistence  time travel debugger  logging to console  model validation using  Schema  using  Specter  for updating model  hot reload using Figwheel  debuggable via REPL", 
             "title": "TodoMVC"
         }, 
         {
