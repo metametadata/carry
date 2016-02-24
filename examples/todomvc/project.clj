@@ -1,7 +1,7 @@
 (defproject
   todomvc "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.7.170"]
+                 [org.clojure/clojurescript "1.7.228"]
 
                  [reagent "0.5.1" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "0.13.3-0"]
@@ -30,7 +30,8 @@
                                        :output-to            "resources/public/js/compiled/frontend.js"
                                        :output-dir           "resources/public/js/compiled/out"
                                        :source-map-timestamp true
-                                       :compiler-stats       true}
+                                       :compiler-stats       true
+                                       :parallel-build true}
                         :figwheel     {:on-jsload     "app.core/on-jsload"
                                        :before-jsload "app.core/before-jsload"}}
 
@@ -40,7 +41,8 @@
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced
                                        :pretty-print   false
-                                       :compiler-stats true}}
+                                       :compiler-stats true
+                                       :parallel-build true}}
 
                        #_{:id           "test"
                           :source-paths ["src/frontend" "test"]
