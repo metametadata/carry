@@ -16,6 +16,12 @@ def site():
         shutil.copytree("resources",
                         os.path.join(site_path, "examples", "todomvc"))
 
+    with chdir(os.path.join("examples", "counter")):
+        lein("clean")
+        lein("cljsbuild once min")
+        shutil.copytree("resources",
+                        os.path.join(site_path, "examples", "counter"))
+
 
 ################################################### HELPERS
 @contextlib.contextmanager

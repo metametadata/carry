@@ -5,10 +5,10 @@ All the examples can be found in [the Github repository](https://github.com/meta
 
 [Demo](/examples/counter/public/index.html)
 
-Trivial example. Features:
+Trivial example which features:
 
-* debuggable via REPL
 * hot reload using Figwheel
+* debuggable via REPL
 
 # TodoMVC
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc)
@@ -23,5 +23,5 @@ Features:
 * logging to console
 * model validation using [Schema](https://github.com/plumatic/schema)
 * using [Specter](https://github.com/nathanmarz/specter) for updating model
-* debuggable via REPL
 * hot reload using Figwheel
+* debuggable via REPL
