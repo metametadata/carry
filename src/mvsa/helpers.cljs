@@ -1,5 +1,5 @@
 (ns mvsa.helpers
-  (:require [reagent.core :as r])
+  (:require [reagent.core])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Helpers

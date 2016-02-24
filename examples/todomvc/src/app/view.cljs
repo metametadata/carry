@@ -1,6 +1,9 @@
 (ns app.view
   (:require [reagent.core :as r]))
 
+(defn -enter-key? [e] (= (.-keyCode e) 13))
+(defn -escape-key? [e] (= (.-keyCode e) 27))
+
 (defn -header
   [field dispatch]
   [:header.header
@@ -9,9 +12,6 @@
                      :value       field
                      :on-change   #(dispatch [:on-update-field (.. % -target -value)])
                      :on-key-down #(when (-enter-key? %) (dispatch :on-add))}]])
-
-(defn -enter-key? [e] (= (.-keyCode e) 13))
-(defn -escape-key? [e] (= (.-keyCode e) 27))
 
 (defn -todo-input
   "Note that |editing?| is passed only to trigger :component-did-update to set focus on the state change."

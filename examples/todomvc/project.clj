@@ -1,12 +1,13 @@
 (defproject
   todomvc "0.1.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.7.0"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.170"]
 
                  [reagent "0.5.1" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "0.13.3-0"]
+
                  [org.clojure/core.match "0.3.0-alpha4"]
-                 [com.rpl/specter "0.8.0"]
+                 [com.rpl/specter "0.9.2"]
                  [funcool/hodgepodge "0.1.4"]
                  [prismatic/schema "1.0.5"]
 
@@ -16,9 +17,9 @@
                  #_[org.clojure/test.check "0.9.0"]
                  #_[com.gfredericks/test.chuck "0.2.5"]]
 
-  :plugins [[lein-cljsbuild "1.1.1"]
+  :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0"]
-            [lein-doo "0.1.6"]]
+            #_[lein-doo "0.1.6"]]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
@@ -28,16 +29,18 @@
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
                                        :output-dir           "resources/public/js/compiled/out"
-                                       :source-map-timestamp true}
+                                       :source-map-timestamp true
+                                       :compiler-stats       true}
                         :figwheel     {:on-jsload     "app.core/on-jsload"
                                        :before-jsload "app.core/before-jsload"}}
 
-                       #_{:id           "min"
-                          :source-paths ["src"]
-                          :compiler     {:main          app.core
-                                         :output-to     "resources/public/js/compiled/frontend.js"
-                                         :optimizations :advanced
-                                         :pretty-print  false}}
+                       {:id           "min"
+                        :source-paths ["src" "../../src"]
+                        :compiler     {:main           app.core
+                                       :output-to      "resources/public/js/compiled/frontend.js"
+                                       :optimizations  :advanced
+                                       :pretty-print   false
+                                       :compiler-stats true}}
 
                        #_{:id           "test"
                           :source-paths ["src/frontend" "test"]
