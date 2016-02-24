@@ -7,12 +7,12 @@
         }, 
         {
             "location": "/examples/", 
-            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n routing\n\n local storage persistence\n\n time travel debugger\n\n logging to console\n\n model validation using \nSchema\n\n\n debuggable via REPL\n* hot reload using Figwheel", 
+            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\ndebuggable via REPL\n\n\nhot reload using Figwheel\n\n\nusing \nSpecter\n for updating model", 
             "title": "Examples"
         }, 
         {
             "location": "/examples/#todomvc", 
-            "text": "Source code  Demo  Features:  routing  local storage persistence  time travel debugger  logging to console  model validation using  Schema   debuggable via REPL\n* hot reload using Figwheel", 
+            "text": "Source code  Demo  Features:   routing  local storage persistence  time travel debugger  logging to console  model validation using  Schema  debuggable via REPL  hot reload using Figwheel  using  Specter  for updating model", 
             "title": "TodoMVC"
         }, 
         {
