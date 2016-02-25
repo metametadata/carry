@@ -39,8 +39,8 @@
     ((:start app))
 
     ; render
-    (r/render-component [:div app-view debugger-view]
-                        (. js/document (getElementById "root")))
+    (r/render [:div app-view debugger-view]
+              (.getElementById js/document "root"))
 
     ; return for future debugging
     (assoc app :view-model app-view-model)))
