@@ -7,12 +7,12 @@
         }, 
         {
             "location": "/examples/", 
-            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nTrivial example which features:\n\n\n\n\nhot reload using Figwheel\n\n\ndebuggable via REPL\n\n\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nusing \nSpecter\n for updating model\n\n\nhot reload using Figwheel\n\n\ndebuggable via REPL", 
+            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\n\n\nhot reload using Figwheel\n\n\ndebuggable via REPL\n\n\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nusing \nSpecter\n for updating model\n\n\nhot reload using Figwheel\n\n\ndebuggable via REPL", 
             "title": "Examples"
         }, 
         {
             "location": "/examples/#counter", 
-            "text": "Source code  Demo  Trivial example which features:   hot reload using Figwheel  debuggable via REPL", 
+            "text": "Source code  Demo  The most trivial example.   hot reload using Figwheel  debuggable via REPL", 
             "title": "Counter"
         }, 
         {
