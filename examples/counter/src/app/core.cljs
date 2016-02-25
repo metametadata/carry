@@ -1,30 +1,53 @@
 (ns app.core
   (:require [mvsa.core :as mvsa]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [cljs.core.match :refer-macros [match]])
+  (:require-macros [reagent.ratom :refer [reaction]]))
 
 (enable-console-print!)
 
 (defn control
   [model signal dispatch]
-  nil)
+  (match signal
+         :on-increment
+         (dispatch :increment)
+
+         :on-decrement
+         (dispatch :decrement)
+
+         :on-increment-if-odd
+         (when (odd? (:val model))
+           (dispatch :increment))
+
+         :on-increment-async
+         (.setTimeout js/window #(dispatch :increment) 1000)))
 
 (defn reconcile
   [model action]
-  model)
+  (match action
+         :increment (update model :val inc)
+         :decrement (update model :val dec)))
 
 (defn view-model
   [model]
-  model)
+  {:counter (reaction (str "#" (:val @model)))})
 
 (defn view
-  [view-model dispatch]
-  [:div "HEy!"])
+  [{:keys [counter] :as _view-model} dispatch]
+  [:p
+   @counter
+   " "
+   [:button {:on-click #(dispatch :on-increment)} "+"]
+   " "
+   [:button {:on-click #(dispatch :on-decrement)} "-"]
+   " "
+   [:button {:on-click #(dispatch :on-increment-if-odd)} "Increment if odd"]
+   " "
+   [:button {:on-click #(dispatch :on-increment-async)} "Increment async"]])
 
 (defn main
   []
-  (println "Hi.")
-
-  (let [app-spec {:initial-model {:counter 0}
+  (let [app-spec {:initial-model {:val 0}
                   :control       control
                   :reconcile     reconcile
                   :on-start      (constantly nil)
@@ -33,7 +56,7 @@
         [app-view-model app-view] (mvsa/connect-ui app view-model view)]
     ((:start app))
 
-    (r/render-component app-view (. js/document (getElementById "root")))
+    (r/render app-view (.getElementById js/document "root"))
 
     (assoc app :view-model app-view-model)))
 
