@@ -1,11 +1,11 @@
-All the examples can be found in [the Github repository](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc).
+All the examples can be found in [the Github repository](https://github.com/metametadata/reagent-mvsa/tree/master/examples/).
 
 # Counter
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/counter)
 
 [Demo](/examples/counter/public/index.html)
 
-Trivial example which features:
+The most trivial example.
 
 * hot reload using Figwheel
 * debuggable via REPL
