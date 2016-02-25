@@ -10,17 +10,13 @@ def site():
     run("mkdocs build --clean", echo=True)
 
     site_path = os.path.join(os.getcwd(), "site")
-    with chdir(os.path.join("examples", "todomvc")):
-        lein("clean")
-        lein("cljsbuild once min")
-        shutil.copytree(os.path.join("resources", "public"),
-                        os.path.join(site_path, "examples", "todomvc"))
-
-    with chdir(os.path.join("examples", "counter")):
-        lein("clean")
-        lein("cljsbuild once min")
-        shutil.copytree(os.path.join("resources", "public"),
-                        os.path.join(site_path, "examples", "counter"))
+    for name in os.listdir("examples"):
+        if os.path.isdir(os.path.join("examples", name)):
+            with chdir(os.path.join("examples", name)):
+                lein("clean")
+                lein("cljsbuild once min")
+                shutil.copytree(os.path.join("resources", "public"),
+                                os.path.join(site_path, "examples", name))
 
 
 ################################################### HELPERS
