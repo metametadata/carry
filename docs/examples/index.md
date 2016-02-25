@@ -3,7 +3,7 @@ All the examples can be found in [the Github repository](https://github.com/meta
 # Counter
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/counter)
 
-[Demo](/examples/counter/public/index.html)
+[Demo](/examples/counter)
 
 The most trivial example.
 
@@ -13,7 +13,7 @@ The most trivial example.
 # TodoMVC
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc)
 
-[Demo](/examples/todomvc/public/index.html)
+[Demo](/examples/todomvc)
 
 Features:
 

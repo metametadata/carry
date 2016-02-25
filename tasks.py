@@ -13,13 +13,13 @@ def site():
     with chdir(os.path.join("examples", "todomvc")):
         lein("clean")
         lein("cljsbuild once min")
-        shutil.copytree("resources",
+        shutil.copytree(os.path.join("resources", "public"),
                         os.path.join(site_path, "examples", "todomvc"))
 
     with chdir(os.path.join("examples", "counter")):
         lein("clean")
         lein("cljsbuild once min")
-        shutil.copytree("resources",
+        shutil.copytree(os.path.join("resources", "public"),
                         os.path.join(site_path, "examples", "counter"))
 
 
