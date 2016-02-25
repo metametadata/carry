@@ -15,9 +15,6 @@ pom.xml.asc
 .nrepl-port
 /figwheel_server.log
 .DS_Store
-/examples/todomvc/target
-/examples/todomvc/figwheel_server.log
-/examples/todomvc/resources/public/js/compiled
-/examples/counter/target
-/examples/counter/figwheel_server.log
-/examples/counter/resources/public/js/compiled
+/examples/*/target
+/examples/*/figwheel_server.log
+/examples/*/resources/public/js/compiled
