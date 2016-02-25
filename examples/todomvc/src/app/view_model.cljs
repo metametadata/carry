@@ -1,6 +1,6 @@
 (ns app.view-model
   (:require [app.middleware.routing :as routing]
-            [mvsa.helpers :as helpers])
+            [reagent-mvsa.helpers :as helpers])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (defn -visibility

@@ -1,5 +1,5 @@
 (ns app.middleware.routing
-  (:require [mvsa.helpers :as helpers]
+  (:require [reagent-mvsa.helpers :as helpers]
             [cljs.core.match :refer-macros [match]]
             [goog.events]
             [goog.history.EventType :as EventType])

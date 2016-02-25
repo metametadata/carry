@@ -1,5 +1,5 @@
 (ns app.core
-  (:require [mvsa.core :as mvsa]
+  (:require [reagent-mvsa.core :as mvsa]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))

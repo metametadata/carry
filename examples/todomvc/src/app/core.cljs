@@ -6,7 +6,7 @@
             [devtools.core :as chrome-devtools]
             [app.middleware.devtools :as devtools]
             [app.middleware.logging :as logging]
-            [mvsa.core :as mvsa]
+            [reagent-mvsa.core :as mvsa]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
 

@@ -1,6 +1,6 @@
 (ns app.middleware.devtools
-  (:require [mvsa.core :as mvsa]
-            [mvsa.helpers :as helpers]
+  (:require [reagent-mvsa.core :as mvsa]
+            [reagent-mvsa.helpers :as helpers]
             [app.middleware.persistence :as persistence]
             [app.middleware.schema :as schema-middleware]
             [schema.core :as schema]

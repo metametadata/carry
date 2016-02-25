@@ -1,5 +1,5 @@
 (ns app.middleware.schema
-  (:require [mvsa.helpers :as helpers]
+  (:require [reagent-mvsa.helpers :as helpers]
             [schema.core :as s])
   (:require-macros [reagent.ratom :refer [run!]]))
 

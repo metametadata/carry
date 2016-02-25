@@ -1,5 +1,5 @@
 (ns app.middleware.logging
-  (:require [mvsa.helpers :as helpers]))
+  (:require [reagent-mvsa.helpers :as helpers]))
 
 (defn add
   "Will print all signals and actions to console."

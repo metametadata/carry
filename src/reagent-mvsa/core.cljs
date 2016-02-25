@@ -1,4 +1,4 @@
-(ns mvsa.core
+(ns reagent-mvsa.core
   (:require [reagent.core :as r])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
