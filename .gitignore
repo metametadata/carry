@@ -15,6 +15,7 @@ pom.xml.asc
 .nrepl-port
 /figwheel_server.log
 .DS_Store
+/examples/*/*.iml
 /examples/*/target
 /examples/*/figwheel_server.log
 /examples/*/resources/public/js/compiled
