@@ -1,5 +1,3 @@
-### Counter app
-
 See [project site](https://metametadata.github.io/reagent-mvsa/examples/#counter) for more info.
 
 ## Build
