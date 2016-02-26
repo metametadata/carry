@@ -25,7 +25,7 @@
         ; define spec
         app-spec (-> (spec/new-spec history storage ["Finish this project" "Take a bath"])
                      (devtools/add-debugger storage :debugger-model)
-                     (logging/add "[debugger] "))
+                     logging/add)
 
         ; create app from spec
         app (mvsa/app app-spec)
