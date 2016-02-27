@@ -68,7 +68,7 @@
     [model action]
     (match action
            [::-set-token token]
-           (assoc model ::token token)
+           (swap! model assoc ::token token)
 
            :else
            (app-reconcile model action))))

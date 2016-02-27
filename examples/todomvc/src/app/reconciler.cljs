@@ -1,5 +1,6 @@
 (ns app.reconciler
   (:require [app.model :as m]
+            [reagent-mvsa.helpers :as helpers]
             [com.rpl.specter :as s]
             [cljs.core.match :refer-macros [match]]))
 
@@ -31,7 +32,7 @@
   [model id]
   (-remove-todos model #(= (:id %) id)))
 
-(defn reconcile
+(defn next-model
   [model action]
   (match action
          [:update-field val]
@@ -80,3 +81,5 @@
 
          :clear-completed
          (-remove-todos model :completed?)))
+
+(def reconcile (helpers/swapping-reconcile next-model))

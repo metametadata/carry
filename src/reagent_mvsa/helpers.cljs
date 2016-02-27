@@ -2,7 +2,14 @@
   (:require [reagent.core])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Helpers
+(defn swapping-reconcile
+  "Given a pure function (next-model [current-model-value action]),
+  creates a reconcile function which swap!s the model value with the result of calling next-model."
+  [next-model]
+  (fn reconcile
+    [model-atom action]
+    (swap! model-atom next-model action)))
+
 (defn track-keys
   "Returns a map containing Reagent reactions to map entries specified by keys."
   [map-ratom keyseq]

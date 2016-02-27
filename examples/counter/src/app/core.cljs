@@ -1,5 +1,6 @@
 (ns app.core
   (:require [reagent-mvsa.core :as mvsa]
+            [reagent-mvsa.helpers :as helpers]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -22,7 +23,7 @@
          :on-increment-async
          (.setTimeout js/window #(dispatch :increment) 1000)))
 
-(defn reconcile
+(defn next-model
   [model action]
   (match action
          :increment (update model :val inc)
@@ -49,7 +50,7 @@
   []
   (let [app-spec {:initial-model {:val 0}
                   :control       control
-                  :reconcile     reconcile
+                  :reconcile     (helpers/swapping-reconcile next-model)
                   :on-start      (constantly nil)
                   :on-stop       (constantly nil)}
         app (mvsa/app app-spec)

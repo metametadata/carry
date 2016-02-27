@@ -4,32 +4,40 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn app
-  "Constructs an app from a spec.
+  "Constructs an app from a spec map with keys:
+  :initial-model - Initial model value, must be a map.
 
-  Spec is a map with keys:
-  :initial-model - initial model value, must be a map
-  :control - function of args: [model-value signal dispatch-action];
-  it performs side effects, can dispatch actions using dispatch-action (which returns the updated model value)
-  :reconcile - pure function of args: [model-value action];
-  given an action it must return the new model value
-  :on-start - function of args: [model-reaction dispatch-signal]; will be called on starting the app
-  :on-stop - function of args: [model-reaction dispatch-signal]; will be called on stopping the app
+  :control- Function of args: [model-value signal dispatch-action].
+  It performs side effects, can dispatch actions using dispatch-action (which returns the updated model value)
 
-  App is a map with keys:
-  :model - a readonly ratom (or, in Reagent terms, a reaction which returns model value)
-  :dispatch-signal - function with a single arg: a signal to be sent to an app; returns nil
-  :start - argless function for bootstrapping an app, e.g. app can start listening to browser history here
-  :stop - argless function for shutting an app down, e.g. app can stop listening to browser events here
-  :-model - model ratom (exposed for debugging only)
-  :-dispatch-action - function with which dispatches an action (exposed for debugging only); returns updated model value
+  :reconcile - Function of args: [model-atom action].
+  Given an action, it must update the model atom.
+  Consider using (swapping-reconcile) helper to get rid of explicit swap! calls.
+
+  :on-start - Function of args: [model-reaction dispatch-signal]. Will be called on starting the app.
+
+  :on-stop - Function of args: [model-reaction dispatch-signal]. Will be called on stopping the app.
+
+  Returned app is a map with keys:
+  :model - A model reaction.
+
+  :dispatch-signal - Function with a single arg: a signal to be sent to an app. Returns nil.
+
+  :start - Argless function for bootstrapping an app, e.g. app can start listening to browser history here.
+
+  :stop - Argless function for shutting an app down, e.g. app can stop listening to browser events here.
+
+  :-model - Model ratom (exposed for debugging only).
+
+  :-dispatch-action - Function with which dispatches an action (exposed for debugging only); returns updated model value.
 
   Data flow:
-  -dispatch-signal-> (control) -dispatch-action-> (reconcile) -update-> model"
+  -dispatch-signal-> (control) -dispatch-action-> (reconcile)"
   [{:keys [initial-model control reconcile on-start on-stop] :as _spec}]
   {:pre [(map? initial-model) (fn? control) (fn? reconcile) (fn? on-start) (fn? on-stop)]}
   (let [model-ratom (r/atom initial-model)
         model-reaction (reaction @model-ratom)
-        dispatch-action (fn [action] (swap! model-ratom reconcile action))
+        dispatch-action (fn [action] (reconcile model-ratom action))
         dispatch-signal (fn [signal] (control @model-ratom signal dispatch-action) nil)
         app {:model            model-reaction
              :dispatch-signal  dispatch-signal
@@ -43,7 +51,7 @@
 (defn connect-ui
   "Arguments:
   app - the app for which UI should be created
-  view-model - function which, given a model ratom, returns Reagent reactions; inspired by re-frame
+  view-model - function which, given a model reaction, returns Reagent reactions; inspired by re-frame
   subscriptions, see: https://github.com/Day8/re-frame#subscribe; returned value will be passed to a view:
   view - Reagent compoment function with args: [view-model-return-value dispatch-signal]
 

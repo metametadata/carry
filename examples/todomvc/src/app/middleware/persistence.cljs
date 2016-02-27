@@ -21,7 +21,7 @@
     (match action
            ; it's important to apply blacklist using the most actual model, that's why we do it in action
            [::-load-from-storage key loaded-model]
-           (merge loaded-model (select-keys model blacklist))
+           (swap! model #(merge loaded-model (select-keys % blacklist)))
 
            :else
            (app-reconcile model action))))

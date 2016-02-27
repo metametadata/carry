@@ -24,7 +24,7 @@
 
         ; define spec
         app-spec (-> (spec/new-spec history storage ["Finish this project" "Take a bath"])
-                     (devtools/add-debugger storage :debugger-model)
+                     #_(devtools/add-debugger storage :debugger-model)
                      logging/add)
 
         ; create app from spec
@@ -39,7 +39,7 @@
     ((:start app))
 
     ; render
-    (r/render [:div app-view debugger-view]
+    (r/render [:div app-view #_debugger-view]
               (.getElementById js/document "root"))
 
     ; return for future debugging
