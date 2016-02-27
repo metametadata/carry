@@ -1,14 +1,13 @@
 All the examples can be found in [the Github repository](https://github.com/metametadata/reagent-mvsa/tree/master/examples/).
 
+All examples support hot reloading and REPL debugging via [Figwheel](https://github.com/bhauman/lein-figwheel).
+
 # Counter
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/counter)
 
 [Demo](/examples/counter)
 
 The most trivial example.
-
-* hot reload using Figwheel
-* debuggable via REPL
 
 # TodoMVC
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc)
@@ -22,6 +21,4 @@ Features:
 * time travel debugger
 * logging to console
 * model validation using [Schema](https://github.com/plumatic/schema)
-* using [Specter](https://github.com/nathanmarz/specter) for updating model
-* hot reload using Figwheel
-* debuggable via REPL
+* uses [Specter](https://github.com/nathanmarz/specter) for model updates
