@@ -22,3 +22,10 @@ Features:
 * logging to console
 * model validation using [Schema](https://github.com/plumatic/schema)
 * uses [Specter](https://github.com/nathanmarz/specter) for model updates
+
+# Counter with DataScript
+[Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/counter-datascript)
+
+[Demo](/examples/counter-datascript)
+
+Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-memory database for model.
