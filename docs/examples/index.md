@@ -9,6 +9,13 @@ All examples support hot reloading and REPL debugging via [Figwheel](https://git
 
 The most trivial example.
 
+# Counter with DataScript
+[Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/counter-datascript)
+
+[Demo](/examples/counter-datascript)
+
+Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-memory database for a model.
+
 # TodoMVC
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc)
 
@@ -22,10 +29,11 @@ Features:
 * logging to console
 * model validation using [Schema](https://github.com/plumatic/schema)
 * uses [Specter](https://github.com/nathanmarz/specter) for model updates
+* uses [cljs-devtools](https://github.com/binaryage/cljs-devtools) for better console logs in Chrome
 
-# Counter with DataScript
-[Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/counter-datascript)
+# TodoMVC with DataScript
+[Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc-datascript)
 
-[Demo](/examples/counter-datascript)
+[Demo](/examples/todomvc-datascript)
 
-Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-memory database for a model.
+Previous example implemented using [DataScript](https://github.com/tonsky/datascript) in-memory database for a model.
