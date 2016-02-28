@@ -28,4 +28,4 @@ Features:
 
 [Demo](/examples/counter-datascript)
 
-Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-memory database for model.
+Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-memory database for a model.

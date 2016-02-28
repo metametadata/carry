@@ -9,7 +9,7 @@
                  [org.clojure/core.match "0.3.0-alpha4"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
-            [lein-figwheel "0.5.0-6"]]
+            [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
