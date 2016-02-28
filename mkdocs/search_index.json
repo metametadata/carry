@@ -7,18 +7,23 @@
         }, 
         {
             "location": "/examples/", 
-            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\n\n\nhot reload using Figwheel\n\n\ndebuggable via REPL\n\n\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nusing \nSpecter\n for updating model\n\n\nhot reload using Figwheel\n\n\ndebuggable via REPL", 
+            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nAll examples support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for model.", 
             "title": "Examples"
         }, 
         {
             "location": "/examples/#counter", 
-            "text": "Source code  Demo  The most trivial example.   hot reload using Figwheel  debuggable via REPL", 
+            "text": "Source code  Demo  The most trivial example.", 
             "title": "Counter"
         }, 
         {
             "location": "/examples/#todomvc", 
-            "text": "Source code  Demo  Features:   routing  local storage persistence  time travel debugger  logging to console  model validation using  Schema  using  Specter  for updating model  hot reload using Figwheel  debuggable via REPL", 
+            "text": "Source code  Demo  Features:   routing  local storage persistence  time travel debugger  logging to console  model validation using  Schema  uses  Specter  for model updates", 
             "title": "TodoMVC"
+        }, 
+        {
+            "location": "/examples/#counter-with-datascript", 
+            "text": "Source code  Demo  Simplest example of using  DataScript  in-memory database for model.", 
+            "title": "Counter with DataScript"
         }, 
         {
             "location": "/dev-guide/", 
