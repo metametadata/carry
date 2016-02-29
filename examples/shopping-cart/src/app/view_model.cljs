@@ -3,30 +3,34 @@
             [datascript.core :as d])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-(defn -describe-results
-  [keys query-result]
-  (map #(zipmap keys %) query-result))
+(defn -q
+  "Queries model's db and returns result as a map with specified keys."
+  [model keys q]
+  (->>
+    (d/q q (:db @model))
+    (map #(zipmap keys %))))
 
 (defn view-model
   [model]
-  {:products      (reaction (-describe-results
-                              [:id :title :price :disabled?]
-                              (d/q '[:find ?e ?t ?p ?disabled?
-                                     :where
-                                     [?e :product/title ?t]
-                                     [?e :product/price ?p]
-                                     [?e :product/inventory ?i]
-                                     [(< ?i 1) ?disabled?]]
-                                   (:db @model))))
+  (let [cart-products (reaction (-q model
+                                    [:id :title :price :quantity]
+                                    '[:find ?e ?t ?p ?q
+                                      :where
+                                      [?e :order-line/product ?pe]
+                                      [?pe :product/title ?t]
+                                      [?pe :product/price ?p]
+                                      [?e :order-line/quantity ?q]]))]
+    {:cart-products cart-products
 
-   :cart-products (reaction (-describe-results
-                              [:id :title :price :quantity]
-                              (d/q '[:find ?e ?t ?p ?q
-                                     :where
-                                     [?e :order-line/product ?pe]
-                                     [?pe :product/title ?t]
-                                     [?pe :product/price ?p]
-                                     [?e :order-line/quantity ?q]]
-                                   (:db @model))))
+     :cart-total    (reaction (reduce #(+ %1 (* (:price %2) (:quantity %2)))
+                                      0
+                                      @cart-products))
 
-   :cart-total    (reaction "$$$ TBD $$$")})
+     :products      (reaction (-q model
+                                  [:id :title :price :disabled?]
+                                  '[:find ?e ?t ?p ?disabled?
+                                    :where
+                                    [?e :product/title ?t]
+                                    [?e :product/price ?p]
+                                    [?e :product/inventory ?i]
+                                    [(< ?i 1) ?disabled?]]))}))
