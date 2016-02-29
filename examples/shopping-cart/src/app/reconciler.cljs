@@ -2,6 +2,10 @@
   (:require [datascript.core :as d]
             [cljs.core.match :refer-macros [match]]))
 
+(defn -update-db
+  [model tx-data]
+  (update model :db d/db-with tx-data))
+
 (defn reconcile
   [model action]
   (match action
@@ -15,9 +19,13 @@
                              (:db model)
                              id)]
            (assert (> inventory 0))
-           (update model :db d/db-with [{:db/id id :product/inventory (dec inventory)}
-                                        {:order-line/product  id
-                                         :order-line/quantity ((fnil inc 0) quantity)}]))
+           (-update-db model [{:db/id id :product/inventory (dec inventory)}
+                              {:order-line/product  id
+                               :order-line/quantity ((fnil inc 0) quantity)}]))
 
          :checkout
-         model))
+         (-update-db model (->> (d/q '[:find [?e ...]
+                                       :where
+                                       [?e :order-line/product]]
+                                     (:db model))
+                                (map #(-> [:db.fn/retractEntity %]))))))
