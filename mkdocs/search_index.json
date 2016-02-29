@@ -7,7 +7,7 @@
         }, 
         {
             "location": "/examples/", 
-            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nAll examples support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for model.", 
+            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nAll examples support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for a model.\n\n\nShopping Cart\n\n\nSource code\n\n\nDemo\n\n\nMore advanced example of using \nDataScript\n.", 
             "title": "Examples"
         }, 
         {
@@ -22,8 +22,13 @@
         }, 
         {
             "location": "/examples/#counter-with-datascript", 
-            "text": "Source code  Demo  Simplest example of using  DataScript  in-memory database for model.", 
+            "text": "Source code  Demo  Simplest example of using  DataScript  in-memory database for a model.", 
             "title": "Counter with DataScript"
+        }, 
+        {
+            "location": "/examples/#shopping-cart", 
+            "text": "Source code  Demo  More advanced example of using  DataScript .", 
+            "title": "Shopping Cart"
         }, 
         {
             "location": "/dev-guide/", 
