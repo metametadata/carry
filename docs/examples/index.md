@@ -29,3 +29,10 @@ Features:
 [Demo](/examples/counter-datascript)
 
 Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-memory database for a model.
+
+# Shopping Cart
+[Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/shopping-cart)
+
+[Demo](/examples/shopping-cart)
+
+More advanced example of using [DataScript](https://github.com/tonsky/datascript).
