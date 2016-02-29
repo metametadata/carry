@@ -26,12 +26,16 @@
   [products total dispatch]
   [:div
    [:h3 "Your Cart"]
-   [:div
-    (for [p products]
-      ^{:key (:id p)}
-      [-product p])]
+   (if (empty? products)
+     [:em "Please add some products to cart."]
+     [:div
+      (for [p products]
+        ^{:key (:id p)}
+        [-product p])])
    [:p "Total: $" total]
-   [:button {:on-click #(dispatch :on-checkout)}
+   [:button
+    {:disabled (empty? products)
+     :on-click #(dispatch :on-checkout)}
     "Checkout"]])
 
 (defn view
