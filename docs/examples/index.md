@@ -1,6 +1,23 @@
-All the examples can be found in [the Github repository](https://github.com/metametadata/reagent-mvsa/tree/master/examples/).
+All source code can be found in [the Github repository](https://github.com/metametadata/reagent-mvsa/tree/master/examples/).
 
-All examples support hot reloading and REPL debugging via [Figwheel](https://github.com/bhauman/lein-figwheel).
+All apps support hot reloading and REPL debugging via [Figwheel](https://github.com/bhauman/lein-figwheel).
+
+# TodoMVC
+[Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc)
+
+[Demo](/examples/todomvc)
+
+See [todomvc.com](http://todomvc.com/).
+
+Features:
+
+* extensive use of middleware pattern
+* routing
+* local storage persistence
+* time travel debugger
+* logging to console
+* model validation using [Schema](https://github.com/plumatic/schema)
+* uses [Specter](https://github.com/nathanmarz/specter) for model updates
 
 # Counter
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/counter)
@@ -8,20 +25,6 @@ All examples support hot reloading and REPL debugging via [Figwheel](https://git
 [Demo](/examples/counter)
 
 The most trivial example.
-
-# TodoMVC
-[Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc)
-
-[Demo](/examples/todomvc)
-
-Features:
-
-* routing
-* local storage persistence
-* time travel debugger
-* logging to console
-* model validation using [Schema](https://github.com/plumatic/schema)
-* uses [Specter](https://github.com/nathanmarz/specter) for model updates
 
 # Counter with DataScript
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/counter-datascript)
@@ -36,3 +39,4 @@ Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-
 [Demo](/examples/shopping-cart)
 
 More advanced example of using [DataScript](https://github.com/tonsky/datascript).
+Inspired by [Redux example](https://github.com/reactjs/redux/blob/master/docs/introduction/Examples.md#shopping-cart).
