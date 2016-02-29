@@ -15,5 +15,6 @@
                    {:db/id -2 :product/title "H&M T-Shirt White" :product/price 2 :product/inventory 2}
                    {:db/id -3 :product/title "Charli XCX - Sucker CD" :product/price 200 :product/inventory 1}
 
-                   {:db/id -4 :order-line/product -1 :order-line/quantity 10}
-                   {:db/id -5 :order-line/product -3 :order-line/quantity 11}])})
+                   ;{:db/id -4 :order-line/product -1 :order-line/quantity 10}
+                   ;{:db/id -5 :order-line/product -3 :order-line/quantity 11}
+                   ])})
