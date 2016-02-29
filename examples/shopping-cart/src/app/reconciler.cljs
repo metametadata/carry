@@ -1,12 +1,23 @@
 (ns app.reconciler
-  (:require [cljs.core.match :refer-macros [match]]))
+  (:require [datascript.core :as d]
+            [cljs.core.match :refer-macros [match]]))
 
 (defn reconcile
   [model action]
-  (println "reconcile" action)
   (match action
          [:add-to-cart id]
-         model
+         (let [inventory (:product/inventory (d/entity (:db model) id))
+               quantity (d/q '[:find ?q .
+                               :in $ ?id
+                               :where
+                               [?e :order-line/product ?id]
+                               [?e :order-line/quantity ?q]]
+                             (:db model)
+                             id)]
+           (assert (> inventory 0))
+           (update model :db d/db-with [{:db/id id :product/inventory (dec inventory)}
+                                        {:order-line/product  id
+                                         :order-line/quantity ((fnil inc 0) quantity)}]))
 
          :checkout
          model))

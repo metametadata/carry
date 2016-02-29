@@ -5,9 +5,9 @@
 
 (defn -q
   "Queries model's db and returns result as a map with specified keys."
-  [model keys q]
+  [model keys q & args]
   (->>
-    (d/q q (:db @model))
+    (apply d/q q (:db @model) args)
     (map #(zipmap keys %))))
 
 (defn view-model
