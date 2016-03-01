@@ -1,5 +1,6 @@
 (ns app.core
   (:require [app.spec :as spec]
+            [app.api :as api]
             [app.view-model :as view-model]
             [app.view :as view]
             [reagent-mvsa.core :as mvsa]
@@ -9,7 +10,8 @@
 
 (defn main
   []
-  (let [app (mvsa/app spec/spec)
+  (let [spec (spec/new-spec api/shop-api-stub)
+        app (mvsa/app spec)
         [app-view-model app-view] (mvsa/connect-ui app view-model/view-model view/view)]
     ((:start app))
 

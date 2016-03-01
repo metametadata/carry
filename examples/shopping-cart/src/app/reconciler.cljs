@@ -8,7 +8,12 @@
 
 (defn reconcile
   [model action]
+  (println "  action" action)
   (match action
+         [:receive-products tx-data]
+         (assoc model :db (d/db-with (-> model :db :schema d/empty-db)
+                                     tx-data))
+
          [:add-to-cart id]
          (let [inventory (:product/inventory (d/entity (:db model) id))
                quantity (d/q '[:find ?q .
@@ -23,9 +28,14 @@
                               {:order-line/product  id
                                :order-line/quantity ((fnil inc 0) quantity)}]))
 
-         :checkout
-         (-update-db model (->> (d/q '[:find [?e ...]
-                                       :where
-                                       [?e :order-line/product]]
-                                     (:db model))
-                                (map #(-> [:db.fn/retractEntity %]))))))
+         :checkout-request
+         (assoc model :checking-out? true)
+
+         :checkout-success
+         (-> model
+             (assoc :checking-out? false)
+             (-update-db (->> (d/q '[:find [?e ...]
+                                     :where
+                                     [?e :order-line/product]]
+                                   (:db model))
+                              (map #(-> [:db.fn/retractEntity %])))))))

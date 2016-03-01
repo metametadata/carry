@@ -24,20 +24,26 @@
                                            [?pe :product/title ?t]
                                            [?pe :product/price ?p]
                                            [?e :order-line/quantity ?q]])
-                                     (map #(update % :price -format-price))))]
-    {:cart-products cart-products
+                                     (map #(update % :price -format-price))))
+        checking-out? (reaction (:checking-out? @model))]
+    {:cart-products      cart-products
+     :cart-total         (reaction (-> (reduce #(+ %1 (* (:price %2) (:quantity %2)))
+                                               0
+                                               @cart-products)
+                                       -format-price))
+     :checking-out?      checking-out?
+     :checkout-disabled? (reaction (or @checking-out? (empty? @cart-products)))
+     :products           (reaction (->> (-q model
+                                            [:id :title :price :sold-out?]
+                                            '[:find ?e ?t ?p ?sold-out?
+                                              :where
+                                              [?e :product/title ?t]
+                                              [?e :product/price ?p]
+                                              [?e :product/inventory ?i]
+                                              [(< ?i 1) ?sold-out?]])
+                                        (map #(update % :price -format-price))
+                                        (map #(assoc % :disabled? (or @checking-out?
+                                                                      (:sold-out? %))))
 
-     :cart-total    (reaction (-> (reduce #(+ %1 (* (:price %2) (:quantity %2)))
-                                          0
-                                          @cart-products)
-                                  -format-price))
-
-     :products      (reaction (->> (-q model
-                                       [:id :title :price :disabled?]
-                                       '[:find ?e ?t ?p ?disabled?
-                                         :where
-                                         [?e :product/title ?t]
-                                         [?e :product/price ?p]
-                                         [?e :product/inventory ?i]
-                                         [(< ?i 1) ?disabled?]])
-                                   (map #(update % :price -format-price))))}))
+                                        ; doall gets rid of "Warning: Reactive deref not supported in lazy seq"
+                                        doall))}))

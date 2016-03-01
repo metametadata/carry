@@ -6,12 +6,12 @@
   [:div title " - $" price (when quantity (str " x " quantity))])
 
 (defn -products-item
-  [{:keys [id disabled?] :as product} dispatch]
+  [{:keys [id sold-out? disabled?] :as product} dispatch]
   [:div {:style {:margin-bottom 20}}
    [-product product]
    [:button {:disabled disabled?
              :on-click #(dispatch [:on-add-to-cart id])}
-    (if disabled? "Sold Out" "Add to cart")]])
+    (if sold-out? "Sold Out" "Add to cart")]])
 
 (defn -products
   [products dispatch]
@@ -23,7 +23,7 @@
       [-products-item p dispatch])]])
 
 (defn -cart
-  [products total dispatch]
+  [products total checking-out? checkout-disabled? dispatch]
   [:div
    [:h3 "Your Cart"]
    (if (empty? products)
@@ -34,15 +34,15 @@
         [-product p])])
    [:p "Total: $" total]
    [:button
-    {:disabled (empty? products)
+    {:disabled checkout-disabled?
      :on-click #(dispatch :on-checkout)}
-    "Checkout"]])
+    (if checking-out? "Please wait..." "Checkout")]])
 
 (defn view
-  [{:keys [products cart-products cart-total] :as _view-model} dispatch]
+  [{:keys [products cart-products cart-total checking-out? checkout-disabled?] :as _view-model} dispatch]
   [:div
    [:h2 "Shopping Cart Example"]
    [:hr]
    [-products @products dispatch]
    [:hr]
-   [-cart @cart-products @cart-total dispatch]])
+   [-cart @cart-products @cart-total @checking-out? @checkout-disabled? dispatch]])
