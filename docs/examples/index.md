@@ -39,4 +39,4 @@ Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-
 [Demo](/examples/shopping-cart)
 
 More advanced example of using [DataScript](https://github.com/tonsky/datascript).
-Inspired by [Redux example](https://github.com/reactjs/redux/blob/master/docs/introduction/Examples.md#shopping-cart).
+Inspired by [flux-comparison](https://github.com/voronianski/flux-comparison).

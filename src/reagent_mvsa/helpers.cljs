@@ -2,7 +2,6 @@
   (:require [reagent.core])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Helpers
 (defn track-keys
   "Returns a map containing Reagent reactions to map entries specified by keys."
   [map-ratom keyseq]
