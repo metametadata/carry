@@ -2,23 +2,28 @@
     "docs": [
         {
             "location": "/", 
-            "text": "wip", 
+            "text": "Intro\n\n\nWIP.", 
             "title": "Home"
         }, 
         {
+            "location": "/#intro", 
+            "text": "WIP.", 
+            "title": "Intro"
+        }, 
+        {
             "location": "/examples/", 
-            "text": "All the examples can be found in \nthe Github repository\n.\n\n\nAll examples support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nFeatures:\n\n\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for a model.\n\n\nShopping Cart\n\n\nSource code\n\n\nDemo\n\n\nMore advanced example of using \nDataScript\n.", 
+            "text": "All source code can be found in \nthe Github repository\n.\n\n\nAll apps support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nSee \ntodomvc.com\n.\n\n\nFeatures:\n\n\n\n\nextensive use of middleware pattern\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for a model.\n\n\nShopping Cart\n\n\nSource code\n\n\nDemo\n\n\nMore advanced example of using \nDataScript\n.\nInspired by \nRedux example\n.", 
             "title": "Examples"
+        }, 
+        {
+            "location": "/examples/#todomvc", 
+            "text": "Source code  Demo  See  todomvc.com .  Features:   extensive use of middleware pattern  routing  local storage persistence  time travel debugger  logging to console  model validation using  Schema  uses  Specter  for model updates", 
+            "title": "TodoMVC"
         }, 
         {
             "location": "/examples/#counter", 
             "text": "Source code  Demo  The most trivial example.", 
             "title": "Counter"
-        }, 
-        {
-            "location": "/examples/#todomvc", 
-            "text": "Source code  Demo  Features:   routing  local storage persistence  time travel debugger  logging to console  model validation using  Schema  uses  Specter  for model updates", 
-            "title": "TodoMVC"
         }, 
         {
             "location": "/examples/#counter-with-datascript", 
@@ -27,7 +32,7 @@
         }, 
         {
             "location": "/examples/#shopping-cart", 
-            "text": "Source code  Demo  More advanced example of using  DataScript .", 
+            "text": "Source code  Demo  More advanced example of using  DataScript .\nInspired by  Redux example .", 
             "title": "Shopping Cart"
         }, 
         {
