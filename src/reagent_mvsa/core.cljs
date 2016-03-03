@@ -2,7 +2,6 @@
   (:require [reagent.core :as r])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn app
   "Constructs an app from a spec map with keys:
   :initial-model - Initial model value, must be a map.

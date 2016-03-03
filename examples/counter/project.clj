@@ -3,8 +3,8 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]
 
-                 [reagent "0.5.1" :exclusions [cljsjs/react]]
-                 [cljsjs/react-with-addons "0.13.3-0"]
+                 [reagent "0.6.0-alpha" :exclusions [cljsjs/react]]
+                 [cljsjs/react-with-addons "0.14.3-0"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]]
 
@@ -21,7 +21,7 @@
                                        :output-dir           "resources/public/js/compiled/out"
                                        :source-map-timestamp true
                                        :compiler-stats       true
-                                       :parallel-build       true}
+                                       :parallel-build       false}
                         :figwheel     {:on-jsload     "app.core/on-jsload"
                                        :before-jsload "app.core/before-jsload"}}
 
