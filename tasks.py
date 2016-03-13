@@ -12,7 +12,7 @@ def site():
     site_path = os.path.join(os.getcwd(), "site")
     for name in os.listdir("examples"):
         example_path = os.path.join("examples", name)
-        if os.path.isdir(example_path) and os.path.isfile(os.path.join(example_path, "project.clj")):
+        if os.path.isfile(os.path.join(example_path, "project.clj")):
             with chdir(example_path):
                 lein("clean")
                 lein("cljsbuild once min")
