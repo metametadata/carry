@@ -12,7 +12,7 @@
         }, 
         {
             "location": "/examples/", 
-            "text": "All source code can be found in \nthe Github repository\n.\n\n\nAll apps support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nSee \ntodomvc.com\n.\n\n\nFeatures:\n\n\n\n\nextensive use of middleware pattern\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for a model.\n\n\nShopping Cart\n\n\nSource code\n\n\nDemo\n\n\nMore advanced example of using \nDataScript\n.\nInspired by \nRedux example\n.", 
+            "text": "All source code can be found in \nthe Github repository\n.\n\n\nAll apps support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nSee \ntodomvc.com\n.\n\n\nFeatures:\n\n\n\n\nextensive use of middleware pattern\n\n\nrouting\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for a model.\n\n\nShopping Cart\n\n\nSource code\n\n\nDemo\n\n\nMore advanced example of using \nDataScript\n.\nInspired by \nflux-comparison\n problem.\n\n\nFriend List\n\n\nSource code\n\n\nDemo\n\n\nInspired by this \nproblem\n about dynamic search input.\nDemonstrates how to dispatch new signals from app controller and also features:\n\n\n\n\nrouting\n\n\ntime travel debugger\n\n\nlogging to console\n\n\n\n\nElm-ish Counter List\n\n\nSource code\n\n\nDemo\n\n\nThe proof-of-concept example of applying \nElm-ish architecture\n\nfor reusing existing reagent-mvsa apps when building a bigger app.\nIn this project \ncounter app\n instances are created and removed dynamically.\nIt's a debatable design pattern because of the resulting code complexity, so use it with caution.", 
             "title": "Examples"
         }, 
         {
@@ -32,8 +32,18 @@
         }, 
         {
             "location": "/examples/#shopping-cart", 
-            "text": "Source code  Demo  More advanced example of using  DataScript .\nInspired by  Redux example .", 
+            "text": "Source code  Demo  More advanced example of using  DataScript .\nInspired by  flux-comparison  problem.", 
             "title": "Shopping Cart"
+        }, 
+        {
+            "location": "/examples/#friend-list", 
+            "text": "Source code  Demo  Inspired by this  problem  about dynamic search input.\nDemonstrates how to dispatch new signals from app controller and also features:   routing  time travel debugger  logging to console", 
+            "title": "Friend List"
+        }, 
+        {
+            "location": "/examples/#elm-ish-counter-list", 
+            "text": "Source code  Demo  The proof-of-concept example of applying  Elm-ish architecture \nfor reusing existing reagent-mvsa apps when building a bigger app.\nIn this project  counter app  instances are created and removed dynamically.\nIt's a debatable design pattern because of the resulting code complexity, so use it with caution.", 
+            "title": "Elm-ish Counter List"
         }, 
         {
             "location": "/dev-guide/", 
