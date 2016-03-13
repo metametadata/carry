@@ -27,8 +27,6 @@
 
   :-model - Model ratom (exposed for debugging only).
 
-  :-dispatch-action - Function which dispatches an action (exposed for debugging only). Returns nil.
-
   Data flow:
   -dispatch-signal-> (control) -dispatch-action-> (reconcile)"
   [{:keys [initial-model control reconcile on-start on-stop] :as _spec}]
@@ -37,13 +35,11 @@
         model-reaction (reaction @model-ratom)]
     (letfn [(dispatch-action [action] (swap! model-ratom reconcile action) nil)
             (dispatch-signal [signal] (control model-reaction signal dispatch-signal dispatch-action) nil)]
-           {:model            model-reaction
-            :dispatch-signal  dispatch-signal
-            :start            #(on-start model-reaction dispatch-signal)
-            :stop             #(on-stop model-reaction dispatch-signal)
-
-            :-model           model-ratom
-            :-dispatch-action dispatch-action})))
+      {:model           model-reaction
+       :dispatch-signal dispatch-signal
+       :start           #(on-start model-reaction dispatch-signal)
+       :stop            #(on-stop model-reaction dispatch-signal)
+       :-model          model-ratom})))
 
 (defn connect-ui
   "Arguments:
