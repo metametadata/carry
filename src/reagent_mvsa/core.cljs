@@ -6,11 +6,11 @@
   "Constructs an app from a spec map with keys:
   :initial-model - Initial model value, must be a map.
 
-  :control- Function of args: [model-value signal dispatch-action].
-  It performs side effects, can dispatch actions using dispatch-action (which returns the updated model value)
+  :control - Function of args: [model-reaction signal dispatch-signal dispatch-action].
+  It performs side effects, can dispatch actions and new signals.
+  Model reaction is useful for reading actual model values in async code or even to dynamically subscribe to model changes.
 
-  :reconcile - Pure function of args: [model-value action].
-  Given an action, it must return the new model value.
+  :reconcile - Pure function of args: [model-value action]. Given an action, it must return the new model value.
 
   :on-start - Function of args: [model-reaction dispatch-signal]. Will be called on starting the app.
 
@@ -27,24 +27,23 @@
 
   :-model - Model ratom (exposed for debugging only).
 
-  :-dispatch-action - Function with which dispatches an action (exposed for debugging only); returns updated model value.
+  :-dispatch-action - Function which dispatches an action (exposed for debugging only). Returns nil.
 
   Data flow:
   -dispatch-signal-> (control) -dispatch-action-> (reconcile)"
   [{:keys [initial-model control reconcile on-start on-stop] :as _spec}]
   {:pre [(map? initial-model) (fn? control) (fn? reconcile) (fn? on-start) (fn? on-stop)]}
   (let [model-ratom (r/atom initial-model)
-        model-reaction (reaction @model-ratom)
-        dispatch-action (fn [action] (swap! model-ratom reconcile action))
-        dispatch-signal (fn [signal] (control @model-ratom signal dispatch-action) nil)
-        app {:model            model-reaction
-             :dispatch-signal  dispatch-signal
-             :start            #(on-start model-reaction dispatch-signal)
-             :stop             #(on-stop model-reaction dispatch-signal)
+        model-reaction (reaction @model-ratom)]
+    (letfn [(dispatch-action [action] (swap! model-ratom reconcile action) nil)
+            (dispatch-signal [signal] (control model-reaction signal dispatch-signal dispatch-action) nil)]
+           {:model            model-reaction
+            :dispatch-signal  dispatch-signal
+            :start            #(on-start model-reaction dispatch-signal)
+            :stop             #(on-stop model-reaction dispatch-signal)
 
-             :-model           model-ratom
-             :-dispatch-action dispatch-action}]
-    app))
+            :-model           model-ratom
+            :-dispatch-action dispatch-action})))
 
 (defn connect-ui
   "Arguments:

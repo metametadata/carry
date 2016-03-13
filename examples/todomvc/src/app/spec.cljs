@@ -2,10 +2,10 @@
   (:require [app.model :as model]
             [app.controller :refer [control]]
             [app.reconciler :refer [reconcile]]
-            [app.middleware.schema :as schema]
-            [app.middleware.routing :as routing]
-            [app.middleware.persistence :as persistence]
-            [app.middleware.devtools :as devtools]))
+            [middleware.schema :as schema]
+            [middleware.routing :as routing]
+            [middleware.persistence :as persistence]
+            [middleware.devtools :as devtools]))
 
 (defn new-spec
   [history storage todo-titles]

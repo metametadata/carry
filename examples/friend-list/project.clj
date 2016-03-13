@@ -1,10 +1,14 @@
 (defproject
-  counter "0.1.0-SNAPSHOT"
+  friend-list "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]
 
                  [reagent "0.6.0-alpha" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "0.14.3-0"]
+
+                 [com.rpl/specter "0.9.2"]
+                 [funcool/hodgepodge "0.1.4"]
+                 [prismatic/schema "1.0.5"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]]
 
@@ -14,7 +18,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
   :cljsbuild {:builds [{:id           "dev"
-                        :source-paths ["src-spec" "src" "../../src"]
+                        :source-paths ["src" "../../src" "../_common"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -26,7 +30,7 @@
                                        :before-jsload "app.core/before-jsload"}}
 
                        {:id           "min"
-                        :source-paths ["src-spec" "src" "../../src"]
+                        :source-paths ["src" "../../src" "../_common"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced

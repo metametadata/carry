@@ -3,19 +3,21 @@
 
 ; Controller is kinda anemic in this example because all side-effects are performed in middlewares
 (defn control
-  [_model signal dispatch]
+  [_model signal _dispatch-signal dispatch-action]
   (match signal
-         [:on-update-field val] (dispatch [:update-field val])
-         :on-add (dispatch :add)
+         [:middleware.routing/on-navigate _] nil
 
-         [:on-toggle id] (dispatch [:toggle id])
-         :on-toggle-all (dispatch :toggle-all)
+         [:on-update-field val] (dispatch-action [:update-field val])
+         :on-add (dispatch-action :add)
 
-         [:on-start-editing id] (dispatch [:start-editing id])
-         [:on-update-todo id val] (dispatch [:update-todo id val])
-         [:on-stop-editing id] (dispatch [:stop-editing id])
-         [:on-cancel-editing id] (dispatch [:cancel-editing id])
+         [:on-toggle id] (dispatch-action [:toggle id])
+         :on-toggle-all (dispatch-action :toggle-all)
 
-         [:on-remove id] (dispatch [:remove id])
+         [:on-start-editing id] (dispatch-action [:start-editing id])
+         [:on-update-todo id val] (dispatch-action [:update-todo id val])
+         [:on-stop-editing id] (dispatch-action [:stop-editing id])
+         [:on-cancel-editing id] (dispatch-action [:cancel-editing id])
 
-         :on-clear-completed (dispatch :clear-completed)))
+         [:on-remove id] (dispatch-action [:remove id])
+
+         :on-clear-completed (dispatch-action :clear-completed)))

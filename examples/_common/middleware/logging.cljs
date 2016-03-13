@@ -1,4 +1,4 @@
-(ns app.middleware.logging
+(ns middleware.logging
   (:require [reagent-mvsa.helpers :as helpers]))
 
 (defn add
@@ -8,14 +8,14 @@
    {:pre [(:control spec) (:reconcile spec)]}
    (-> spec
        (update :control (fn wrap-control [control]
-                          (fn logged-control [model signal dispatch]
+                          (fn logged-control [model signal dispatch-signal dispatch-action]
                             (try
                               (.group js/console (str prefix "signal =") (pr-str signal))
-                              (control model signal dispatch)
+                              (control model signal dispatch-signal dispatch-action)
 
                               ; this clause guarantees that group is closed even in case of exception
                               (finally
                                 (.groupEnd js/console))))))
        (update :reconcile helpers/before-do
                (fn [_model action]
-                 (println (str prefix "  action =") (pr-str action)))))))
+                 (println (str prefix "action =") (pr-str action)))))))

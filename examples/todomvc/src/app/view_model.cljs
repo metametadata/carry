@@ -1,5 +1,5 @@
 (ns app.view-model
-  (:require [app.middleware.routing :as routing]
+  (:require [middleware.routing :as routing]
             [reagent-mvsa.helpers :as helpers])
   (:require-macros [reagent.ratom :refer [reaction]]))
 

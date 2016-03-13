@@ -1,4 +1,4 @@
-(ns app.middleware.routing
+(ns middleware.routing
   (:require [reagent-mvsa.helpers :as helpers]
             [cljs.core.match :refer-macros [match]]
             [goog.events]
@@ -10,7 +10,8 @@
 (defprotocol HistoryProtocol
   (listen [this callback] "Starts calling back on navigation events, fires the initial callback. Returns a function which stops listening.")
   (token [this] "Return current token.")
-  (replace-token [this token] "Replace token without firing navigation event."))
+  (replace-token [this token] "Replace token without firing navigation event.")
+  (set-token [this token] "Set token without firing navigation event."))
 
 (def ^:dynamic *_history-events-enabled?* true)
 
@@ -33,7 +34,12 @@
     ; the check fixes a case when setting already set "" token leads to unnecessarily adding "/#" to url
     (when (not= new-token (token this))
       (binding [*_history-events-enabled?* false]
-        (.replaceToken -goog-history new-token)))))
+        (.replaceToken -goog-history new-token))))
+
+  (set-token
+    [_this token]
+    (binding [*_history-events-enabled?* false]
+      (.setToken -goog-history token))))
 
 (defn new-history
   []
@@ -52,13 +58,15 @@
   "Updates token in model on navigation signal and lets wrapped app handle the signal."
   [app-control]
   (fn control
-    [model signal dispatch]
+    [model signal dispatch-signal dispatch-action]
     (match signal
            [::-on-navigate token]
-           (dispatch [::-set-token token])
+           (do
+             (dispatch-action [::-set-token token])
+             (dispatch-signal [::on-navigate token]))
 
            :else
-           (app-control model signal dispatch))))
+           (app-control model signal dispatch-signal dispatch-action))))
 
 ;;; Reconcile
 (defn -wrap-reconcile
@@ -77,7 +85,8 @@
 (defn add
   "Routing middleware which allows app react to navigation events by observing model changes.
 
-  After start it begins catching navigation events and updates ::token in model accordingly.
+  After start it begins catching navigation events and updates ::token in model accordingly,
+  then sends [::on-navigate token] signal.
   If ::token changes in model (e.g. by toggling action in debugger), then current url is updated using new token.
   App can set initial ::token in its initial-model."
   [spec history]

@@ -1,8 +1,8 @@
-(ns app.middleware.devtools
+(ns middleware.devtools
   (:require [reagent-mvsa.core :as mvsa]
             [reagent-mvsa.helpers :as helpers]
-            [app.middleware.persistence :as persistence]
-            [app.middleware.schema :as schema-middleware]
+            [middleware.persistence :as persistence]
+            [middleware.schema :as schema-middleware]
             [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s])
@@ -83,40 +83,40 @@
 (defn -wrap-control
   [app-control]
   (fn control
-    [model signal dispatch]
+    [model signal dispatch-signal dispatch-action]
     (match signal
            ::on-did-load-from-storage
-           (dispatch ::replay)
+           (dispatch-action ::replay)
 
            [::on-toggle-signal id]
            (do
-             (dispatch [::toggle-signal id])
-             (dispatch ::replay))
+             (dispatch-action [::toggle-signal id])
+             (dispatch-action ::replay))
 
            [::on-toggle-action id]
            (do
-             (dispatch [::toggle-action id])
-             (dispatch ::replay))
+             (dispatch-action [::toggle-action id])
+             (dispatch-action ::replay))
 
            [::on-log-action-result id]
-           (-> (-find-action model id) :result pr-str println)
+           (-> (-find-action @model id) :result pr-str println)
 
            ::on-toggle-persist
-           (dispatch ::toggle-persist)
+           (dispatch-action ::toggle-persist)
 
            ::on-sweep
-           (dispatch ::sweep)
+           (dispatch-action ::sweep)
 
            ::on-reset
            (do
-             (dispatch ::clear-history)
-             (dispatch ::replay))
+             (dispatch-action ::clear-history)
+             (dispatch-action ::replay))
 
            ; app signal
            :else
-           (let [[signal-id _ :as signal-event] (-signal-event (-> model ::debugger :next-signal-id) signal)]
-             (dispatch [::record-signal-event signal-event])
-             (app-control model signal #(dispatch [::app-action signal-id %]))))))
+           (let [[signal-id _ :as signal-event] (-signal-event (-> @model ::debugger :next-signal-id) signal)]
+             (dispatch-action [::record-signal-event signal-event])
+             (app-control model signal dispatch-signal #(dispatch-action [::app-action signal-id %]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn -orphaned-signal?
@@ -206,8 +206,7 @@
                        :cursor           "pointer"
                        :padding          "4px"
                        :margin           "5px 3px"
-                       :border-radius    "3px"
-                       :background-color "rgb(79, 90, 101)"}
+                       :border-radius    "3px"}
             :title    title
             :on-click on-click}
    caption])

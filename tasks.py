@@ -11,8 +11,9 @@ def site():
 
     site_path = os.path.join(os.getcwd(), "site")
     for name in os.listdir("examples"):
-        if os.path.isdir(os.path.join("examples", name)):
-            with chdir(os.path.join("examples", name)):
+        example_path = os.path.join("examples", name)
+        if os.path.isdir(example_path) and os.path.isfile(os.path.join(example_path, "project.clj")):
+            with chdir(example_path):
                 lein("clean")
                 lein("cljsbuild once min")
                 shutil.copytree(os.path.join("resources", "public"),
@@ -21,11 +22,11 @@ def site():
 
 ################################################### HELPERS
 @contextlib.contextmanager
-def chdir(dirname=None):
+def chdir(dirname):
     curdir = os.getcwd()
     try:
-        if dirname is not None:
-            os.chdir(dirname)
+        os.chdir(dirname)
+        print("current dir: %s" % dirname)
         yield
     finally:
         os.chdir(curdir)

@@ -1,4 +1,4 @@
-(ns app.middleware.schema
+(ns middleware.schema
   (:require [reagent-mvsa.helpers :as helpers]
             [schema.core :as s])
   (:require-macros [reagent.ratom :refer [run!]]))

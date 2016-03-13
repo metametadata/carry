@@ -1,5 +1,5 @@
 (defproject
-  counter "0.1.0-SNAPSHOT"
+  elmish-counter-list "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]
 
@@ -14,7 +14,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
   :cljsbuild {:builds [{:id           "dev"
-                        :source-paths ["src-spec" "src" "../../src"]
+                        :source-paths ["src" "../../src" "../counter/src-spec"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -26,7 +26,7 @@
                                        :before-jsload "app.core/before-jsload"}}
 
                        {:id           "min"
-                        :source-paths ["src-spec" "src" "../../src"]
+                        :source-paths ["src" "../../src" "../counter/src-spec"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced

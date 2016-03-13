@@ -11,20 +11,20 @@
 (def initial-model {:db (d/init-db #{(d/datom counter-id :val 0)})})
 
 (defn control
-  [model signal dispatch]
+  [model signal _dispatch-signal dispatch-action]
   (match signal
          :on-increment
-         (dispatch :increment)
+         (dispatch-action :increment)
 
          :on-decrement
-         (dispatch :decrement)
+         (dispatch-action :decrement)
 
          :on-increment-if-odd
-         (when (odd? (:val (d/pull (:db model) [:val] counter-id)))
-           (dispatch :increment))
+         (when (odd? (:val (d/pull (:db @model) [:val] counter-id)))
+           (dispatch-action :increment))
 
          :on-increment-async
-         (.setTimeout js/window #(dispatch :increment) 1000)))
+         (.setTimeout js/window #(dispatch-action :increment) 1000)))
 
 (defn reconcile
   [model action]

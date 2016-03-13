@@ -1,4 +1,4 @@
-(ns app.middleware.persistence
+(ns middleware.persistence
   (:require [reagent-mvsa.helpers :as helpers]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [run!]]))
@@ -6,13 +6,13 @@
 (defn -wrap-control
   [app-control key]
   (fn control
-    [model signal dispatch]
+    [model signal dispatch-signal dispatch-action]
     (match signal
            [::-on-load-from-storage key loaded-model]
-           (dispatch [::-load-from-storage key loaded-model])
+           (dispatch-action [::-load-from-storage key loaded-model])
 
            :else
-           (app-control model signal dispatch))))
+           (app-control model signal dispatch-signal dispatch-action))))
 
 (defn -wrap-reconcile
   [app-reconcile key blacklist]

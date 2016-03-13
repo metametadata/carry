@@ -7,24 +7,24 @@
   [shop]
   {:pre [(satisfies? api/ShopAPIProtocol shop)]}
   (fn control
-    [model signal dispatch]
+    [model signal _dispatch-signal dispatch-action]
     (println "signal" signal)
     (match signal
            :on-get-all-products
            (api/get-products shop
-                             #(dispatch [:receive-products %])
-                             #(dispatch :receive-products-error))
+                             #(dispatch-action [:receive-products %])
+                             #(dispatch-action :receive-products-error))
 
            [:on-add-to-cart id]
            (do
-             (assert (not (:checking-out? model)))
-             (dispatch [:add-to-cart id]))
+             (assert (not (:checking-out? @model)))
+             (dispatch-action [:add-to-cart id]))
 
            :on-checkout
            (do
-             (assert (not (:checking-out? model)))
-             (dispatch :checkout-request)
+             (assert (not (:checking-out? @model)))
+             (dispatch-action :checkout-request)
              (api/buy-products shop
                                "<orders data from model>"
-                               #(dispatch :checkout-success)
-                               #(dispatch :checkout-error))))))
+                               #(dispatch-action :checkout-success)
+                               #(dispatch-action :checkout-error))))))
