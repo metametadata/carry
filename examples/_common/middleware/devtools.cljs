@@ -5,7 +5,9 @@
             [middleware.schema :as schema-middleware]
             [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
-            [com.rpl.specter :as s])
+            [com.rpl.specter :as s]
+            [reagent.core :as r]
+            cljsjs.jquery-ui)
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;; Model
@@ -19,7 +21,7 @@
                                  :signal-id schema/Int
                                  :enabled?  schema/Bool
                                  :action    schema/Any
-                                 :result   {schema/Any schema/Any}}]
+                                 :result    {schema/Any schema/Any}}]
                :next-action-id schema/Int
 
                :persist?       schema/Bool}
@@ -202,82 +204,109 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (defn -menu-button
   [caption on-click title]
-  [:button {:style    {:font-weight      "bold"
-                       :cursor           "pointer"
-                       :padding          "4px"
-                       :margin           "5px 3px"
-                       :border-radius    "3px"}
+  [:button {:style    {:font-weight   "bold"
+                       :cursor        "pointer"
+                       :padding       "4px"
+                       :margin        "5px 3px"
+                       :border-radius "3px"}
             :title    title
             :on-click on-click}
    caption])
 
+(defn -menu
+  [persist? dispatch]
+  [:div {:style {:text-align          "center"
+                 :border-bottom-width 1
+                 :border-bottom-style "solid"
+                 :border-color        "#4F5A65"}}
+   [:input#persist-toggle.toggle {:title     "Persist debug session into local storage?"
+                                  :type      "checkbox"
+                                  :checked   persist?
+                                  :on-change #(dispatch ::on-toggle-persist)}]
+   [:label {:for "persist-toggle"} "Persist session"]
+   [-menu-button "Sweep" #(dispatch ::on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
+   [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]])
+
+(defn -signals-view
+  [signal-events action-events dispatch]
+  [:div
+   (doall
+     (for [[signal-id signal] (reverse signal-events)]
+       ^{:key signal-id}
+       [:div {:title "Signal"}
+        [:div {:style    {:cursor "pointer"}
+               :on-click #(dispatch [::on-toggle-signal signal-id])
+               :title    "Click to enable/disable all actions dispatched from this signal"}
+         "→ "
+         (if (coll? signal)
+           [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (map pr-str (rest signal)))]
+           [:strong (pr-str signal)])]
+
+        (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
+                                                   action-events)]
+          ^{:key id}
+          [:div {:style {:display          "flex"
+                         :margin-left      "10px"
+                         :margin-top       "3px"
+                         :padding          "2px"
+                         :background-color "rgb(60, 70, 80)"
+                         :color            (if enabled? "inherit" "grey")}}
+
+           [:div {:style    {:cursor "pointer"}
+                  :on-click #(dispatch [::on-toggle-action id])
+                  :title    "Click to enable/disable this action"}
+            (if (coll? action)
+              [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (map pr-str (rest action)))]
+              [:div [:strong (pr-str action)]])]
+
+           (when enabled?
+             [:div {:style    {:cursor           "pointer"
+                               :margin-left      "5px"
+                               :border-radius    "3px"
+                               :background-color "rgb(79, 90, 101)"}
+                    :on-click #(dispatch [::on-log-action-result id])
+                    :title    "Print model state after this action"}
+              "model"])])]))])
+
+(defn -initial-model-view
+  [initial-model]
+  [:div
+   [:hr]
+   [:strong "Initial model:"]
+   [:div (pr-str initial-model)]])
+
+(defn -resizable-div [_attrs & _body]
+  (r/create-class {:reagent-render      (fn [attrs & body]
+                                          (into [:div attrs] body))
+                   :component-did-mount (fn [this] (.resizable (js/$ (r/dom-node this))
+                                                               (clj->js {:grid    25
+                                                                         :handles "n, e, s, w, ne, se, sw, nw"})))}))
+
+(defn -overlay
+  [& body]
+  (into [:div {:style {:position       "fixed"
+                       :left           0
+                       :right          0
+                       :top            0
+                       :bottom         0
+                       :z-index        1000
+                       :pointer-events "none"}}]
+        body))
+
 (defn -view
-  [{:keys [persist? initial-model signal-events action-events] :as _view-model_} dispatch]
-  [:div {:style {:position   "fixed"
-                 :right      0
-                 :top        0
-                 :bottom     0
-                 :z-index    1000
-                 :width      "30%"
-                 :box-shadow "-2px 0 7px 0 rgba(0, 0, 0, 0.5)"}}
-   [:div {:style {:width            "100%"
-                  :height           "100%"
-                  :overflow-y       "auto"
-                  :background-color "#2A2F3A"
-                  :color            "white"}}
-    [:div {:style {:text-align          "center"
-                   :border-bottom-width 1
-                   :border-bottom-style "solid"
-                   :border-color        "#4F5A65"}}
-     [:input#persist-toggle.toggle {:title     "Persist debug session into local storage?"
-                                    :type      "checkbox"
-                                    :checked   @persist?
-                                    :on-change #(dispatch ::on-toggle-persist)}]
-     [:label {:for "persist-toggle"} "Persist session"]
-     [-menu-button "Sweep" #(dispatch ::on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
-     [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]]
-
-    [:div
-     (doall
-       (for [[signal-id signal] (reverse @signal-events)]
-         ^{:key signal-id}
-         [:div {:title "Signal"}
-          [:div {:style    {:cursor "pointer"}
-                 :on-click #(dispatch [::on-toggle-signal signal-id])
-                 :title    "Click to enable/disable all actions dispatched from this signal"}
-           "→ "
-           (if (coll? signal)
-             [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (map pr-str (rest signal)))]
-             [:strong (pr-str signal)])]
-
-          (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
-                                                     @action-events)]
-            ^{:key id}
-            [:div {:style {:display          "flex"
-                           :margin-left      "10px"
-                           :margin-top       "3px"
-                           :padding          "2px"
-                           :background-color "rgb(60, 70, 80)"
-                           :color            (if enabled? "inherit" "grey")}}
-
-             [:div {:style    {:cursor "pointer"}
-                    :on-click #(dispatch [::on-toggle-action id])
-                    :title    "Click to enable/disable this action"}
-              (if (coll? action)
-                [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (map pr-str (rest action)))]
-                [:div [:strong (pr-str action)]])]
-
-             (when enabled?
-               [:div {:style    {:cursor           "pointer"
-                                 :margin-left      "5px"
-                                 :border-radius    "3px"
-                                 :background-color "rgb(79, 90, 101)"}
-                      :on-click #(dispatch [::on-log-action-result id])
-                      :title    "Print model state after this action"}
-                "model"])])]))]
-    [:hr]
-    [:strong "Initial model:"]
-    [:div (pr-str @initial-model)]]])
+  [{:keys [persist? initial-model signal-events action-events] :as _view-model} dispatch]
+  [-overlay
+   [-resizable-div {:style {:left           "70%"
+                            :width          "30%"
+                            :height         "100%"
+                            :pointer-events "all"}}
+    [:div {:style {:height           "100%"
+                   :overflow         "auto"
+                   :background-color "#2A2F3A"
+                   :color            "white"}}
+     [-menu @persist? dispatch]
+     [-signals-view @signal-events @action-events dispatch]
+     [-initial-model-view @initial-model]]]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn -wrap-load-from-storage
