@@ -32,7 +32,7 @@
                                        :optimizations  :advanced
                                        :pretty-print   false
                                        :compiler-stats true
-                                       :parallel-build true}}]}
+                                       :parallel-build false}}]}
 
   :figwheel {
              ;; :http-server-root "public" ;; default and assumes "resources"
