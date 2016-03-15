@@ -102,6 +102,4 @@
 
                   (let [token (reaction (::token @model))]
                     (run! (replace-token history @token)))))
-        (update :on-stop helpers/before-do
-                (fn [_model _dispatch-signal]
-                  (@unlisten))))))
+        (update :on-stop helpers/before-do #(@unlisten)))))

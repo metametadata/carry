@@ -7,39 +7,50 @@
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s]
             [reagent.core :as r]
+            [goog.events]
+            [goog.ui.KeyboardShortcutHandler.EventType :as EventType]
             cljsjs.jquery-ui)
+  (:import goog.ui.KeyboardShortcutHandler)
   (:require-macros [reagent.ratom :refer [reaction]]))
+
+(enable-console-print!)
 
 ;;;;;;;;;;;;;;;;;;; Model
 (def Schema
-  {::debugger {:initial-model  {schema/Any schema/Any}
+  {::debugger {:initial-model              {schema/Any schema/Any}
 
-               :signal-events  [(schema/pair schema/Int "id" schema/Any "signal")]
-               :next-signal-id schema/Int
+               :signal-events              [(schema/pair schema/Int "id" schema/Any "signal")]
+               :next-signal-id             schema/Int
 
-               :action-events  [{:id        schema/Int
-                                 :signal-id schema/Int
-                                 :enabled?  schema/Bool
-                                 :action    schema/Any
-                                 :result    {schema/Any schema/Any}}]
-               :next-action-id schema/Int
+               :action-events              [{:id        schema/Int
+                                             :signal-id schema/Int
+                                             :enabled?  schema/Bool
+                                             :action    schema/Any
+                                             :result    {schema/Any schema/Any}}]
+               :next-action-id             schema/Int
 
-               :persist?       schema/Bool}
+               :persist?                   schema/Bool
+
+               :visible?                   schema/Bool
+               :toggle-visibility-shortcut schema/Str}
 
    schema/Any schema/Any})
 
 (defn -wrap-initial-model
-  [app-initial-model]
+  [app-initial-model toggle-visibility-shortcut]
   (assoc app-initial-model ::debugger
-                           {:initial-model  app-initial-model
+                           {:initial-model              app-initial-model
 
-                            :signal-events  (list)
-                            :next-signal-id 0
+                            :signal-events              (list)
+                            :next-signal-id             0
 
-                            :action-events  (list)
-                            :next-action-id 0
+                            :action-events              (list)
+                            :next-action-id             0
 
-                            :persist?       false}))
+                            :persist?                   false
+
+                            :visible?                   true
+                            :toggle-visibility-shortcut toggle-visibility-shortcut}))
 
 (defn -signal-event
   [id signal]
@@ -114,6 +125,9 @@
              (dispatch-action ::clear-history)
              (dispatch-action ::replay))
 
+           ::on-toggle-visibility
+           (dispatch-action ::toggle-visibility)
+
            ; app signal
            :else
            (let [[signal-id _ :as signal-event] (-signal-event (-> @model ::debugger :next-signal-id) signal)]
@@ -173,6 +187,9 @@
                  (update-in m [::debugger :action-events] #(filter :enabled? %))
                  (update-in m [::debugger :signal-events] #(remove (partial -orphaned-signal? m) %)))
 
+           ::toggle-visibility
+           (update-in model [::debugger :visible?] not)
+
            ; app action coming from specific signal
            [::app-action signal-id a]
            (if (-find-signal model signal-id)
@@ -199,7 +216,7 @@
 (defn -view-model
   [model]
   (helpers/track-keys (reaction (::debugger @model))
-                      [:initial-model :persist? :signal-events :action-events]))
+                      [:initial-model :persist? :visible? :toggle-visibility-shortcut :signal-events :action-events]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (defn -menu-button
@@ -214,7 +231,7 @@
    caption])
 
 (defn -menu
-  [persist? dispatch]
+  [persist? toggle-visibility-shortcut dispatch]
   [:div {:style {:text-align          "center"
                  :border-bottom-width 1
                  :border-bottom-style "solid"
@@ -225,7 +242,10 @@
                                   :on-change #(dispatch ::on-toggle-persist)}]
    [:label {:for "persist-toggle"} "Persist session"]
    [-menu-button "Sweep" #(dispatch ::on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
-   [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]])
+   [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
+   [-menu-button
+    (str "Hide (" toggle-visibility-shortcut ")")
+    #(dispatch ::on-toggle-visibility) "Hides the debugger view"]])
 
 (defn -signals-view
   [signal-events action-events dispatch]
@@ -294,9 +314,10 @@
         body))
 
 (defn -view
-  [{:keys [persist? initial-model signal-events action-events] :as _view-model} dispatch]
+  [{:keys [visible? toggle-visibility-shortcut persist? initial-model signal-events action-events] :as _view-model} dispatch]
   [-overlay
-   [-resizable-div {:style {:left           "70%"
+   [-resizable-div {:style {:display        (if @visible? "block" "none") ; using CSS instead of React in order to persist resized frame on toggling visibility
+                            :left           "70%"
                             :width          "30%"
                             :height         "100%"
                             :pointer-events "all"}}
@@ -304,7 +325,7 @@
                    :overflow         "auto"
                    :background-color "#2A2F3A"
                    :color            "white"}}
-     [-menu @persist? dispatch]
+     [-menu @persist? @toggle-visibility-shortcut dispatch]
      [-signals-view @signal-events @action-events dispatch]
      [-initial-model-view @initial-model]]]])
 
@@ -326,16 +347,33 @@
    All signals and actions will be recorded and stored in the model.
    After app is created use |connect-debugger-ui| for rendering the debugger.
    For correct work it must be the last middleware wrapping the app and
-   also make sure to blacklist ::debugger key if your app uses persistence middleware."
-  [spec storage storage-key]
-  (-> spec
-      (update :initial-model -wrap-initial-model)
-      (update :control -wrap-control)
-      (update :reconcile -wrap-reconcile)
-      (schema-middleware/add Schema)
-      (persistence/add storage storage-key {:load-wrapper -wrap-load-from-storage})))
+   also make sure to blacklist ::debugger key if your app uses persistence middleware.
+
+   Custom keyboard shortcut can toggle the visibility."
+  ([spec storage storage-key] (add-debugger spec storage storage-key "ctrl+h"))
+  ([spec storage storage-key toggle-visibility-shortcut]
+   (let [unlisten-shortcuts (atom nil)]
+     (-> spec
+         (update :initial-model -wrap-initial-model toggle-visibility-shortcut)
+         (update :control -wrap-control)
+         (update :reconcile -wrap-reconcile)
+
+         (update :on-start helpers/after-do
+                 (fn [_model dispatch-signal]
+                   (let [shortcut-handler (KeyboardShortcutHandler. js/document)
+                         key (goog.events/listen shortcut-handler
+                                                 EventType/SHORTCUT_TRIGGERED
+                                                 #(when (= (.-identifier %) toggle-visibility-shortcut)
+                                                   (dispatch-signal ::on-toggle-visibility)))]
+                     (reset! unlisten-shortcuts #(goog.events/unlistenByKey key))
+                     (.registerShortcut shortcut-handler toggle-visibility-shortcut toggle-visibility-shortcut))))
+         (update :on-stop helpers/before-do #(@unlisten-shortcuts))
+
+         (schema-middleware/add Schema)
+         (persistence/add storage storage-key {:load-wrapper -wrap-load-from-storage})))))
 
 (defn connect-debugger-ui
-  "Returns [debugger-view-model debugger-view]. App spec must be wrapped by |add-debugger|."
+  "Returns [debugger-view-model debugger-view]. App spec must be wrapped by |add-debugger|.
+  Debugger view is resizable."
   [app]
   (mvsa/connect-ui app -view-model -view))
