@@ -41,10 +41,10 @@
   (assoc app-initial-model ::debugger
                            {:initial-model              app-initial-model
 
-                            :signal-events              (list)
+                            :signal-events              nil
                             :next-signal-id             0
 
-                            :action-events              (list)
+                            :action-events              nil
                             :next-action-id             0
 
                             :persist?                   false
@@ -120,6 +120,9 @@
            ::on-sweep
            (dispatch-action ::sweep)
 
+           ::on-sweep-all
+           (dispatch-action ::sweep-all)
+
            ::on-reset
            (do
              (dispatch-action ::clear-history)
@@ -187,6 +190,11 @@
                  (update-in m [::debugger :action-events] #(filter :enabled? %))
                  (update-in m [::debugger :signal-events] #(remove (partial -orphaned-signal? m) %)))
 
+           ::sweep-all
+           (-> model
+               (assoc-in [::debugger :signal-events] nil)
+               (assoc-in [::debugger :action-events] nil))
+
            ::toggle-visibility
            (update-in model [::debugger :visible?] not)
 
@@ -242,6 +250,7 @@
                                   :on-change #(dispatch ::on-toggle-persist)}]
    [:label {:for "persist-toggle"} "Persist session"]
    [-menu-button "Sweep" #(dispatch ::on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
+   [-menu-button "Sweep All" #(dispatch ::on-sweep-all) "Clears debugger history without affecting app model"]
    [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
    [-menu-button
     (str "Hide (" toggle-visibility-shortcut ")")
