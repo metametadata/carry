@@ -10,7 +10,7 @@
        (update :control (fn wrap-control [control]
                           (fn logged-control [model signal dispatch-signal dispatch-action]
                             (try
-                              (.group js/console (str prefix "signal =") (pr-str signal))
+                              (.group js/console (str prefix "signal " (pr-str signal)))
                               (control model signal dispatch-signal dispatch-action)
 
                               ; this clause guarantees that group is closed even in case of exception
@@ -18,4 +18,4 @@
                                 (.groupEnd js/console))))))
        (update :reconcile helpers/before-do
                (fn [_model action]
-                 (println (str prefix "action =") (pr-str action)))))))
+                 (println (str prefix "action") (pr-str action)))))))

@@ -25,7 +25,8 @@
     [this on-browser-event on-user-event]
     (let [key (goog.events/listen -goog-history EventType/NAVIGATE
                                   #((if *-browser-initiated-event?* on-browser-event
-                                                                    on-user-event) (.-token %)))]
+                                                                    on-user-event)
+                                    (.-token %)))]
       (on-browser-event (token this))
       #(goog.events/unlistenByKey key)))
 
@@ -47,8 +48,18 @@
 
 (defn new-history
   []
-  (->History (doto (Html5History.)
-               (.setEnabled true))))
+  (let [history (Html5History.)]
+    ; prevent firing initial event in Safari, source;
+    ; http://anmonteiro.com/2015/09/solving-closure-librarys-html5history-double-event-dispatch/
+    (when (.-useFragment_ history)
+      (goog.events/unlisten (.-window_ history)
+                            goog.events.EventType.POPSTATE
+                            (.-onHistoryEvent_ history)
+                            false
+                            history))
+
+    (.setEnabled history true)
+    (->History history)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 ;;; Init
