@@ -8,21 +8,25 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar
 (defprotocol HistoryProtocol
-  (listen [this callback] "Starts calling back on navigation events, fires the initial callback. Returns a function which stops listening.")
+  (listen [this on-browser-event on-user-event]
+          "Starts calling back on navigation events. There are 2 types of events:
+            1) 'user' - initiated via this API;
+            2) 'browser' - e.g. changing hash or clicking forward/back buttons.
+          Fires the initial browser callback. Returns a function which stops listening.")
   (token [this] "Return current token.")
-  (replace-token [this token] "Replace token without firing navigation event.")
-  (set-token [this token] "Set token without firing navigation event."))
+  (replace-token [this token] "Replace token firing user event.")
+  (set-token [this token] "Push token firing user event."))
 
-(def ^:dynamic *_history-events-enabled?* true)
+(def ^:dynamic *-browser-initiated-event?* true)
 
 (defrecord History [-goog-history]
   HistoryProtocol
   (listen
-    [this callback]
+    [this on-browser-event on-user-event]
     (let [key (goog.events/listen -goog-history EventType/NAVIGATE
-                                  #(when *_history-events-enabled?*
-                                    (callback (.-token %))))]
-      (callback (token this))
+                                  #((if *-browser-initiated-event?* on-browser-event
+                                                                    on-user-event) (.-token %)))]
+      (on-browser-event (token this))
       #(goog.events/unlistenByKey key)))
 
   (token
@@ -33,12 +37,12 @@
     [this new-token]
     ; the check fixes a case when setting already set "" token leads to unnecessarily adding "/#" to url
     (when (not= new-token (token this))
-      (binding [*_history-events-enabled?* false]
+      (binding [*-browser-initiated-event?* false]
         (.replaceToken -goog-history new-token))))
 
   (set-token
     [_this token]
-    (binding [*_history-events-enabled?* false]
+    (binding [*-browser-initiated-event?* false]
       (.setToken -goog-history token))))
 
 (defn new-history
@@ -60,10 +64,13 @@
   (fn control
     [model signal dispatch-signal dispatch-action]
     (match signal
-           [::-on-navigate token]
+           [::-on-browser-event token]
            (do
              (dispatch-action [::-set-token token])
              (dispatch-signal [::on-navigate token]))
+
+           [::-on-user-event token]
+           (dispatch-action [::-set-token token])
 
            :else
            (app-control model signal dispatch-signal dispatch-action))))
@@ -85,8 +92,8 @@
 (defn add
   "Routing middleware which allows app react to navigation events by observing model changes.
 
-  After start it begins catching navigation events and updates ::token in model accordingly,
-  then sends [::on-navigate token] signal.
+  After start it begins catching browser history events and updates ::token in model accordingly.
+  Sends [::on-navigate token] signal to app on browser-initiated navigation events.
   If ::token changes in model (e.g. by toggling action in debugger), then current url is updated using new token.
   App can set initial ::token in its initial-model."
   [spec history]
@@ -97,7 +104,9 @@
         (update :reconcile -wrap-reconcile)
         (update :on-start helpers/after-do
                 (fn [model dispatch-signal]
-                  (->> (listen history #(dispatch-signal [::-on-navigate %]))
+                  (->> (listen history
+                               #(dispatch-signal [::-on-browser-event %])
+                               #(dispatch-signal [::-on-user-event %]))
                        (reset! unlisten))
 
                   (let [token (reaction (::token @model))]

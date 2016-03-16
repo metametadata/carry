@@ -99,10 +99,10 @@
                       :reconcile     reconcile
                       :on-start      (constantly nil)
                       :on-stop       (constantly nil)}
-                     (logging/add "[app] ")
                      (routing/add history)
+                     (logging/add "[app] ")
                      (devtools/add-debugger storage :debugger-model)
-                     (logging/add "[debugger] "))
+                     #_(logging/add "[debugger] "))
         app (mvsa/app app-spec)
         [app-view-model app-view] (mvsa/connect-ui app view-model view)
         [_ debugger-view] (devtools/connect-debugger-ui app)]
