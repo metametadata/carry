@@ -17,15 +17,13 @@
   (replace-token [this token] "Replace token firing user event.")
   (set-token [this token] "Push token firing user event."))
 
-(def ^:dynamic *-browser-initiated-event?* true)
-
 (defrecord History [-goog-history]
   HistoryProtocol
   (listen
     [this on-browser-event on-user-event]
     (let [key (goog.events/listen -goog-history EventType/NAVIGATE
-                                  #((if *-browser-initiated-event?* on-browser-event
-                                                                    on-user-event)
+                                  #((if (.-isNavigation %) on-browser-event
+                                                           on-user-event)
                                     (.-token %)))]
       (on-browser-event (token this))
       #(goog.events/unlistenByKey key)))
@@ -38,13 +36,11 @@
     [this new-token]
     ; the check fixes a case when setting already set "" token leads to unnecessarily adding "/#" to url
     (when (not= new-token (token this))
-      (binding [*-browser-initiated-event?* false]
-        (.replaceToken -goog-history new-token))))
+      (.replaceToken -goog-history new-token)))
 
   (set-token
     [_this token]
-    (binding [*-browser-initiated-event?* false]
-      (.setToken -goog-history token))))
+    (.setToken -goog-history token)))
 
 (defn new-history
   []
