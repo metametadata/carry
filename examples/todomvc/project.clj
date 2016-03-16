@@ -8,10 +8,12 @@
 
                  [org.clojure/core.match "0.3.0-alpha4"]
 
+                 ; required by debugger:
                  [com.rpl/specter "0.9.2"]
                  [funcool/hodgepodge "0.1.4"]
                  [prismatic/schema "1.0.5"]
                  [cljsjs/jquery-ui "1.11.3-1"]
+                 [cljsjs/filesaverjs "1.1.20151003-0"]
 
                  [binaryage/devtools "0.5.2"]
 

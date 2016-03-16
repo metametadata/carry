@@ -9,11 +9,11 @@
             [reagent.core :as r]
             [goog.events]
             [goog.ui.KeyboardShortcutHandler.EventType :as EventType]
-            cljsjs.jquery-ui)
+            cljsjs.jquery-ui
+            cljsjs.filesaverjs
+            cljs.pprint)
   (:import goog.ui.KeyboardShortcutHandler)
   (:require-macros [reagent.ratom :refer [reaction]]))
-
-(enable-console-print!)
 
 ;;;;;;;;;;;;;;;;;;; Model
 (def Schema
@@ -93,6 +93,14 @@
        first))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
+(defn -save-file
+  "Uses filesaverjs lib."
+  [filename content]
+  (let [blob (new js/Blob
+                  (clj->js [content])
+                  (clj->js {:type "text/plain;charset=UTF-8"}))]
+    (js/saveAs blob filename)))
+
 (defn -wrap-control
   [app-control]
   (fn control
@@ -130,6 +138,12 @@
 
            ::on-toggle-visibility
            (dispatch-action ::toggle-visibility)
+
+           ::on-save
+           (-save-file "debugger-session.txt" (with-out-str (cljs.pprint/pprint @model)))
+
+           [::on-load content]
+           (dispatch-action [::load (cljs.reader/read-string content)])
 
            ; app signal
            :else
@@ -198,6 +212,9 @@
            ::toggle-visibility
            (update-in model [::debugger :visible?] not)
 
+           [::load new-model]
+           new-model
+
            ; app action coming from specific signal
            [::app-action signal-id a]
            (if (-find-signal model signal-id)
@@ -238,6 +255,26 @@
             :on-click on-click}
    caption])
 
+(defn -menu-file-selector
+  "Styled file input which invokes the callback with loaded file content."
+  [caption on-load title]
+  [:label {:style {:display       "inline-block"
+                   :cursor        "pointer"
+                   :border        "1px solid #ccc"
+                   :padding       "4px"
+                   :margin        "5px 3px"
+                   :border-radius "3px"}
+           :title title}
+   caption
+   [:input {:style     {:display "none"}
+            :type      "file"
+            :on-change (fn [e]
+                         (let [file (first (array-seq (.. e -target -files)))
+                               file-reader (js/FileReader.)]
+                           (set! (.-onload file-reader)
+                                 #(on-load (-> % .-target .-result)))
+                           (.readAsText file-reader file)))}]])
+
 (defn -menu
   [persist? toggle-visibility-shortcut dispatch]
   [:div {:style {:text-align          "center"
@@ -248,13 +285,13 @@
                                   :type      "checkbox"
                                   :checked   persist?
                                   :on-change #(dispatch ::on-toggle-persist)}]
-   [:label {:for "persist-toggle"} "Persist session"]
+   [:label {:for "persist-toggle"} "Persist"]
    [-menu-button "Sweep" #(dispatch ::on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
    [-menu-button "Sweep All" #(dispatch ::on-sweep-all) "Clears debugger history without affecting app model"]
    [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
-   [-menu-button
-    (str "Hide (" toggle-visibility-shortcut ")")
-    #(dispatch ::on-toggle-visibility) "Hides the debugger view"]])
+   [-menu-button "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]
+   [-menu-button "Save" #(dispatch ::on-save) "Saves current debugger session into file"]
+   [-menu-file-selector "Load" #(dispatch [::on-load %]) "Loads debugger session from file"]])
 
 (defn -signals-view
   [signal-events action-events dispatch]
@@ -304,7 +341,9 @@
    [:strong "Initial model:"]
    [:div (pr-str initial-model)]])
 
-(defn -resizable-div [_attrs & _body]
+(defn -resizable-div
+  "Uses jQuery UI."
+  [_attrs & _body]
   (r/create-class {:reagent-render      (fn [attrs & body]
                                           (into [:div attrs] body))
                    :component-did-mount (fn [this] (.resizable (js/$ (r/dom-node this))
