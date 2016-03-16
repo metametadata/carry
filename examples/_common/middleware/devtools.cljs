@@ -273,7 +273,10 @@
                                file-reader (js/FileReader.)]
                            (set! (.-onload file-reader)
                                  #(on-load (-> % .-target .-result)))
-                           (.readAsText file-reader file)))}]])
+                           (.readAsText file-reader file)))
+
+            ; hack to allow on-change be fired when the same file is selected twice in a row
+            :value     ""}]])
 
 (defn -menu
   [persist? toggle-visibility-shortcut dispatch]
