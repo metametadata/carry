@@ -9,9 +9,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar
 (defprotocol HistoryProtocol
   (listen [this on-browser-event on-user-event]
-          "Starts calling back on navigation events. There are 2 types of events:
+          "Starts calling back on history events. There are 2 types of events:
             1) 'user' - initiated via this API;
-            2) 'browser' - e.g. changing hash or clicking forward/back buttons.
+            2) 'browser' - e.g. changing hash in url bar or clicking forward/back buttons.
           Fires the initial browser callback. Returns a function which stops listening.")
   (token [this] "Return current token.")
   (replace-token [this token] "Replace token firing user event.")
@@ -66,7 +66,7 @@
 
 ;;; Control
 (defn -wrap-control
-  "Updates token in model on navigation signal and lets wrapped app handle the signal."
+  "Updates token in model on history events and lets wrapped app handle the signal."
   [app-control]
   (fn control
     [model signal dispatch-signal dispatch-action]
@@ -97,10 +97,10 @@
 
 ;;; Middleware
 (defn add
-  "Routing middleware which allows app react to navigation events by observing model changes.
+  "Routing middleware which allows app react to history events by observing model changes.
 
   After start it begins catching browser history events and updates ::token in model accordingly.
-  Sends [::on-navigate token] signal to app on browser-initiated navigation events.
+  Sends [::on-navigate token] signal to app on browser-initiated history events.
   If ::token changes in model (e.g. by toggling action in debugger), then current url is updated using new token.
   App can set initial ::token in its initial-model."
   [spec history]
