@@ -35,7 +35,7 @@
                                        :output-dir           "resources/public/js/compiled/out"
                                        :source-map-timestamp true
                                        :compiler-stats       true
-                                       :parallel-build       false  }
+                                       :parallel-build       false}
                         :figwheel     {:on-jsload     "app.core/on-jsload"
                                        :before-jsload "app.core/before-jsload"}}
 
@@ -86,4 +86,10 @@
 
              ;; to configure a different figwheel logfile path
              ;; :server-logfile "tmp/logs/figwheel-logfile.log"
-             })
+             }
+
+  :hiera
+  {:path          "ns-hierarchy.png"
+   :vertical      false
+   :show-external true
+   :cluster-depth 1})

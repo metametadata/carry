@@ -1,3 +1,4 @@
+; namespace is extracted into a separate src folder in order to be reused in elmish-counter-list example
 (ns spec.core
   (:require [reagent.core]
             [cljs.core.match :refer-macros [match]])
