@@ -23,7 +23,7 @@
                                [?e :order-line/quantity ?q]]
                              (:db model)
                              id)]
-           (assert (> inventory 0))
+           (assert (pos? inventory))
            (-update-db model [{:db/id id :product/inventory (dec inventory)}
                               {:order-line/product  id
                                :order-line/quantity ((fnil inc 0) quantity)}]))
@@ -34,8 +34,7 @@
          :checkout-success
          (-> model
              (assoc :checking-out? false)
-             (-update-db (->> (d/q '[:find [?e ...]
-                                     :where
-                                     [?e :order-line/product]]
-                                   (:db model))
-                              (map #(-> [:db.fn/retractEntity %])))))))
+             (-update-db (map #(-> [:db.fn/retractEntity %])
+                              (d/q '[:find [?e ...]
+                                     :where [?e :order-line/product]]
+                                   (:db model)))))))

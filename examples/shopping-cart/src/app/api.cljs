@@ -21,4 +21,4 @@
 
     (buy-products
       [_ _payload on-success _on-error]
-      (.setTimeout js/window #(on-success) 1500))))
+      (.setTimeout js/window on-success 1500))))

@@ -6,9 +6,7 @@
 (defn -q
   "Queries model's db and returns result as a map with specified keys."
   [model keys q & args]
-  (->>
-    (apply d/q q (:db @model) args)
-    (map #(zipmap keys %))))
+  (map #(zipmap keys %) (apply d/q q (:db @model) args)))
 
 (defn -format-price
   [price]

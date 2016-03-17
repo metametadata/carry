@@ -111,10 +111,10 @@
         (update :reconcile -wrap-reconcile)
         (update :on-start helpers/after-do
                 (fn [model dispatch-signal]
-                  (->> (listen history
-                               #(dispatch-signal [::-on-browser-event %])
-                               #(dispatch-signal [::-on-user-event %]))
-                       (reset! unlisten))
+                  (reset! unlisten
+                          (listen history
+                                  #(dispatch-signal [::-on-browser-event %])
+                                  #(dispatch-signal [::-on-user-event %])))
 
                   (let [token (reaction (::token @model))]
                     (run! (replace-token history @token)))))

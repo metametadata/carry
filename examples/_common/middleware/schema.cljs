@@ -7,11 +7,10 @@
   "Middleware will validate the model on every change using the specified schema.
   Throws an exception if validation fails."
   [spec schema]
-  (-> spec
-      (update :on-start helpers/after-do
-              (fn [model _dispatch-signal]
-                (run!
-                  (when-let [problems (s/check schema @model)]
-                    ; using console log for better printing in Chrome console
-                    (.log js/console "Validation problems:" problems)
-                    (throw (ex-info "Model validation failed. See more info above." {}))))))))
+  (update spec :on-start helpers/after-do
+          (fn [model _dispatch-signal]
+            (run!
+              (when-let [problems (s/check schema @model)]
+                ; using console log for better printing in Chrome console
+                (.log js/console "Validation problems:" problems)
+                (throw (ex-info "Model validation failed. See more info above." {})))))))

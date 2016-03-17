@@ -19,9 +19,7 @@
 
 (defn -find-todo
   [model id]
-  (->> (:todos model)
-       (filter #(= (:id %) id))
-       first))
+  (->> (:todos model) (filter #(= (:id %) id)) first))
 
 (defn -remove-todos
   [model pred]
