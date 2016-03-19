@@ -19,5 +19,5 @@
       ; debugger deals with persistence itself, so we have to blacklist it here to get rid of loading conflicts
       (persistence/add storage :model {:blacklist #{::devtools/debugger}})
 
-      ; routing goes after persistence layer so that on start token is taken from the url bar instead of local storage
+      ; routing goes after persistence layer so that on start the token is taken from the url bar instead of local storage
       (routing/add history)))

@@ -20,10 +20,10 @@
 (defn view-model
   [model]
   ; reactions are extracted for better perfromance, e.g.:
-  ; when input field changes most reactions will not be recalculated,
-  ; because todos stay the same
-  (let [; Multiple tokens are supported mostly for :all case,
-        ; because on navigating to base url the token is "", but on clicking the link the token becomes "/".
+  ; when input field changes most reactions will not be recalculated
+  ; because todos are the same
+  (let [; Multiple tokens are supported mostly for :all case:
+        ; on navigating to base url the token is "", but on clicking the link the token becomes "/".
         ; Although it's always the same, the spec is made a reaction for consistency with other keys.
         visibility-spec (reaction [{:key :all :title "All" :href "#/" :tokens #{"" "/"}}
                                    {:key :active :title "Active" :href "#/active" :tokens #{"/active"}}

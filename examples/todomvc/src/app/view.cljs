@@ -14,7 +14,7 @@
                      :on-key-down #(when (-enter-key? %) (dispatch :on-add))}]])
 
 (defn -todo-input
-  "Note that |editing?| is passed only to trigger :component-did-update to set focus on the state change."
+  "Note that |editing?| is mainly passed to trigger :component-did-update to set focus on the state change."
   [_id _title _editing? _dispatch]
   (r/create-class {:reagent-render
                    (fn [id title editing? dispatch]
@@ -69,9 +69,8 @@
    [:ul.filters
     (for [{:keys [key title href]} visibility-spec]
       ^{:key key}
-      [:li [:a
-            {:href  href
-             :class (if (= visibility key) "selected")}
+      [:li [:a {:href  href
+                :class (if (= visibility key) "selected")}
             title]])]
 
    (when has-completed-todos?
