@@ -5,6 +5,9 @@
 (defn control
   [_model signal _dispatch-signal dispatch-action]
   (match signal
+         :on-start (println "[todos] start")
+         :on-stop (println "[todos] stop")
+
          [:middleware.routing/on-navigate _] nil
 
          [:on-update-field val] (dispatch-action [:update-field val])

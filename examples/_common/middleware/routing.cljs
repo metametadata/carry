@@ -1,6 +1,5 @@
 (ns middleware.routing
-  (:require [reagent-mvsa.helpers :as helpers]
-            [cljs.core.match :refer-macros [match]]
+  (:require [cljs.core.match :refer-macros [match]]
             [goog.events]
             [goog.history.EventType :as EventType])
   (:import goog.history.Html5History)
@@ -67,20 +66,41 @@
 ;;; Control
 (defn -wrap-control
   "Updates token in model on history events and lets wrapped app handle the signal."
-  [app-control]
-  (fn control
-    [model signal dispatch-signal dispatch-action]
-    (match signal
-           [::-on-browser-event token]
-           (do
+  [app-control history]
+  (let [unlisten (atom nil)]
+    (fn control
+      [model signal dispatch-signal dispatch-action]
+      (match signal
+             :on-start
+             (do
+               (app-control model signal dispatch-signal dispatch-action)
+
+               (println "[routing] start with token" (pr-str (::token @model)))
+               (reset! unlisten
+                       (listen history
+                               #(dispatch-signal [::-on-browser-event %])
+                               #(dispatch-signal [::-on-user-event %])))
+
+               (let [token (reaction (::token @model))]
+                 (run!
+                   (replace-token history @token))))
+
+             :on-stop
+             (do
+               #(@unlisten)
+
+               (app-control model signal dispatch-signal dispatch-action))
+
+             [::-on-browser-event token]
+             (do
+               (dispatch-action [::-set-token token])
+               (dispatch-signal [::on-navigate token]))
+
+             [::-on-user-event token]
              (dispatch-action [::-set-token token])
-             (dispatch-signal [::on-navigate token]))
 
-           [::-on-user-event token]
-           (dispatch-action [::-set-token token])
-
-           :else
-           (app-control model signal dispatch-signal dispatch-action))))
+             :else
+             (app-control model signal dispatch-signal dispatch-action)))))
 
 ;;; Reconcile
 (defn -wrap-reconcile
@@ -104,18 +124,7 @@
   If ::token changes in model (e.g. by toggling action in debugger), then current url is updated using new token.
   App can set initial ::token in its initial-model."
   [spec history]
-  (let [unlisten (atom nil)]
-    (-> spec
-        (update :initial-model -wrap-initial-model)
-        (update :control -wrap-control)
-        (update :reconcile -wrap-reconcile)
-        (update :on-start helpers/after-do
-                (fn [model dispatch-signal]
-                  (reset! unlisten
-                          (listen history
-                                  #(dispatch-signal [::-on-browser-event %])
-                                  #(dispatch-signal [::-on-user-event %])))
-
-                  (let [token (reaction (::token @model))]
-                    (run! (replace-token history @token)))))
-        (update :on-stop helpers/before-do #(@unlisten)))))
+  (-> spec
+      (update :initial-model -wrap-initial-model)
+      (update :control -wrap-control history)
+      (update :reconcile -wrap-reconcile)))

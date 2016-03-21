@@ -1,5 +1,5 @@
 (ns middleware.logging
-  (:require [reagent-mvsa.helpers :as helpers]))
+  (:require))
 
 (defn add
   "Will print all signals and actions to console."
@@ -16,6 +16,8 @@
                               ; this clause guarantees that group is closed even in case of exception
                               (finally
                                 (.groupEnd js/console))))))
-       (update :reconcile helpers/before-do
-               (fn [_model action]
-                 (println (str prefix "action") (pr-str action)))))))
+       (update :reconcile
+               (fn wrap-control [reconcile]
+                 (fn logged-reconcile [model action]
+                   (println (str prefix "action") (pr-str action))
+                   (reconcile model action)))))))

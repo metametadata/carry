@@ -13,7 +13,7 @@
   (let [spec (spec/new-spec api/shop-api-stub)
         app (mvsa/app spec)
         [app-view-model app-view] (mvsa/connect-ui app view-model/view-model view/view)]
-    ((:start app))
+    ((:dispatch-signal app) :on-start)
 
     (r/render app-view (.getElementById js/document "root"))
 
@@ -24,7 +24,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
 (defn before-jsload
   []
-  ((:stop app)))
+  ((:dispatch-signal app) :on-stop))
 
 (defn on-jsload
   []

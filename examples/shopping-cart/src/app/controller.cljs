@@ -10,10 +10,12 @@
     [model signal _dispatch-signal dispatch-action]
     (println "signal" signal)
     (match signal
-           :on-get-all-products
+           :on-start
            (api/get-products shop
                              #(dispatch-action [:receive-products %])
                              #(dispatch-action :receive-products-error))
+           :on-stop
+           nil
 
            [:on-add-to-cart id]
            (do

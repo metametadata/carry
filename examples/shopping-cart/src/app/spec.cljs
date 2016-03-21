@@ -7,6 +7,4 @@
   [shop]
   {:initial-model model/initial-model
    :control       (controller/new-control shop)
-   :reconcile     reconciler/reconcile
-   :on-start      (fn [_model dispatch-signal] (dispatch-signal :on-get-all-products))
-   :on-stop       (constantly nil)})
+   :reconcile     reconciler/reconcile})

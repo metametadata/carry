@@ -127,13 +127,9 @@
   []
   (let [app-spec {:initial-model initial-model
                   :control       control
-                  :reconcile     reconcile
-                  :on-start      (constantly nil)
-                  :on-stop       (constantly nil)}
+                  :reconcile     reconcile}
         app (mvsa/app app-spec)
         [app-view-model app-view] (mvsa/connect-ui app view-model view)]
-    ((:start app))
-
     (r/render app-view (.getElementById js/document "root"))
 
     (assoc app :view-model app-view-model)))
@@ -142,8 +138,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
 (defn before-jsload
-  []
-  ((:stop app)))
+  [])
 
 (defn on-jsload
   []

@@ -36,7 +36,7 @@
         ; create debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]
     ; perform initial side effects
-    ((:start app))
+    ((:dispatch-signal app) :on-start)
 
     ; render
     (r/render [:div app-view debugger-view]
@@ -51,7 +51,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
 (defn before-jsload
   []
-  ((:stop app)))
+  ((:dispatch-signal app) :on-stop))
 
 (defn on-jsload
   []

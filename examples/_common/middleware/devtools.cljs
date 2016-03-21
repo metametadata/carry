@@ -102,54 +102,74 @@
     (js/saveAs blob filename)))
 
 (defn -wrap-control
-  [app-control]
-  (fn control
-    [model signal dispatch-signal dispatch-action]
-    (match signal
-           ::on-did-load-from-storage
-           (dispatch-action ::replay)
+  [app-control toggle-visibility-shortcut]
+  (let [unlisten-shortcuts (atom nil)]
+    (fn control
+      [model signal dispatch-signal dispatch-action]
+      (letfn [(record-and-dispatch-to-app [signal]
+                (let [[signal-id _ :as signal-event] (-signal-event (-> @model ::debugger :next-signal-id) signal)]
+                  (dispatch-action [::record-signal-event signal-event] )
+                  (app-control model signal dispatch-signal #(dispatch-action [::app-action signal-id %]))))]
+        (match signal
+               :on-start
+               (do
+                 (record-and-dispatch-to-app :on-start)
 
-           [::on-toggle-signal id]
-           (do
-             (dispatch-action [::toggle-signal id])
-             (dispatch-action ::replay))
+                 (let [shortcut-handler (KeyboardShortcutHandler. js/document)
+                       key (goog.events/listen shortcut-handler
+                                               EventType/SHORTCUT_TRIGGERED
+                                               #(when (= (.-identifier %) toggle-visibility-shortcut)
+                                                 (dispatch-signal ::on-toggle-visibility)))]
+                   (reset! unlisten-shortcuts #(goog.events/unlistenByKey key))
+                   (.registerShortcut shortcut-handler toggle-visibility-shortcut toggle-visibility-shortcut)))
 
-           [::on-toggle-action id]
-           (do
-             (dispatch-action [::toggle-action id])
-             (dispatch-action ::replay))
+               :on-stop
+               (do
+                 #(@unlisten-shortcuts)
 
-           [::on-log-action-result id]
-           (-> (-find-action @model id) :result pr-str println)
+                 (record-and-dispatch-to-app :on-stop))
 
-           ::on-toggle-persist
-           (dispatch-action ::toggle-persist)
+               ::on-did-load-from-storage
+               (dispatch-action ::replay)
 
-           ::on-sweep
-           (dispatch-action ::sweep)
+               [::on-toggle-signal id]
+               (do
+                 (dispatch-action [::toggle-signal id])
+                 (dispatch-action ::replay))
 
-           ::on-sweep-all
-           (dispatch-action ::sweep-all)
+               [::on-toggle-action id]
+               (do
+                 (dispatch-action [::toggle-action id])
+                 (dispatch-action ::replay))
 
-           ::on-reset
-           (do
-             (dispatch-action ::clear-history)
-             (dispatch-action ::replay))
+               [::on-log-action-result id]
+               (-> (-find-action @model id) :result pr-str println)
 
-           ::on-toggle-visibility
-           (dispatch-action ::toggle-visibility)
+               ::on-toggle-persist
+               (dispatch-action ::toggle-persist)
 
-           ::on-save
-           (-save-file "debugger-session.txt" (with-out-str (cljs.pprint/pprint @model)))
+               ::on-sweep
+               (dispatch-action ::sweep)
 
-           [::on-load content]
-           (dispatch-action [::load (cljs.reader/read-string content)])
+               ::on-sweep-all
+               (dispatch-action ::sweep-all)
 
-           ; app signal
-           :else
-           (let [[signal-id _ :as signal-event] (-signal-event (-> @model ::debugger :next-signal-id) signal)]
-             (dispatch-action [::record-signal-event signal-event])
-             (app-control model signal dispatch-signal #(dispatch-action [::app-action signal-id %]))))))
+               ::on-reset
+               (do
+                 (dispatch-action ::clear-history)
+                 (dispatch-action ::replay))
+
+               ::on-toggle-visibility
+               (dispatch-action ::toggle-visibility)
+
+               ::on-save
+               (-save-file "debugger-session.txt" (with-out-str (cljs.pprint/pprint @model)))
+
+               [::on-load content]
+               (dispatch-action [::load (cljs.reader/read-string content)])
+
+               :else
+               (record-and-dispatch-to-app signal))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn -orphaned-signal?
@@ -403,25 +423,13 @@
    Custom keyboard shortcut can toggle the visibility."
   ([spec storage storage-key] (add-debugger spec storage storage-key "ctrl+h"))
   ([spec storage storage-key toggle-visibility-shortcut]
-   (let [unlisten-shortcuts (atom nil)]
-     (-> spec
-         (update :initial-model -wrap-initial-model toggle-visibility-shortcut)
-         (update :control -wrap-control)
-         (update :reconcile -wrap-reconcile)
+   (-> spec
+       (update :initial-model -wrap-initial-model toggle-visibility-shortcut)
+       (update :control -wrap-control toggle-visibility-shortcut)
+       (update :reconcile -wrap-reconcile)
 
-         (update :on-start helpers/after-do
-                 (fn [_model dispatch-signal]
-                   (let [shortcut-handler (KeyboardShortcutHandler. js/document)
-                         key (goog.events/listen shortcut-handler
-                                                 EventType/SHORTCUT_TRIGGERED
-                                                 #(when (= (.-identifier %) toggle-visibility-shortcut)
-                                                   (dispatch-signal ::on-toggle-visibility)))]
-                     (reset! unlisten-shortcuts #(goog.events/unlistenByKey key))
-                     (.registerShortcut shortcut-handler toggle-visibility-shortcut toggle-visibility-shortcut))))
-         (update :on-stop helpers/before-do #(@unlisten-shortcuts))
-
-         (schema-middleware/add Schema)
-         (persistence/add storage storage-key {:load-wrapper -wrap-load-from-storage})))))
+       (schema-middleware/add Schema)
+       (persistence/add storage storage-key {:load-wrapper -wrap-load-from-storage}))))
 
 (defn connect-debugger-ui
   "Returns [debugger-view-model debugger-view]. App spec must be wrapped by |add-debugger|.

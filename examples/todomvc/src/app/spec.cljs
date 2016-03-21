@@ -11,9 +11,7 @@
   [history storage todo-titles]
   (-> {:initial-model (model/new-model todo-titles)
        :control       control
-       :reconcile     reconcile
-       :on-start      (fn [_model _dispatch-signal] (println "[todos] start"))
-       :on-stop       (fn [_model _dispatch-signal] (println "[todos] stop"))}
+       :reconcile     reconcile}
       (schema/add model/Schema)
 
       ; debugger deals with persistence itself, so we have to blacklist it here to get rid of loading conflicts

@@ -28,6 +28,9 @@
     (fn control
       [model signal dispatch-signal dispatch-action]
       (match signal
+             :on-start nil
+             :on-stop nil
+
              [:on-input q]
              (do
                (dispatch-action [:set-query q])
@@ -96,17 +99,14 @@
         storage hp/local-storage
         app-spec (-> {:initial-model initial-model
                       :control       (new-control history)
-                      :reconcile     reconcile
-                      :on-start      (constantly nil)
-                      :on-stop       (constantly nil)}
+                      :reconcile     reconcile}
                      (routing/add history)
-                     (logging/add "[app] ")
                      (devtools/add-debugger storage :debugger-model)
-                     #_(logging/add "[debugger] "))
+                     logging/add)
         app (mvsa/app app-spec)
         [app-view-model app-view] (mvsa/connect-ui app view-model view)
         [_ debugger-view] (devtools/connect-debugger-ui app)]
-    ((:start app))
+    ((:dispatch-signal app) :on-start)
 
     (r/render [:div app-view debugger-view]
               (.getElementById js/document "root"))
@@ -118,7 +118,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
 (defn before-jsload
   []
-  ((:stop app)))
+  ((:dispatch-signal app) :on-stop))
 
 (defn on-jsload
   []
