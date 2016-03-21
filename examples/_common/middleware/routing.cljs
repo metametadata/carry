@@ -44,15 +44,6 @@
 (defn new-history
   []
   (let [history (Html5History.)]
-    ; prevent firing initial event in Safari, source;
-    ; http://anmonteiro.com/2015/09/solving-closure-librarys-html5history-double-event-dispatch/
-    (when (.-useFragment_ history)
-      (goog.events/unlisten (.-window_ history)
-                            goog.events.EventType.POPSTATE
-                            (.-onHistoryEvent_ history)
-                            false
-                            history))
-
     (.setEnabled history true)
     (->History history)))
 
