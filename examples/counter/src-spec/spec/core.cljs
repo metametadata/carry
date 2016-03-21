@@ -47,6 +47,4 @@
 
 (def spec {:initial-model initial-model
            :control       control
-           :reconcile     reconcile
-           :on-start      (constantly nil)
-           :on-stop       (constantly nil)})
+           :reconcile     reconcile})
