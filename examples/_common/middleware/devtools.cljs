@@ -404,14 +404,13 @@
 (defn -wrap-load-from-storage
   [load-from-storage]
   (fn wrapped-load-from-storage
-    [loaded-model dispatch-signal current-model]
+    [model loaded-model dispatch-signal]
     ; load only if user set the flag during previous session
     (when (-> loaded-model ::debugger :persist?)
-      (-> loaded-model
-          ; otherwise, on hot reload, we will not see changes after modifying app init code
-          (update ::debugger merge (-> current-model ::debugger (select-keys [:initial-model])))
-          (load-from-storage dispatch-signal current-model))
-      (dispatch-signal ::on-did-load-from-storage))))
+      ; update :initial-model; otherwise, on hot reload, we will not see changes after modifying app init code
+      (let [loaded-model (update loaded-model ::debugger merge (-> @model ::debugger (select-keys [:initial-model])))]
+        (load-from-storage model loaded-model dispatch-signal)
+        (dispatch-signal ::on-did-load-from-storage)))))
 
 (defn add-debugger
   "Adds debugging capabilities to the app.

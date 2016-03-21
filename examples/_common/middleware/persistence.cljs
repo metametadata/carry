@@ -12,7 +12,7 @@
   (fn control
     [model signal dispatch-signal dispatch-action]
     (letfn [(load-from-storage
-              [loaded-model dispatch-signal _current-model]
+              [_model-reaction loaded-model dispatch-signal]
               (dispatch-signal [::-on-load-from-storage key loaded-model]))]
       (match signal
              :on-start
@@ -22,7 +22,7 @@
                (println "[persistence] start, key =" (pr-str key))
                (let [loaded-model (get storage key :not-found)]
                  (when (not= loaded-model :not-found)
-                   ((load-wrapper load-from-storage) loaded-model dispatch-signal @model)))
+                   ((load-wrapper load-from-storage) model loaded-model dispatch-signal)))
 
                (run! (-save storage key blacklist @model)))
 
