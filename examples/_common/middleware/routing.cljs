@@ -7,22 +7,22 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar
 (defprotocol HistoryProtocol
-  (listen [this on-browser-event on-user-event]
+  (listen [this on-browser-event on-api-event]
           "Starts calling back on history events. There are 2 types of events:
-            1) 'user' - initiated via this API;
+            1) 'api' - initiated via this API;
             2) 'browser' - e.g. changing hash in url bar or clicking forward/back buttons.
           Fires the initial browser callback. Returns a function which stops listening.")
   (token [this] "Return current token.")
-  (replace-token [this token] "Replace token firing user event.")
-  (set-token [this token] "Push token firing user event."))
+  (replace-token [this token] "Replace token firing API event.")
+  (set-token [this token] "Push token firing API event."))
 
 (defrecord History [-goog-history]
   HistoryProtocol
   (listen
-    [this on-browser-event on-user-event]
+    [this on-browser-event on-api-event]
     (let [key (goog.events/listen -goog-history EventType/NAVIGATE
                                   #((if (.-isNavigation %) on-browser-event
-                                                           on-user-event)
+                                                           on-api-event)
                                     (.-token %)))]
       (on-browser-event (token this))
       #(goog.events/unlistenByKey key)))
@@ -79,7 +79,7 @@
                (reset! unlisten
                        (listen history
                                #(dispatch-signal [::-on-browser-event %])
-                               #(dispatch-signal [::-on-user-event %])))
+                               #(dispatch-signal [::-on-api-event %])))
 
                (let [token (reaction (::token @model))]
                  (run!
@@ -96,7 +96,7 @@
                (dispatch-action [::-set-token token])
                (dispatch-signal [::on-navigate token]))
 
-             [::-on-user-event token]
+             [::-on-api-event token]
              (dispatch-action [::-set-token token])
 
              :else
