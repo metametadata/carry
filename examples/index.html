@@ -120,6 +120,9 @@
         <li class="main "><a href="#friend-list">Friend List</a></li>
         
     
+        <li class="main "><a href="#elm-ish-subapps">Elm-ish Subapps</a></li>
+        
+    
         <li class="main "><a href="#elm-ish-counter-list">Elm-ish Counter List</a></li>
         
     
@@ -166,13 +169,21 @@ Demonstrates how to dispatch new signals from app controller and also features:<
 <li>time travel debugger</li>
 <li>logging to console</li>
 </ul>
+<h1 id="elm-ish-subapps">Elm-ish Subapps</h1>
+<p><a href="https://github.com/metametadata/reagent-mvsa/tree/master/examples/elmish-subapps">Source code</a></p>
+<p><a href="../examples/elmish-subapps">Demo</a></p>
+<p>The proof-of-concept example of applying <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm-ish architecture</a>
+for reusing existing reagent-mvsa apps when building a bigger app.
+It's a debatable design pattern because of the resulting code complexity, so use it with caution.</p>
+<p>In this project <a href="#counter">counter app</a> and <a href="#friend-list">friend list app</a> instances are "statically" added to the app spec.
+Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.</p>
 <h1 id="elm-ish-counter-list">Elm-ish Counter List</h1>
 <p><a href="https://github.com/metametadata/reagent-mvsa/tree/master/examples/elmish-counter-list">Source code</a></p>
 <p><a href="../examples/elmish-counter-list">Demo</a></p>
 <p>The proof-of-concept example of applying <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm-ish architecture</a>
 for reusing existing reagent-mvsa apps when building a bigger app.
-In this project <a href="#counter">counter app</a> instances are created and removed dynamically.
-It's a debatable design pattern because of the resulting code complexity, so use it with caution.</p></div>
+It's a debatable design pattern because of the resulting code complexity, so use it with caution.</p>
+<p>In this example <a href="#counter">counter app</a> instances are created and removed dynamically after app is started.</p></div>
         </div>
 
         <footer class="col-md-12">
