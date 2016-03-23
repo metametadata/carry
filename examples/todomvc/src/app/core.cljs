@@ -3,7 +3,6 @@
             [app.view-model :refer [view-model]]
             [app.view :refer [view]]
             [middleware.routing :as routing]
-            [devtools.core :as chrome-devtools]
             [middleware.devtools :as devtools]
             [middleware.logging :as logging]
             [reagent-mvsa.core :as mvsa]
@@ -11,8 +10,6 @@
             [hodgepodge.core :as hp]))
 
 (enable-console-print!)
-(chrome-devtools/enable-feature! :sanity-hints)
-(chrome-devtools/install!)
 
 (defn main
   []

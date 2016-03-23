@@ -14,7 +14,6 @@
                  [prismatic/schema "1.0.5"]
                  [cljsjs/jquery-ui "1.11.3-1"]
                  [cljsjs/filesaverjs "1.1.20151003-0"]
-
                  [binaryage/devtools "0.5.2"]
 
                  ; for tests:
