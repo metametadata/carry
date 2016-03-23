@@ -54,6 +54,18 @@ Demonstrates how to dispatch new signals from app controller and also features:
 * time travel debugger
 * logging to console
 
+# Elm-ish Subapps
+[Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/elmish-subapps)
+
+[Demo](/examples/elmish-subapps)
+
+The proof-of-concept example of applying [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/)
+for reusing existing reagent-mvsa apps when building a bigger app.
+It's a debatable design pattern because of the resulting code complexity, so use it with caution.
+
+In this project [counter app](#counter) and [friend list app](#friend-list) instances are "statically" added to the app spec.
+Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.
+
 # Elm-ish Counter List
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/elmish-counter-list)
 
@@ -61,5 +73,6 @@ Demonstrates how to dispatch new signals from app controller and also features:
 
 The proof-of-concept example of applying [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/)
 for reusing existing reagent-mvsa apps when building a bigger app.
-In this project [counter app](#counter) instances are created and removed dynamically.
 It's a debatable design pattern because of the resulting code complexity, so use it with caution.
+
+In this example [counter app](#counter) instances are created and removed dynamically after app is started.

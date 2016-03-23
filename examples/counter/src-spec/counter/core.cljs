@@ -1,5 +1,5 @@
-; namespace is extracted into a separate src folder in order to be reused in elmish-counter-list example
-(ns spec.core
+; namespace is extracted into a separate src folder in order to be reused in elm-ish architecture examples
+(ns counter.core
   (:require [reagent.core]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -9,6 +9,10 @@
 (defn control
   [model signal _dispatch-signal dispatch-action]
   (match signal
+         ; start and stop are required because counter is used as a subapp in another example
+         :on-start nil
+         :on-stop nil
+
          :on-increment
          (dispatch-action :increment)
 
