@@ -82,7 +82,7 @@
 
              :on-stop
              (do
-               #(@unlisten)
+               (@unlisten)
 
                (app-control model signal dispatch-signal dispatch-action))
 
