@@ -51,6 +51,8 @@
   [model signal dispatch-signal dispatch-action]
   (println "signal =" signal)
   (match signal
+         ; in a more complex app we would also have to dispatch :on-start/:on-stop on inserting/removing subapps
+         ; here we omit this because counter app has no start/stop code
          :on-insert (dispatch-action :insert)
          :on-remove (dispatch-action :remove)
 

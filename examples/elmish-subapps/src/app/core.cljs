@@ -91,11 +91,10 @@
         app-spec (-> (new-spec history friend-list-api/search)
                      logging/add)
         app (mvsa/app app-spec)
-        [app-view-model app-view] (mvsa/connect-ui app
-                                                   (-> view-model
-                                                       (subapps/include-view-model :friend-list-subapp friend-list/view-model)
-                                                       (subapps/include-view-model :counter-subapp counter/view-model))
-                                                   view)]
+        view-model (-> view-model
+                       (subapps/include-view-model :friend-list-subapp friend-list/view-model)
+                       (subapps/include-view-model :counter-subapp counter/view-model))
+        [app-view-model app-view] (mvsa/connect-ui app view-model view)]
     ((:dispatch-signal app) :on-start)
 
     (r/render app-view (.getElementById js/document "root"))
