@@ -74,6 +74,10 @@
 
                (let [token (reaction (::token @model))]
                  (run!
+                   ; hack: assertion prevents the infinite loop which can occur on schema validation in debugger middleware
+                   ; see https://github.com/reagent-project/reagent/issues/223 for the origin of the problem
+                   ; also see https://github.com/reagent-project/reagent/issues/222 on why this assert will not be logged
+                   (assert @token)
                    (replace-token history @token))))
 
              :on-stop
