@@ -4,7 +4,8 @@
 
 (defn add
   "Middleware will validate the model on every change using the specified schema.
-  Throws an exception if validation fails."
+  Throws an exception if validation fails.
+  Add it as close to spec as possible in order to not propagate the invalid model to other middlewares."
   [spec schema]
   (assoc spec :control
               (fn [model signal dispatch-signal dispatch-action]
