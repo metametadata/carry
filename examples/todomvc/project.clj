@@ -14,15 +14,11 @@
                  [prismatic/schema "1.0.5"]
                  [cljsjs/jquery-ui "1.11.3-1"]
                  [cljsjs/filesaverjs "1.1.20151003-0"]
-                 [binaryage/devtools "0.5.2"]
-
-                 ; for tests:
-                 #_[org.clojure/test.check "0.9.0"]
-                 #_[com.gfredericks/test.chuck "0.2.5"]]
+                 [binaryage/devtools "0.5.2"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]
-            #_[lein-doo "0.1.6"]]
+            [lein-doo "0.1.6"]]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
@@ -47,13 +43,13 @@
                                        :compiler-stats true
                                        :parallel-build false}}
 
-                       #_{:id           "test"
-                          :source-paths ["src/frontend" "test"]
-                          :compiler     {:main          'unit.runner
-                                         :output-to     "resources/private/js/compiled/testable.js"
-                                         :output-dir    "resources/private/js/compiled/out"
-                                         :optimizations :none
-                                         }}]}
+                       {:id           "test"
+                        :source-paths ["src" "../../src" "../_common" "test"]
+                        :compiler     {:main          'unit.runner
+                                       :output-to     "resources/private/js/compiled/testable.js"
+                                       :output-dir    "resources/private/js/compiled/out"
+                                       :optimizations :none
+                                       }}]}
 
   :figwheel {
              ;; :http-server-root "public" ;; default and assumes "resources"

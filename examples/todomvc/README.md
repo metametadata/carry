@@ -29,3 +29,11 @@ To create a production build run:
 
 And open your browser in `resources/public/index.html`. You will not
 get live reloading, nor a REPL.
+
+To run tests once:
+
+    lein doo phantom test once
+
+or quickly re-run on code changes:
+
+    lein doo phantom test auto
