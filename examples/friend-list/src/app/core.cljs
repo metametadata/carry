@@ -16,7 +16,7 @@
   (let [history (routing/new-history)
         storage hp/local-storage
         app-spec (-> (friend-list/new-spec history api/search)
-                     (devtools/add-debugger storage :debugger-model)
+                     (devtools/add-debugger storage :friend-list-debugger-model)
                      logging/add)
         app (mvsa/app app-spec)
         [app-view-model app-view] (mvsa/connect-ui app friend-list/view-model friend-list/view)

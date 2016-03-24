@@ -20,8 +20,8 @@
         storage hp/local-storage
 
         ; define spec
-        app-spec (-> (spec/new-spec history storage ["Finish this project" "Take a bath"])
-                     (devtools/add-debugger storage :debugger-model)
+        app-spec (-> (spec/new-spec history storage :todomvc-model ["Finish this project" "Take a bath"])
+                     (devtools/add-debugger storage :todomvc-debugger-model)
                      logging/add)
 
         ; create app from spec
