@@ -23,7 +23,7 @@
   on-search-success-updates-friends
   (f/with-fakes
     (let [control (friend-list/new-control :_history :_search)
-          model (reaction (assoc friend-list.core/initial-model :query :_current-query))
+          model (reaction (friend-list/reconcile friend-list/initial-model [:set-query :_current-query]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
@@ -37,7 +37,7 @@
   on-search-success-ignores-outdated-results
   (f/with-fakes
     (let [control (friend-list/new-control :_history :_search)
-          model (reaction (assoc friend-list.core/initial-model :query :_current-query))
+          model (reaction (friend-list/reconcile friend-list/initial-model [:set-query :_current-query]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
