@@ -6,20 +6,22 @@
 
 (deftest
   tracks-query
-  (let [model (r/atom friend-list/initial-model)
+  (let [spec (friend-list/new-spec :_history :_search)
+        model (r/atom (:initial-model spec))
         view-model (friend-list/view-model model)]
     ; act
-    (swap! model friend-list/reconcile [:set-query :_new-query])
+    (swap! model (:reconcile spec) [:set-query :_new-query])
 
     ; assert
     (is (= :_new-query @(:query view-model)))))
 
 (deftest
   tracks-friends
-  (let [model (r/atom friend-list/initial-model)
+  (let [spec (friend-list/new-spec :_history :_search)
+        model (r/atom (:initial-model spec))
         view-model (friend-list/view-model model)]
     ; act
-    (swap! model friend-list/reconcile [:set-friends :_new-friends])
+    (swap! model (:reconcile spec) [:set-friends :_new-friends])
 
     ; assert
     (is (= :_new-friends @(:friends view-model)))))

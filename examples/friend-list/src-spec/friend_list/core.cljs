@@ -7,12 +7,12 @@
             [cljs.core.match :refer-macros [match]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def initial-model
+(def -initial-model
   {:query   ""
    :friends nil})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn new-control
+(defn -new-control
   [history api-search]
   (let [search (fn [q dispatch-signal] (api-search q #(dispatch-signal [:on-search-success q %])))
         search-on-input (debounce (fn [q dispatch-signal]
@@ -42,7 +42,7 @@
                         "because current query is" (pr-str (:query @model))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn reconcile
+(defn -reconcile
   [model action]
   (match action
          [:set-query q]
@@ -90,7 +90,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn new-spec
   [history api-search]
-  (-> {:initial-model initial-model
-       :control       (new-control history api-search)
-       :reconcile     reconcile}
+  (-> {:initial-model -initial-model
+       :control       (-new-control history api-search)
+       :reconcile     -reconcile}
       (routing/add history)))
