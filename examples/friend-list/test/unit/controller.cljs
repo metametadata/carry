@@ -1,8 +1,7 @@
 (ns unit.controller
   (:require
     [friend-list.core :as friend-list]
-    [cljs.test :refer-macros [deftest is testing]]
-    [cljs.core.match :refer-macros [match]]
+    [cljs.test :refer-macros [deftest is]]
     [clj-fakes.core :as f :include-macros true])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
