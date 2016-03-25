@@ -17,8 +17,7 @@
                  [binaryage/devtools "0.5.2"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
-            [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]
-            [lein-doo "0.1.6"]]
+            [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
@@ -41,15 +40,7 @@
                                        :optimizations  :advanced
                                        :pretty-print   false
                                        :compiler-stats true
-                                       :parallel-build false}}
-
-                       {:id           "test"
-                        :source-paths ["src" "../../src" "../_common" "test"]
-                        :compiler     {:main          'unit.runner
-                                       :output-to     "resources/private/js/compiled/testable.js"
-                                       :output-dir    "resources/private/js/compiled/out"
-                                       :optimizations :none
-                                       }}]}
+                                       :parallel-build false}}]}
 
   :figwheel {
              ;; :http-server-root "public" ;; default and assumes "resources"

@@ -14,10 +14,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn new-control
   [history api-search]
-  (let [search (fn [q dispatch-signal]
-                 (routing/set-token history q)
-                 (api-search q #(dispatch-signal [:-on-search-success q %])))
-        debounced-search (debounce search 300)]
+  (let [search (fn [q dispatch-signal] (api-search q #(dispatch-signal [:on-search-success q %])))
+        search-on-input (debounce (fn [q dispatch-signal]
+                                    (routing/set-token history q)
+                                    (search q dispatch-signal))
+                                  300)]
     (fn control
       [model signal dispatch-signal dispatch-action]
       (match signal
@@ -27,17 +28,17 @@
              [:on-input q]
              (do
                (dispatch-action [:set-query q])
-               (debounced-search q dispatch-signal))
+               (search-on-input q dispatch-signal))
 
              [::routing/on-navigate token]
              (do
                (dispatch-action [:set-query token])
                (search token dispatch-signal))
 
-             [:-on-search-success q friends]
+             [:on-search-success q friends]
              (if (= (:query @model) q)
                (dispatch-action [:set-friends friends])
-               (println "ignore response" (pr-str q)
+               (println "ignore response for" (pr-str q)
                         "because current query is" (pr-str (:query @model))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -74,7 +75,7 @@
 (defn -friend-list
   [friends]
   [:ul {:style {:list-style-type "none"
-                :padding-left 0}}
+                :padding-left    0}}
    (for [f friends]
      ^{:key (:id f)}
      [:li {:style {:font-size 17}}

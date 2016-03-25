@@ -1,10 +1,7 @@
 (ns unit.runner
   (:require [cljs.test]
             [doo.runner :refer-macros [doo-tests]]
-            [unit.todos]))
-
-; for debugging using println
-(enable-console-print!)
+            [unit.controller]))
 
 (doo-tests
-  'unit.todos)
+  'unit.controller)

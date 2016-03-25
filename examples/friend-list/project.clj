@@ -14,10 +14,14 @@
                  [cljsjs/filesaverjs "1.1.20151003-0"]
                  [binaryage/devtools "0.5.2"]
 
-                 [org.clojure/core.match "0.3.0-alpha4"]]
+                 [org.clojure/core.match "0.3.0-alpha4"]
+
+                 ; for tests
+                 [clj-fakes "0.4.0"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
-            [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]]
+            [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]
+            [lein-doo "0.1.6"]]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
@@ -40,7 +44,14 @@
                                        :optimizations  :advanced
                                        :pretty-print   false
                                        :compiler-stats true
-                                       :parallel-build false}}]}
+                                       :parallel-build false}}
+
+                       {:id           "test"
+                        :source-paths ["src" "../../src" "src-spec" "../_common" "test"]
+                        :compiler     {:main          'unit.runner
+                                       :output-to     "resources/private/js/compiled/testable.js"
+                                       :output-dir    "resources/private/js/compiled/out"
+                                       :optimizations :none}}]}
 
   :figwheel {
              ;; :http-server-root "public" ;; default and assumes "resources"
