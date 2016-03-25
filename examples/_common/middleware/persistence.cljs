@@ -13,7 +13,7 @@
     [model signal dispatch-signal dispatch-action]
     (letfn [(load-from-storage
               [_model-reaction loaded-model dispatch-signal]
-              (dispatch-signal [::-on-load-from-storage key loaded-model]))]
+              (dispatch-signal [::on-load-from-storage key loaded-model]))]
       (match signal
              :on-start
              (do
@@ -26,7 +26,7 @@
 
                (run! (-save storage key blacklist @model)))
 
-             [::-on-load-from-storage key loaded-model]
+             [::on-load-from-storage key loaded-model]
              (dispatch-action [::-load-from-storage key loaded-model])
 
              :else

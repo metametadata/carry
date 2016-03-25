@@ -69,8 +69,8 @@
                (println "[routing] start with token" (pr-str (::token @model)))
                (reset! unlisten
                        (listen history
-                               #(dispatch-signal [::-on-browser-event %])
-                               #(dispatch-signal [::-on-api-event %])))
+                               #(dispatch-signal [::on-browser-event %])
+                               #(dispatch-signal [::on-api-event %])))
 
                (let [token (reaction (::token @model))]
                  (run!
@@ -86,12 +86,12 @@
 
                (app-control model signal dispatch-signal dispatch-action))
 
-             [::-on-browser-event token]
+             [::on-browser-event token]
              (do
                (dispatch-action [::-set-token token])
                (dispatch-signal [::on-navigate token]))
 
-             [::-on-api-event token]
+             [::on-api-event token]
              (dispatch-action [::-set-token token])
 
              :else
