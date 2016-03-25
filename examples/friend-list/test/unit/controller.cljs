@@ -9,11 +9,11 @@
   on-navigation-updates-query-and-searches
   (f/with-fakes
     (let [search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
-          spec (friend-list/new-spec :_history search)
+          {:keys [control]} (friend-list/new-spec :_history search)
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
-      ((:control spec) :_model [:middleware.routing/on-navigate :_new-token] dispatch-signal dispatch-action)
+      (control :_model [:middleware.routing/on-navigate :_new-token] dispatch-signal dispatch-action)
 
       ; assert
       (is (f/was-called-once dispatch-action [[:set-query :_new-token]]))
@@ -22,12 +22,12 @@
 (deftest
   on-search-success-updates-friends
   (f/with-fakes
-    (let [spec (friend-list/new-spec :_history :_search)
-          model (reaction ((:reconcile spec) (:initial-model spec) [:set-query :_current-query]))
+    (let [{:keys [initial-model control reconcile]} (friend-list/new-spec :_history :_search)
+          model (reaction (reconcile initial-model [:set-query :_current-query]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
-      ((:control spec) model [:on-search-success :_current-query :_found-friends] dispatch-signal dispatch-action)
+      (control model [:on-search-success :_current-query :_found-friends] dispatch-signal dispatch-action)
 
       ; assert
       (is (f/was-called-once dispatch-action [[:set-friends :_found-friends]]))
@@ -36,12 +36,12 @@
 (deftest
   on-search-success-ignores-outdated-results
   (f/with-fakes
-    (let [spec (friend-list/new-spec :_history :_search)
-          model (reaction ((:reconcile spec) (:initial-model spec) [:set-query :_current-query]))
+    (let [{:keys [initial-model control reconcile]} (friend-list/new-spec :_history :_search)
+          model (reaction (reconcile initial-model [:set-query :_current-query]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
-      ((:control spec) model [:on-search-success :_outdated-query :_found-friends] dispatch-signal dispatch-action)
+      (control model [:on-search-success :_outdated-query :_found-friends] dispatch-signal dispatch-action)
 
       ; assert
       (is (f/was-not-called dispatch-action))

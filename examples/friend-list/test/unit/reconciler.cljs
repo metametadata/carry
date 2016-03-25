@@ -5,12 +5,12 @@
 
 (deftest
   sets-query
-  (let [spec (friend-list/new-spec :_history :_search)]
+  (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)]
     (is (= :_new-query
-           (:query ((:reconcile spec) (:initial-model spec) [:set-query :_new-query]))))))
+           (:query (reconcile initial-model [:set-query :_new-query]))))))
 
 (deftest
   sets-friends
-  (let [spec (friend-list/new-spec :_history :_search)]
+  (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)]
     (is (= :_new-friends
-           (:friends ((:reconcile spec) (:initial-model spec) [:set-friends :_new-friends]))))))
+           (:friends (reconcile initial-model [:set-friends :_new-friends]))))))
