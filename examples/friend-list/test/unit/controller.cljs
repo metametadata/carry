@@ -1,7 +1,6 @@
 (ns unit.controller
   (:require
     [friend-list.core :as friend-list]
-    [middleware.routing :as routing]
     [cljs.test :refer-macros [deftest is testing]]
     [cljs.core.match :refer-macros [match]]
     [clj-fakes.core :as f :include-macros true])
@@ -15,7 +14,7 @@
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
-      (control :_model [::routing/on-navigate :_new-token] dispatch-signal dispatch-action)
+      (control :_model [:middleware.routing/on-navigate :_new-token] dispatch-signal dispatch-action)
 
       ; assert
       (is (f/was-called-once dispatch-action [[:set-query :_new-token]]))
