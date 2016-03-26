@@ -19,6 +19,7 @@ Inspired by this [problem](https://github.com/DerekCuevas/friend-list) about dyn
 Demonstrates how to dispatch new signals from app controller and also features:
 
 * routing
+* model validation using [Schema](https://github.com/plumatic/schema)
 * time travel debugger
 * logging to console
 * unit tests
