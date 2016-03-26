@@ -46,3 +46,10 @@
   (let [app-view-model (view-model model)
         app-view [view app-view-model dispatch-signal]]
     [app-view-model app-view]))
+
+(defn track-keys
+  "Returns a map containing Reagent reactions to map entries specified by keys."
+  [map-ratom keyseq]
+  (into {}
+        (for [key keyseq]
+          [key (reaction (get @map-ratom key))])))

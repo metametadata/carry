@@ -1,7 +1,7 @@
 ; namespace is extracted into a separate src folder in order to be reused in elm-ish architecture examples
 (ns friend-list.core
   (:require [middleware.routing :as routing]
-            [reagent-mvsa.helpers :as helpers]
+            [reagent-mvsa.core :as mvsa]
             [reagent.core :as r]
             [goog.functions :refer [debounce]]
             [cljs.core.match :refer-macros [match]]))
@@ -54,7 +54,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn view-model
   [model]
-  (helpers/track-keys model #{:query :friends}))
+  (mvsa/track-keys model #{:query :friends}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn -search-field

@@ -1,6 +1,5 @@
 (ns middleware.devtools
   (:require [reagent-mvsa.core :as mvsa]
-            [reagent-mvsa.helpers :as helpers]
             [middleware.persistence :as persistence]
             [middleware.schema :as schema-middleware]
             [schema.core :as schema]
@@ -264,7 +263,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -view-model
   [model]
-  (helpers/track-keys (reaction (::debugger @model))
+  (mvsa/track-keys (reaction (::debugger @model))
                       [:initial-model :persist? :visible? :toggle-visibility-shortcut :signal-events :action-events]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View

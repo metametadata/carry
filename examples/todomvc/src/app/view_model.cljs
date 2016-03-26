@@ -1,6 +1,6 @@
 (ns app.view-model
   (:require [middleware.routing :as routing]
-            [reagent-mvsa.helpers :as helpers])
+            [reagent-mvsa.core :as mvsa])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (defn -visibility
@@ -31,7 +31,7 @@
         all-todos (reaction (:todos @model))
         visibility (reaction (-visibility @visibility-spec @model))]
     (-> model
-        (helpers/track-keys [:field])
+        (mvsa/track-keys [:field])
         (assoc :visibility-spec visibility-spec
                :visibility visibility
                :has-todos? (reaction (-> @all-todos count pos?))

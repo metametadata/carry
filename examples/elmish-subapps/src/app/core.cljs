@@ -6,7 +6,6 @@
             [middleware.routing :as routing]
             [middleware.logging :as logging]
             [reagent-mvsa.core :as mvsa]
-            [reagent-mvsa.helpers :as helpers]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -45,7 +44,7 @@
 (defn view-model
   [model]
   (-> model
-      (helpers/track-keys [:friend-list-visible? :counter-visible?])
+      (mvsa/track-keys [:friend-list-visible? :counter-visible?])
       (assoc :app-model-log (reaction (pr-str @model)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
