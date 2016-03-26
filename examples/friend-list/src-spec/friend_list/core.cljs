@@ -1,12 +1,23 @@
 ; namespace is extracted into a separate src folder in order to be reused in elm-ish architecture examples
 (ns friend-list.core
   (:require [middleware.routing :as routing]
+            [middleware.schema :as schema]
+            [schema.core :as s]
             [reagent-mvsa.core :as mvsa]
             [reagent.core :as r]
             [goog.functions :refer [debounce]]
             [cljs.core.match :refer-macros [match]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def Schema
+  {:query   s/Str
+   :friends [{:id       s/Int
+              :name     s/Str
+              :username s/Str}]
+
+   ; allow any additional keys in order to support keys added by middlewares
+   s/Any    s/Any})
+
 (def -initial-model
   {:query   ""
    :friends nil})
@@ -93,4 +104,5 @@
   (-> {:initial-model -initial-model
        :control       (-new-control history api-search)
        :reconcile     -reconcile}
+      (schema/add Schema)
       (routing/add history)))
