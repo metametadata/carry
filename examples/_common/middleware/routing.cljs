@@ -88,11 +88,11 @@
 
              [::on-browser-event token]
              (do
-               (dispatch-action [::-set-token token])
+               (dispatch-action [::set-token token])
                (dispatch-signal [::on-navigate token]))
 
              [::on-api-event token]
-             (dispatch-action [::-set-token token])
+             (dispatch-action [::set-token token])
 
              :else
              (app-control model signal dispatch-signal dispatch-action)))))
@@ -104,7 +104,7 @@
   (fn reconcile
     [model action]
     (match action
-           [::-set-token token]
+           [::set-token token]
            (assoc model ::token token)
 
            :else

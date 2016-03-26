@@ -27,7 +27,7 @@
                (run! (-save storage key blacklist @model)))
 
              [::on-load-from-storage key loaded-model]
-             (dispatch-action [::-load-from-storage key loaded-model])
+             (dispatch-action [::load-from-storage key loaded-model])
 
              :else
              (app-control model signal dispatch-signal dispatch-action)))))
@@ -38,7 +38,7 @@
     [model action]
     (match action
            ; it's important to apply blacklist using the most actual model, that's why we do it in action
-           [::-load-from-storage key loaded-model]
+           [::load-from-storage key loaded-model]
            (merge loaded-model (select-keys model blacklist))
 
            :else
