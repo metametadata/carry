@@ -116,7 +116,7 @@
 
   After start it begins catching browser history events and updates ::token in model accordingly.
   Sends [::on-navigate token] signal to app on browser-initiated history events.
-  If ::token changes in model (e.g. by toggling action in debugger), then current url is updated using new token.
+  If ::token changes in model (e.g. by toggling action in debugger), then current url is replaced using new token.
   App can set initial ::token in its initial-model."
   [spec history]
   (-> spec
