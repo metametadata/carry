@@ -4,9 +4,9 @@
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-(def initial-model {:val 0})
+(def -initial-model {:val 0})
 
-(defn control
+(defn -control
   [model signal _dispatch-signal dispatch-action]
   (match signal
          ; start and stop are required because counter is used as a subapp in another example
@@ -26,7 +26,7 @@
          :on-increment-async
          (.setTimeout js/window #(dispatch-action :increment) 1000)))
 
-(defn reconcile
+(defn -reconcile
   [model action]
   (match action
          :increment (update model :val inc)
@@ -49,6 +49,6 @@
    " "
    [:button {:on-click #(dispatch :on-increment-async)} "Increment async"]])
 
-(def spec {:initial-model initial-model
-           :control       control
-           :reconcile     reconcile})
+(def spec {:initial-model -initial-model
+           :control       -control
+           :reconcile     -reconcile})

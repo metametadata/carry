@@ -47,36 +47,40 @@
        second))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn control
-  [model signal dispatch-signal dispatch-action]
-  (println "signal =" signal)
-  (match signal
-         ; in a more complex app we would also have to dispatch :on-start/:on-stop on inserting/removing subapps
-         ; here we omit this because counter app has no start/stop code
-         :on-insert (dispatch-action :insert)
-         :on-remove (dispatch-action :remove)
+(defn new-control
+  [counter-control]
+  (fn control
+    [model signal dispatch-signal dispatch-action]
+    (println "signal =" signal)
+    (match signal
+           ; in a more complex app we would also have to dispatch :on-start/:on-stop on inserting/removing subapps
+           ; here we omit this because counter app has no start/stop code
+           :on-insert (dispatch-action :insert)
+           :on-remove (dispatch-action :remove)
 
-         [[:on-counter-signal id] s]
-         (counter/control (reaction (get-counter @model id))
-                          s
-                          (tagged dispatch-signal [:on-counter-signal id])
-                          (tagged dispatch-action [:counter-action id]))))
+           [[:on-counter-signal id] s]
+           (counter-control (reaction (get-counter @model id))
+                            s
+                            (tagged dispatch-signal [:on-counter-signal id])
+                            (tagged dispatch-action [:counter-action id])))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn reconcile
-  [model action]
-  (println "  action =" action)
-  (match action
-         :insert
-         (-> model
-             (update :counters concat [[(:next-id model) counter/initial-model]])
-             (update :next-id inc))
+(defn new-reconcile
+  [counter-initial-model counter-reconcile]
+  (fn reconcile
+    [model action]
+    (println "  action =" action)
+    (match action
+           :insert
+           (-> model
+               (update :counters concat [[(:next-id model) counter-initial-model]])
+               (update :next-id inc))
 
-         :remove
-         (update model :counters rest)
+           :remove
+           (update model :counters rest)
 
-         [[:counter-action id] a]
-         (update-counter model id counter/reconcile a)))
+           [[:counter-action id] a]
+           (update-counter model id counter-reconcile a))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #_(defn view-model
@@ -128,8 +132,8 @@
 (defn main
   []
   (let [app-spec {:initial-model initial-model
-                  :control       control
-                  :reconcile     reconcile}
+                  :control       (new-control (:control counter/spec))
+                  :reconcile     (new-reconcile (:initial-model counter/spec) (:reconcile counter/spec))}
         app (mvsa/app app-spec)
         [app-view-model app-view] (mvsa/connect-ui app view-model view)]
     (r/render app-view (.getElementById js/document "root"))
