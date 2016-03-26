@@ -7,7 +7,6 @@
     [clj-fakes.context :as fc :include-macros true])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-
 (deftest
   on-navigation-updates-query-and-searches
   (f/with-fakes
@@ -72,11 +71,14 @@
                    (done)))]
       (f ctx done))))
 
+; sets the timing precision in ms, make it bigger if async tests are flaky
+(def delta 5)
+
 (deftest
-  on-input-updates-query-and-will-eventually-update-token-and-search
+  on-input-updates-query-and-debounces-token-setting-and-searching
   (with-fakes-async
     (fn [ctx done]
-      (let [search (fc/fake ctx [[:_new-token f/any?] #(%2 :_found-friends)])
+      (let [search (fc/fake ctx [[:_latest-token f/any?] #(%2 :_found-friends)])
             history (fc/reify-nice-fake ctx routing/HistoryProtocol
                                         (set-token :recorded-fake))
             {:keys [control]} (friend-list/new-spec history search)
@@ -84,21 +86,27 @@
             dispatch-action (fc/recorded-fake ctx)
             expected-debounce-interval 300]
         ; act
-        (control :_model [:on-input :_new-token] dispatch-signal dispatch-action)
+        (control :_model [:on-input :_new-token1] dispatch-signal dispatch-action)
+        (control :_model [:on-input :_new-token2] dispatch-signal dispatch-action)
+        (control :_model [:on-input :_latest-token] dispatch-signal dispatch-action)
 
         ; assert
-        (is (fc/was-called-once ctx dispatch-action [[:set-query :_new-token]]))
+        (is (= 3 (count (fc/calls ctx dispatch-action))))
+        (is (fc/were-called-in-order ctx
+                                     dispatch-action [[:set-query :_new-token1]]
+                                     dispatch-action [[:set-query :_new-token2]]
+                                     dispatch-action [[:set-query :_latest-token]]))
 
         (.setTimeout js/window
                      #(testing "just before debounce"
                        (is (fc/method-was-not-called ctx routing/set-token history))
                        (is (fc/was-not-called ctx dispatch-signal)))
-                     (dec expected-debounce-interval))
+                     (- expected-debounce-interval delta))
 
         (.setTimeout js/window
                      #(do
                        (testing "just after debounce"
-                         (is (fc/method-was-called-once ctx routing/set-token history [:_new-token]))
-                         (is (fc/was-called-once ctx dispatch-signal [[:on-search-success :_new-token :_found-friends]])))
+                         (is (fc/method-was-called-once ctx routing/set-token history [:_latest-token]))
+                         (is (fc/was-called-once ctx dispatch-signal [[:on-search-success :_latest-token :_found-friends]])))
                        (done))
-                     (inc expected-debounce-interval))))))
+                     (+ expected-debounce-interval delta))))))
