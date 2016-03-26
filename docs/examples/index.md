@@ -21,6 +21,7 @@ Demonstrates how to dispatch new signals from app controller and also features:
 * routing
 * time travel debugger
 * logging to console
+* unit tests
 
 # TodoMVC
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/todomvc)
