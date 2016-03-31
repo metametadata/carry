@@ -1,5 +1,6 @@
 (ns app.view
-  (:require [reagent.core :as r]))
+  (:require [middleware.routing :as routing]
+            [reagent.core :as r]))
 
 (defn -enter-key? [e] (= (.-keyCode e) 13))
 (defn -escape-key? [e] (= (.-keyCode e) 27))
@@ -69,8 +70,8 @@
    [:ul.filters
     (for [{:keys [key title href]} visibility-spec]
       ^{:key key}
-      [:li [:a {:href  href
-                :class (if (= visibility key) "selected")}
+      [:li [routing/link dispatch {:href  href
+                                   :class (if (= visibility key) "selected")}
             title]])]
 
    (when has-completed-todos?

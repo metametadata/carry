@@ -1,6 +1,6 @@
 (ns app.spec
   (:require [app.model :as model]
-            [app.controller :refer [control]]
+            [app.controller :refer [new-control]]
             [app.reconciler :refer [reconcile]]
             [middleware.schema :as schema]
             [middleware.routing :as routing]
@@ -10,7 +10,7 @@
 (defn new-spec
   [history storage storage-key todo-titles]
   (-> {:initial-model (model/new-model todo-titles)
-       :control       control
+       :control       (new-control history)
        :reconcile     reconcile}
       (schema/add model/Schema)
 

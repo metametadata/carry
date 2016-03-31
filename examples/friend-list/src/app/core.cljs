@@ -13,7 +13,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn main
   []
-  (let [history (routing/new-history)
+  (let [history (routing/new-hash-history)
         storage hp/local-storage
         app-spec (-> (friend-list/new-spec history api/search)
                      (devtools/add-debugger storage :friend-list-debugger-model)

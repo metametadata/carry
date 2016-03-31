@@ -1,8 +1,10 @@
 (ns middleware.routing
   (:require [cljs.core.match :refer-macros [match]]
             [goog.events]
-            [goog.history.EventType :as EventType])
-  (:import goog.history.Html5History)
+            [goog.history.EventType :as EventType]
+            [clojure.string])
+  (:import goog.history.Html5History
+           [goog History])
   (:require-macros [reagent.ratom :refer [reaction run!]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar
@@ -16,7 +18,7 @@
   (replace-token [this token] "Replace token firing API event.")
   (set-token [this token] "Push token firing API event."))
 
-(defrecord History [-goog-history]
+(defrecord -History [-goog-history]
   HistoryProtocol
   (listen
     [this on-browser-event on-api-event]
@@ -32,27 +34,46 @@
     (.getToken -goog-history))
 
   (replace-token
-    [this new-token]
-    ; the check fixes a case when setting already set "" token leads to unnecessarily adding "/#" to url
-    (when (not= new-token (token this))
-      (.replaceToken -goog-history new-token)))
+    [_this new-token]
+    (.replaceToken -goog-history new-token))
 
   (set-token
     [_this token]
     (.setToken -goog-history token)))
 
-(defn new-history
+(defn new-legacy-hash-history
+  "For history management using hashes. Works in Opera Mini."
+  []
+  (let [history (History.)]
+    (.setEnabled history true)
+    (->-History history)))
+
+(defn new-hash-history
+  "For history management using onhashchange. Will not correctly in Opera Mini: http://caniuse.com/#search=hash"
   []
   (let [history (Html5History.)]
+    (.setUseFragment history true)
     (.setEnabled history true)
-    (->History history)))
+    (->-History history)))
+
+(defn new-history
+  "For history management using pushState. Supported browsers: http://caniuse.com/#search=pushstate"
+  []
+  (let [history (Html5History.)]
+    ; gets rid of "Uncaught SecurityError: Failed to execute 'pushState' on 'History': A history state object with URL
+    ; 'http://active/' cannot be created in a document with origin 'http://localhost:3449' and URL 'http://localhost:3449/'"
+    (.setPathPrefix history "")
+
+    (.setUseFragment history false)
+    (.setEnabled history true)
+    (->-History history)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 ;;; Init
 (defn -wrap-initial-model
-  "Sets ::token to empty string if app didn't already set it."
   [app-initial-model]
-  (merge {::token ""} app-initial-model))
+  ; set some initial token - it will be used on reset from debugger
+  (assoc app-initial-model ::token "/"))
 
 ;;; Control
 (defn -wrap-control
@@ -66,19 +87,17 @@
              (do
                (app-control model signal dispatch-signal dispatch-action)
 
-               (println "[routing] start with token" (pr-str (::token @model)))
+               (println "[routing] start")
+               (add-watch model ::token-watcher
+                          (fn [_key _atom old-state new-state]
+                            (when (and (not= (::token old-state) (::token new-state))
+                                       (not= (::token new-state) (token history)))
+                              (replace-token history (::token new-state)))))
+
                (reset! unlisten
                        (listen history
                                #(dispatch-signal [::on-browser-event %])
-                               #(dispatch-signal [::on-api-event %])))
-
-               (let [token (reaction (::token @model))]
-                 (run!
-                   ; hack: assertion prevents the infinite loop which can occur on schema validation in debugger middleware
-                   ; see https://github.com/reagent-project/reagent/issues/223 for the origin of the problem
-                   ; also see https://github.com/reagent-project/reagent/issues/222 on why this assert will not be logged
-                   (assert @token)
-                   (replace-token history @token))))
+                               #(dispatch-signal [::on-api-event %]))))
 
              :on-stop
              (do
@@ -93,6 +112,13 @@
 
              [::on-api-event token]
              (dispatch-action [::set-token token])
+
+             [::on-link-click href]
+             (let [token (if (clojure.string/starts-with? href "#")
+                           ; hrefs can contain hashes, token - can't
+                           (subs href 1)
+                           href)]
+               (set-token history token))
 
              :else
              (app-control model signal dispatch-signal dispatch-action)))))
@@ -115,11 +141,36 @@
   "Routing middleware which allows app react to history events by observing model changes.
 
   After start it begins catching browser history events and updates ::token in model accordingly.
-  Sends [::on-navigate token] signal to app on browser-initiated history events.
-  If ::token changes in model (e.g. by toggling action in debugger), then current url is replaced using new token.
-  App can set initial ::token in its initial-model."
+  Sends [::on-navigate token] signal to app after handling browser-initiated history event (e.g. when user clicks back button or changes the hash).
+  If ::token changes in model (e.g. by toggling action in debugger), then current url is replaced using new token."
   [spec history]
+  {:pre [(map? (:initial-model spec)) (fn? (:control spec)) (fn? (:reconcile spec)) (satisfies? HistoryProtocol history)]}
   (-> spec
       (update :initial-model -wrap-initial-model)
       (update :control -wrap-control history)
       (update :reconcile -wrap-reconcile)))
+
+;;; Link
+(defn -pure-click?
+  "Returns false if the user did a middle-click, right-click, or used a modifier"
+  [e]
+  (not (or (.-altKey e)
+           (.-ctrlKey e)
+           (.-metaKey e)
+           (.-shiftKey e)
+           (not (zero? (.-button e))))))
+
+(defn -on-click
+  [e href dispatch]
+  (when (-pure-click? e)
+    (.preventDefault e)
+    (dispatch [::on-link-click href])))
+
+(defn link
+  "Link component which changes current URL without sending request to server.
+  Requires routing middleware to be added.
+
+  Inspired by: https://github.com/STRML/react-router-component/blob/master/lib/Link.js"
+  [dispatch {:keys [href] :as attrs} & body]
+  (into [:a (assoc attrs :on-click #(-on-click % href dispatch))]
+        body))

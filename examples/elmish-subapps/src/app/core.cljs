@@ -86,7 +86,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn main
   []
-  (let [history (routing/new-history)
+  (let [history (routing/new-hash-history)
         app-spec (-> (new-spec history friend-list-api/search)
                      logging/add)
         app (mvsa/app app-spec)

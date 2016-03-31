@@ -1,6 +1,6 @@
 (ns app.core
   (:require [app.spec :as spec]
-            [app.view-model :refer [view-model]]
+            [app.view-model :refer [new-view-model]]
             [app.view :refer [view]]
             [middleware.routing :as routing]
             [middleware.devtools :as devtools]
@@ -16,7 +16,8 @@
   (println "Hi.")
 
   (let [; define external dependencies
-        history (routing/new-history)
+        use-hash-urls? true
+        history (if use-hash-urls? (routing/new-hash-history) (routing/new-history))
         storage hp/local-storage
 
         ; define spec
@@ -28,7 +29,7 @@
         app (mvsa/app app-spec)
 
         ; create GUI
-        [app-view-model app-view] (mvsa/connect-ui app view-model view)
+        [app-view-model app-view] (mvsa/connect-ui app (new-view-model use-hash-urls?) view)
 
         ; create debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]
