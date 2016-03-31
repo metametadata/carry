@@ -34,8 +34,9 @@
     (.getToken -goog-history))
 
   (replace-token
-    [_this new-token]
-    (.replaceToken -goog-history new-token))
+    [this new-token]
+    (when (not= (token this) new-token)
+      (.replaceToken -goog-history new-token)))
 
   (set-token
     [_this token]
@@ -90,8 +91,7 @@
                (println "[routing] start")
                (add-watch model ::token-watcher
                           (fn [_key _atom old-state new-state]
-                            (when (and (not= (::token old-state) (::token new-state))
-                                       (not= (::token new-state) (token history)))
+                            (when (not= (::token old-state) (::token new-state))
                               (replace-token history (::token new-state)))))
 
                (reset! unlisten
@@ -113,12 +113,14 @@
              [::on-api-event token]
              (dispatch-action [::set-token token])
 
-             [::on-link-click href]
+             [::on-link-click href replace?]
              (let [token (if (clojure.string/starts-with? href "#")
                            ; hrefs can contain hashes, token - can't
                            (subs href 1)
                            href)]
-               (set-token history token))
+               (if replace?
+                 (replace-token history token)
+                 (set-token history token)))
 
              :else
              (app-control model signal dispatch-signal dispatch-action)))))
@@ -161,16 +163,17 @@
            (not (zero? (.-button e))))))
 
 (defn -on-click
-  [e href dispatch]
+  [e href replace? dispatch]
   (when (-pure-click? e)
     (.preventDefault e)
-    (dispatch [::on-link-click href])))
+    (dispatch [::on-link-click href replace?])))
 
 (defn link
   "Link component which changes current URL without sending request to server.
   Requires routing middleware to be added.
+  Will replace current token instead of pushing if :replace? attribute is true.
 
   Inspired by: https://github.com/STRML/react-router-component/blob/master/lib/Link.js"
-  [dispatch {:keys [href] :as attrs} & body]
-  (into [:a (assoc attrs :on-click #(-on-click % href dispatch))]
+  [dispatch {:keys [href replace?] :as attrs} & body]
+  (into [:a (assoc attrs :on-click #(-on-click % href replace? dispatch))]
         body))
