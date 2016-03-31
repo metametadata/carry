@@ -250,15 +250,7 @@
                    (update-in m [::debugger :next-action-id] inc))
 
              ; looks like originating signal could be already sweeped -> create "unknown signal" to record this action
-             (reconcile model a))
-
-           ; for bare app actions (e.g. when dispatching from REPL) create an "unknown signal" event
-           :else
-           (let [[signal-id _ :as unknown-signal-event] (-signal-event (-> model ::debugger :next-signal-id) ::unknown-signal)]
-             (-> model
-                 (update-in [::debugger :signal-events] concat [unknown-signal-event])
-                 (update-in [::debugger :next-signal-id] inc)
-                 (reconcile [::app-action signal-id action]))))))
+             (reconcile model a)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -view-model
