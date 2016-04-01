@@ -16,8 +16,7 @@
   (println "Hi.")
 
   (let [; define external dependencies
-        use-hash-urls? true
-        history (if use-hash-urls? (routing/new-hash-history) (routing/new-history))
+        history (routing/new-hash-history)                  ; (routing/new-history)
         storage hp/local-storage
 
         ; define spec
@@ -28,8 +27,8 @@
         ; create app from spec
         app (mvsa/app app-spec)
 
-        ; create GUI
-        [app-view-model app-view] (mvsa/connect-ui app (new-view-model use-hash-urls?) view)
+        ; create GUI; history is passed into view model to build correct URLs
+        [app-view-model app-view] (mvsa/connect-ui app (new-view-model history) view)
 
         ; create debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]

@@ -16,8 +16,10 @@
           Fires the initial browser callback. Returns a function which stops listening.")
   (token [this] "Return current token.")
   (replace-token [this token] "Replace token firing API event.")
-  (set-token [this token] "Push token firing API event."))
+  (set-token [this token] "Push token firing API event.")
+  (token->href [this token] "Returns the href for the specified token to be used in HTML links."))
 
+; Implementation of HistoryProtocol using Closure API
 (defrecord -History [-goog-history]
   HistoryProtocol
   (listen
@@ -40,17 +42,21 @@
 
   (set-token
     [_this token]
-    (.setToken -goog-history token)))
+    (.setToken -goog-history token))
+
+  (token->href
+    [_this token]
+    (.getUrl_ -goog-history token)))
 
 (defn new-legacy-hash-history
-  "For history management using hashes. Works in Opera Mini."
+  "For history management using hashes. Should work in Opera Mini."
   []
   (let [history (History.)]
     (.setEnabled history true)
     (->-History history)))
 
 (defn new-hash-history
-  "For history management using onhashchange. Will not correctly in Opera Mini: http://caniuse.com/#search=hash"
+  "For history management using onhashchange. Will not correctly work in Opera Mini: http://caniuse.com/#search=hash"
   []
   (let [history (Html5History.)]
     (.setUseFragment history true)
@@ -73,12 +79,11 @@
 ;;; Init
 (defn -wrap-initial-model
   [app-initial-model]
-  ; set some initial token - it will be used on reset from debugger
+  ; set some initial token - it will be used on clicking Reset in debugger
   (assoc app-initial-model ::token "/"))
 
 ;;; Control
 (defn -wrap-control
-  "Updates token in model on history events and lets wrapped app handle the signal."
   [app-control history]
   (let [unlisten (atom nil)]
     (fn control
@@ -115,7 +120,7 @@
 
              [::on-link-click href replace?]
              (let [token (if (clojure.string/starts-with? href "#")
-                           ; hrefs can contain hashes, token - can't
+                           ; hrefs can contain hashes, tokens can't
                            (subs href 1)
                            href)]
                (if replace?

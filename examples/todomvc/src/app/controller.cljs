@@ -12,7 +12,7 @@
            :on-stop (println "[todos] stop")
 
            [:middleware.routing/on-navigate token]
-           ; redirect from "" "/"
+           ; redirect from "" to "/"
            (when (= token "")
              (routing/replace-token history "/"))
 
