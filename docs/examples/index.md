@@ -18,7 +18,7 @@ The most trivial example.
 Inspired by this [problem](https://github.com/DerekCuevas/friend-list) about dynamic search input.
 Demonstrates how to dispatch new signals from app controller and also features:
 
-* routing
+* basic routing
 * model validation using [Schema](https://github.com/plumatic/schema)
 * time travel debugger
 * logging to console
@@ -33,7 +33,7 @@ See [todomvc.com](http://todomvc.com/).
 
 Features:
 
-* routing
+* routing using [Silk](https://github.com/DomKM/silk)
 * local storage persistence
 * time travel debugger
 * logging to console

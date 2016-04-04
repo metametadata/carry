@@ -1,6 +1,6 @@
 ; namespace is extracted into a separate src folder in order to be reused in elm-ish architecture examples
 (ns friend-list.core
-  (:require [middleware.routing :as routing]
+  (:require [middleware.history :as h]
             [middleware.schema :as schema]
             [schema.core :as s]
             [reagent-mvsa.core :as mvsa]
@@ -27,7 +27,7 @@
   [history api-search]
   (let [search (fn [q dispatch-signal] (api-search q #(dispatch-signal [:on-search-success q %])))
         search-on-input (debounce (fn [q dispatch-signal]
-                                    (routing/set-token history q)
+                                    (h/push-token history q) ; note that this will not trigger ::h/on-enter signal
                                     (search q dispatch-signal))
                                   300)]
     (fn control
@@ -41,7 +41,7 @@
                (dispatch-action [:set-query q])
                (search-on-input q dispatch-signal))
 
-             [::routing/on-navigate token]
+             [::h/on-enter token]
              (do
                (dispatch-action [:set-query token])
                (search token dispatch-signal))
@@ -105,4 +105,4 @@
        :control       (-new-control history api-search)
        :reconcile     -reconcile}
       (schema/add Schema)
-      (routing/add history)))
+      (h/add history)))

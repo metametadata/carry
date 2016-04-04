@@ -1,48 +1,58 @@
-(ns middleware.routing
+(ns middleware.history
   (:require [cljs.core.match :refer-macros [match]]
             [goog.events]
             [goog.history.EventType :as EventType]
-            [clojure.string])
+            [clojure.string]
+            [clojure.set])
   (:import goog.history.Html5History
-           [goog History])
-  (:require-macros [reagent.ratom :refer [reaction run!]]))
+           [goog History]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar
 (defprotocol HistoryProtocol
-  (listen [this on-browser-event on-api-event]
-          "Starts calling back on history events. There are 2 types of events:
-            1) 'api' - initiated via this API;
-            2) 'browser' - e.g. changing hash in url bar or clicking forward/back buttons.
-          Fires the initial browser callback. Returns a function which stops listening.")
+  (listen [this callback]
+          "Starts calling back on history events.
+          Callback function signature: [token browser-event? event-data], where:
+            token - new token
+            browser-event? - true if event was initiated by action in browser, e.g. clicking Back button
+            event-data - data which was passed from replace-token/push-token
+          Fires the initial callback. Returns a function which stops listening.")
+  (replace-token [this token] [this token event-data]
+                 "Replace token and fire an event with additional data passed (data is nil if not specified);
+                 do nothing if current token is already equal to the specified one.")
+  (push-token [this token] [this token event-data]
+              "Push token and fire an event with additional data passed (data is nil if not specified);
+              do nothing if current token is already equal to the specified one.")
   (token [this] "Return current token.")
-  (replace-token [this token] "Replace token firing API event.")
-  (set-token [this token] "Push token firing API event.")
   (token->href [this token] "Returns the href for the specified token to be used in HTML links."))
 
 ; Implementation of HistoryProtocol using Closure API
+(def ^:dynamic *-history-event-data* nil)
 (defrecord -History [-goog-history]
   HistoryProtocol
   (listen
-    [this on-browser-event on-api-event]
-    (let [key (goog.events/listen -goog-history EventType/NAVIGATE
-                                  #((if (.-isNavigation %) on-browser-event
-                                                           on-api-event)
-                                    (.-token %)))]
-      (on-browser-event (token this))
+    [this callback]
+    (let [key (goog.events/listen -goog-history EventType/NAVIGATE #(callback (.-token %)
+                                                                              (.-isNavigation %)
+                                                                              *-history-event-data*))]
+      (callback (token this) true nil)
       #(goog.events/unlistenByKey key)))
+
+  (replace-token [this new-token] (replace-token this new-token nil))
+  (replace-token
+    [this new-token event-data]
+    (binding [*-history-event-data* event-data]
+      (when (not= (token this) new-token)                   ; prevent firing an event if token is going to stay the same
+        (.replaceToken -goog-history new-token))))
+
+  (push-token [this token] (push-token this token nil))
+  (push-token
+    [_this token event-data]
+    (binding [*-history-event-data* event-data]
+      (.setToken -goog-history token)))
 
   (token
     [_this]
     (.getToken -goog-history))
-
-  (replace-token
-    [this new-token]
-    (when (not= (token this) new-token)
-      (.replaceToken -goog-history new-token)))
-
-  (set-token
-    [_this token]
-    (.setToken -goog-history token))
 
   (token->href
     [_this token]
@@ -56,7 +66,7 @@
     (->-History history)))
 
 (defn new-hash-history
-  "For history management using onhashchange. Will not correctly work in Opera Mini: http://caniuse.com/#search=hash"
+  "For history management using hashes based on onhashchange event. Will not correctly work in Opera Mini: http://caniuse.com/#search=hash"
   []
   (let [history (Html5History.)]
     (.setUseFragment history true)
@@ -100,9 +110,7 @@
                               (replace-token history (::token new-state)))))
 
                (reset! unlisten
-                       (listen history
-                               #(dispatch-signal [::on-browser-event %])
-                               #(dispatch-signal [::on-api-event %]))))
+                       (listen history #(dispatch-signal [::on-history-event {:token %1 :browser-event? %2 :event-data %3}]))))
 
              :on-stop
              (do
@@ -110,22 +118,12 @@
 
                (app-control model signal dispatch-signal dispatch-action))
 
-             [::on-browser-event token]
+             [::on-history-event {:token token :browser-event? browser-event? :event-data event-data}]
              (do
                (dispatch-action [::set-token token])
-               (dispatch-signal [::on-navigate token]))
 
-             [::on-api-event token]
-             (dispatch-action [::set-token token])
-
-             [::on-link-click href replace?]
-             (let [token (if (clojure.string/starts-with? href "#")
-                           ; hrefs can contain hashes, tokens can't
-                           (subs href 1)
-                           href)]
-               (if replace?
-                 (replace-token history token)
-                 (set-token history token)))
+               (when (or browser-event? (:browser-event? event-data))
+                 (dispatch-signal [::on-enter token])))
 
              :else
              (app-control model signal dispatch-signal dispatch-action)))))
@@ -145,13 +143,15 @@
 
 ;;; Middleware
 (defn add
-  "Routing middleware which allows app react to history events by observing model changes.
+  "Applies middleware which allows app model always be in sync with current history.
 
-  After start it begins catching browser history events and updates ::token in model accordingly.
-  Sends [::on-navigate token] signal to app after handling browser-initiated history event (e.g. when user clicks back button or changes the hash).
-  If ::token changes in model (e.g. by toggling action in debugger), then current url is replaced using new token."
+  After start it begins catching history events and updates ::token in model accordingly.
+  If ::token changes in model (e.g. by toggling action in debugger), then current url is replaced using new token.
+
+  Sends [::on-enter token] signal to app after handling token change event initiated from browser (e.g. on clicking Back button).
+  So using HistoryProtocol's replace-token/push-token would not trigger this signal.
+  You can still force sending this signal by passing {:browser-event? true} event-data to these functions."
   [spec history]
-  {:pre [(map? (:initial-model spec)) (fn? (:control spec)) (fn? (:reconcile spec)) (satisfies? HistoryProtocol history)]}
   (-> spec
       (update :initial-model -wrap-initial-model)
       (update :control -wrap-control history)
@@ -168,17 +168,19 @@
            (not (zero? (.-button e))))))
 
 (defn -on-click
-  [e href replace? dispatch]
+  [e history token replace?]
   (when (-pure-click? e)
     (.preventDefault e)
-    (dispatch [::on-link-click href replace?])))
+    (if replace?
+      (replace-token history token {:browser-event? true})
+      (push-token history token {:browser-event? true}))))
 
 (defn link
   "Link component which changes current URL without sending request to server.
-  Requires routing middleware to be added.
   Will replace current token instead of pushing if :replace? attribute is true.
 
-  Inspired by: https://github.com/STRML/react-router-component/blob/master/lib/Link.js"
-  [dispatch {:keys [href replace?] :as attrs} & body]
-  (into [:a (assoc attrs :on-click #(-on-click % href replace? dispatch))]
+  If history middleware is added then clicking the link will produce :on-enter signal."
+  [history token {:keys [replace?] :as attrs} & body]
+  (into [:a (merge attrs {:href     (token->href history token)
+                          :on-click #(-on-click % history token replace?)})]
         body))

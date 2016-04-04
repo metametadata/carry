@@ -1,8 +1,8 @@
 (ns app.core
   (:require [app.spec :as spec]
-            [app.view-model :refer [new-view-model]]
-            [app.view :refer [view]]
-            [middleware.routing :as routing]
+            [app.view-model :refer [view-model]]
+            [app.view :refer [new-view]]
+            [middleware.history :as h]
             [middleware.devtools :as devtools]
             [middleware.logging :as logging]
             [reagent-mvsa.core :as mvsa]
@@ -16,7 +16,7 @@
   (println "Hi.")
 
   (let [; define external dependencies
-        history (routing/new-hash-history)                  ; (routing/new-history)
+        history (h/new-hash-history) #_(h/new-history)
         storage hp/local-storage
 
         ; define spec
@@ -28,7 +28,7 @@
         app (mvsa/app app-spec)
 
         ; create GUI; history is passed into view model to build correct URLs
-        [app-view-model app-view] (mvsa/connect-ui app (new-view-model history) view)
+        [app-view-model app-view] (mvsa/connect-ui app view-model (new-view history))
 
         ; create debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]

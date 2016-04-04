@@ -1,5 +1,6 @@
 (ns app.view
-  (:require [middleware.routing :as routing]
+  (:require [middleware.history :as h]
+            [app.router :as router]
             [reagent.core :as r]))
 
 (defn -enter-key? [e] (= (.-keyCode e) 13))
@@ -61,30 +62,36 @@
       ^{:key (:id todo)}
       [-todo todo dispatch])]])
 
+(defn -footer-filters
+  [visibility-spec visibility history]
+  [:ul.filters
+   (for [{:keys [key title route]} visibility-spec]
+     ^{:key key}
+     [:li [h/link history (router/route->token route)
+           {:class (if (= visibility key) "selected")}
+           title]])])
+
 (defn -footer
-  [active-count has-completed-todos? visibility visibility-spec dispatch]
+  [active-count has-completed-todos? visibility-spec visibility history dispatch]
   [:footer.footer
    [:span.todo-count
     [:strong active-count] " " (if (= active-count 1) "item" "items") " left"]
 
-   [:ul.filters
-    (for [{:keys [key title href]} visibility-spec]
-      ^{:key key}
-      [:li [routing/link dispatch {:href  href
-                                   :class (if (= visibility key) "selected")}
-            title]])]
+   [-footer-filters visibility-spec visibility history]
 
    (when has-completed-todos?
      [:button.clear-completed {:on-click #(dispatch :on-clear-completed)} "Clear completed"])])
 
-(defn view
-  [{:keys [field has-todos? todos all-completed? active-count has-completed-todos? visibility visibility-spec]
-    :as   _view-model}
-   dispatch]
-  [:section.todoapp
-   [-header @field dispatch]
+(defn new-view
+  [history]
+  (fn view
+    [{:keys [field has-todos? todos all-completed? active-count has-completed-todos? visibility visibility-spec]
+      :as   _view-model}
+     dispatch]
+    [:section.todoapp
+     [-header @field dispatch]
 
-   (when @has-todos?
-     [:div
-      [-todo-list @todos @all-completed? dispatch]
-      [-footer @active-count @has-completed-todos? @visibility @visibility-spec dispatch]])])
+     (when @has-todos?
+       [:div
+        [-todo-list @todos @all-completed? dispatch]
+        [-footer @active-count @has-completed-todos? @visibility-spec @visibility history dispatch]])]))

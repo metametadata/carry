@@ -1,16 +1,16 @@
 (ns app.spec
   (:require [app.model :as model]
-            [app.controller :refer [new-control]]
+            [app.controller :refer [control]]
             [app.reconciler :refer [reconcile]]
             [middleware.schema :as schema]
-            [middleware.routing :as routing]
+            [middleware.history :as h]
             [middleware.persistence :as persistence]
             [middleware.devtools :as devtools]))
 
 (defn new-spec
   [history storage storage-key todo-titles]
   (-> {:initial-model (model/new-model todo-titles)
-       :control       (new-control history)
+       :control       control
        :reconcile     reconcile}
       (schema/add model/Schema)
 
@@ -18,4 +18,4 @@
       (persistence/add storage storage-key {:blacklist #{::devtools/debugger}})
 
       ; routing goes after persistence layer so that on start the token is taken from the url bar instead of local storage
-      (routing/add history)))
+      (h/add history)))

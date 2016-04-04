@@ -3,7 +3,7 @@
             [friend-list.core :as friend-list]
             [counter.core :as counter]
             [app.friend-list-api :as friend-list-api]
-            [middleware.routing :as routing]
+            [middleware.history :as routing]
             [middleware.logging :as logging]
             [reagent-mvsa.core :as mvsa]
             [reagent.core :as r]

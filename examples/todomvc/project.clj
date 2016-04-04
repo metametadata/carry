@@ -7,6 +7,7 @@
                  [cljsjs/react-with-addons "0.14.3-0"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]
+                 [com.domkm/silk "0.1.2"]
 
                  ; required by debugger:
                  [com.rpl/specter "0.9.2"]

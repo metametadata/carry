@@ -1,7 +1,7 @@
 (ns app.core
   (:require [friend-list.core :as friend-list]
             [app.api :as api]
-            [middleware.routing :as routing]
+            [middleware.history :as h]
             [middleware.logging :as logging]
             [middleware.devtools :as devtools]
             [reagent-mvsa.core :as mvsa]
@@ -13,7 +13,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn main
   []
-  (let [history (routing/new-hash-history)
+  (let [history (h/new-hash-history)
         storage hp/local-storage
         app-spec (-> (friend-list/new-spec history api/search)
                      (devtools/add-debugger storage :friend-list-debugger-model)

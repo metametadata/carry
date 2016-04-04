@@ -1,7 +1,7 @@
 (ns unit.controller
   (:require
     [friend-list.core :as friend-list]
-    [middleware.routing :as routing]
+    [middleware.history :as h]
     [cljs.test :refer-macros [deftest is testing async]]
     [clj-fakes.core :as f :include-macros true]
     [clj-fakes.context :as fc :include-macros true])
@@ -15,7 +15,7 @@
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
-      (control :_model [:middleware.routing/on-navigate :_new-token] dispatch-signal dispatch-action)
+      (control :_model [:middleware.history/on-enter :_new-token] dispatch-signal dispatch-action)
 
       ; assert
       (is (f/was-called-once dispatch-action [[:set-query :_new-token]]))
@@ -79,8 +79,8 @@
   (with-fakes-async
     (fn [ctx done]
       (let [search (fc/fake ctx [[:_latest-token f/any?] #(%2 :_found-friends)])
-            history (fc/reify-nice-fake ctx routing/HistoryProtocol
-                                        (set-token :recorded-fake))
+            history (fc/reify-nice-fake ctx h/HistoryProtocol
+                                        (push-token :recorded-fake))
             {:keys [control]} (friend-list/new-spec history search)
             dispatch-signal (fc/recorded-fake ctx)
             dispatch-action (fc/recorded-fake ctx)
@@ -99,14 +99,14 @@
 
         (.setTimeout js/window
                      #(testing "just before debounce"
-                       (is (fc/method-was-not-called ctx routing/set-token history))
+                       (is (fc/method-was-not-called ctx h/push-token history))
                        (is (fc/was-not-called ctx dispatch-signal)))
                      (- expected-debounce-interval delta))
 
         (.setTimeout js/window
                      #(do
                        (testing "just after debounce"
-                         (is (fc/method-was-called-once ctx routing/set-token history [:_latest-token]))
+                         (is (fc/method-was-called-once ctx h/push-token history [:_latest-token]))
                          (is (fc/was-called-once ctx dispatch-signal [[:on-search-success :_latest-token :_found-friends]])))
                        (done))
                      (+ expected-debounce-interval delta))))))
