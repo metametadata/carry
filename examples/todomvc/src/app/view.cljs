@@ -63,21 +63,21 @@
       [-todo todo dispatch])]])
 
 (defn -footer-filters
-  [visibility-spec visibility history]
+  [visibility-spec history]
   [:ul.filters
-   (for [{:keys [key title route]} visibility-spec]
-     ^{:key key}
+   (for [{:keys [title route selected?]} visibility-spec]
+     ^{:key route}
      [:li [h/link history (router/route->token route)
-           {:class (if (= visibility key) "selected")}
+           {:class (if selected? "selected")}
            title]])])
 
 (defn -footer
-  [active-count has-completed-todos? visibility-spec visibility history dispatch]
+  [active-count has-completed-todos? visibility-spec history dispatch]
   [:footer.footer
    [:span.todo-count
     [:strong active-count] " " (if (= active-count 1) "item" "items") " left"]
 
-   [-footer-filters visibility-spec visibility history]
+   [-footer-filters visibility-spec history]
 
    (when has-completed-todos?
      [:button.clear-completed {:on-click #(dispatch :on-clear-completed)} "Clear completed"])])
@@ -85,7 +85,7 @@
 (defn new-view
   [history]
   (fn view
-    [{:keys [field has-todos? todos all-completed? active-count has-completed-todos? visibility visibility-spec]
+    [{:keys [field has-todos? todos all-completed? active-count has-completed-todos? visibility-spec]
       :as   _view-model}
      dispatch]
     [:section.todoapp
@@ -94,4 +94,4 @@
      (when @has-todos?
        [:div
         [-todo-list @todos @all-completed? dispatch]
-        [-footer @active-count @has-completed-todos? @visibility-spec @visibility history dispatch]])]))
+        [-footer @active-count @has-completed-todos? @visibility-spec history dispatch]])]))
