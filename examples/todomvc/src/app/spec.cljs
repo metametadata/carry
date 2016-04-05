@@ -14,8 +14,8 @@
        :reconcile     reconcile}
       (schema/add model/Schema)
 
-      ; debugger deals with persistence itself, so we have to blacklist it here to get rid of loading conflicts
-      (persistence/add storage storage-key {:blacklist #{::devtools/debugger}})
+      ; Debugger deals with persistence itself, so we have to blacklist it here to get rid of loading conflicts.
+      ; Token is blacklisted because on start we want the app to read current token from the urlbar instead of storage.
+      (persistence/add storage storage-key {:blacklist #{::devtools/debugger ::h/token}})
 
-      ; routing goes after persistence layer so that on start the token is taken from the url bar instead of local storage
       (h/add history)))
