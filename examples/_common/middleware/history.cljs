@@ -15,7 +15,7 @@
             token - new token
             browser-event? - true if event was initiated by action in browser, e.g. clicking Back button
             event-data - data which was passed from replace-token/push-token
-          Fires the initial callback. Returns a function which stops listening.")
+          Returns a function which stops listening.")
   (replace-token [this token] [this token event-data]
                  "Replace token and fire an event with additional data passed (data is nil if not specified);
                  do nothing if current token is already equal to the specified one.")
@@ -30,11 +30,10 @@
 (defrecord -History [-goog-history]
   HistoryProtocol
   (listen
-    [this callback]
+    [_this callback]
     (let [key (goog.events/listen -goog-history EventType/NAVIGATE #(callback (.-token %)
                                                                               (.-isNavigation %)
                                                                               *-history-event-data*))]
-      (callback (token this) true nil)
       #(goog.events/unlistenByKey key)))
 
   (replace-token [this new-token] (replace-token this new-token nil))
@@ -110,7 +109,10 @@
                               (replace-token history (::token new-state)))))
 
                (reset! unlisten
-                       (listen history #(dispatch-signal [::on-history-event {:token %1 :browser-event? %2 :event-data %3}]))))
+                       (listen history #(dispatch-signal [::on-history-event {:token %1 :browser-event? %2 :event-data %3}])))
+
+               ; initial signal
+               (dispatch-signal [::on-history-event {:token (token history) :browser-event? true :event-data nil}]))
 
              :on-stop
              (do
