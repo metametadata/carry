@@ -4,8 +4,7 @@
             [app.reconciler :refer [reconcile]]
             [middleware.schema :as schema]
             [middleware.history :as h]
-            [middleware.persistence :as persistence]
-            [middleware.devtools :as devtools]))
+            [middleware.persistence :as persistence]))
 
 (defn new-spec
   [history storage storage-key todo-titles]
@@ -16,6 +15,6 @@
 
       ; Debugger deals with persistence itself, so we have to blacklist it here to get rid of loading conflicts.
       ; Token is blacklisted because on start we want the app to read current token from the urlbar instead of storage.
-      (persistence/add storage storage-key {:blacklist #{::devtools/debugger ::h/token}})
+      (persistence/add storage storage-key {:blacklist #{:middleware.devtools/debugger ::h/token}})
 
       (h/add history)))
