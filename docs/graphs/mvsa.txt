@@ -4,8 +4,8 @@ partition UI {
 }
 
 partition App {
--->[dispatch signal] "control"
--->[dispatch action]"reconcile"
+-->[dispatch signals] "control"
+-->[dispatch actions]"reconcile"
 -->[update]"model"
 -->[update]"view-model"
 }
