@@ -13,7 +13,7 @@ def site():
     site_path = os.path.join(os.getcwd(), "site")
 
     # graphs
-    run("plantuml -o {0} {1}".format(os.path.join(site_path, "graphs"), os.path.join("docs", "graphs")), echo=True)
+    run("plantuml -tsvg -o {0} {1}".format(os.path.join(site_path, "graphs"), os.path.join("docs", "graphs")), echo=True)
 
     # examples
     for name in os.listdir("examples"):
