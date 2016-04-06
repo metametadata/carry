@@ -111,7 +111,7 @@
       [model signal dispatch-signal dispatch-action]
       (letfn [(record-and-dispatch-to-app [signal]
                 (let [[signal-id _ :as signal-event] (-signal-event (-> @model ::debugger :next-signal-id) signal)]
-                  (dispatch-action [::record-signal-event signal-event] )
+                  (dispatch-action [::record-signal-event signal-event])
                   (app-control model signal dispatch-signal #(dispatch-action [::app-action signal-id %]))))]
         (match signal
                :on-start
@@ -256,16 +256,18 @@
 (defn -view-model
   [model]
   (mvsa/track-keys (reaction (::debugger @model))
-                      [:initial-model :persist? :visible? :toggle-visibility-shortcut :signal-events :action-events]))
+                   [:initial-model :persist? :visible? :toggle-visibility-shortcut :signal-events :action-events]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
+(def -menu-button-style {:font-weight   "bold"
+                         :cursor        "pointer"
+                         :padding       "4px"
+                         :margin        "5px 3px"
+                         :border-radius "3px"})
+
 (defn -menu-button
   [caption on-click title]
-  [:button {:style    {:font-weight   "bold"
-                       :cursor        "pointer"
-                       :padding       "4px"
-                       :margin        "5px 3px"
-                       :border-radius "3px"}
+  [:button {:style    -menu-button-style
             :title    title
             :on-click on-click}
    caption])
@@ -273,12 +275,7 @@
 (defn -menu-file-selector
   "Styled file input which invokes the callback with loaded file content."
   [caption on-load title]
-  [:label {:style {:display       "inline-block"
-                   :cursor        "pointer"
-                   :border        "1px solid #ccc"
-                   :padding       "4px"
-                   :margin        "5px 3px"
-                   :border-radius "3px"}
+  [:label {:style -menu-button-style
            :title title}
    caption
    [:input {:style     {:display "none"}
