@@ -151,11 +151,11 @@
                ::on-toggle-persist
                (dispatch-action ::toggle-persist)
 
-               ::on-sweep
-               (dispatch-action ::sweep)
+               ::on-vacuum
+               (dispatch-action ::vacuum)
 
-               ::on-sweep-all
-               (dispatch-action ::sweep-all)
+               ::on-clear
+               (dispatch-action ::clear)
 
                ::on-reset
                (do
@@ -222,12 +222,12 @@
            ::toggle-persist
            (update-in model [::debugger :persist?] not)
 
-           ::sweep
+           ::vacuum
            (as-> model m
                  (update-in m [::debugger :action-events] #(filter :enabled? %))
                  (update-in m [::debugger :signal-events] #(remove (partial -orphaned-signal? m) %)))
 
-           ::sweep-all
+           ::clear
            (-> model
                (assoc-in [::debugger :signal-events] nil)
                (assoc-in [::debugger :action-events] nil))
@@ -249,7 +249,7 @@
                                                                                    (dissoc m ::debugger))])
                    (update-in m [::debugger :next-action-id] inc))
 
-             ; looks like originating signal could be already sweeped -> create "unknown signal" to record this action
+             ; looks like originating signal could be already cleared -> create "unknown signal" to record this action
              (reconcile model a)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
@@ -304,8 +304,8 @@
                                   :checked   persist?
                                   :on-change #(dispatch ::on-toggle-persist)}]
    [:label {:for "persist-toggle"} "Persist"]
-   [-menu-button "Sweep" #(dispatch ::on-sweep) "Removes disabled actions and \"orphaned\" signals from history"]
-   [-menu-button "Sweep All" #(dispatch ::on-sweep-all) "Clears debugger history without affecting app model"]
+   [-menu-button "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
+   [-menu-button "Clear" #(dispatch ::on-clear) "Clears debugger history"]
    [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
    [-menu-button "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]
    [-menu-button "Save" #(dispatch ::on-save) "Saves current debugger session into file"]
