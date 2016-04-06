@@ -7,9 +7,15 @@ import shutil
 @task
 def site():
     """ Compiles examples and builds project site. """
+    # docs
     run("mkdocs build --clean", echo=True)
 
     site_path = os.path.join(os.getcwd(), "site")
+
+    # graphs
+    run("plantuml -o {0} {1}".format(os.path.join(site_path, "graphs"), os.path.join("docs", "graphs")), echo=True)
+
+    # examples
     for name in os.listdir("examples"):
         example_path = os.path.join("examples", name)
         if os.path.isfile(os.path.join(example_path, "project.clj")):
