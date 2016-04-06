@@ -57,12 +57,12 @@
         }, 
         {
             "location": "/dev-guide/", 
-            "text": "Documentation\n\n\nProject uses \nMkDocs\n to generate documentation static site.\n\n\nServe site without examples locally with automatic build: \nmkdocs serve\n\n\nBuild site without examples into site folder: \nmkdocs build --clean\n\n\nBuild site with examples (requires \nPyInvoke\n): \ninv site\n\n\nDeploying\n\n\nDeploy to Clojars: \nlein deploy clojars\n\n\nDeploy site to gh-pages branch: \nghp-import -p site", 
+            "text": "Documentation\n\n\nProject uses \nMkDocs\n and \nPlantUML\n to generate documentation static site.\n\n\nServe site without examples locally with automatic build: \nmkdocs serve\n\n\nBuild site without examples into site folder: \nmkdocs build --clean\n\n\nBuild site with graphs and examples (requires \nPyInvoke\n): \ninv site\n\n\nDeploying\n\n\nDeploy to Clojars: \nlein deploy clojars\n\n\nDeploy site to gh-pages branch: \nghp-import -p site", 
             "title": "Developer Guide"
         }, 
         {
             "location": "/dev-guide/#documentation", 
-            "text": "Project uses  MkDocs  to generate documentation static site.  Serve site without examples locally with automatic build:  mkdocs serve  Build site without examples into site folder:  mkdocs build --clean  Build site with examples (requires  PyInvoke ):  inv site", 
+            "text": "Project uses  MkDocs  and  PlantUML  to generate documentation static site.  Serve site without examples locally with automatic build:  mkdocs serve  Build site without examples into site folder:  mkdocs build --clean  Build site with graphs and examples (requires  PyInvoke ):  inv site", 
             "title": "Documentation"
         }, 
         {

@@ -1,13 +1,11 @@
 @startuml
-scale 2
-
 partition UI {
 "view-model"->[update]"view"
 }
 
 partition App {
--->[dispatch signal] "control"
--->[dispatch action]"reconcile"
+-->[dispatch signals] "control"
+-->[dispatch actions]"reconcile"
 -->[update]"model"
 -->[update]"view-model"
 }
