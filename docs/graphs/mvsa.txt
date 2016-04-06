@@ -1,6 +1,4 @@
 @startuml
-scale 2
-
 partition UI {
 "view-model"->[update]"view"
 }
