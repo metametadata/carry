@@ -279,8 +279,8 @@
                          :background    "none"})
 
 (defn -menu-button
-  [caption on-click title]
-  [:button {:style    -menu-button-style
+  [style caption on-click title]
+  [:button {:style    (merge -menu-button-style style)
             :title    title
             :on-click on-click}
    caption])
@@ -309,21 +309,13 @@
                  :border-bottom-width 1
                  :border-bottom-style "solid"
                  :border-color        "#4F5A65"}}
-   [-menu-button "Clear" #(dispatch ::on-clear) "Clears debugger history"]
-   [-menu-button "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
-   [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
-   [-menu-button "Save" #(dispatch ::on-save) "Saves current debugger session into file"]
+   [-menu-button {} "Clear" #(dispatch ::on-clear) "Clears debugger history"]
+   [-menu-button {} "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
+   [-menu-button {} "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
+   [-menu-button {} "Save" #(dispatch ::on-save) "Saves current debugger session into file"]
    [-menu-file-selector "Load" #(dispatch [::on-load %]) "Loads debugger session from file"]
-   [-menu-button "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]
-
-   [:label {:style {:font-weight "bold"
-                    :padding     "4px"
-                    :margin      "5px 3px"}}
-    "Persist"
-    [:input {:title     "Persist debug session into local storage?"
-             :type      "checkbox"
-             :checked   persist?
-             :on-change #(dispatch ::on-toggle-persist)}]]])
+   [-menu-button (if persist? {} {:color "grey"}) (str "Persist" (if persist? "✓")) #(dispatch ::on-toggle-persist) "Persist debug session into local storage?"]
+   [-menu-button {} "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]])
 
 (defn -signals-view
   [signal-events action-events dispatch]
