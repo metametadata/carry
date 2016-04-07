@@ -1,12 +1,9 @@
 @startuml
-partition UI {
-"view-model"->[update]"view"
-}
-
-partition App {
--->[dispatch signals] "control"
--->[dispatch actions]"reconcile"
--->[update]"model"
--->[update]"view-model"
-}
+-> view : DOM event
+view -> control : dispatch signal
+control -> control : side effect
+control -> reconcile : dispatch action
+reconcile -> model : update
+model -> "view-model" : notify
+"view-model" -> view : notify
 @enduml
