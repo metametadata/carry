@@ -267,13 +267,13 @@
                    [:initial-model :persist? :visible? :toggle-visibility-shortcut :signal-events :action-events]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
-(def -menu-button-style {:font-size     "inherit"
+(def -menu-button-style {:margin        "5px 3px"
+                         :padding       4
+                         :font-size     "inherit"
                          :font-family   "inherit"
                          :font-weight   "bold"
                          :color         "white"
                          :cursor        "pointer"
-                         :margin        "5px 3px"
-                         :padding       4
                          :border-radius "3px"
                          :border        0
                          :background    "none"})
@@ -305,10 +305,7 @@
 
 (defn -menu
   [persist? toggle-visibility-shortcut dispatch]
-  [:div {:style {:text-align          "center"
-                 :border-bottom-width 1
-                 :border-bottom-style "solid"
-                 :border-color        "#4F5A65"}}
+  [:div {:style {:text-align "center"}}
    [-menu-button {} "Clear" #(dispatch ::on-clear) "Clears debugger history"]
    [-menu-button {} "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
    [-menu-button {} "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
@@ -321,7 +318,7 @@
   [signal-events action-events dispatch]
   [:div
    (doall
-     (for [[signal-id signal] (reverse signal-events)]
+     (for [[signal-id signal] signal-events]
        ^{:key signal-id}
        [:div {:title "Signal"}
         [:div {:style    {:padding-left     4
@@ -362,7 +359,6 @@
 (defn -initial-model-view
   [initial-model]
   [:div
-   [:hr]
    [:strong "Initial model:"]
    [:div (pr-str initial-model)]])
 
@@ -374,6 +370,17 @@
                    :component-did-mount (fn [this] (.resizable (js/$ (r/dom-node this))
                                                                (clj->js {:grid    25
                                                                          :handles "n, e, s, w, ne, se, sw, nw"})))}))
+
+(defn -autoscrollable-div
+  "Will scroll to bottom on any update."
+  [_attrs & _body]
+  (letfn [(scroll [this]
+            (set! (.-scrollTop (r/dom-node this))
+                  (.-scrollHeight (r/dom-node this))))]
+    (r/create-class {:reagent-render       (fn [attrs & body]
+                                             (into [:div attrs] body))
+                     :component-did-mount  scroll
+                     :component-did-update scroll})))
 
 (defn -overlay
   [& body]
@@ -389,22 +396,31 @@
 (defn -view
   [{:keys [visible? toggle-visibility-shortcut persist? initial-model signal-events action-events] :as _view-model} dispatch]
   [-overlay
-   [-resizable-div {:style {:display        (if @visible? "block" "none") ; using CSS instead of React in order to persist resized frame on toggling visibility
-                            :left           "70%"
-                            :width          "30%"
-                            :height         "100%"
-                            :pointer-events "all"}}
-    [:div {:style {:height           "100%"
-                   :overflow         "auto"
-                   :background-color "#2A2F3A"
-                   :color            "white"
-                   :font-size        14
-                   :font-family      "sans-serif"
-                   :line-height      "1.4em"
-                   :font-weight      "300"}}
-     [-menu @persist? @toggle-visibility-shortcut dispatch]
-     [-signals-view @signal-events @action-events dispatch]
-     [-initial-model-view @initial-model]]]])
+   [-resizable-div {:style {:display          (if @visible? "block" "none") ; using CSS instead of React in order to persist resized frame on toggling visibility
+                            :left             "70%"
+                            :width            "30%"
+                            :height           "100%"
+                            :pointer-events   "all"
+
+                            :background-color "#2A2F3A"
+                            :color            "white"
+                            :font-size        14
+                            :font-family      "sans-serif"
+                            :line-height      "1.4em"
+                            :font-weight      "300"}}
+    [-menu @persist? @toggle-visibility-shortcut dispatch]
+
+    [-autoscrollable-div
+     {:style {:position "absolute"
+              :top      "2.5em"
+              :bottom   0
+              :left     0
+              :right    0
+              :overflow "auto"}}
+     [:hr]
+     [-initial-model-view @initial-model]
+     [:hr]
+     [-signals-view @signal-events @action-events dispatch]]]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn -wrap-load-from-storage
