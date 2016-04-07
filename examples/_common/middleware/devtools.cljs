@@ -272,8 +272,8 @@
                          :font-weight   "bold"
                          :color         "white"
                          :cursor        "pointer"
-                         :padding       "4px"
                          :margin        "5px 3px"
+                         :padding       2
                          :border-radius "3px"
                          :border        0
                          :background    "none"})
@@ -324,7 +324,9 @@
      (for [[signal-id signal] (reverse signal-events)]
        ^{:key signal-id}
        [:div {:title "Signal"}
-        [:div {:style    {:cursor           "pointer"
+        [:div {:style    {:padding-left     4
+                          :margin-top       8
+                          :cursor           "pointer"
                           :background-color "rgb(60, 70, 80)"}
                :on-click #(dispatch [::on-toggle-signal signal-id])
                :title    "Click to enable/disable all actions dispatched from this signal"}
@@ -336,9 +338,8 @@
                                                    action-events)]
           ^{:key id}
           [:div {:style    {:display     "flex"
-                            :margin-left "20px"
-                            :margin-top  "3px"
-                            :padding     "2px"
+                            :margin-left 20
+                            :margin-top  1
                             :color       (if enabled? "inherit" "grey")
                             :cursor      "pointer"}
                  :on-click #(dispatch [::on-toggle-action id])}
@@ -348,10 +349,12 @@
               [:div (pr-str action)])]
 
            (when enabled?
-             [:div {:style    {:cursor           "pointer"
+             [:div {:style    {:display          "flex"
                                :margin-left      "5px"
                                :border-radius    "3px"
-                               :background-color "rgb(79, 90, 101)"}
+                               :cursor           "pointer"
+                               :align-items      "center"
+                               :background-color "rgb(60, 70, 80)"}
                     :on-click #(do (.stopPropagation %) (dispatch [::on-log-action-result id]))
                     :title    "Print model state after this action"}
               "model"])])]))])
@@ -391,16 +394,14 @@
                             :width          "30%"
                             :height         "100%"
                             :pointer-events "all"}}
-    [:div {:style {:height                 "100%"
-                   :overflow               "auto"
-                   :background-color       "#2A2F3A"
-                   :color                  "white"
-                   :font-size              14
-                   :font-family            "sans-serif"
-                   :line-height            "1.4em"
-                   :font-smoothing         "antialiased"
-                   :-moz-font-smoothing    "antialiased"
-                   :-webkit-font-smoothing "antialiased"}}
+    [:div {:style {:height           "100%"
+                   :overflow         "auto"
+                   :background-color "#2A2F3A"
+                   :color            "white"
+                   :font-size        14
+                   :font-family      "sans-serif"
+                   :line-height      "1.4em"
+                   :font-weight      "300"}}
      [-menu @persist? @toggle-visibility-shortcut dispatch]
      [-signals-view @signal-events @action-events dispatch]
      [-initial-model-view @initial-model]]]])
