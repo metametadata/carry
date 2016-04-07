@@ -39,8 +39,6 @@
              [:on-input q]
              (do
                (dispatch-action [:set-query q])
-               (dispatch-action [:set-query q])
-               (dispatch-action [:set-query q])
                (search-on-input q dispatch-signal))
 
              [::h/on-enter token]
