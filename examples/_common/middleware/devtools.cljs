@@ -352,8 +352,8 @@
                  :on-click #(dispatch [::on-toggle-action id])}
            [:div {:title "Click to enable/disable this action"}
             (if (coll? action)
-              [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (map pr-str (rest action)))]
-              [:div [:strong (pr-str action)]])]
+              [:div (pr-str (first action)) " " (clojure.string/join " " (map pr-str (rest action)))]
+              [:div (pr-str action)])]
 
            (when enabled?
              [:div {:style    {:cursor           "pointer"
