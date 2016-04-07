@@ -317,8 +317,8 @@
    [-menu-button "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]
 
    [:label {:style {:font-weight "bold"
-                    :padding "4px"
-                    :margin  "5px 3px"}}
+                    :padding     "4px"
+                    :margin      "5px 3px"}}
     "Persist"
     [:input {:title     "Persist debug session into local storage?"
              :type      "checkbox"
@@ -332,27 +332,25 @@
      (for [[signal-id signal] (reverse signal-events)]
        ^{:key signal-id}
        [:div {:title "Signal"}
-        [:div {:style    {:cursor "pointer"}
+        [:div {:style    {:cursor           "pointer"
+                          :background-color "rgb(60, 70, 80)"}
                :on-click #(dispatch [::on-toggle-signal signal-id])
                :title    "Click to enable/disable all actions dispatched from this signal"}
-         "→ "
          (if (coll? signal)
-           [:span [:strong (pr-str (first signal))] " " (clojure.string/join " " (map pr-str (rest signal)))]
-           [:strong (pr-str signal)])]
+           [:span (pr-str (first signal)) " " (clojure.string/join " " (map pr-str (rest signal)))]
+           (pr-str signal))]
 
         (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
                                                    action-events)]
           ^{:key id}
-          [:div {:style {:display          "flex"
-                         :margin-left      "10px"
-                         :margin-top       "3px"
-                         :padding          "2px"
-                         :background-color "rgb(60, 70, 80)"
-                         :color            (if enabled? "inherit" "grey")}}
-
-           [:div {:style    {:cursor "pointer"}
-                  :on-click #(dispatch [::on-toggle-action id])
-                  :title    "Click to enable/disable this action"}
+          [:div {:style    {:display     "flex"
+                            :margin-left "20px"
+                            :margin-top  "3px"
+                            :padding     "2px"
+                            :color       (if enabled? "inherit" "grey")
+                            :cursor      "pointer"}
+                 :on-click #(dispatch [::on-toggle-action id])}
+           [:div {:title "Click to enable/disable this action"}
             (if (coll? action)
               [:div [:strong (pr-str (first action))] " " (clojure.string/join " " (map pr-str (rest action)))]
               [:div [:strong (pr-str action)]])]
@@ -362,7 +360,7 @@
                                :margin-left      "5px"
                                :border-radius    "3px"
                                :background-color "rgb(79, 90, 101)"}
-                    :on-click #(dispatch [::on-log-action-result id])
+                    :on-click #(do (.stopPropagation %) (dispatch [::on-log-action-result id]))
                     :title    "Print model state after this action"}
               "model"])])]))])
 
