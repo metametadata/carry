@@ -255,10 +255,10 @@
            ; for bare app actions (e.g. when originating signal was cleared) create an "unknown signal" event
            :else
            (let [[signal-id _ :as unknown-signal-event] (-signal-event (-> model ::debugger :next-signal-id) ::unknown-signal)]
-                (-> model
-                    (update-in [::debugger :signal-events] concat [unknown-signal-event])
-                    (update-in [::debugger :next-signal-id] inc)
-                    (reconcile [::app-action signal-id action]))))))
+             (-> model
+                 (update-in [::debugger :signal-events] concat [unknown-signal-event])
+                 (update-in [::debugger :next-signal-id] inc)
+                 (reconcile [::app-action signal-id action]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -view-model
@@ -267,11 +267,16 @@
                    [:initial-model :persist? :visible? :toggle-visibility-shortcut :signal-events :action-events]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
-(def -menu-button-style {:font-weight   "bold"
+(def -menu-button-style {:font-size     "inherit"
+                         :font-family   "inherit"
+                         :font-weight   "bold"
+                         :color         "white"
                          :cursor        "pointer"
                          :padding       "4px"
                          :margin        "5px 3px"
-                         :border-radius "3px"})
+                         :border-radius "3px"
+                         :border        0
+                         :background    "none"})
 
 (defn -menu-button
   [caption on-click title]
@@ -304,17 +309,21 @@
                  :border-bottom-width 1
                  :border-bottom-style "solid"
                  :border-color        "#4F5A65"}}
-   [:input#persist-toggle.toggle {:title     "Persist debug session into local storage?"
-                                  :type      "checkbox"
-                                  :checked   persist?
-                                  :on-change #(dispatch ::on-toggle-persist)}]
-   [:label {:for "persist-toggle"} "Persist"]
-   [-menu-button "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
    [-menu-button "Clear" #(dispatch ::on-clear) "Clears debugger history"]
+   [-menu-button "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
    [-menu-button "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
-   [-menu-button "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]
    [-menu-button "Save" #(dispatch ::on-save) "Saves current debugger session into file"]
-   [-menu-file-selector "Load" #(dispatch [::on-load %]) "Loads debugger session from file"]])
+   [-menu-file-selector "Load" #(dispatch [::on-load %]) "Loads debugger session from file"]
+   [-menu-button "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]
+
+   [:label {:style {:font-weight "bold"
+                    :padding "4px"
+                    :margin  "5px 3px"}}
+    "Persist"
+    [:input {:title     "Persist debug session into local storage?"
+             :type      "checkbox"
+             :checked   persist?
+             :on-change #(dispatch ::on-toggle-persist)}]]])
 
 (defn -signals-view
   [signal-events action-events dispatch]
@@ -392,10 +401,16 @@
                             :width          "30%"
                             :height         "100%"
                             :pointer-events "all"}}
-    [:div {:style {:height           "100%"
-                   :overflow         "auto"
-                   :background-color "#2A2F3A"
-                   :color            "white"}}
+    [:div {:style {:height                 "100%"
+                   :overflow               "auto"
+                   :background-color       "#2A2F3A"
+                   :color                  "white"
+                   :font-size              14
+                   :font-family            "sans-serif"
+                   :line-height            "1.4em"
+                   :font-smoothing         "antialiased"
+                   :-moz-font-smoothing    "antialiased"
+                   :-webkit-font-smoothing "antialiased"}}
      [-menu @persist? @toggle-visibility-shortcut dispatch]
      [-signals-view @signal-events @action-events dispatch]
      [-initial-model-view @initial-model]]]])
