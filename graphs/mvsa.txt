@@ -1,4 +1,15 @@
 @startuml
+box "UI" #White
+	participant view
+	participant "view-model"
+end box
+
+box "App"  #White
+	participant control
+	participant reconcile
+	participant model
+end box
+
 -> view : DOM event
 view -> control : dispatch signal
 control -> control : side effect
