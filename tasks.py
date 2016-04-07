@@ -1,21 +1,19 @@
-from invoke import task, run
+from invoke import task, run, call
 import contextlib
 import os
 import shutil
 
-
 @task
-def site():
-    """ Compiles examples and builds project site. """
-    # docs
-    run("mkdocs build --clean", echo=True)
-
+def graphs():
+    """ Compiles graphs into project site folder. """
     site_path = os.path.join(os.getcwd(), "site")
-
-    # graphs
     run("plantuml -tsvg -o {0} {1}".format(os.path.join(site_path, "graphs"), os.path.join("docs", "graphs")), echo=True)
 
-    # examples
+@task
+def examples():
+    """ Compiles examples into project site folder. """
+    site_path = os.path.join(os.getcwd(), "site")
+
     for name in os.listdir("examples"):
         example_path = os.path.join("examples", name)
         if os.path.isfile(os.path.join(example_path, "project.clj")):
@@ -25,6 +23,10 @@ def site():
                 shutil.copytree(os.path.join("resources", "public"),
                                 os.path.join(site_path, "examples", name))
 
+@task(post=[call(graphs), call(examples)])
+def site():
+    """ Cleans site folder, builds project site, compiles graphs and examples into site folder. """
+    run("mkdocs build --clean", echo=True)
 
 ################################################### HELPERS
 @contextlib.contextmanager
