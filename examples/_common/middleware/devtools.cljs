@@ -273,7 +273,7 @@
                          :color         "white"
                          :cursor        "pointer"
                          :margin        "5px 3px"
-                         :padding       2
+                         :padding       4
                          :border-radius "3px"
                          :border        0
                          :background    "none"})
