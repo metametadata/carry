@@ -376,7 +376,7 @@
          [:div (pr-str action)])]
 
       (when enabled?
-        [:div {:style    {:display          "flex"
+        [:div {:style    {:display          "flex"          ; for text centering
                           :margin-left      "5px"
                           :border-radius    "3px"
                           :cursor           "pointer"
