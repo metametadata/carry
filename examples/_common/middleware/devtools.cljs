@@ -22,7 +22,7 @@
 (def Schema
   {::debugger {:initial-model              {schema/Any schema/Any}
 
-               :signal-events              [(schema/pair schema/Int "id" schema/Any "signal")]
+               :signal-events              [{:id schema/Int :signal schema/Any}]
                :next-signal-id             schema/Int
 
                :action-events              [{:id        schema/Int
@@ -57,7 +57,8 @@
 
 (defn -signal-event
   [id signal]
-  [id signal])
+  {:id     id
+   :signal signal})
 
 (defn -action-event
   [signal-id id action result]
@@ -84,7 +85,7 @@
   (->> model
        ::debugger
        :signal-events
-       (filter #(= (first %) id))
+       (filter #(= (:id %) id))
        first))
 
 (defn -find-action
@@ -110,9 +111,9 @@
     (fn control
       [model signal dispatch-signal dispatch-action]
       (letfn [(record-and-dispatch-to-app [signal]
-                (let [[signal-id _ :as signal-event] (-signal-event (-> @model ::debugger :next-signal-id) signal)]
+                (let [signal-event (-signal-event (-> @model ::debugger :next-signal-id) signal)]
                   (dispatch-action [::record-signal-event signal-event])
-                  (app-control model signal dispatch-signal #(dispatch-action [::app-action signal-id %]))))]
+                  (app-control model signal dispatch-signal #(dispatch-action [::app-action (:id signal-event) %]))))]
         (match signal
                :on-start
                (do
@@ -177,8 +178,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn -orphaned-signal?
   "Orphaned signal has no actions."
-  [model [signal-id _ :as _signal_]]
-  (empty? (filter #(= (:signal-id %) signal-id)
+  [model signal]
+  (empty? (filter #(= (:signal-id %) (:id signal))
                   (-> model ::debugger :action-events))))
 
 (defn -wrap-reconcile
@@ -249,16 +250,16 @@
                                                                                    (dissoc m ::debugger))])
                    (update-in m [::debugger :next-action-id] inc))
 
-             ; looks like originating signal could be already cleared -> create "unknown signal" to record this action
+             ; else: looks like originating signal could be already cleared -> create "unknown signal" to record this action
              (reconcile model a))
 
            ; for bare app actions (e.g. when originating signal was cleared) create an "unknown signal" event
            :else
-           (let [[signal-id _ :as unknown-signal-event] (-signal-event (-> model ::debugger :next-signal-id) ::unknown-signal)]
+           (let [unknown-signal-event (-signal-event (-> model ::debugger :next-signal-id) ::unknown-signal)]
              (-> model
                  (update-in [::debugger :signal-events] concat [unknown-signal-event])
                  (update-in [::debugger :next-signal-id] inc)
-                 (reconcile [::app-action signal-id action]))))))
+                 (reconcile [::app-action (:id unknown-signal-event) action]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -view-model
@@ -358,11 +359,11 @@
   [signal-events action-events dispatch]
   [:div
    (doall
-     (for [[signal-id signal] signal-events]
-       ^{:key signal-id}
+     (for [{:keys [id signal]} signal-events]
+       ^{:key id}
        [:div
-        [-signal-view signal-id signal dispatch]
-        [-actions-view action-events signal-id dispatch]]))])
+        [-signal-view id signal dispatch]
+        [-actions-view action-events id dispatch]]))])
 
 (defn -initial-model-view
   [initial-model]
