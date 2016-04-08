@@ -314,47 +314,55 @@
    [-menu-button (if persist? {} {:color "grey"}) (str "Persist" (if persist? "✓")) #(dispatch ::on-toggle-persist) "Persist debug session into local storage?"]
    [-menu-button {} "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]])
 
+(defn -actions-view
+  [action-events signal-id dispatch]
+  [:div
+   (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
+                                              action-events)]
+     ^{:key id}
+     [:div {:style    {:display     "flex"
+                       :margin-left 20
+                       :margin-top  1
+                       :color       (if enabled? "inherit" "grey")
+                       :cursor      "pointer"}
+            :on-click #(dispatch [::on-toggle-action id])}
+      [:div {:title "Click to enable/disable this action"}
+       (if (coll? action)
+         [:div (pr-str (first action)) " " (clojure.string/join " " (map pr-str (rest action)))]
+         [:div (pr-str action)])]
+
+      (when enabled?
+        [:div {:style    {:display          "flex"
+                          :margin-left      "5px"
+                          :border-radius    "3px"
+                          :cursor           "pointer"
+                          :align-items      "center"
+                          :background-color "rgb(60, 70, 80)"}
+               :on-click #(do (.stopPropagation %) (dispatch [::on-log-action-result id]))
+               :title    "Print model state after this action"}
+         "model"])])])
+
+(defn -signal-view
+  [signal-id signal dispatch]
+  [:div {:style    {:margin-top       8
+                    :padding-left     4
+                    :cursor           "pointer"
+                    :background-color "rgb(60, 70, 80)"}
+         :title    "Click to enable/disable all actions dispatched from this signal"
+         :on-click #(dispatch [::on-toggle-signal signal-id])}
+   (if (coll? signal)
+     [:span (pr-str (first signal)) " " (clojure.string/join " " (map pr-str (rest signal)))]
+     (pr-str signal))])
+
 (defn -signals-view
   [signal-events action-events dispatch]
   [:div
    (doall
      (for [[signal-id signal] signal-events]
        ^{:key signal-id}
-       [:div {:title "Signal"}
-        [:div {:style    {:padding-left     4
-                          :margin-top       8
-                          :cursor           "pointer"
-                          :background-color "rgb(60, 70, 80)"}
-               :on-click #(dispatch [::on-toggle-signal signal-id])
-               :title    "Click to enable/disable all actions dispatched from this signal"}
-         (if (coll? signal)
-           [:span (pr-str (first signal)) " " (clojure.string/join " " (map pr-str (rest signal)))]
-           (pr-str signal))]
-
-        (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
-                                                   action-events)]
-          ^{:key id}
-          [:div {:style    {:display     "flex"
-                            :margin-left 20
-                            :margin-top  1
-                            :color       (if enabled? "inherit" "grey")
-                            :cursor      "pointer"}
-                 :on-click #(dispatch [::on-toggle-action id])}
-           [:div {:title "Click to enable/disable this action"}
-            (if (coll? action)
-              [:div (pr-str (first action)) " " (clojure.string/join " " (map pr-str (rest action)))]
-              [:div (pr-str action)])]
-
-           (when enabled?
-             [:div {:style    {:display          "flex"
-                               :margin-left      "5px"
-                               :border-radius    "3px"
-                               :cursor           "pointer"
-                               :align-items      "center"
-                               :background-color "rgb(60, 70, 80)"}
-                    :on-click #(do (.stopPropagation %) (dispatch [::on-log-action-result id]))
-                    :title    "Print model state after this action"}
-              "model"])])]))])
+       [:div
+        [-signal-view signal-id signal dispatch]
+        [-actions-view action-events signal-id dispatch]]))])
 
 (defn -initial-model-view
   [initial-model]
