@@ -355,7 +355,7 @@
    [-menu-button {} "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
    [-menu-button {} "Save" #(dispatch ::on-save) "Saves current debugger session into file"]
    [-menu-file-selector "Load" #(dispatch [::on-load %]) "Loads debugger session from file"]
-   [-menu-button (if persist? {} {:color "grey"}) (str "Persist" (if persist? "✓")) #(dispatch ::on-toggle-persist) "Persist debug session into local storage?"]
+   [-menu-button (if persist? {} {:color "grey"}) "Persist✓" #(dispatch ::on-toggle-persist) "Persist debug session into local storage?"]
    [-menu-button {} "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]])
 
 (defn -actions-view
