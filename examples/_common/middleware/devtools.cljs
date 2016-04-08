@@ -280,10 +280,35 @@
                  (reconcile [::app-action (:id unknown-signal-event) action]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
+(defn -signal-parent-ids
+  "Returns a set containing: id of parent, parent of parent, etc. "
+  [signal-events id]
+  (let [id->parent-id (atom {})
+        result (atom #{})]
+    (doseq [{:keys [id parent-id]} signal-events]
+      (swap! id->parent-id assoc id parent-id))
+
+    (loop [child-id id]
+      (if-let [parent-id (@id->parent-id child-id)]
+        (do
+          (swap! result conj parent-id)
+          (recur parent-id))
+
+        @result))))
+
 (defn -view-model
   [model]
-  (mvsa/track-keys (reaction (::debugger @model))
-                   [:initial-model :persist? :visible? :toggle-visibility-shortcut :signal-events :action-events :highlighted-signal-id]))
+  (let [debugger (reaction (::debugger @model))
+        signal-events (reaction (-> @debugger :signal-events))
+        highlighted-signal-id (reaction (-> @debugger :highlighted-signal-id))
+        highlighted-signal-ids (reaction (into #{@highlighted-signal-id}
+                                               (-signal-parent-ids @signal-events @highlighted-signal-id)))]
+    (-> (mvsa/track-keys debugger
+                         [:initial-model :persist? :visible? :toggle-visibility-shortcut :action-events])
+        (assoc :signal-events (reaction
+                                ; mapv instead of map is essential, without it referenced reactions will be recalculated several times
+                                (mapv #(assoc % :highlighted? (contains? @highlighted-signal-ids (:id %)))
+                                      @signal-events))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (def -menu-button-style {:margin        "5px 3px"
@@ -362,28 +387,30 @@
          "model"])])])
 
 (defn -signal-view
-  [{:keys [id parent-id signal] :as _signal-event} highlighted? dispatch]
+  [{:keys [id parent-id signal highlighted?] :as _signal-event} dispatch]
   [:div {:style         {:margin-top       8
                          :padding-left     4
                          :cursor           "pointer"
-                         :background-color (if highlighted? "rgb(50, 150, 60)" "rgb(60, 70, 80)")}
+                         :background-color (if highlighted? "rgb(55, 130, 70)" "rgb(60, 70, 80)")}
          :title         "Click to enable/disable all actions dispatched from this signal"
          :on-click      #(dispatch [::on-toggle-signal id])
-         :on-mouse-over #(dispatch [::on-highlight-signal parent-id])
+         :on-mouse-over #(dispatch [::on-highlight-signal id])
          :on-mouse-out  #(dispatch [::on-highlight-signal nil])}
-   (when (not (nil? parent-id)) "△ ")
+   (when parent-id
+     [:span {:title "Signal was dispatched from another signal"} "↳ "])
+
    (if (coll? signal)
      [:span (pr-str (first signal)) " " (clojure.string/join " " (map pr-str (rest signal)))]
      (pr-str signal))])
 
 (defn -signals-view
-  [signal-events action-events highlighted-signal-id dispatch]
+  [signal-events action-events dispatch]
   [:div
    (doall
      (for [signal-event signal-events]
        ^{:key (:id signal-event)}
        [:div
-        [-signal-view signal-event (= (:id signal-event) highlighted-signal-id) dispatch]
+        [-signal-view signal-event dispatch]
         [-actions-view action-events (:id signal-event) dispatch]]))])
 
 (defn -initial-model-view
@@ -424,7 +451,7 @@
         body))
 
 (defn -view
-  [{:keys [visible? toggle-visibility-shortcut persist? initial-model signal-events action-events :highlighted-signal-id]}
+  [{:keys [visible? toggle-visibility-shortcut persist? initial-model signal-events action-events]}
    dispatch]
   [-overlay
    [-resizable-div {:style {:display          (if @visible? "block" "none") ; using CSS instead of React in order to persist resized frame on toggling visibility
@@ -451,7 +478,7 @@
      [:hr]
      [-initial-model-view @initial-model]
      [:hr]
-     [-signals-view @signal-events @action-events @highlighted-signal-id dispatch]]]])
+     [-signals-view @signal-events @action-events dispatch]]]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn -wrap-load-from-storage
