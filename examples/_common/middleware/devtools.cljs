@@ -22,8 +22,11 @@
 (def Schema
   {::debugger {:initial-model              {schema/Any schema/Any}
 
-               :signal-events              [{:id schema/Int :signal schema/Any}]
+               :signal-events              [{:id        schema/Int
+                                             :parent-id (schema/maybe schema/Int)
+                                             :signal    schema/Any}]
                :next-signal-id             schema/Int
+               :highlighted-signal-id      (schema/maybe schema/Int)
 
                :action-events              [{:id        schema/Int
                                              :signal-id schema/Int
@@ -46,6 +49,7 @@
 
                             :signal-events              nil
                             :next-signal-id             0
+                            :highlighted-signal-id      nil
 
                             :action-events              nil
                             :next-action-id             0
@@ -56,12 +60,13 @@
                             :toggle-visibility-shortcut toggle-visibility-shortcut}))
 
 (defn -signal-event
-  [id signal]
-  {:id     id
-   :signal signal})
+  [id parent-id signal]
+  {:id        id
+   :parent-id parent-id
+   :signal    signal})
 
 (defn -action-event
-  [signal-id id action result]
+  [id signal-id action result]
   {:id        id
    :signal-id signal-id
    :enabled?  true
@@ -110,14 +115,16 @@
   (let [unlisten-shortcuts (atom nil)]
     (fn control
       [model signal dispatch-signal dispatch-action]
-      (letfn [(record-and-dispatch-to-app [signal]
-                (let [signal-event (-signal-event (-> @model ::debugger :next-signal-id) signal)]
+      (letfn [(record-and-dispatch-to-app [signal parent-signal-id]
+                (let [signal-event (-signal-event (-> @model ::debugger :next-signal-id) parent-signal-id signal)
+                      intercepted-dispatch-signal #(dispatch-signal [::on-app-signal (:id signal-event) %])
+                      intercepted-dispatch-action #(dispatch-action [::app-action (:id signal-event) %])]
                   (dispatch-action [::record-signal-event signal-event])
-                  (app-control model signal dispatch-signal #(dispatch-action [::app-action (:id signal-event) %]))))]
+                  (app-control model signal intercepted-dispatch-signal intercepted-dispatch-action)))]
         (match signal
                :on-start
                (do
-                 (record-and-dispatch-to-app :on-start)
+                 (record-and-dispatch-to-app :on-start nil)
 
                  (let [shortcut-handler (KeyboardShortcutHandler. js/document)
                        key (goog.events/listen shortcut-handler
@@ -131,7 +138,7 @@
                (do
                  #(@unlisten-shortcuts)
 
-                 (record-and-dispatch-to-app :on-stop))
+                 (record-and-dispatch-to-app :on-stop nil))
 
                ::on-did-load-from-storage
                (dispatch-action ::replay)
@@ -172,8 +179,16 @@
                [::on-load content]
                (dispatch-action [::load (cljs.reader/read-string content)])
 
+               [::on-highlight-signal id]
+               (dispatch-action [::highlight-signal id])
+
+               ; app signal coming from specific signal
+               [::on-app-signal parent-id s]
+               (record-and-dispatch-to-app s parent-id)
+
+               ; bare app signal
                :else
-               (record-and-dispatch-to-app signal))))))
+               (record-and-dispatch-to-app signal nil))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
 (defn -orphaned-signal?
@@ -239,13 +254,16 @@
            [::load new-model]
            new-model
 
+           [::highlight-signal id]
+           (assoc-in model [::debugger :highlighted-signal-id] id)
+
            ; app action coming from specific signal
            [::app-action signal-id a]
            (if (-find-signal model signal-id)
              (as-> model m
                    (app-reconcile m a)
-                   (update-in m [::debugger :action-events] concat [(-action-event signal-id
-                                                                                   (-> m ::debugger :next-action-id)
+                   (update-in m [::debugger :action-events] concat [(-action-event (-> m ::debugger :next-action-id)
+                                                                                   signal-id
                                                                                    a
                                                                                    (dissoc m ::debugger))])
                    (update-in m [::debugger :next-action-id] inc))
@@ -255,7 +273,7 @@
 
            ; for bare app actions (e.g. when originating signal was cleared) create an "unknown signal" event
            :else
-           (let [unknown-signal-event (-signal-event (-> model ::debugger :next-signal-id) ::unknown-signal)]
+           (let [unknown-signal-event (-signal-event (-> model ::debugger :next-signal-id) nil ::unknown-signal)]
              (-> model
                  (update-in [::debugger :signal-events] concat [unknown-signal-event])
                  (update-in [::debugger :next-signal-id] inc)
@@ -265,7 +283,7 @@
 (defn -view-model
   [model]
   (mvsa/track-keys (reaction (::debugger @model))
-                   [:initial-model :persist? :visible? :toggle-visibility-shortcut :signal-events :action-events]))
+                   [:initial-model :persist? :visible? :toggle-visibility-shortcut :signal-events :action-events :highlighted-signal-id]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (def -menu-button-style {:margin        "5px 3px"
@@ -344,26 +362,29 @@
          "model"])])])
 
 (defn -signal-view
-  [signal-id signal dispatch]
-  [:div {:style    {:margin-top       8
-                    :padding-left     4
-                    :cursor           "pointer"
-                    :background-color "rgb(60, 70, 80)"}
-         :title    "Click to enable/disable all actions dispatched from this signal"
-         :on-click #(dispatch [::on-toggle-signal signal-id])}
+  [{:keys [id parent-id signal] :as _signal-event} highlighted? dispatch]
+  [:div {:style         {:margin-top       8
+                         :padding-left     4
+                         :cursor           "pointer"
+                         :background-color (if highlighted? "rgb(50, 150, 60)" "rgb(60, 70, 80)")}
+         :title         "Click to enable/disable all actions dispatched from this signal"
+         :on-click      #(dispatch [::on-toggle-signal id])
+         :on-mouse-over #(dispatch [::on-highlight-signal parent-id])
+         :on-mouse-out  #(dispatch [::on-highlight-signal nil])}
+   (when (not (nil? parent-id)) "△ ")
    (if (coll? signal)
      [:span (pr-str (first signal)) " " (clojure.string/join " " (map pr-str (rest signal)))]
      (pr-str signal))])
 
 (defn -signals-view
-  [signal-events action-events dispatch]
+  [signal-events action-events highlighted-signal-id dispatch]
   [:div
    (doall
-     (for [{:keys [id signal]} signal-events]
-       ^{:key id}
+     (for [signal-event signal-events]
+       ^{:key (:id signal-event)}
        [:div
-        [-signal-view id signal dispatch]
-        [-actions-view action-events id dispatch]]))])
+        [-signal-view signal-event (= (:id signal-event) highlighted-signal-id) dispatch]
+        [-actions-view action-events (:id signal-event) dispatch]]))])
 
 (defn -initial-model-view
   [initial-model]
@@ -403,7 +424,8 @@
         body))
 
 (defn -view
-  [{:keys [visible? toggle-visibility-shortcut persist? initial-model signal-events action-events] :as _view-model} dispatch]
+  [{:keys [visible? toggle-visibility-shortcut persist? initial-model signal-events action-events :highlighted-signal-id]}
+   dispatch]
   [-overlay
    [-resizable-div {:style {:display          (if @visible? "block" "none") ; using CSS instead of React in order to persist resized frame on toggling visibility
                             :left             "70%"
@@ -429,7 +451,7 @@
      [:hr]
      [-initial-model-view @initial-model]
      [:hr]
-     [-signals-view @signal-events @action-events dispatch]]]])
+     [-signals-view @signal-events @action-events @highlighted-signal-id dispatch]]]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 (defn -wrap-load-from-storage
