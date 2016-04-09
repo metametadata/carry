@@ -281,20 +281,27 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn -signal-parent-ids
-  "Returns a set containing: id of parent, parent of parent, etc. "
+  "Returns a set containing: id of parent, parent of parent, etc.
+  Removed parent ids are ignored."
   [signal-events id]
   (let [id->parent-id (atom {})
         result (atom #{})]
     (doseq [{:keys [id parent-id]} signal-events]
       (swap! id->parent-id assoc id parent-id))
 
-    (loop [child-id id]
-      (if-let [parent-id (@id->parent-id child-id)]
-        (do
-          (swap! result conj parent-id)
-          (recur parent-id))
+    (let [existing-ids (keys @id->parent-id)]
+      (loop [child-id id]
+        (let [parent-id (@id->parent-id child-id)]
+          (if (some #{parent-id} existing-ids)
+            (do
+              (swap! result conj parent-id)
+              (recur parent-id))
 
-        @result))))
+            @result))))))
+
+(defn -signal-indent
+  [signal-events id]
+  (count (-signal-parent-ids signal-events id)))
 
 (defn -view-model
   [model]
@@ -307,7 +314,8 @@
                          [:initial-model :persist? :visible? :toggle-visibility-shortcut :action-events])
         (assoc :signal-events (reaction
                                 ; mapv instead of map is essential, without it referenced reactions will be recalculated several times
-                                (mapv #(assoc % :highlighted? (contains? @highlighted-signal-ids (:id %)))
+                                (mapv #(assoc % :highlighted? (contains? @highlighted-signal-ids (:id %))
+                                                :indent (-signal-indent @signal-events (:id %)))
                                       @signal-events))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
@@ -397,7 +405,7 @@
          :on-mouse-over #(dispatch [::on-highlight-signal id])
          :on-mouse-out  #(dispatch [::on-highlight-signal nil])}
    (when parent-id
-     [:span {:title "Signal was dispatched from another signal"} "↳ "])
+     [:span {:title "Signal was dispatched from another signal"} "↳"])
 
    (if (coll? signal)
      [:span (pr-str (first signal)) " " (clojure.string/join " " (map pr-str (rest signal)))]
@@ -409,7 +417,7 @@
    (doall
      (for [signal-event signal-events]
        ^{:key (:id signal-event)}
-       [:div
+       [:div {:style {:margin-left (* (:indent signal-event) 15)}}
         [-signal-view signal-event dispatch]
         [-actions-view action-events (:id signal-event) dispatch]]))])
 
