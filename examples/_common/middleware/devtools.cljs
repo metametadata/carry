@@ -437,15 +437,23 @@
                                                                          :handles "n, e, s, w, ne, se, sw, nw"})))}))
 
 (defn -autoscrollable-div
-  "Will scroll to bottom on any update."
+  "Will scroll to bottom on any update. Will not scroll if scroll position is not at the bottom."
   [_attrs & _body]
-  (letfn [(scroll [this]
-            (set! (.-scrollTop (r/dom-node this))
-                  (.-scrollHeight (r/dom-node this))))]
-    (r/create-class {:reagent-render       (fn [attrs & body]
-                                             (into [:div attrs] body))
-                     :component-did-mount  scroll
-                     :component-did-update scroll})))
+  (let [autoscroll? (atom true)
+        update-autoscroll (fn [this]
+                            (let [node (r/dom-node this)]
+                              ; expression value can be negative in Safari
+                              (reset! autoscroll? (<= (- (.-scrollHeight node)
+                                                         (+ (.-scrollTop node) (.-offsetHeight node)))
+                                                      0))))
+        scroll (fn [this]
+                 (when @autoscroll?
+                   (set! (.-scrollTop (r/dom-node this))
+                         (.-scrollHeight (r/dom-node this)))))]
+    (r/create-class {:reagent-render               (fn [attrs & body] (into [:div attrs] body))
+                     :component-will-receive-props update-autoscroll
+                     :component-did-mount          scroll
+                     :component-did-update         scroll})))
 
 (defn -overlay
   [& body]
