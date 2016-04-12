@@ -27,7 +27,7 @@
         ; create app from spec
         app (mvsa/app app-spec)
 
-        ; create GUI; history is passed into view model to build correct URLs
+        ; create GUI; history is passed into view for rendering links
         [app-view-model app-view] (mvsa/connect-ui app view-model (new-view history))
 
         ; create debugger GUI
