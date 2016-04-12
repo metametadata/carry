@@ -43,9 +43,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn view-model
   [model]
-  (-> model
-      (mvsa/track-keys [:friend-list-visible? :counter-visible?])
-      (assoc :app-model-log (reaction (pr-str @model)))))
+  (mvsa/track-keys model [:friend-list-visible? :counter-visible?]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn view
