@@ -35,7 +35,7 @@
                                              :result    {schema/Any schema/Any}}]
                :next-action-id             schema/Int
 
-               :persist?                   schema/Bool
+               :replay-mode?               schema/Bool
 
                :visible?                   schema/Bool
                :toggle-visibility-shortcut schema/Str}
@@ -54,7 +54,7 @@
                             :action-events              nil
                             :next-action-id             0
 
-                            :persist?                   false
+                            :replay-mode?               false
 
                             :visible?                   true
                             :toggle-visibility-shortcut toggle-visibility-shortcut}))
@@ -156,8 +156,8 @@
                [::on-log-action-result id]
                (-> (-find-action @model id) :result pr-str println)
 
-               ::on-toggle-persist
-               (dispatch-action ::toggle-persist)
+               ::on-toggle-replay-mode
+               (dispatch-action ::toggle-replay-mode)
 
                ::on-vacuum
                (dispatch-action ::vacuum)
@@ -235,8 +235,8 @@
                             (-update-action-event m id assoc :result (dissoc m ::debugger))))
                new-model))
 
-           ::toggle-persist
-           (update-in model [::debugger :persist?] not)
+           ::toggle-replay-mode
+           (update-in model [::debugger :replay-mode?] not)
 
            ::vacuum
            (as-> model m
@@ -311,7 +311,7 @@
         highlighted-signal-ids (reaction (into #{@highlighted-signal-id}
                                                (-signal-parent-ids @signal-events @highlighted-signal-id)))]
     (-> (mvsa/track-keys debugger
-                         [:initial-model :persist? :visible? :toggle-visibility-shortcut :action-events])
+                         [:initial-model :replay-mode? :visible? :toggle-visibility-shortcut :action-events])
         (assoc :signal-events (reaction
                                 ; mapv instead of map is essential, without it referenced reactions will be recalculated several times
                                 (mapv #(assoc % :highlighted? (contains? @highlighted-signal-ids (:id %))
@@ -356,14 +356,14 @@
             :value     ""}]])
 
 (defn -menu
-  [persist? toggle-visibility-shortcut dispatch]
+  [replay-mode? toggle-visibility-shortcut dispatch]
   [:div {:style {:text-align "center"}}
    [-menu-button {} "Clear" #(dispatch ::on-clear) "Clears debugger history"]
    [-menu-button {} "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
    [-menu-button {} "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
    [-menu-button {} "Save" #(dispatch ::on-save) "Saves current debugger session into file"]
    [-menu-file-selector "Load" #(dispatch [::on-load %]) "Loads debugger session from file"]
-   [-menu-button (if persist? {} {:color "grey"}) "Persist✓" #(dispatch ::on-toggle-persist) "Persist debug session into local storage?"]
+   [-menu-button (if replay-mode? {} {:color "grey"}) "Replay✓" #(dispatch ::on-toggle-replay-mode) "Replay current session on next app start?"]
    [-menu-button {} "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]])
 
 (defn -actions-view
@@ -467,7 +467,7 @@
         body))
 
 (defn -view
-  [{:keys [visible? toggle-visibility-shortcut persist? initial-model signal-events action-events]}
+  [{:keys [visible? toggle-visibility-shortcut replay-mode? initial-model signal-events action-events]}
    dispatch]
   [-overlay
    [-resizable-div {:style {:display          (if @visible? "block" "none") ; using CSS instead of React in order to persist resized frame on toggling visibility
@@ -482,7 +482,7 @@
                             :font-family      "sans-serif"
                             :line-height      "1.4em"
                             :font-weight      "300"}}
-    [-menu @persist? @toggle-visibility-shortcut dispatch]
+    [-menu @replay-mode? @toggle-visibility-shortcut dispatch]
 
     [-autoscrollable-div
      {:style {:position "absolute"
@@ -502,7 +502,7 @@
   (fn wrapped-load-from-storage
     [model loaded-model dispatch-signal]
     ; load only if user set the flag during previous session
-    (when (-> loaded-model ::debugger :persist?)
+    (when (-> loaded-model ::debugger :replay-mode?)
       ; update :initial-model; otherwise, on hot reload, we will not see changes after modifying app init code
       (let [loaded-model (update loaded-model ::debugger merge (-> @model ::debugger (select-keys [:initial-model])))]
         (load-from-storage model loaded-model dispatch-signal)
@@ -510,6 +510,7 @@
 
 (defn add-debugger
   "Adds debugging capabilities to the app.
+
    All signals and actions will be recorded and stored in the model.
    After app is created use |connect-debugger-ui| for rendering the debugger.
    For correct work it must be the last middleware wrapping the app and
