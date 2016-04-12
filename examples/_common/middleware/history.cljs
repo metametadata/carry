@@ -123,7 +123,7 @@
              (do
                (dispatch-action [::set-token token])
 
-               (when (or browser-event? (:browser-event? event-data))
+               (when (or browser-event? (:treat-as-browser-event? event-data))
                  (dispatch-signal [::on-enter token])))
 
              :else
@@ -152,7 +152,7 @@
 
   Sends [::on-enter token] signal to app after handling token change event initiated from browser (e.g. on clicking Back button).
   So using HistoryProtocol's replace-token/push-token would not trigger this signal.
-  You can still force sending this signal by passing {:browser-event? true} event-data to these functions."
+  You can still force sending this signal by passing {:treat-as-browser-event? true} event-data to these functions."
   [spec history]
   (-> spec
       (update :initial-model -wrap-initial-model)
@@ -174,8 +174,8 @@
   (when (-pure-click? e)
     (.preventDefault e)
     (if replace?
-      (replace-token history token {:browser-event? true})
-      (push-token history token {:browser-event? true}))))
+      (replace-token history token {:treat-as-browser-event? true})
+      (push-token history token {:treat-as-browser-event? true}))))
 
 (defn link
   "Link component which changes current URL without sending request to server.
