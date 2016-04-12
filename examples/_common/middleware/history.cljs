@@ -88,8 +88,7 @@
 ;;; Init
 (defn -wrap-initial-model
   [app-initial-model]
-  ; set some initial token - it will be used on clicking Reset in debugger
-  (assoc app-initial-model ::token "/"))
+  (merge {::token "/"} app-initial-model))
 
 ;;; Control
 (defn -wrap-control
@@ -145,10 +144,11 @@
 
 ;;; Middleware
 (defn add
-  "Applies middleware which allows app model always be in sync with current history.
+  "Applies middleware which allows app model being in sync with current history.
 
   After start it begins catching history events and updates ::token in model accordingly.
   If ::token changes in model (e.g. by toggling action in debugger), then current url is replaced using new token.
+  Initial ::token value will be applied on clicking debugger's Reset.
 
   Sends [::on-enter token] signal to app after handling token change event initiated from browser (e.g. on clicking Back button).
   So using HistoryProtocol's replace-token/push-token would not trigger this signal.

@@ -19,8 +19,9 @@
    s/Any    s/Any})
 
 (def -initial-model
-  {:query   ""
-   :friends nil})
+  {:query    ""
+   :friends  nil
+   ::h/token ""})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn -new-control
