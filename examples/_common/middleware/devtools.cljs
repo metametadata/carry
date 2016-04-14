@@ -261,8 +261,8 @@
 
            ::clear
            (-> model
-               (assoc-in [::debugger :signal-events] nil)
-               (assoc-in [::debugger :action-events] nil)
+               (assoc-in [::debugger :signal-events] (list))
+               (assoc-in [::debugger :action-events] (list))
                (assoc-in [::debugger :next-signal-id] 0)
                (assoc-in [::debugger :next-action-id] 0))
 
