@@ -37,7 +37,8 @@
   (fn reconcile
     [model action]
     (match action
-           ; it's important to apply blacklist using the most actual model, that's why we do it in action
+           ; It's important to apply blacklist using the most actual model, that's why we do it in action.
+           ; Key is passed in order to support several middleware instances correctly.
            [::load-from-storage key loaded-model]
            (merge loaded-model (select-keys model blacklist))
 

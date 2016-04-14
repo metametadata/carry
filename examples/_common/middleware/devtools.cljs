@@ -1,6 +1,5 @@
 (ns middleware.devtools
   (:require [reagent-mvsa.core :as mvsa]
-            [middleware.persistence :as persistence]
             [middleware.schema :as schema-middleware]
             [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
@@ -13,7 +12,7 @@
             cljsjs.filesaverjs
             cljs.pprint)
   (:import goog.ui.KeyboardShortcutHandler)
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  (:require-macros [reagent.ratom :refer [reaction run!]]))
 
 (chrome-devtools/enable-feature! :sanity-hints)
 (chrome-devtools/install!)
@@ -28,11 +27,12 @@
                :next-signal-id             schema/Int
                :highlighted-signal-id      (schema/maybe schema/Int)
 
-               :action-events              [{:id        schema/Int
-                                             :signal-id schema/Int
-                                             :enabled?  schema/Bool
-                                             :action    schema/Any
-                                             :result    {schema/Any schema/Any}}]
+               :action-events              [{:id          schema/Int
+                                             :signal-id   schema/Int
+                                             :enabled?    schema/Bool
+                                             :for-replay? schema/Bool
+                                             :action      schema/Any
+                                             :result      {schema/Any schema/Any}}]
                :next-action-id             schema/Int
 
                :replay-mode?               schema/Bool
@@ -67,15 +67,16 @@
 
 (defn -action-event
   [id signal-id action result]
-  {:id        id
-   :signal-id signal-id
-   :enabled?  true
-   :action    action
+  {:id          id
+   :signal-id   signal-id
+   :enabled?    true
+   :for-replay? false
+   :action      action
 
    ; this key only makes sense for enabled actions; should not include ::debugger data
-   :result    result})
+   :result      result})
 
-(defn -update-action-events*
+(defn -update-action-events
   [model pred f & args]
   (s/transform [::debugger :action-events s/ALL pred]
                #(apply f % args)
@@ -83,7 +84,7 @@
 
 (defn -update-action-event
   [model id f & args]
-  (apply -update-action-events* model #(= (:id %) id) f args))
+  (apply -update-action-events model #(= (:id %) id) f args))
 
 (defn -find-signal
   [model id]
@@ -101,6 +102,16 @@
        (filter #(= (:id %) id))
        first))
 
+(defn -orphaned-signal?
+  "Orphaned signal has no actions."
+  [model signal]
+  (empty? (filter #(= (:signal-id %) (:id signal))
+                  (-> model ::debugger :action-events))))
+
+(defn -remove-orphaned-signals
+  [model]
+  (update-in model [::debugger :signal-events] #(remove (partial -orphaned-signal? model) %)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
 (defn -save-file
   "Uses filesaverjs lib."
@@ -111,7 +122,7 @@
     (js/saveAs blob filename)))
 
 (defn -wrap-control
-  [app-control toggle-visibility-shortcut]
+  [app-control storage storage-key toggle-visibility-shortcut]
   (let [unlisten-shortcuts (atom nil)]
     (fn control
       [model signal dispatch-signal dispatch-action]
@@ -124,15 +135,31 @@
         (match signal
                :on-start
                (do
-                 (record-and-dispatch-to-app :on-start nil)
-
+                 ; init keyboard shortcuts
                  (let [shortcut-handler (KeyboardShortcutHandler. js/document)
                        key (goog.events/listen shortcut-handler
                                                EventType/SHORTCUT_TRIGGERED
                                                #(when (= (.-identifier %) toggle-visibility-shortcut)
                                                  (dispatch-signal ::on-toggle-visibility)))]
                    (reset! unlisten-shortcuts #(goog.events/unlistenByKey key))
-                   (.registerShortcut shortcut-handler toggle-visibility-shortcut toggle-visibility-shortcut)))
+                   (.registerShortcut shortcut-handler toggle-visibility-shortcut toggle-visibility-shortcut))
+
+                 ; load debugger model from storage and replay if it's in replay mode
+                 (let [loaded-model (get storage storage-key)]
+                   (when (-> loaded-model ::debugger :replay-mode?)
+                     ; updating :initial-model so that on hot reload we don't see changes after modifying app init code
+                     (dispatch-action [::load (assoc-in loaded-model [::debugger :initial-model] (-> @model ::debugger :initial-model))])
+                     (dispatch-action ::replay)))
+
+                 ; start persisting replayable events
+                 (run!
+                   (let [saved-model (-> @model
+                                         (update-in [::debugger :action-events] #(filter :for-replay? %))
+                                         -remove-orphaned-signals)]
+                     (assoc! storage storage-key saved-model)))
+
+                 ; now start app as usual
+                 (record-and-dispatch-to-app :on-start nil))
 
                :on-stop
                (do
@@ -191,12 +218,6 @@
                (record-and-dispatch-to-app signal nil))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
-(defn -orphaned-signal?
-  "Orphaned signal has no actions."
-  [model signal]
-  (empty? (filter #(= (:signal-id %) (:id signal))
-                  (-> model ::debugger :action-events))))
-
 (defn -wrap-reconcile
   [app-reconcile]
   (fn reconcile
@@ -218,8 +239,8 @@
                                            :action-events
                                            (filter #(= (:signal-id %) id))
                                            (every? :enabled?))]
-             (-update-action-events* model #(= (:signal-id %) id)
-                                     assoc :enabled? (not all-actions-enabled?)))
+             (-update-action-events model #(= (:signal-id %) id)
+                                    assoc :enabled? (not all-actions-enabled?)))
 
            [::toggle-action id]
            (-update-action-event model id update :enabled? not)
@@ -236,12 +257,15 @@
                new-model))
 
            ::toggle-replay-mode
-           (update-in model [::debugger :replay-mode?] not)
+           (-> model
+               (update-in [::debugger :replay-mode?] not)
+               (-update-action-events (constantly true)
+                                      assoc :for-replay? (not (-> model ::debugger :replay-mode?))))
 
            ::vacuum
-           (as-> model m
-                 (update-in m [::debugger :action-events] #(filter :enabled? %))
-                 (update-in m [::debugger :signal-events] #(remove (partial -orphaned-signal? m) %)))
+           (-> model
+               (update-in [::debugger :action-events] #(filter :enabled? %))
+               -remove-orphaned-signals)
 
            ::clear
            (-> model
@@ -319,7 +343,8 @@
                                       @signal-events))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
-(def -menu-button-style {:margin        "5px 3px"
+(def -color-replay "rgb(240, 240, 30)")
+(def -style-menu-button {:margin        "5px 3px"
                          :padding       4
                          :font-size     "inherit"
                          :font-family   "inherit"
@@ -332,7 +357,7 @@
 
 (defn -menu-button
   [style caption on-click title]
-  [:button {:style    (merge -menu-button-style style)
+  [:button {:style    (merge -style-menu-button style)
             :title    title
             :on-click on-click}
    caption])
@@ -340,7 +365,7 @@
 (defn -menu-file-selector
   "Styled file input which invokes the callback with loaded file content."
   [caption on-load title]
-  [:label {:style -menu-button-style
+  [:label {:style -style-menu-button
            :title title}
    caption
    [:input {:style     {:display "none"}
@@ -362,15 +387,15 @@
    [-menu-button {} "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
    [-menu-button {} "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
    [-menu-button {} "Save" #(dispatch ::on-save) "Saves current debugger session into file"]
-   [-menu-file-selector "Load" #(dispatch [::on-load %]) "Loads debugger session from file"]
-   [-menu-button (if replay-mode? {} {:color "grey"}) "Replay✓" #(dispatch ::on-toggle-replay-mode) "Replay current session on next app start?"]
+   [-menu-file-selector "Load" #(dispatch [::on-load %]) "Loads debugger session from file (without replaying)"]
+   [-menu-button (if replay-mode? {:color -color-replay} {:color "grey"}) "Replay⥀" #(dispatch ::on-toggle-replay-mode) "Replay current session before next app start?"]
    [-menu-button {} "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]])
 
 (defn -actions-view
   [action-events signal-id dispatch]
   [:div
-   (for [{:keys [id enabled? action]} (filter #(= (:signal-id %) signal-id)
-                                              action-events)]
+   (for [{:keys [id enabled? for-replay? action]} (filter #(= (:signal-id %) signal-id)
+                                                          action-events)]
      ^{:key id}
      [:div {:style    {:display     "flex"
                        :margin-left 20
@@ -379,16 +404,19 @@
                        :cursor      "pointer"}
             :on-click #(dispatch [::on-toggle-action id])}
       [:div {:title "Click to enable/disable this action"}
+       (when for-replay?
+         [:span {:style {:color -color-replay} :title "Marked for replaying before next app start"} "⥀"])
+
        (if (coll? action)
-         [:div (pr-str (first action)) " " (clojure.string/join " " (map pr-str (rest action)))]
-         [:div (pr-str action)])]
+         (str (pr-str (first action)) " " (clojure.string/join " " (map pr-str (rest action))))
+         (pr-str action))]
 
       (when enabled?
         [:div {:style    {:display          "flex"          ; for text centering
+                          :align-items      "center"
                           :margin-left      "5px"
                           :border-radius    "3px"
                           :cursor           "pointer"
-                          :align-items      "center"
                           :background-color "rgb(60, 70, 80)"}
                :on-click #(do (.stopPropagation %) (dispatch [::on-log-action-result id]))
                :title    "Print model state after this action"}
@@ -497,17 +525,6 @@
      [-signals-view @signal-events @action-events dispatch]]]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
-(defn -wrap-load-from-storage
-  [load-from-storage]
-  (fn wrapped-load-from-storage
-    [model loaded-model dispatch-signal]
-    ; load only if user set the flag during previous session
-    (when (-> loaded-model ::debugger :replay-mode?)
-      ; update :initial-model; otherwise, on hot reload, we will not see changes after modifying app init code
-      (let [loaded-model (update loaded-model ::debugger merge (-> @model ::debugger (select-keys [:initial-model])))]
-        (load-from-storage model loaded-model dispatch-signal)
-        (dispatch-signal ::on-did-load-from-storage)))))
-
 (defn add-debugger
   "Adds debugging capabilities to the app.
 
@@ -521,11 +538,10 @@
   ([spec storage storage-key toggle-visibility-shortcut]
    (-> spec
        (update :initial-model -wrap-initial-model toggle-visibility-shortcut)
-       (update :control -wrap-control toggle-visibility-shortcut)
+       (update :control -wrap-control storage storage-key toggle-visibility-shortcut)
        (update :reconcile -wrap-reconcile)
 
-       (schema-middleware/add Schema)
-       (persistence/add storage storage-key {:load-wrapper -wrap-load-from-storage}))))
+       (schema-middleware/add Schema))))
 
 (defn connect-debugger-ui
   "Returns [debugger-view-model debugger-view]. App spec must be wrapped by |add-debugger|.
