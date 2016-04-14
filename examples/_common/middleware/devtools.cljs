@@ -191,7 +191,7 @@
 
                ::on-reset
                (do
-                 (dispatch-action ::clear-history)
+                 (dispatch-action ::clear)
                  (dispatch-action ::replay))
 
                ::on-toggle-visibility
@@ -220,11 +220,6 @@
   (fn reconcile
     [model action]
     (match action
-           ::clear-history
-           (-> model
-               (assoc-in [::debugger :signal-events] (list))
-               (assoc-in [::debugger :action-events] (list)))
-
            [::record-signal-event signal-event]
            (-> model
                (update-in [::debugger :signal-events] concat [signal-event])
@@ -267,7 +262,9 @@
            ::clear
            (-> model
                (assoc-in [::debugger :signal-events] nil)
-               (assoc-in [::debugger :action-events] nil))
+               (assoc-in [::debugger :action-events] nil)
+               (assoc-in [::debugger :next-signal-id] 0)
+               (assoc-in [::debugger :next-action-id] 0))
 
            ::toggle-visibility
            (update-in model [::debugger :visible?] not)
