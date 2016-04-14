@@ -167,9 +167,6 @@
 
                  (record-and-dispatch-to-app :on-stop nil))
 
-               ::on-did-load-from-storage
-               (dispatch-action ::replay)
-
                [::on-toggle-signal id]
                (do
                  (dispatch-action [::toggle-signal id])
@@ -203,7 +200,7 @@
                ::on-save
                (-save-file "debugger-session.txt" (with-out-str (cljs.pprint/pprint @model)))
 
-               [::on-load content]
+               [::on-open content]
                (dispatch-action [::load (cljs.reader/read-string content)])
 
                [::on-highlight-signal id]
@@ -386,8 +383,8 @@
    [-menu-button {} "Clear" #(dispatch ::on-clear) "Clears debugger history"]
    [-menu-button {} "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
    [-menu-button {} "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
+   [-menu-file-selector "Open" #(dispatch [::on-open %]) "Loads debugger session from file (without replaying)"]
    [-menu-button {} "Save" #(dispatch ::on-save) "Saves current debugger session into file"]
-   [-menu-file-selector "Load" #(dispatch [::on-load %]) "Loads debugger session from file (without replaying)"]
    [-menu-button (if replay-mode? {:color -color-replay} {:color "grey"}) "Replay⥀" #(dispatch ::on-toggle-replay-mode) "Replay current session before next app start?"]
    [-menu-button {} "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]])
 
