@@ -20,9 +20,10 @@
                (app-control model signal dispatch-signal dispatch-action)
 
                (println "[persistence] start, key =" (pr-str key))
-               (let [loaded-model (get storage key :not-found)]
-                 (when (not= loaded-model :not-found)
-                   ((load-wrapper load-from-storage) model loaded-model dispatch-signal)))
+               (when (not (-> @model :middleware.devtools/debugger :replay-mode?))
+                 (let [loaded-model (get storage key :not-found)]
+                   (when (not= loaded-model :not-found)
+                     ((load-wrapper load-from-storage) model loaded-model dispatch-signal))))
 
                (run! (-save storage key blacklist @model)))
 
@@ -53,7 +54,9 @@
   Storage is expected to be a transient map.
   If this middleware is applied to spec several times then all keys must differ; otherwise, behavior is undefined.
   Optional :blacklist set should contain model keys which will not be saved and loaded.
-  Optional :load-wrapper allows decorating model update function (e.g. it's possible to cancel loading based on loaded data)."
+  Optional :load-wrapper allows decorating model update function (e.g. it's possible to cancel loading based on loaded data).
+
+  Middleware is replay-friendly, meaning that it won't load model from storage on app start if debugger's replay mode is on."
   ([spec storage key]
    (add spec storage key nil))
   ([spec storage key {:keys [blacklist load-wrapper] :or {blacklist #{} load-wrapper identity} :as _options}]

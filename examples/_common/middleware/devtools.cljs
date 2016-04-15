@@ -525,7 +525,9 @@
    For correct work it must be the last middleware wrapping the app and
    also make sure to blacklist ::debugger key if your app uses persistence middleware.
 
-   Custom keyboard shortcut can toggle the visibility."
+   Custom keyboard shortcut can toggle the visibility.
+
+   Applying debugger middleware more than once will lead to undefined behaviour."
   ([spec storage storage-key] (add-debugger spec storage storage-key "ctrl+h"))
   ([spec storage storage-key toggle-visibility-shortcut]
    (-> spec

@@ -111,7 +111,8 @@
                        (listen history #(dispatch-signal [::on-history-event {:token %1 :browser-event? %2 :event-data %3}])))
 
                ; initial signal
-               (dispatch-signal [::on-history-event {:token (token history) :browser-event? true :event-data nil}]))
+               (when (not (-> @model :middleware.devtools/debugger :replay-mode?))
+                 (dispatch-signal [::on-history-event {:token (token history) :browser-event? true :event-data nil}])))
 
              :on-stop
              (do
@@ -152,7 +153,9 @@
 
   Sends [::on-enter token] signal to app after handling token change event initiated from browser (e.g. on clicking Back button).
   So using HistoryProtocol's replace-token/push-token would not trigger this signal.
-  You can still force sending this signal by passing {:treat-as-browser-event? true} event-data to these functions."
+  You can still force sending this signal by passing {:treat-as-browser-event? true} event-data to these functions.
+
+  Middleware is replay-friendly, meaning that it won't automatically dispatch initial signal on app start if debugger's replay mode is on."
   [spec history]
   (-> spec
       (update :initial-model -wrap-initial-model)
