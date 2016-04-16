@@ -102,15 +102,50 @@
        (filter #(= (:id %) id))
        first))
 
-(defn -orphaned-signal?
-  "Orphaned signal has no actions."
-  [model signal]
-  (empty? (filter #(= (:signal-id %) (:id signal))
-                  (-> model ::debugger :action-events))))
+(defn -signal-id->parent-id
+  "Returns a map."
+  [signal-events]
+  (let [result (atom {})]
+    (doseq [{:keys [id parent-id]} signal-events]
+      (swap! result assoc id parent-id))
+
+    @result))
+
+(defn -signal-parent-ids
+  "Returns a set containing: id of parent, parent of parent, etc.
+  Non-existent parent ids are ignored."
+  [id->parent-id id]
+  {:pre [(map? id->parent-id)]}
+  (let [existing-ids (keys id->parent-id)
+        result (atom #{})]
+    (loop [child-id id]
+      (let [parent-id (id->parent-id child-id)]
+        (if (some #{parent-id} existing-ids)
+          (do
+            (swap! result conj parent-id)
+            (recur parent-id))
+
+          @result)))))
+
+(defn -signals-with-actions
+  "Returns set of ids of signals which have actions or child signals with actions."
+  [model]
+  (let [signal-id->parent-id (-signal-id->parent-id (-> model ::debugger :signal-events))
+        result (atom #{})]
+    ; loop through actions and collect all their parents, parents of parents, etc.
+    (doseq [{:keys [signal-id]} (-> model ::debugger :action-events)]
+      (swap! result conj signal-id)
+      (swap! result into (-signal-parent-ids signal-id->parent-id signal-id)))
+
+    @result))
 
 (defn -remove-orphaned-signals
+  "Orphaned signal has no actions and no orphaned child signals."
   [model]
-  (update-in model [::debugger :signal-events] #(remove (partial -orphaned-signal? model) %)))
+  (let [kept-ids (-signals-with-actions model)
+        signal-events (-> model ::debugger :signal-events)
+        new-signal-events (filter #(contains? kept-ids (:id %)) signal-events)]
+    (assoc-in model [::debugger :signal-events] new-signal-events)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
 (defn -save-file
@@ -296,42 +331,24 @@
                  (reconcile [::app-action (:id unknown-signal-event) action]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
-(defn -signal-parent-ids
-  "Returns a set containing: id of parent, parent of parent, etc.
-  Removed parent ids are ignored."
-  [signal-events id]
-  (let [id->parent-id (atom {})
-        result (atom #{})]
-    (doseq [{:keys [id parent-id]} signal-events]
-      (swap! id->parent-id assoc id parent-id))
-
-    (let [existing-ids (keys @id->parent-id)]
-      (loop [child-id id]
-        (let [parent-id (@id->parent-id child-id)]
-          (if (some #{parent-id} existing-ids)
-            (do
-              (swap! result conj parent-id)
-              (recur parent-id))
-
-            @result))))))
-
 (defn -signal-indent
-  [signal-events id]
-  (count (-signal-parent-ids signal-events id)))
+  [signal-id->parent-id id]
+  (count (-signal-parent-ids signal-id->parent-id id)))
 
 (defn -view-model
   [model]
   (let [debugger (reaction (::debugger @model))
         signal-events (reaction (-> @debugger :signal-events))
+        signal-id->parent-id (reaction (-signal-id->parent-id @signal-events))
         highlighted-signal-id (reaction (-> @debugger :highlighted-signal-id))
-        highlighted-signal-ids (reaction (into #{@highlighted-signal-id}
-                                               (-signal-parent-ids @signal-events @highlighted-signal-id)))]
+        highlighted-signal-ids (reaction #(into #{@highlighted-signal-id}
+                                                (-signal-parent-ids @signal-id->parent-id @highlighted-signal-id)))]
     (-> (mvsa/track-keys debugger
                          [:initial-model :replay-mode? :visible? :toggle-visibility-shortcut :action-events])
         (assoc :signal-events (reaction
                                 ; mapv instead of map is essential, without it referenced reactions will be recalculated several times
                                 (mapv #(assoc % :highlighted? (contains? @highlighted-signal-ids (:id %))
-                                                :indent (-signal-indent @signal-events (:id %)))
+                                                :indent (-signal-indent @signal-id->parent-id (:id %)))
                                       @signal-events))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
