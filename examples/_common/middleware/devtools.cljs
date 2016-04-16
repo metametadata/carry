@@ -105,17 +105,14 @@
 (defn -signal-id->parent-id
   "Returns a map."
   [signal-events]
-  (let [result (atom {})]
-    (doseq [{:keys [id parent-id]} signal-events]
-      (swap! result assoc id parent-id))
-
-    @result))
+  (into {} (map #(-> [(:id %) (:parent-id %)]) signal-events)))
 
 (defn -signal-parent-ids
   "Returns a set containing: id of parent, parent of parent, etc.
   Non-existent parent ids are ignored."
   [id->parent-id id]
   {:pre [(map? id->parent-id)]}
+  (println "id->parent-id =" id->parent-id)
   (let [existing-ids (keys id->parent-id)
         result (atom #{})]
     (loop [child-id id]
@@ -341,8 +338,8 @@
         signal-events (reaction (-> @debugger :signal-events))
         signal-id->parent-id (reaction (-signal-id->parent-id @signal-events))
         highlighted-signal-id (reaction (-> @debugger :highlighted-signal-id))
-        highlighted-signal-ids (reaction #(into #{@highlighted-signal-id}
-                                                (-signal-parent-ids @signal-id->parent-id @highlighted-signal-id)))]
+        highlighted-signal-ids (reaction (into #{@highlighted-signal-id}
+                                               (-signal-parent-ids @signal-id->parent-id @highlighted-signal-id)))]
     (-> (mvsa/track-keys debugger
                          [:initial-model :replay-mode? :visible? :toggle-visibility-shortcut :action-events])
         (assoc :signal-events (reaction
