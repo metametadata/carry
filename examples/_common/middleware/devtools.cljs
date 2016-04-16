@@ -112,7 +112,6 @@
   Non-existent parent ids are ignored."
   [id->parent-id id]
   {:pre [(map? id->parent-id)]}
-  (println "id->parent-id =" id->parent-id)
   (let [existing-ids (keys id->parent-id)
         result (atom #{})]
     (loop [child-id id]
@@ -198,7 +197,7 @@
 
                :on-stop
                (do
-                 #(@unlisten-shortcuts)
+                 (@unlisten-shortcuts )
 
                  (record-and-dispatch-to-app :on-stop nil))
 
