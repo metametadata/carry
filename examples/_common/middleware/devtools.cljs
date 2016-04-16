@@ -197,7 +197,7 @@
 
                :on-stop
                (do
-                 (@unlisten-shortcuts )
+                 (@unlisten-shortcuts)
 
                  (record-and-dispatch-to-app :on-stop nil))
 
@@ -390,7 +390,9 @@
 
 (defn -menu
   [replay-mode? toggle-visibility-shortcut dispatch]
-  [:div {:style {:text-align "center"}}
+  [:div {:style {:text-align  "center"
+                 :white-space "nowrap"
+                 :overflow    "hidden"}}
    [-menu-button {} "Clear" #(dispatch ::on-clear) "Clears debugger history"]
    [-menu-button {} "Vacuum" #(dispatch ::on-vacuum) "Removes disabled actions and signals with no actions from history"]
    [-menu-button {} "Reset" #(dispatch ::on-reset) "Removes all actions and signals resetting the model to initial state"]
@@ -459,8 +461,8 @@
 
 (defn -initial-model-view
   [initial-model]
-  [:div
-   [:strong "Initial model:"]
+  [:div {:style {:border-bottom "thin solid grey"}
+         :title "Initial model"}
    [:div (pr-str initial-model)]])
 
 (defn -resizable-div
@@ -526,10 +528,9 @@
               :bottom   0
               :left     0
               :right    0
-              :overflow "auto"}}
-     [:hr]
+              :overflow "auto"
+              :border-top "thin solid grey"}}
      [-initial-model-view @initial-model]
-     [:hr]
      [-signals-view @signal-events @action-events dispatch]]]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
