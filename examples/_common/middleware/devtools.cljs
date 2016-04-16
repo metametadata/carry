@@ -180,12 +180,15 @@
                  (let [loaded-model (get storage storage-key)]
                    (when (-> loaded-model ::debugger :replay-mode?)
                      ; updating :initial-model so that on hot reload we don't see changes after modifying app init code
-                     (dispatch-action [::load (assoc-in loaded-model [::debugger :initial-model] (-> @model ::debugger :initial-model))])
+                     (let [new-model (assoc-in loaded-model [::debugger :initial-model] (-> @model ::debugger :initial-model))]
+                       (dispatch-action [::load new-model]))
+
                      (dispatch-action ::replay)))
 
                  ; start persisting replayable events
                  (run!
                    (let [saved-model (-> @model
+                                         (assoc-in [::debugger :highlighted-signal-id] nil)
                                          (update-in [::debugger :action-events] #(filter :for-replay? %))
                                          -remove-orphaned-signals)]
                      (assoc! storage storage-key saved-model)))
