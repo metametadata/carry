@@ -11,7 +11,7 @@
       (-reset!
         [this new-value]
         (if (::force-reset? (meta new-value))
-          (original-reset-fn this new-value)
+          (original-reset-fn this (with-meta new-value nil))
           (assert nil (str "readonly atom cannot be reset to " (pr-str new-value))))))))
 
 (defn -force-reset!
