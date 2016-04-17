@@ -404,7 +404,7 @@
 (defn -actions-view
   [action-events signal-id dispatch]
   [:div
-   (for [{:keys [id enabled? for-replay? action]} (filter #(= (:signal-id %) signal-id)
+   (for [{:keys [id action enabled? for-replay?]} (filter #(= (:signal-id %) signal-id)
                                                           action-events)]
      ^{:key id}
      [:div {:style    {:display     "flex"
@@ -523,12 +523,12 @@
     [-menu @replay-mode? @toggle-visibility-shortcut dispatch]
 
     [-autoscrollable-div
-     {:style {:position "absolute"
-              :top      "2.5em"
-              :bottom   0
-              :left     0
-              :right    0
-              :overflow "auto"
+     {:style {:position   "absolute"
+              :top        "2.5em"
+              :bottom     0
+              :left       0
+              :right      0
+              :overflow   "auto"
               :border-top "thin solid grey"}}
      [-initial-model-view @initial-model]
      [-signals-view @signal-events @action-events dispatch]]]])
