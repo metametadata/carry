@@ -3,18 +3,17 @@
   (:require-macros [reagent.ratom :refer [run!]]))
 
 (defn add
-  "Middleware will validate the model on every change using the specified schema.
-  Throws an exception if validation fails.
-  Add it as close to spec as possible in order to not propagate the invalid model to other middlewares.
-  Starts validating only after :on-start signal."
+  "Middleware will validate the model returned from reconcile function.
+  Throws an exception if validation fails effectively prohibiting model change to unallowed state.
+  Add it as close to spec as possible in order to not propagate the invalid model to other middlewares."
   [spec schema]
-  (assoc spec :control
-              (fn [model signal dispatch-signal dispatch-action]
-                ((:control spec) model signal dispatch-signal dispatch-action)
+  (update spec :reconcile
+          (fn wrap-reconcile [reconcile]
+            (fn validated-reconcile [model action]
+              (let [new-model (reconcile model action)]
+                (when-let [problems (s/check schema new-model)]
+                  ; using console log for better printing in Chrome console
+                  (.log js/console "VALIDATION PROBLEMS:" problems)
+                  (throw (ex-info "Model validation failed. See more info above." {})))
 
-                (when (= signal :on-start)
-                  (run!
-                    (when-let [problems (s/check schema @model)]
-                      ; using console log for better printing in Chrome console
-                      (.log js/console "Validation problems:" problems)
-                      (throw (ex-info "Model validation failed. See more info above." {}))))))))
+                new-model)))))

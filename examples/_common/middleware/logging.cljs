@@ -17,7 +17,7 @@
                               (finally
                                 (.groupEnd js/console))))))
        (update :reconcile
-               (fn wrap-control [reconcile]
+               (fn wrap-reconcile [reconcile]
                  (fn logged-reconcile [model action]
                    (println (str prefix "action") (pr-str action))
                    (reconcile model action)))))))
