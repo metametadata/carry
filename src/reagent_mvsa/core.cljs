@@ -11,13 +11,15 @@
       (-reset!
         [this new-value]
         (if (::force-reset? (meta new-value))
-          (original-reset-fn this (with-meta new-value nil))
+          (original-reset-fn this (with-meta new-value
+                                             (dissoc (meta new-value) ::force-reset?)))
           (assert nil (str "readonly atom cannot be reset to " (pr-str new-value))))))))
 
 (defn -force-reset!
   "Bypasses write protection of the specified readonly atom."
   [readonly-atom new-value]
-  (reset! readonly-atom (with-meta new-value {::force-reset? true})))
+  (reset! readonly-atom (with-meta new-value
+                                   (assoc (meta new-value) ::force-reset? true))))
 
 (defn app
   "Constructs an app from a spec map with keys:
