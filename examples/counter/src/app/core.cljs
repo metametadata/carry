@@ -9,7 +9,10 @@
   []
   (let [app (mvsa/app counter/spec)
         [app-view-model app-view] (mvsa/connect-ui app counter/view-model counter/view)]
+    ((:dispatch-signal app) :on-start)
+
     (r/render app-view (.getElementById js/document "root"))
+
     (assoc app :view-model app-view-model)))
 
 (def app (main))
