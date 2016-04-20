@@ -9,11 +9,14 @@
             [cljs.core.match :refer-macros [match]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def Friend
+  {:id       s/Int
+   :name     s/Str
+   :username s/Str})
+
 (def Schema
   {:query   s/Str
-   :friends [{:id       s/Int
-              :name     s/Str
-              :username s/Str}]
+   :friends [Friend]
 
    ; allow any additional keys in order to support keys added by middlewares
    s/Any    s/Any})

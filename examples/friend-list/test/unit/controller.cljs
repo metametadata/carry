@@ -25,11 +25,11 @@
   on-search-success-updates-friends
   (f/with-fakes
     (let [{:keys [initial-model control reconcile]} (friend-list/new-spec :_history :_search)
-          model (reaction (reconcile initial-model [:set-query :_current-query]))
+          model (reaction (reconcile initial-model [:set-query "current query"]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
-      (control model [:on-search-success :_current-query :_found-friends] dispatch-signal dispatch-action)
+      (control model [:on-search-success "current query" :_found-friends] dispatch-signal dispatch-action)
 
       ; assert
       (is (f/was-called-once dispatch-action [[:set-friends :_found-friends]]))
@@ -39,7 +39,7 @@
   on-search-success-ignores-outdated-results
   (f/with-fakes
     (let [{:keys [initial-model control reconcile]} (friend-list/new-spec :_history :_search)
-          model (reaction (reconcile initial-model [:set-query :_current-query]))
+          model (reaction (reconcile initial-model [:set-query "current query"]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
