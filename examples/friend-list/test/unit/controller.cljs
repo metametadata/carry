@@ -18,6 +18,7 @@
       (control :_model [:middleware.history/on-enter :_new-token] dispatch-signal dispatch-action)
 
       ; assert
+      ; order of calls doesn't matter because we know that searching is async, thus :on-search-success will be called on next tick
       (is (f/was-called-once dispatch-action [[:set-query :_new-token]]))
       (is (f/was-called-once dispatch-signal [[:on-search-success :_new-token :_found-friends]])))))
 
