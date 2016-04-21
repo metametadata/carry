@@ -1,0 +1,4 @@
+/* highlight subsections in TOC */
+.bs-sidenav > .second-level {
+  margin-left: 1em;
+}
