@@ -61,7 +61,7 @@ The proof-of-concept examples of applying [Elm-ish architecture](https://github.
 for reusing existing reagent-mvsa apps when building a bigger app.
 It's a debatable design pattern because of the resulting code complexity, so use it with caution.
 
-## Elm-ish Subapps
+## Subapps
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/elmish-subapps)
 
 [Demo](/examples/elmish-subapps)
@@ -69,7 +69,7 @@ It's a debatable design pattern because of the resulting code complexity, so use
 In this project [counter app](#counter) and [friend list app](#friend-list) instances are "statically" added to the app spec.
 Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.
 
-## Elm-ish Counter List
+## Counter List
 [Source code](https://github.com/metametadata/reagent-mvsa/tree/master/examples/elmish-counter-list)
 
 [Demo](/examples/elmish-counter-list)

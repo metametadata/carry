@@ -1,4 +1,4 @@
-See [project site](https://metametadata.github.io/reagent-mvsa/examples/#elmish-counter-list) for more info.
+See [project site](https://metametadata.github.io/reagent-mvsa/examples/#counter-list) for more info.
 
 ## Build
 

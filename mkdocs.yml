@@ -3,7 +3,7 @@ site_description: Project documentation for reagent-mvsa library.
 
 repo_url: https://github.com/metametadata/reagent-mvsa/
 
-theme: flatly
+theme: cinder
 
 pages:
 - Home: 'index.md'
