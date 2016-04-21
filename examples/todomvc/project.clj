@@ -1,7 +1,7 @@
 (defproject
   todomvc "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.7.228"]
+                 [org.clojure/clojurescript "1.8.40"]
 
                  [reagent "0.6.0-alpha" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "0.14.3-0"]
@@ -16,6 +16,8 @@
                  [cljsjs/jquery-ui "1.11.3-1"]
                  [cljsjs/filesaverjs "1.1.20151003-0"]
                  [binaryage/devtools "0.5.2"]]
+
+  :pedantic? :abort
 
   :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]]
