@@ -14,8 +14,7 @@
   (:import goog.ui.KeyboardShortcutHandler)
   (:require-macros [reagent.ratom :refer [reaction run!]]))
 
-(chrome-devtools/enable-feature! :sanity-hints)
-(chrome-devtools/install!)
+(chrome-devtools/install! [:custom-formatters :sanity-hints])
 
 ;;;;;;;;;;;;;;;;;;; Model
 (def Schema

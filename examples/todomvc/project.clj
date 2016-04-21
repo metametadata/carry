@@ -10,12 +10,12 @@
                  [com.domkm/silk "0.1.2"]
 
                  ; required by debugger:
-                 [com.rpl/specter "0.9.2"]
+                 [com.rpl/specter "0.9.3"]
                  [funcool/hodgepodge "0.1.4"]
-                 [prismatic/schema "1.0.5"]
-                 [cljsjs/jquery-ui "1.11.3-1"]
+                 [prismatic/schema "1.1.0"]
+                 [cljsjs/jquery-ui "1.11.4-0"]
                  [cljsjs/filesaverjs "1.1.20151003-0"]
-                 [binaryage/devtools "0.5.2"]]
+                 [binaryage/devtools "0.6.1"]]
 
   :pedantic? :abort
 
