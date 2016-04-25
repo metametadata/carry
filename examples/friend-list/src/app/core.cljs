@@ -3,7 +3,7 @@
             [app.api :as api]
             [carry.core :as carry]
             [carry-history.core :as h]
-            [middleware.logging :as logging]
+            [carry-logging.core :as logging]
             [carry-devtools.core :as devtools]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))

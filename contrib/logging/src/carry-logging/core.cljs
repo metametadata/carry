@@ -1,4 +1,4 @@
-(ns middleware.logging
+(ns carry-logging.core
   (:require))
 
 (defn add

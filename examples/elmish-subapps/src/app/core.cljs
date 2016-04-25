@@ -5,7 +5,7 @@
             [app.friend-list-api :as friend-list-api]
             [carry.core :as carry]
             [carry-history.core :as h]
-            [middleware.logging :as logging]
+            [carry-logging.core :as logging]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))

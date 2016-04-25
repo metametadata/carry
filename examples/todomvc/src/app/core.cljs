@@ -3,8 +3,8 @@
             [app.view-model :refer [view-model]]
             [app.view :refer [new-view]]
             [carry-history.core :as h]
+            [carry-logging.core :as logging]
             [carry-devtools.core :as devtools]
-            [middleware.logging :as logging]
             [carry.core :as carry]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
