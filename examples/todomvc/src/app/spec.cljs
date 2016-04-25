@@ -4,7 +4,7 @@
             [app.reconciler :refer [reconcile]]
             [middleware.schema :as schema]
             [carry-history.core :as h]
-            [middleware.persistence :as persistence]))
+            [carry-persistence.core :as persistence]))
 
 (defn new-spec
   [history storage storage-key todo-titles]

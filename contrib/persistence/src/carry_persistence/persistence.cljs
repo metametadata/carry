@@ -1,4 +1,4 @@
-(ns middleware.persistence
+(ns carry-persistence.core
   (:require [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [run!]]))
 

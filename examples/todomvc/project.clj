@@ -29,6 +29,7 @@
                                        "../../src"
                                        "../_common"
                                        "../../contrib/history/src"
+                                       "../../contrib/persistence/src"
                                        "../../contrib/logging/src"
                                        "../../contrib/devtools/src"]
                         :compiler     {:main                 app.core
@@ -46,6 +47,7 @@
                                        "../../src"
                                        "../_common"
                                        "../../contrib/history/src"
+                                       "../../contrib/persistence/src"
                                        "../../contrib/logging/src"
                                        "../../contrib/devtools/src"]
                         :compiler     {:main           app.core
