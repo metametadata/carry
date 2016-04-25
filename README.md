@@ -1,5 +1,5 @@
 # Carry
-Application framework for ClojureScript.
+ClojureScript application framework.
 
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
 
