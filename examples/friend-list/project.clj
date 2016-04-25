@@ -32,8 +32,8 @@
                         :source-paths ["src"
                                        "src-spec"
                                        "../../src"
-                                       "../_common"
                                        "../../contrib/history/src"
+                                       "../../contrib/schema/src"
                                        "../../contrib/logging/src"
                                        "../../contrib/devtools/src"]
                         :compiler     {:main                 app.core
@@ -50,8 +50,8 @@
                         :source-paths ["src"
                                        "src-spec"
                                        "../../src"
-                                       "../_common"
                                        "../../contrib/history/src"
+                                       "../../contrib/schema/src"
                                        "../../contrib/logging/src"
                                        "../../contrib/devtools/src"]
                         :compiler     {:main           app.core
@@ -66,8 +66,8 @@
                                        "src"
                                        "src-spec"
                                        "../../src"
-                                       "../_common"
                                        "../../contrib/history/src"
+                                       "../../contrib/schema/src"
                                        "../../contrib/logging/src"
                                        "../../contrib/devtools/src"]
                         :compiler     {:main          'unit.runner

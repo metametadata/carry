@@ -1,7 +1,7 @@
 ; namespace is extracted into a separate src folder in order to be reused in elm-ish architecture examples
 (ns friend-list.core
   (:require [carry-history.core :as h]
-            [middleware.schema :as schema]
+            [carry-schema.core :as schema]
             [schema.core :as s]
             [carry.core :as carry]
             [reagent.core :as r]

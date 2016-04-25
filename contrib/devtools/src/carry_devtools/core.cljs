@@ -1,6 +1,6 @@
 (ns carry-devtools.core
   (:require [carry.core :as carry]
-            [middleware.schema :as schema-middleware]
+            [carry-schema.core :as schema-middleware]
             [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s]

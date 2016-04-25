@@ -27,11 +27,11 @@
   :cljsbuild {:builds [{:id           "dev"
                         :source-paths ["src"
                                        "../../src"
-                                       "../_common"
                                        "../../contrib/history/src"
                                        "../../contrib/persistence/src"
                                        "../../contrib/logging/src"
-                                       "../../contrib/devtools/src"]
+                                       "../../contrib/devtools/src"
+                                       "../../contrib/schema/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -45,11 +45,11 @@
                        {:id           "min"
                         :source-paths ["src"
                                        "../../src"
-                                       "../_common"
                                        "../../contrib/history/src"
                                        "../../contrib/persistence/src"
                                        "../../contrib/logging/src"
-                                       "../../contrib/devtools/src"]
+                                       "../../contrib/devtools/src"
+                                       "../../contrib/schema/src"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced

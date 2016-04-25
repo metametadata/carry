@@ -2,7 +2,7 @@
   (:require [app.model :as model]
             [app.controller :refer [control]]
             [app.reconciler :refer [reconcile]]
-            [middleware.schema :as schema]
+            [carry-schema.core :as schema]
             [carry-history.core :as h]
             [carry-persistence.core :as persistence]))
 

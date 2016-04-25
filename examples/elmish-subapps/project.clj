@@ -28,7 +28,7 @@
                                        "../../src"
                                        "../counter/src-spec"
                                        "../friend-list/src-spec"
-                                       "../_common"
+                                       "../../contrib/schema/src"
                                        "../../contrib/history/src"
                                        "../../contrib/logging/src"]
                         :compiler     {:main                 app.core
@@ -46,7 +46,7 @@
                                        "../../src"
                                        "../counter/src-spec"
                                        "../friend-list/src-spec"
-                                       "../_common"
+                                       "../../contrib/schema/src"
                                        "../../contrib/history/src"
                                        "../../contrib/logging/src"]
                         :compiler     {:main           app.core
