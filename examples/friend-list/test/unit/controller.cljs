@@ -1,7 +1,7 @@
 (ns unit.controller
   (:require
     [friend-list.core :as friend-list]
-    [middleware.history :as h]
+    [carry-history.core :as h]
     [cljs.test :refer-macros [deftest is testing async]]
     [clj-fakes.core :as f :include-macros true]
     [clj-fakes.context :as fc :include-macros true])
@@ -15,7 +15,7 @@
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
-      (control :_model [:middleware.history/on-enter :_new-token] dispatch-signal dispatch-action)
+      (control :_model [::h/on-enter :_new-token] dispatch-signal dispatch-action)
 
       ; assert
       ; order of calls doesn't matter because we know that searching is async, thus :on-search-success will be called on next tick

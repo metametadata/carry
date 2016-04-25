@@ -29,7 +29,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
   :cljsbuild {:builds [{:id           "dev"
-                        :source-paths ["src" "src-spec" "../../src" "../_common" "../../contrib/devtools/src"]
+                        :source-paths ["src" "src-spec" "../../src" "../_common" "../../contrib/history/src" "../../contrib/devtools/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -41,7 +41,7 @@
                                        :before-jsload "app.core/before-jsload"}}
 
                        {:id           "min"
-                        :source-paths ["src" "src-spec" "../../src" "../_common" "../../contrib/devtools/src"]
+                        :source-paths ["src" "src-spec" "../../src" "../_common" "../../contrib/history/src" "../../contrib/devtools/src"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced
@@ -50,7 +50,7 @@
                                        :parallel-build false}}
 
                        {:id           "test"
-                        :source-paths ["src" "src-spec" "../../src" "../_common" "../../contrib/devtools/src" "test"]
+                        :source-paths ["src" "src-spec" "../../src" "../_common" "../../contrib/history/src" "../../contrib/devtools/src" "test"]
                         :compiler     {:main          'unit.runner
                                        :output-to     "resources/private/js/compiled/testable.js"
                                        :output-dir    "resources/private/js/compiled/out"

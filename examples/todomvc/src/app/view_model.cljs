@@ -8,7 +8,7 @@
   ; reactions are extracted for better perfromance, e.g.:
   ; when input field changes most reactions will not be recalculated
   ; because all-todos is still the same
-  (let [token (reaction (:middleware.history/token @model))
+  (let [token (reaction (:carry-history.core/token @model))
         route (reaction (or (router/token->route @token) ::router/all)) ; on unknown route fallbacks to showing all todos
         visibility-spec (reaction (->> [{:title "All" :route ::router/all}
                                         {:title "Active" :route ::router/active}

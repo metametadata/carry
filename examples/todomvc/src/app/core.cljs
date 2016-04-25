@@ -2,7 +2,7 @@
   (:require [app.spec :as spec]
             [app.view-model :refer [view-model]]
             [app.view :refer [new-view]]
-            [middleware.history :as h]
+            [carry-history.core :as h]
             [carry-devtools.core :as devtools]
             [middleware.logging :as logging]
             [carry.core :as carry]

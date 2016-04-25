@@ -2,7 +2,7 @@
   (:require [friend-list.core :as friend-list]
             [app.api :as api]
             [carry.core :as carry]
-            [middleware.history :as h]
+            [carry-history.core :as h]
             [middleware.logging :as logging]
             [carry-devtools.core :as devtools]
             [reagent.core :as r]

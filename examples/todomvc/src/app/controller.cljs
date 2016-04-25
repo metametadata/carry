@@ -8,7 +8,7 @@
          :on-start (println "[todos] start")
          :on-stop (println "[todos] stop")
 
-         [:middleware.history/on-enter token] nil
+         [:carry-history.core/on-enter token] nil
 
          [:on-update-field val] (dispatch-action [:update-field val])
          :on-add (dispatch-action :add)

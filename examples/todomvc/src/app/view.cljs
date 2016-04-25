@@ -1,5 +1,5 @@
 (ns app.view
-  (:require [middleware.history :as h]
+  (:require [carry-history.core :as h]
             [app.router :as router]
             [reagent.core :as r]))
 

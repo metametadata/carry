@@ -3,9 +3,9 @@
             [friend-list.core :as friend-list]
             [counter.core :as counter]
             [app.friend-list-api :as friend-list-api]
-            [middleware.history :as routing]
-            [middleware.logging :as logging]
             [carry.core :as carry]
+            [carry-history.core :as h]
+            [middleware.logging :as logging]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -84,7 +84,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn main
   []
-  (let [history (routing/new-hash-history)
+  (let [history (h/new-hash-history)
         app-spec (-> (new-spec history friend-list-api/search)
                      logging/add)
         app (carry/app app-spec)

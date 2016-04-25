@@ -3,7 +3,7 @@
             [app.controller :refer [control]]
             [app.reconciler :refer [reconcile]]
             [middleware.schema :as schema]
-            [middleware.history :as h]
+            [carry-history.core :as h]
             [middleware.persistence :as persistence]))
 
 (defn new-spec

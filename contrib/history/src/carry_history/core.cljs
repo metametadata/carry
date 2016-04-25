@@ -1,4 +1,4 @@
-(ns middleware.history
+(ns carry-history.core
   (:require [cljs.core.match :refer-macros [match]]
             [goog.events]
             [goog.history.EventType :as EventType]
