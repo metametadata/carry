@@ -1,4 +1,4 @@
-(ns middleware.devtools
+(ns carry-devtools.core
   (:require [carry.core :as carry]
             [middleware.schema :as schema-middleware]
             [schema.core :as schema]

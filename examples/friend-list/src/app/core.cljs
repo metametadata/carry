@@ -1,10 +1,10 @@
 (ns app.core
   (:require [friend-list.core :as friend-list]
             [app.api :as api]
+            [carry.core :as carry]
             [middleware.history :as h]
             [middleware.logging :as logging]
-            [middleware.devtools :as devtools]
-            [carry.core :as carry]
+            [carry-devtools.core :as devtools]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
 

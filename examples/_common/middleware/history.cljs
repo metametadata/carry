@@ -111,7 +111,7 @@
                        (listen history #(dispatch-signal [::on-history-event {:token %1 :browser-event? %2 :event-data %3}])))
 
                ; initial signal
-               (when (not (-> @model :middleware.devtools/debugger :replay-mode?))
+               (when (not (-> @model :carry-devtools.core/debugger :replay-mode?))
                  (dispatch-signal [::on-history-event {:token (token history) :browser-event? true :event-data nil}])))
 
              :on-stop

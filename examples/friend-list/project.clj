@@ -6,7 +6,7 @@
                  [reagent "0.6.0-alpha" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "0.14.3-0"]
 
-                 ; required by debugger:
+                 ; required by carry-devtools:
                  [com.rpl/specter "0.9.3"]
                  [funcool/hodgepodge "0.1.4"]
                  [prismatic/schema "1.1.0"]
@@ -29,7 +29,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
   :cljsbuild {:builds [{:id           "dev"
-                        :source-paths ["src" "../../src" "src-spec" "../_common"]
+                        :source-paths ["src" "src-spec" "../../src" "../_common" "../../contrib/devtools/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -41,7 +41,7 @@
                                        :before-jsload "app.core/before-jsload"}}
 
                        {:id           "min"
-                        :source-paths ["src" "../../src" "src-spec" "../_common"]
+                        :source-paths ["src" "src-spec" "../../src" "../_common" "../../contrib/devtools/src"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced
@@ -50,7 +50,7 @@
                                        :parallel-build false}}
 
                        {:id           "test"
-                        :source-paths ["src" "../../src" "src-spec" "../_common" "test"]
+                        :source-paths ["src" "src-spec" "../../src" "../_common" "../../contrib/devtools/src" "test"]
                         :compiler     {:main          'unit.runner
                                        :output-to     "resources/private/js/compiled/testable.js"
                                        :output-dir    "resources/private/js/compiled/out"

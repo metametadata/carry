@@ -3,7 +3,7 @@
             [app.view-model :refer [view-model]]
             [app.view :refer [new-view]]
             [middleware.history :as h]
-            [middleware.devtools :as devtools]
+            [carry-devtools.core :as devtools]
             [middleware.logging :as logging]
             [carry.core :as carry]
             [reagent.core :as r]

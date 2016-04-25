@@ -20,7 +20,7 @@
                (app-control model signal dispatch-signal dispatch-action)
 
                (println "[persistence] start, key =" (pr-str key))
-               (when (not (-> @model :middleware.devtools/debugger :replay-mode?))
+               (when (not (-> @model :carry-devtools.core/debugger :replay-mode?))
                  (let [loaded-model (get storage key :not-found)]
                    (when (not= loaded-model :not-found)
                      ((load-wrapper load-from-storage) model loaded-model dispatch-signal))))
