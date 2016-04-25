@@ -1,4 +1,4 @@
-See [project site](https://metametadata.github.io/reagent-mvsa/examples/#subapps) for more info.
+See [project site](https://metametadata.github.io/carry/examples/#subapps) for more info.
 
 ## Build
 

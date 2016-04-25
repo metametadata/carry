@@ -1,4 +1,4 @@
-See [project site](https://metametadata.github.io/reagent-mvsa/examples/#counter-datascript) for more info.
+See [project site](https://metametadata.github.io/carry/examples/#counter-datascript) for more info.
 
 ## Build
 

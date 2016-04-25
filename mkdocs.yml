@@ -1,7 +1,7 @@
-site_name: reagent-mvsa
-site_description: Project documentation for reagent-mvsa library.
+site_name: Carry
+site_description: Project documentation for Carry framework.
 
-repo_url: https://github.com/metametadata/reagent-mvsa/
+repo_url: https://github.com/metametadata/carry/
 
 theme: cinder
 

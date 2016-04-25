@@ -5,7 +5,7 @@
             [middleware.history :as h]
             [middleware.devtools :as devtools]
             [middleware.logging :as logging]
-            [reagent-mvsa.core :as mvsa]
+            [carry.core :as carry]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
 
@@ -25,10 +25,10 @@
                      logging/add)
 
         ; create app from spec
-        app (mvsa/app app-spec)
+        app (carry/app app-spec)
 
         ; create GUI; history is passed into view for rendering links
-        [app-view-model app-view] (mvsa/connect-ui app view-model (new-view history))
+        [app-view-model app-view] (carry/connect-ui app view-model (new-view history))
 
         ; create debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]

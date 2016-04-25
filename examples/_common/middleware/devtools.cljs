@@ -1,5 +1,5 @@
 (ns middleware.devtools
-  (:require [reagent-mvsa.core :as mvsa]
+  (:require [carry.core :as carry]
             [middleware.schema :as schema-middleware]
             [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
@@ -341,7 +341,7 @@
         highlighted-signal-id (reaction (-> @debugger :highlighted-signal-id))
         highlighted-signal-ids (reaction (into #{@highlighted-signal-id}
                                                (-signal-parent-ids @signal-id->parent-id @highlighted-signal-id)))]
-    (-> (mvsa/track-keys debugger
+    (-> (carry/track-keys debugger
                          [:initial-model :replay-mode? :visible? :toggle-visibility-shortcut :action-events])
         (assoc :signal-events (reaction
                                 ; mapv instead of map is essential, without it referenced reactions will be recalculated several times
@@ -557,4 +557,4 @@
   "Returns [debugger-view-model debugger-view]. App spec must be wrapped by |add-debugger|.
   Debugger view is resizable."
   [app]
-  (mvsa/connect-ui app -view-model -view))
+  (carry/connect-ui app -view-model -view))

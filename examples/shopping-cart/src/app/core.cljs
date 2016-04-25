@@ -3,7 +3,7 @@
             [app.api :as api]
             [app.view-model :as view-model]
             [app.view :as view]
-            [reagent-mvsa.core :as mvsa]
+            [carry.core :as carry]
             [reagent.core :as r]))
 
 (enable-console-print!)
@@ -11,8 +11,8 @@
 (defn main
   []
   (let [spec (spec/new-spec api/shop-api-stub)
-        app (mvsa/app spec)
-        [app-view-model app-view] (mvsa/connect-ui app view-model/view-model view/view)]
+        app (carry/app spec)
+        [app-view-model app-view] (carry/connect-ui app view-model/view-model view/view)]
     ((:dispatch-signal app) :on-start)
 
     (r/render app-view (.getElementById js/document "root"))

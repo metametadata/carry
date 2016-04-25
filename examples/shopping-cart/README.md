@@ -1,4 +1,4 @@
-See [project site](https://metametadata.github.io/reagent-mvsa/examples/#shopping-cart) for more info.
+See [project site](https://metametadata.github.io/carry/examples/#shopping-cart) for more info.
 
 ## Build
 

@@ -1,4 +1,4 @@
-See [project site](https://metametadata.github.io/reagent-mvsa/examples/#friend-list) for more info.
+See [project site](https://metametadata.github.io/carry/examples/#friend-list) for more info.
 
 ## Build
 

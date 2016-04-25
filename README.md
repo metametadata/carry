@@ -1,16 +1,16 @@
-# reagent-mvsa
-Model-View-Signal-Action pattern implementation for ClojureScript using Reagent.
+# Carry
+Application framework for ClojureScript.
 
-![mvsa](http://metametadata.github.io/reagent-mvsa/graphs/mvsa.svg)
+![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
 
 Time traveling debugger:
 ![screenshot](http://i.imgur.com/ZOH6Noj.png)
 
-More documentation can be found at [the project site](http://metametadata.github.io/reagent-mvsa/):
+More documentation can be found at [the project site](http://metametadata.github.io/carry/):
 
-* [Intro](http://metametadata.github.io/reagent-mvsa)
-* [Examples](http://metametadata.github.io/reagent-mvsa/examples/)
-* [Developer Guide](http://metametadata.github.io/clj-fakes/dev-guide/)
+* [Intro](http://metametadata.github.io/carry)
+* [Examples](http://metametadata.github.io/carry/examples/)
+* [Developer Guide](http://metametadata.github.io/carry/dev-guide/)
 
 ## License
 Copyright © 2016 Yuri Govorushchenko.

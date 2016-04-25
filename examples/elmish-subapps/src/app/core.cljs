@@ -5,7 +5,7 @@
             [app.friend-list-api :as friend-list-api]
             [middleware.history :as routing]
             [middleware.logging :as logging]
-            [reagent-mvsa.core :as mvsa]
+            [carry.core :as carry]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -43,7 +43,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn view-model
   [model]
-  (mvsa/track-keys model [:friend-list-visible? :counter-visible?]))
+  (carry/track-keys model [:friend-list-visible? :counter-visible?]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn view
@@ -87,11 +87,11 @@
   (let [history (routing/new-hash-history)
         app-spec (-> (new-spec history friend-list-api/search)
                      logging/add)
-        app (mvsa/app app-spec)
+        app (carry/app app-spec)
         view-model (-> view-model
                        (subapps/include-view-model :friend-list-subapp friend-list/view-model)
                        (subapps/include-view-model :counter-subapp counter/view-model))
-        [app-view-model app-view] (mvsa/connect-ui app view-model view)]
+        [app-view-model app-view] (carry/connect-ui app view-model view)]
     ((:dispatch-signal app) :on-start)
 
     (r/render app-view (.getElementById js/document "root"))

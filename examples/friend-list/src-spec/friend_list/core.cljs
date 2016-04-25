@@ -3,7 +3,7 @@
   (:require [middleware.history :as h]
             [middleware.schema :as schema]
             [schema.core :as s]
-            [reagent-mvsa.core :as mvsa]
+            [carry.core :as carry]
             [reagent.core :as r]
             [goog.functions :refer [debounce]]
             [cljs.core.match :refer-macros [match]]))
@@ -69,7 +69,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn view-model
   [model]
-  (mvsa/track-keys model #{:query :friends}))
+  (carry/track-keys model #{:query :friends}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn -search-field

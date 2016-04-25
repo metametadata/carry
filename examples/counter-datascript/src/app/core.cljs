@@ -1,5 +1,5 @@
 (ns app.core
-  (:require [reagent-mvsa.core :as mvsa]
+  (:require [carry.core :as carry]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]]
             [datascript.core :as d])
@@ -60,8 +60,8 @@
   (let [app-spec {:initial-model initial-model
                   :control       control
                   :reconcile     reconcile}
-        app (mvsa/app app-spec)
-        [app-view-model app-view] (mvsa/connect-ui app view-model view)]
+        app (carry/app app-spec)
+        [app-view-model app-view] (carry/connect-ui app view-model view)]
     (r/render app-view (.getElementById js/document "root"))
 
     (assoc app :view-model app-view-model)))

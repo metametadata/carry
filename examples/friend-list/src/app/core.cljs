@@ -4,7 +4,7 @@
             [middleware.history :as h]
             [middleware.logging :as logging]
             [middleware.devtools :as devtools]
-            [reagent-mvsa.core :as mvsa]
+            [carry.core :as carry]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
 
@@ -18,8 +18,8 @@
         app-spec (-> (friend-list/new-spec history api/search)
                      (devtools/add-debugger storage :friend-list-debugger-model)
                      logging/add)
-        app (mvsa/app app-spec)
-        [app-view-model app-view] (mvsa/connect-ui app friend-list/view-model friend-list/view)
+        app (carry/app app-spec)
+        [app-view-model app-view] (carry/connect-ui app friend-list/view-model friend-list/view)
         [_ debugger-view] (devtools/connect-debugger-ui app)]
     ((:dispatch-signal app) :on-start)
 
