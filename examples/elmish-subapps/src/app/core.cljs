@@ -7,8 +7,7 @@
             [carry-history.core :as h]
             [carry-logging.core :as logging]
             [reagent.core :as r]
-            [cljs.core.match :refer-macros [match]])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+            [cljs.core.match :refer-macros [match]]))
 
 (enable-console-print!)
 

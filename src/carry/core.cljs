@@ -10,16 +10,14 @@
       IReset
       (-reset!
         [this new-value]
-        (if (::force-reset? (meta new-value))
-          (original-reset-fn this (with-meta new-value
-                                             (dissoc (meta new-value) ::force-reset?)))
+        (if (contains? new-value ::-force-reset-value)
+          (original-reset-fn this (::-force-reset-value new-value))
           (assert nil (str "readonly atom cannot be reset to " (pr-str new-value))))))))
 
 (defn -force-reset!
   "Bypasses write protection of the specified readonly atom."
   [readonly-atom new-value]
-  (reset! readonly-atom (with-meta new-value
-                                   (assoc (meta new-value) ::force-reset? true))))
+  (reset! readonly-atom {::-force-reset-value new-value}))
 
 (defn app
   "Constructs an app from a spec map with keys:
@@ -69,3 +67,18 @@
   (into {}
         (for [key keyseq]
           [key (reaction (get @map-ratom key))])))
+
+(defn particle
+  "Returns a ratom-like value which automatically syncs its value with (f @iref).
+  Particle behaves like a readonly ratom: supports deref and add-watch, prohibits swap! and reset!.
+  Particle can be more useful than Reagent's cursor/reaction/wrapper which don't support add-watch as expected.
+
+  Note: as usual for atoms, particle's add-watch can sometimes be triggered with equal old and new state.
+  Warning: particle doesn't work in Reagent's run! as expected: body will be triggered on any iref change."
+  [iref f]
+  (let [p (-make-readonly! (r/atom (f @iref)))]
+    (add-watch iref
+               p                                            ; unique key
+               (fn [_key _atom _old-state new-state]
+                 (-force-reset! p (f new-state))))
+    p))

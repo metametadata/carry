@@ -1,6 +1,6 @@
 (ns app.core
-  (:require [counter.core :as counter]
-            [carry.core :as carry]
+  (:require [carry.core :as carry]
+            [counter.core :as counter]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -59,7 +59,7 @@
            :on-remove (dispatch-action :remove)
 
            [[:on-counter-signal id] s]
-           (counter-control (reaction (get-counter @model id))
+           (counter-control (carry/particle model #(get-counter % id))
                             s
                             (tagged dispatch-signal [:on-counter-signal id])
                             (tagged dispatch-action [:counter-action id])))))

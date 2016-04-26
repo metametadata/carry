@@ -1,6 +1,7 @@
 ; Helpers for implementing subapps using Elm-ish architecture
 (ns app.subapps
-  (:require [cljs.core.match :refer-macros [match]])
+  (:require [carry.core :as carry]
+            [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (defn -tagged
@@ -32,7 +33,7 @@
 
            [[:on-subapp-signal subapp-key] s]
            ((:control subapp-spec)
-             (reaction (subapp-key @model))
+             (carry/particle model (partial subapp-key))
              s
              (-tagged dispatch-signal [:on-subapp-signal subapp-key])
              (-tagged dispatch-action [:on-subapp-action subapp-key]))
