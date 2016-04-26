@@ -41,9 +41,9 @@
          (update model :counter-visible? not)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn view-model
-  [model]
-  (carry/track-keys model [:friend-list-visible? :counter-visible?]))
+(def view-model (-> (fn [model] (carry/track-keys model [:friend-list-visible? :counter-visible?]))
+                    (subapps/include-view-model :friend-list-subapp friend-list/view-model)
+                    (subapps/include-view-model :counter-subapp counter/view-model)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn view
@@ -88,9 +88,6 @@
         app-spec (-> (new-spec history friend-list-api/search)
                      logging/add)
         app (carry/app app-spec)
-        view-model (-> view-model
-                       (subapps/include-view-model :friend-list-subapp friend-list/view-model)
-                       (subapps/include-view-model :counter-subapp counter/view-model))
         [app-view-model app-view] (carry/connect-ui app view-model view)]
     ((:dispatch-signal app) :on-start)
 
