@@ -1,6 +1,5 @@
 (ns carry-persistence.core
-  (:require [cljs.core.match :refer-macros [match]])
-  (:require-macros [reagent.ratom :refer [run!]]))
+  (:require [cljs.core.match :refer-macros [match]]))
 
 (defn -save
   [storage key blacklist model]
@@ -25,7 +24,14 @@
                    (when (not= loaded-model :not-found)
                      ((load-wrapper load-from-storage) model loaded-model dispatch-signal))))
 
-               (run! (-save storage key blacklist @model)))
+               ; save for the first time and on every future change
+               (-save storage key blacklist @model)
+               (add-watch model
+                          [::persistence-watcher key]       ; unique key
+                          (fn [_key _atom old-state new-state]
+                            ; TODO: optimize: compare using blacklist
+                            (when (not= old-state new-state)
+                              (-save storage key blacklist new-state)))))
 
              [::on-load-from-storage key loaded-model]
              (dispatch-action [::load-from-storage key loaded-model])
