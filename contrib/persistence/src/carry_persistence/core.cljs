@@ -1,10 +1,14 @@
 (ns carry-persistence.core
   (:require [cljs.core.match :refer-macros [match]]))
 
+(defn -whitelist
+  "Removes blacklisted keys from the specified map."
+  [m blacklist]
+  (apply dissoc m blacklist))
+
 (defn -save
-  [storage key blacklist model]
-  (let [save-whitelist (clojure.set/difference (set (keys model)) blacklist)]
-    (assoc! storage key (select-keys model save-whitelist))))
+  [storage key model]
+  (assoc! storage key model))
 
 (defn -wrap-control
   [app-control storage key blacklist load-wrapper]
@@ -25,13 +29,14 @@
                      ((load-wrapper load-from-storage) model loaded-model dispatch-signal))))
 
                ; save for the first time and on every future change
-               (-save storage key blacklist @model)
+               (-save storage key (-whitelist @model blacklist))
                (add-watch model
                           [::persistence-watcher key]       ; unique key
                           (fn [_key _atom old-state new-state]
-                            ; TODO: optimize: compare using blacklist
-                            (when (not= old-state new-state)
-                              (-save storage key blacklist new-state)))))
+                            (let [old-state (-whitelist old-state blacklist)
+                                  new-state (-whitelist new-state blacklist)]
+                              (when (not= old-state new-state)
+                                (-save storage key new-state))))))
 
              [::on-load-from-storage key loaded-model]
              (dispatch-action [::load-from-storage key loaded-model])
