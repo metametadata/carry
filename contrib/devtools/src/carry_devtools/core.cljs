@@ -12,7 +12,7 @@
             cljsjs.filesaverjs
             cljs.pprint)
   (:import goog.ui.KeyboardShortcutHandler)
-  (:require-macros [reagent.ratom :refer [reaction run!]]))
+  (:require-macros [reagent.ratom :refer [reaction]]))
 
 (chrome-devtools/install! [:custom-formatters :sanity-hints])
 
@@ -183,13 +183,15 @@
 
                      (dispatch-action ::replay)))
 
-                 ; start persisting replayable events
-                 (run!
-                   (let [saved-model (-> @model
-                                         (assoc-in [::debugger :highlighted-signal-id] nil)
-                                         (update-in [::debugger :action-events] #(filter :for-replay? %))
-                                         -remove-orphaned-signals)]
-                     (assoc! storage storage-key saved-model)))
+                 ; start persisting for replay
+                 (add-watch model ::debugger-watcher
+                            (fn [_key _atom old-state new-state]
+                              (when (not= (::debugger old-state) (::debugger new-state))
+                                (let [saved-model (-> new-state
+                                                      (assoc-in [::debugger :highlighted-signal-id] nil)
+                                                      (update-in [::debugger :action-events] #(filter :for-replay? %))
+                                                      -remove-orphaned-signals)]
+                                  (assoc! storage storage-key saved-model)))))
 
                  ; now start app as usual
                  (record-and-dispatch-to-app :on-start nil))
@@ -342,7 +344,7 @@
         highlighted-signal-ids (reaction (into #{@highlighted-signal-id}
                                                (-signal-parent-ids @signal-id->parent-id @highlighted-signal-id)))]
     (-> (carry/track-keys debugger
-                         [:initial-model :replay-mode? :visible? :toggle-visibility-shortcut :action-events])
+                          [:initial-model :replay-mode? :visible? :toggle-visibility-shortcut :action-events])
         (assoc :signal-events (reaction
                                 ; mapv instead of map is essential, without it referenced reactions will be recalculated several times
                                 (mapv #(assoc % :highlighted? (contains? @highlighted-signal-ids (:id %))
