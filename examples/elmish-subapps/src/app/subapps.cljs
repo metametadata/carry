@@ -64,6 +64,7 @@
   (fn view-model
     [model]
     (assoc (app-view-model model) subapp-key
+                                  ; using reaction (and not, for instance, carry/particle) is OK, since vm will only create new reactions from it
                                   (subapp-view-model (reaction (subapp-key @model))))))
 
 (defn include-view

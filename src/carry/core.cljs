@@ -69,12 +69,46 @@
           [key (reaction (get @map-ratom key))])))
 
 (defn particle
-  "Returns a ratom-like value which automatically syncs its value with (f @iref).
-  Particle behaves like a readonly ratom: supports deref and add-watch, prohibits swap! and reset!.
-  Particle can be more useful than Reagent's cursor/reaction/wrapper which don't support add-watch as expected.
+  "Returns a readonly ratom which automatically syncs its value with (f @iref),
+   where f is a pure function, iref - atom or r/atom.
 
-  Note: as usual for atoms, particle's add-watch can sometimes be triggered with equal old and new state.
-  Warning: particle doesn't work in Reagent's run! as expected: body will be triggered on any iref change."
+  Particle can be more useful than Reagent's cursor/reaction/wrapper which don't support add-watch as expected, e.g.:
+
+  ```clj
+  (def a (r/atom {:foo {:bar 1}}))
+  (def c (r/cursor a [:foo]))
+  (def p (carry/particle a (partial :foo)))
+
+  (println \"a =\" (pr-str a) \"c =\" (pr-str c) \"p =\" (pr-str p))
+
+  (println \"add cursor watcher\")
+  (add-watch c :cursor-watcher
+             (fn [_key _atom _old-state _new-state]
+               (println \"  cursor watcher!\")))
+
+  (println \"add particle watcher\")
+  (add-watch p :particle-watcher
+             (fn [_key _atom _old-state _new-state]
+               (println \"  particle watcher!\")))
+
+  (println \"modify :foo\")
+  (swap! a update-in [:foo :bar] inc)
+  ```
+
+  cursor watcher is not triggered on ratom change:
+
+  ```
+  a = #<Atom: {:foo {:bar 1}}> c = #<Cursor: [:foo] {:bar 1}> p = #<Atom: {:bar 1}>
+  add cursor watcher
+  add particle watcher
+  modify :foo
+    particle watcher!
+  ```
+
+  As usual for atoms, particle's add-watch can sometimes be triggered with equal old and new states.
+
+  You shouldn't create particles from ratoms in Reagent's components or run!. Otherwise,
+  component/run! will also start triggering on ratom changes (because iref is derefenced on particle creation)."
   [iref f]
   (let [p (-make-readonly! (r/atom (f @iref)))]
     (add-watch iref

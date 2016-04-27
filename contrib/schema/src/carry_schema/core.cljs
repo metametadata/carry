@@ -1,6 +1,5 @@
 (ns carry-schema.core
-  (:require [schema.core :as s])
-  (:require-macros [reagent.ratom :refer [run!]]))
+  (:require [schema.core :as s]))
 
 (defn add
   "Middleware will validate the model returned from reconcile function using Plumatic Schema library.
