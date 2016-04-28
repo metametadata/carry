@@ -10,7 +10,7 @@
                  [com.domkm/silk "0.1.2"]
 
                  ; required by carry-devtools:
-                 [com.rpl/specter "0.9.3"]
+                 [com.rpl/specter "0.10.0"]
                  [funcool/hodgepodge "0.1.4"]
                  [prismatic/schema "1.1.0"]
                  [cljsjs/jquery-ui "1.11.4-0"]

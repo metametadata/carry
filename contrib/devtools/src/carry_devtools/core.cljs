@@ -87,19 +87,11 @@
 
 (defn -find-signal
   [model id]
-  (->> model
-       ::debugger
-       :signal-events
-       (filter #(= (:id %) id))
-       first))
+  (s/select-one [::debugger :signal-events s/ALL #(= (:id %) id)] model))
 
 (defn -find-action
   [model id]
-  (->> model
-       ::debugger
-       :action-events
-       (filter #(= (:id %) id))
-       first))
+  (s/select-one [::debugger :action-events s/ALL #(= (:id %) id)] model))
 
 (defn -signal-id->parent-id
   "Returns a map."
