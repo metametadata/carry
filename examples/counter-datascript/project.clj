@@ -1,7 +1,7 @@
 (defproject
   counter-datascript "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.8.40"]
+                 [org.clojure/clojurescript "1.8.51"]
 
                  [reagent "0.6.0-alpha" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "0.14.3-0"]
@@ -25,7 +25,7 @@
                                        :output-dir           "resources/public/js/compiled/out"
                                        :source-map-timestamp true
                                        :compiler-stats       true
-                                       :parallel-build       false}
+                                       :parallel-build       true}
                         :figwheel     {:on-jsload     "app.core/on-jsload"
                                        :before-jsload "app.core/before-jsload"}}
 
@@ -36,4 +36,4 @@
                                        :optimizations  :advanced
                                        :pretty-print   false
                                        :compiler-stats true
-                                       :parallel-build false}}]})
+                                       :parallel-build true}}]})
