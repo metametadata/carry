@@ -1,6 +1,5 @@
 (ns app.view-model
-  (:require [reagent.core]
-            [datascript.core :as d])
+  (:require [datascript.core :as d])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (defn -q
