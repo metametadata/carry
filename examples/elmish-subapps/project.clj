@@ -3,8 +3,8 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
 
-                 [reagent "0.6.0-alpha" :exclusions [cljsjs/react]]
-                 [cljsjs/react-with-addons "0.14.3-0"]
+                 [reagent "0.6.0-SNAPSHOT" :exclusions [cljsjs/react]]
+                 [cljsjs/react-with-addons "15.0.2-0"]
 
                  ; required by carry-devtools:
                  [com.rpl/specter "0.10.0"]
