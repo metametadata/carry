@@ -1,5 +1,6 @@
 (ns app.core
   (:require [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
             [counter.core :as counter]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]])
@@ -135,7 +136,7 @@
                   :control       (new-control (:control counter/spec))
                   :reconcile     (new-reconcile (:initial-model counter/spec) (:reconcile counter/spec))}
         app (carry/app app-spec)
-        [app-view-model app-view] (carry/connect-ui app view-model view)]
+        [app-view-model app-view] (carry-reagent/connect app view-model view)]
     (r/render app-view (.getElementById js/document "root"))
 
     (assoc app :view-model app-view-model)))

@@ -1,5 +1,5 @@
 # Carry
-ClojureScript application framework built on top of [Reagent](https://github.com/reagent-project/reagent).
+ClojureScript application framework.
 
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
 

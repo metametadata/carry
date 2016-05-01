@@ -18,7 +18,9 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
   :cljsbuild {:builds [{:id           "dev"
-                        :source-paths ["src" "../../src"]
+                        :source-paths ["src"
+                                       "../../src"
+                                       "../../contrib/reagent/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -30,7 +32,9 @@
                                        :before-jsload "app.core/before-jsload"}}
 
                        {:id           "min"
-                        :source-paths ["src" "../../src"]
+                        :source-paths ["src"
+                                       "../../src"
+                                       "../../contrib/reagent/src"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced

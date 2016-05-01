@@ -3,7 +3,7 @@
   (:require [carry-history.core :as h]
             [carry-schema.core :as schema]
             [schema.core :as s]
-            [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]
             [goog.functions :refer [debounce]]
             [cljs.core.match :refer-macros [match]]))
@@ -69,7 +69,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn view-model
   [model]
-  (carry/track-keys model #{:query :friends}))
+  (carry-reagent/track-keys model #{:query :friends}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn -search-field

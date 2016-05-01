@@ -4,6 +4,7 @@
             [app.view-model :as view-model]
             [app.view :as view]
             [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]))
 
 (enable-console-print!)
@@ -12,7 +13,7 @@
   []
   (let [spec (spec/new-spec api/shop-api-stub)
         app (carry/app spec)
-        [app-view-model app-view] (carry/connect-ui app view-model/view-model view/view)]
+        [app-view-model app-view] (carry-reagent/connect app view-model/view-model view/view)]
     ((:dispatch-signal app) :on-start)
 
     (r/render app-view (.getElementById js/document "root"))

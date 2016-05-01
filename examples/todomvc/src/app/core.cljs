@@ -6,6 +6,7 @@
             [carry-logging.core :as logging]
             [carry-devtools.core :as devtools]
             [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]
             [hodgepodge.core :as hp]))
 
@@ -28,7 +29,7 @@
         app (carry/app app-spec)
 
         ; create GUI; history is passed into view for rendering links
-        [app-view-model app-view] (carry/connect-ui app view-model (new-view history))
+        [app-view-model app-view] (carry-reagent/connect app view-model (new-view history))
 
         ; create debugger GUI
         [_ debugger-view] (devtools/connect-debugger-ui app)]

@@ -4,6 +4,7 @@
             [counter.core :as counter]
             [app.friend-list-api :as friend-list-api]
             [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
             [carry-history.core :as h]
             [carry-logging.core :as logging]
             [reagent.core :as r]
@@ -40,7 +41,7 @@
          (update model :counter-visible? not)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def view-model (-> (fn [model] (carry/track-keys model [:friend-list-visible? :counter-visible?]))
+(def view-model (-> (fn [model] (carry-reagent/track-keys model [:friend-list-visible? :counter-visible?]))
                     (subapps/include-view-model :friend-list-subapp friend-list/view-model)
                     (subapps/include-view-model :counter-subapp counter/view-model)))
 
@@ -87,7 +88,7 @@
         app-spec (-> (new-spec history friend-list-api/search)
                      logging/add)
         app (carry/app app-spec)
-        [app-view-model app-view] (carry/connect-ui app view-model view)]
+        [app-view-model app-view] (carry-reagent/connect app view-model view)]
     ((:dispatch-signal app) :on-start)
 
     (r/render app-view (.getElementById js/document "root"))

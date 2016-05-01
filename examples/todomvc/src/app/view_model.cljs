@@ -1,6 +1,6 @@
 (ns app.view-model
   (:require [app.router :as router]
-            [carry.core :as carry])
+            [carry-reagent.core :as carry-reagent])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (defn view-model
@@ -16,7 +16,7 @@
                                        (mapv #(assoc % :selected? (= (:route %) @route)))))
         all-todos (reaction (:todos @model))]
     (-> model
-        (carry/track-keys [:field])
+        (carry-reagent/track-keys [:field])
         (assoc :visibility-spec visibility-spec
                :has-todos? (reaction (-> @all-todos count pos?))
                :todos (reaction (filter (case @route

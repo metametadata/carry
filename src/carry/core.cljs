@@ -1,6 +1,5 @@
 (ns carry.core
-  (:require [reagent.core :as r])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  (:require))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Readonly atoms
 (defn -readonly-validator
@@ -58,43 +57,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils
 (defn particle
   "Returns a readonly atom which automatically syncs its value from (f @iref).
-   Args: f - pure function, a - atom."
-  [a f]
-  (let [p (set-readonly! (atom (f @a)))]
-    (add-watch a
-               p                                            ; unique key
-               (fn [_key _atom _old-state new-state]
-                 (-reset-readonly-atom! p (f new-state))))
-    p))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Reagent utils
-(defn -atom->readonly-ratom
-  [a]
-  (let [ra (set-readonly! (r/atom @a))]
-    (add-watch a
-               ra                                           ; unique key
-               (fn [_key _atom _old-state new-state]
-                 (-reset-readonly-atom! ra new-state)))
-    ra))
-
-(defn connect-ui
-  "Arguments:
-  app - the app for which UI should be created
-  view-model - function which, given a readonly model ratom, returns reactions; returned value will be passed to a view:
-  view - Reagent component function with args: [view-model-return-value dispatch-signal]
-
-  Note that view-model function will be called only once.
-
-  Returns a pair of: view-model value (mostly for testing/debugging) and argless component to be rendered by Reagent."
-  [{:keys [model dispatch-signal] :as _app} view-model view]
-  {:pre [model (fn? dispatch-signal) (fn? view-model) (fn? view)]}
-  (let [app-view-model (view-model (-atom->readonly-ratom model))
-        app-view [view app-view-model dispatch-signal]]
-    [app-view-model app-view]))
-
-(defn track-keys
-  "Returns a map containing reactions to map entries specified by keys."
-  [map-ratom keyseq]
-  (into {}
-        (for [key keyseq]
-          [key (reaction (get @map-ratom key))])))
+   Args: f - pure function, a - atom, contructor - optional particle atom contructor, default: atom."
+  ([a f]
+   (particle a f atom))
+  ([a f constructor]
+   (let [p (set-readonly! (constructor (f @a)))]
+     (add-watch a
+                p                                           ; unique key
+                (fn [_key _atom _old-state new-state]
+                  (-reset-readonly-atom! p (f new-state))))
+     p)))

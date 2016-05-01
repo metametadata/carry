@@ -2,6 +2,7 @@
   (:require [friend-list.core :as friend-list]
             [app.api :as api]
             [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
             [carry-history.core :as h]
             [carry-logging.core :as logging]
             [carry-devtools.core :as devtools]
@@ -19,7 +20,7 @@
                      (devtools/add-debugger storage :friend-list-debugger-model)
                      logging/add)
         app (carry/app app-spec)
-        [app-view-model app-view] (carry/connect-ui app friend-list/view-model friend-list/view)
+        [app-view-model app-view] (carry-reagent/connect app friend-list/view-model friend-list/view)
         [_ debugger-view] (devtools/connect-debugger-ui app)]
     ((:dispatch-signal app) :on-start)
 

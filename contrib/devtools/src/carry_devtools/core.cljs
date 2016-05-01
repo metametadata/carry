@@ -1,5 +1,5 @@
 (ns carry-devtools.core
-  (:require [carry.core :as carry]
+  (:require [carry-reagent.core :as carry-reagent]
             [carry-schema.core :as schema-middleware]
             [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
@@ -335,8 +335,8 @@
         highlighted-signal-id (reaction (-> @debugger :highlighted-signal-id))
         highlighted-signal-ids (reaction (into #{@highlighted-signal-id}
                                                (-signal-parent-ids @signal-id->parent-id @highlighted-signal-id)))]
-    (-> (carry/track-keys debugger
-                          [:initial-model :replay-mode? :visible? :toggle-visibility-shortcut :action-events])
+    (-> (carry-reagent/track-keys debugger
+                                  [:initial-model :replay-mode? :visible? :toggle-visibility-shortcut :action-events])
         (assoc :signal-events (reaction
                                 ; mapv instead of map is essential, without it referenced reactions will be recalculated several times
                                 (mapv #(assoc % :highlighted? (contains? @highlighted-signal-ids (:id %))
@@ -551,4 +551,4 @@
   "Returns [debugger-view-model debugger-view]. App spec must be wrapped by |add-debugger|.
   Debugger view is resizable."
   [app]
-  (carry/connect-ui app -view-model -view))
+  (carry-reagent/connect app -view-model -view))
