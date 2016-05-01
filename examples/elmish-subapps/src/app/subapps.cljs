@@ -33,7 +33,7 @@
 
            [[:on-subapp-signal subapp-key] s]
            ((:control subapp-spec)
-             (carry/particle model (partial subapp-key))
+             (carry/entangle model (partial subapp-key))
              s
              (-tagged dispatch-signal [:on-subapp-signal subapp-key])
              (-tagged dispatch-action [:on-subapp-action subapp-key]))
@@ -64,7 +64,7 @@
   (fn view-model
     [model]
     (assoc (app-view-model model) subapp-key
-                                  ; using reaction (and not, for instance, carry/particle) is OK, since vm will only create new reactions from it
+                                  ; using reaction (and not, for instance, carry/entangle) is OK, since vm will only create new reactions from it
                                   (subapp-view-model (reaction (subapp-key @model))))))
 
 (defn include-view

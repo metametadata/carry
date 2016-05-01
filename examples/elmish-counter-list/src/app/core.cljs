@@ -60,7 +60,7 @@
            :on-remove (dispatch-action :remove)
 
            [[:on-counter-signal id] s]
-           (counter-control (carry/particle model #(get-counter % id))
+           (counter-control (carry/entangle model #(get-counter % id))
                             s
                             (tagged dispatch-signal [:on-counter-signal id])
                             (tagged dispatch-action [:counter-action id])))))

@@ -4,10 +4,6 @@
             [reagent.core :as r])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-(defn -atom->readonly-ratom
-  [a]
-  (carry/particle a identity r/atom))
-
 (defn connect
   "Arguments:
   app - the app for which UI should be created
@@ -19,7 +15,8 @@
   Returns a pair of: view-model value (mostly for testing/debugging) and argless component to be rendered by Reagent."
   [{:keys [model dispatch-signal] :as _app} view-model view]
   {:pre [model (fn? dispatch-signal) (fn? view-model) (fn? view)]}
-  (let [app-view-model (view-model (-atom->readonly-ratom model))
+  (let [model-ratom (carry/entangle model identity r/atom)
+        app-view-model (view-model model-ratom)
         app-view [view app-view-model dispatch-signal]]
     [app-view-model app-view]))
 

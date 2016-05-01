@@ -55,15 +55,15 @@
        :dispatch-signal dispatch-signal})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils
-(defn particle
-  "Returns a readonly atom which automatically syncs its value from (f @iref).
-   Args: f - pure function, a - atom, contructor - optional particle atom contructor, default: atom."
+(defn entangle
+  "Returns a readonly atom which automatically syncs its value from (f @a).
+   Args: f - pure function, a - atom, contructor - optional atom contructor, default: atom."
   ([a f]
-   (particle a f atom))
+   (entangle a f atom))
   ([a f constructor]
-   (let [p (set-readonly! (constructor (f @a)))]
+   (let [entangled-atom (set-readonly! (constructor (f @a)))]
      (add-watch a
-                p                                           ; unique key
+                entangled-atom                              ; unique key
                 (fn [_key _atom _old-state new-state]
-                  (-reset-readonly-atom! p (f new-state))))
-     p)))
+                  (-reset-readonly-atom! entangled-atom (f new-state))))
+     entangled-atom)))
