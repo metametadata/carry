@@ -43,7 +43,7 @@
                                        :output-dir           "resources/public/js/compiled/out"
                                        :source-map-timestamp true
                                        :compiler-stats       true
-                                       :parallel-build       true}
+                                       :parallel-build       false}
                         :figwheel     {:on-jsload     "app.core/on-jsload"
                                        :before-jsload "app.core/before-jsload"}}
 
@@ -61,7 +61,7 @@
                                        :optimizations  :advanced
                                        :pretty-print   false
                                        :compiler-stats true
-                                       :parallel-build true}}
+                                       :parallel-build false}}
 
                        {:id           "test"
                         :source-paths ["test"
