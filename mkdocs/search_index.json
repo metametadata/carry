@@ -12,22 +12,27 @@
         }, 
         {
             "location": "/examples/", 
-            "text": "All source code can be found in \nthe Github repository\n.\n\n\nAll apps support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\nFriend List\n\n\nSource code\n\n\nDemo\n\n\nInspired by this \nproblem\n about dynamic search input.\nDemonstrates how to dispatch new signals from app controller and also features:\n\n\n\n\nbasic routing\n\n\nmodel validation using \nSchema\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nunit tests\n\n\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nSee \ntodomvc.com\n.\n\n\nFeatures:\n\n\n\n\nrouting using \nSilk\n\n\nlocal storage persistence\n\n\ntime travel debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for a model.\n\n\nShopping Cart\n\n\nSource code\n\n\nDemo\n\n\nMore advanced example of using \nDataScript\n.\nInspired by \nflux-comparison\n problem.\n\n\nElm-ish Architecture Examples\n\n\nThe proof-of-concept examples of applying \nElm-ish architecture\n\nfor reusing existing Carry apps when building a bigger app.\nIt's a debatable design pattern because of the resulting code complexity, so use it with caution.\n\n\nSubapps\n\n\nSource code\n\n\nDemo\n\n\nIn this project \ncounter app\n and \nfriend list app\n instances are \"statically\" added to the app spec.\nSeveral helper methods are extracted to make it easy to include any subapp at the time of app instantiation.\n\n\nCounter List\n\n\nSource code\n\n\nDemo\n\n\nIn this example \ncounter app\n instances are created and removed dynamically after app is started.", 
+            "text": "All source code can be found in \nthe Github repository\n.\n\n\nAll apps support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nCounter Vanilla\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe basic example of using Carry with Reagent.\n\n\nFriend List\n\n\nSource code\n\n\nDemo\n\n\nInspired by this \nproblem\n about dynamic search input.\nDemonstrates how to dispatch new signals from app controller and also features:\n\n\n\n\nbasic routing\n\n\nmodel validation using \nSchema\n\n\ntime traveling debugger\n\n\nlogging to console\n\n\nunit tests\n\n\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nSee \ntodomvc.com\n.\n\n\nFeatures:\n\n\n\n\nrouting using \nSilk\n\n\nlocal storage persistence\n\n\ntime traveling debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for a model.\n\n\nShopping Cart\n\n\nSource code\n\n\nDemo\n\n\nMore advanced example of using \nDataScript\n.\nInspired by \nflux-comparison\n problem.\n\n\nElm-ish Architecture Examples\n\n\nThe proof-of-concept examples of applying \nElm-ish architecture\n\nfor reusing existing Carry apps when building a bigger app.\nIt's a debatable design pattern because of the resulting code complexity, so use it with caution.\n\n\nSubapps\n\n\nSource code\n\n\nDemo\n\n\nIn this project \ncounter app\n and \nfriend list app\n instances are \"statically\" added to the app spec.\nSeveral helper methods are extracted to make it easy to include any subapp at the time of app instantiation.\n\n\nCounter List\n\n\nSource code\n\n\nDemo\n\n\nIn this example \ncounter app\n instances are created and removed dynamically after app is started.", 
             "title": "Examples"
         }, 
         {
-            "location": "/examples/#counter", 
+            "location": "/examples/#counter-vanilla", 
             "text": "Source code  Demo  The most trivial example.", 
+            "title": "Counter Vanilla"
+        }, 
+        {
+            "location": "/examples/#counter", 
+            "text": "Source code  Demo  The basic example of using Carry with Reagent.", 
             "title": "Counter"
         }, 
         {
             "location": "/examples/#friend-list", 
-            "text": "Source code  Demo  Inspired by this  problem  about dynamic search input.\nDemonstrates how to dispatch new signals from app controller and also features:   basic routing  model validation using  Schema  time travel debugger  logging to console  unit tests", 
+            "text": "Source code  Demo  Inspired by this  problem  about dynamic search input.\nDemonstrates how to dispatch new signals from app controller and also features:   basic routing  model validation using  Schema  time traveling debugger  logging to console  unit tests", 
             "title": "Friend List"
         }, 
         {
             "location": "/examples/#todomvc", 
-            "text": "Source code  Demo  See  todomvc.com .  Features:   routing using  Silk  local storage persistence  time travel debugger  logging to console  model validation using  Schema  uses  Specter  for model updates", 
+            "text": "Source code  Demo  See  todomvc.com .  Features:   routing using  Silk  local storage persistence  time traveling debugger  logging to console  model validation using  Schema  uses  Specter  for model updates", 
             "title": "TodoMVC"
         }, 
         {
