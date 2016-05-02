@@ -39,6 +39,5 @@ def chdir(dirname):
     finally:
         os.chdir(curdir)
 
-
 def lein(args):
     run("lein {0}".format(args), echo=True)

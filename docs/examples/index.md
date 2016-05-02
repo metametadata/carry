@@ -2,12 +2,19 @@ All source code can be found in [the Github repository](https://github.com/metam
 
 All apps support hot reloading and REPL debugging via [Figwheel](https://github.com/bhauman/lein-figwheel).
 
+# Counter Vanilla
+[Source code](https://github.com/metametadata/carry/tree/master/examples/counter-vanilla)
+
+[Demo](/examples/counter-vanilla)
+
+The most trivial example.
+
 # Counter
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter)
 
 [Demo](/examples/counter)
 
-The most trivial example.
+The basic example of using Carry with Reagent.
 
 # Friend List
 
@@ -20,7 +27,7 @@ Demonstrates how to dispatch new signals from app controller and also features:
 
 * basic routing
 * model validation using [Schema](https://github.com/plumatic/schema)
-* time travel debugger
+* time traveling debugger
 * logging to console
 * unit tests
 
@@ -35,7 +42,7 @@ Features:
 
 * routing using [Silk](https://github.com/DomKM/silk)
 * local storage persistence
-* time travel debugger
+* time traveling debugger
 * logging to console
 * model validation using [Schema](https://github.com/plumatic/schema)
 * uses [Specter](https://github.com/nathanmarz/specter) for model updates
