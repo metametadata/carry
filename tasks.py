@@ -14,14 +14,19 @@ def examples():
     """ Compiles examples into project site folder. """
     site_path = os.path.join(os.getcwd(), "site")
 
-    for name in os.listdir("examples"):
-        example_path = os.path.join("examples", name)
+    for example_name in os.listdir("examples"):
+        example_path = os.path.join("examples", example_name)
         if os.path.isfile(os.path.join(example_path, "project.clj")):
             with chdir(example_path):
                 lein("clean")
-                lein("cljsbuild once min")
+
+                if example_name is "todomvc":
+                    lein("cljsbuild-min")
+                else:
+                    lein("cljsbuild once min")
+
                 shutil.copytree(os.path.join("resources", "public"),
-                                os.path.join(site_path, "examples", name))
+                                os.path.join(site_path, "examples", example_name))
 
 @task(post=[call(graphs), call(examples)])
 def site():

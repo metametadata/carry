@@ -2,13 +2,13 @@ See [project site](https://metametadata.github.io/carry/examples/#todomvc) for m
 
 ## Build
 
-To get an interactive development environment run:
+To get an interactive development environment run (`rlwrap` is optional):
 
-    lein figwheel
+    rlwrap lein with-profile +local-deps figwheel local-deps
     
-or better:
-    
-    rlwrap lein figwheel
+or, in case you'd like to fetch Carry from Clojars instead of using local repo code:
+
+    rlwrap lein with-profile +clojars-deps figwheel clojars-deps
 
 and open your browser at [localhost:3449](http://localhost:3449/).
 This will auto compile and send all changes to the browser without the
@@ -25,7 +25,15 @@ To clean all compiled files:
 
 To create a production build run:
 
-    lein cljsbuild once min
+    lein with-profile +local-deps cljsbuild once min
+    
+or, using alias:
+    
+    lein cljsbuild-min
+    
+or, to compile using Carry from Clojars:
+
+    lein with-profile +clojars-deps cljsbuild once min
 
 And open your browser in `resources/public/index.html`. You will not
 get live reloading, nor a REPL.
