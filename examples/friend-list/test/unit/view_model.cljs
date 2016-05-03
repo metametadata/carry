@@ -3,27 +3,32 @@
     [friend-list.core :as friend-list]
     [reagent.core :as r]
     [schema-generators.generators :as g]
-    [cljs.test :refer-macros [deftest is]]))
+    [cljs.test :refer-macros [deftest is]])
+  (:require-macros [reagent.ratom :refer [run!]]))
 
-(deftest
-  tracks-query
-  (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)
-        model (r/atom initial-model)
-        view-model (friend-list/view-model model)]
-    ; act
-    (swap! model reconcile [:set-query "new query"])
-
-    ; assert
-    (is (= "new query" @(:query view-model)))))
-
-(deftest
-  tracks-friends
+(defn test-view-model-tracks-model-key
+  [model-key act-action expected-view-model-value]
   (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)
         model (r/atom initial-model)
         view-model (friend-list/view-model model)
-        new-friends (g/sample 3 friend-list/Friend)]
+        witness (atom nil)]
+    (is (contains? view-model model-key) "self-test")
+    (run! (reset! witness @(model-key view-model)))
+
     ; act
-    (swap! model reconcile [:set-friends new-friends])
+    (swap! model reconcile act-action)
+
+    ; force reaction updates
+    (r/flush)
 
     ; assert
-    (is (= new-friends @(:friends view-model)))))
+    (is (= expected-view-model-value @witness))))
+
+(deftest
+  tracks-query
+  (test-view-model-tracks-model-key :query [:set-query "new query"] "new query"))
+
+(deftest
+  tracks-friends
+  (let [new-friends (g/sample 3 friend-list/Friend)]
+    (test-view-model-tracks-model-key :friends [:set-friends new-friends] new-friends)))
