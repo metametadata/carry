@@ -155,7 +155,7 @@
   So using HistoryProtocol's replace-token/push-token would not trigger this signal.
   You can still force sending this signal by passing {:treat-as-browser-event? true} event-data to these functions.
 
-  Middleware is replay-friendly, meaning that it won't automatically dispatch initial signal on app start if debugger's replay mode is on."
+  Middleware is friendly to carry-devtools: it won't automatically dispatch initial signal on app start if debugger's replay mode is on."
   [spec history]
   (-> spec
       (update :initial-model -wrap-initial-model)

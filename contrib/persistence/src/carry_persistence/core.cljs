@@ -67,9 +67,9 @@
   Optional :blacklist set should contain model keys which will not be saved and loaded.
   Optional :load-wrapper allows decorating model update function (e.g. it's possible to cancel loading based on loaded data).
 
-  Middleware is replay-friendly, meaning that:
+  Middleware is friendly to carry-devtools:
 
-  * it won't persist debugger data
+  * it won't persist debugger data in order to not conflict with debugger's persistence implementation
   * it won't load model from storage on app start if debugger's replay mode is on"
   ([spec storage key]
    (add spec storage key nil))
