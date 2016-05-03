@@ -7,7 +7,7 @@
 (defn connect
   "Arguments:
   app - the app for which UI should be created
-  view-model - function which, given a readonly model ratom, returns reactions; returned value will be passed to a view:
+  view-model - function which, given a readonly model ratom, returns reactions (e.g. in a map); returned value will be passed to a view:
   view - Reagent component function with args: [view-model-return-value dispatch-signal]
 
   Note that view-model function will be called only once.

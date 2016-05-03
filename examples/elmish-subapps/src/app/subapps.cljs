@@ -60,11 +60,13 @@
       (update :reconcile -wrap-reconcile subapp-key subapp-spec)))
 
 (defn include-view-model
+  "For this to work app's view model function must return a map."
   [app-view-model subapp-key subapp-view-model]
   (fn view-model
     [model]
     (assoc (app-view-model model) subapp-key
-                                  ; using reaction (and not, for instance, carry/entangle) is OK, since vm will only create new reactions from it
+                                  ; using reaction (and not, for instance, carry/entangle) is OK
+                                  ; since view model should only create new reactions from it
                                   (subapp-view-model (reaction (subapp-key @model))))))
 
 (defn include-view
