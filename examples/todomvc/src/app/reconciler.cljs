@@ -41,7 +41,7 @@
              model
              (-> model
                  (assoc :field "")
-                 (update :next-id inc #_(min (inc %) 3))    ; commented is the code which will make tests fail
+                 (update :next-id inc)
                  (update :todos concat [(m/init-todo (:next-id model) title)]))))
 
          [:toggle id]

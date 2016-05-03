@@ -535,6 +535,8 @@
    For correct work it must be the last middleware wrapping the app and
    also make sure to blacklist ::debugger key if your app uses persistence middleware.
 
+   Storage is expected to be a transient map (e.g. see hodgepodge lib).
+
    Custom keyboard shortcut can toggle the visibility.
 
    Applying debugger middleware more than once will lead to undefined behaviour."
