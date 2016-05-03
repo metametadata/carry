@@ -19,5 +19,5 @@
        (update :reconcile
                (fn wrap-reconcile [reconcile]
                  (fn logged-reconcile [model action]
-                   (println (str prefix "action") (pr-str action))
+                   (.log js/console (str prefix "action") (pr-str action))
                    (reconcile model action)))))))

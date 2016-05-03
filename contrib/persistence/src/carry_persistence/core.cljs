@@ -22,7 +22,6 @@
              (do
                (app-control model signal dispatch-signal dispatch-action)
 
-               (println "[persistence] start, key =" (pr-str key))
                (when (not (-> @model :carry-devtools.core/debugger :replay-mode?))
                  (let [loaded-model (get storage key :not-found)]
                    (when (not= loaded-model :not-found)

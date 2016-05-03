@@ -101,7 +101,6 @@
              (do
                (app-control model signal dispatch-signal dispatch-action)
 
-               (println "[routing] start")
                (add-watch model ::token-watcher
                           (fn [_key _atom old-state new-state]
                             (when (not= (::token old-state) (::token new-state))
