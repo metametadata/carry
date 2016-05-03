@@ -202,7 +202,9 @@
                  (dispatch-action ::replay))
 
                [::on-log-action-result id]
-               (-> (-find-action @model id) :result pr-str println)
+               (let [result (:result (-find-action @model id))]
+                 (.log js/console "EDN:" (pr-str result))
+                 (.log js/console "Raw:" result))
 
                ::on-toggle-replay-mode
                (dispatch-action ::toggle-replay-mode)
