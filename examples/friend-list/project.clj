@@ -12,6 +12,7 @@
                  [prismatic/schema "1.1.0"]
                  [cljsjs/jquery-ui "1.11.4-0"]
                  [cljsjs/filesaverjs "1.1.20151003-0"]
+
                  [binaryage/devtools "0.6.1"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]

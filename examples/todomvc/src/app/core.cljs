@@ -8,9 +8,11 @@
             [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]
-            [hodgepodge.core :as hp]))
+            [hodgepodge.core :as hp]
+            [devtools.core :as chrome-devtools]))
 
 (enable-console-print!)
+(chrome-devtools/install! [:custom-formatters :sanity-hints])
 
 (defn main
   []

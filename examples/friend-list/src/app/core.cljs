@@ -7,9 +7,11 @@
             [carry-logging.core :as logging]
             [carry-devtools.core :as devtools]
             [reagent.core :as r]
-            [hodgepodge.core :as hp]))
+            [hodgepodge.core :as hp]
+            [devtools.core :as chrome-devtools]))
 
 (enable-console-print!)
+(chrome-devtools/install! [:custom-formatters :sanity-hints])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn main

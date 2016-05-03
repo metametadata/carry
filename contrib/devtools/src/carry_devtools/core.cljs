@@ -5,7 +5,6 @@
             [cljs.core.match :refer-macros [match]]
             [com.rpl.specter :as s]
             [reagent.core :as r]
-            [devtools.core :as chrome-devtools]
             [goog.events]
             [goog.ui.KeyboardShortcutHandler.EventType :as EventType]
             cljsjs.jquery-ui
@@ -13,8 +12,6 @@
             cljs.pprint)
   (:import goog.ui.KeyboardShortcutHandler)
   (:require-macros [reagent.ratom :refer [reaction]]))
-
-(chrome-devtools/install! [:custom-formatters :sanity-hints])
 
 ;;;;;;;;;;;;;;;;;;; Model
 (def Schema
