@@ -169,7 +169,7 @@
                  ; load debugger model from storage and replay if it's in replay mode
                  (let [loaded-model (get storage storage-key)]
                    (when (-> loaded-model ::debugger :replay-mode?)
-                     ; updating :initial-model so that on hot reload we don't see changes after modifying app init code
+                     ; update :initial-model to the fresh one
                      (let [new-model (assoc-in loaded-model [::debugger :initial-model] (-> @model ::debugger :initial-model))]
                        (dispatch-action [::load new-model]))
 
