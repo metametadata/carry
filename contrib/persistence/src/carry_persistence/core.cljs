@@ -67,13 +67,17 @@
   Optional :blacklist set should contain model keys which will not be saved and loaded.
   Optional :load-wrapper allows decorating model update function (e.g. it's possible to cancel loading based on loaded data).
 
-  Middleware is replay-friendly, meaning that it won't load model from storage on app start if debugger's replay mode is on."
+  Middleware is replay-friendly, meaning that:
+
+  * it won't persist debugger data
+  * it won't load model from storage on app start if debugger's replay mode is on"
   ([spec storage key]
    (add spec storage key nil))
   ([spec storage key {:keys [blacklist load-wrapper] :or {blacklist #{} load-wrapper identity} :as _options}]
    {:pre [(set? blacklist)]}
-   (-> spec
-       ; Key is injected into wrappers in case several persistence middlewares are applied to the same spec.
-       ; Without key the load signal would be always handled by the "top" persistence layer.
-       (update :control -wrap-control storage key blacklist load-wrapper)
-       (update :reconcile -wrap-reconcile key blacklist))))
+   (let [blacklist (conj blacklist :carry-devtools.core/debugger)]
+     (-> spec
+         ; Key is injected into wrappers in case several persistence middlewares are applied to the same spec.
+         ; Without key the load signal would be always handled by the "top" persistence layer.
+         (update :control -wrap-control storage key blacklist load-wrapper)
+         (update :reconcile -wrap-reconcile key blacklist)))))

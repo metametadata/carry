@@ -532,8 +532,7 @@
 
    All signals and actions will be recorded and stored in the model.
    After app is created use |connect-debugger-ui| for rendering the debugger.
-   For correct work it must be the last middleware wrapping the app and
-   also make sure to blacklist ::debugger key if your app uses persistence middleware.
+   For correct work it must be the last middleware wrapping the app.
 
    Storage is expected to be a transient map (e.g. see hodgepodge lib).
 
