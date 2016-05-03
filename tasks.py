@@ -20,7 +20,7 @@ def examples():
             with chdir(example_path):
                 lein("clean")
 
-                if example_name is "todomvc":
+                if example_name == "todomvc":
                     lein("cljsbuild-min")
                 else:
                     lein("cljsbuild once min")
