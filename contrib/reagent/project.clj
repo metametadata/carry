@@ -14,4 +14,9 @@
 
   :pedantic? :abort
 
-  :source-paths ["src"])
+  :source-paths ["src"]
+
+  :repositories {"snapshots" {:url           "https://clojars.org/repo"
+                              :sign-releases false}
+                 "releases"  {:url           "https://clojars.org/repo"
+                              :sign-releases false}})
