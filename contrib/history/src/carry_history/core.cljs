@@ -144,7 +144,7 @@
 
 ;;; Middleware
 (defn add
-  "Applies middleware which allows app model being in sync with current history.
+  "Applies middleware which syncs app model with browser history.
 
   After start it begins catching history events and updates ::token in model accordingly.
   If ::token changes in model (e.g. by toggling action in debugger), then current url is replaced using new token.
@@ -181,7 +181,7 @@
 
 (defn link
   "Link component which changes current URL without sending request to server.
-  Will replace current token instead of pushing if :replace? attribute is true.
+  Will replace current token instead of pushing if :replace? attribute is true (attribute is false by default).
 
   If history middleware is added then clicking the link will produce :on-enter signal."
   [history token {:keys [replace?] :as attrs} & body]
