@@ -30,6 +30,7 @@
                                            [carry-reagent "0.1.0"]
                                            [carry-logging "0.1.0"]
                                            [carry-history "0.1.0"]
+                                           [carry-schema "0.1.0"]
 
                                            ; required by carry-devtools:
                                            [cljsjs/jquery-ui "1.11.4-0"]
@@ -38,8 +39,7 @@
   :cljsbuild {:builds [{:id           "clojars-deps"
                         :source-paths ["src"
                                        "../../contrib/persistence/src"
-                                       "../../contrib/devtools/src"
-                                       "../../contrib/schema/src"]
+                                       "../../contrib/devtools/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/clojars-deps/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
