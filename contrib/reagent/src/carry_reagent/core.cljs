@@ -1,4 +1,3 @@
-; Reagent bindings for Carry
 (ns carry-reagent.core
   (:require [carry.core :as carry]
             [reagent.core :as r])
