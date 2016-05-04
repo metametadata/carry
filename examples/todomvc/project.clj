@@ -27,6 +27,7 @@
                                            [cljsjs/filesaverjs "1.1.20151003-0"]]}
 
              :clojars-deps {:dependencies [[carry "0.1.0"]
+                                           [carry-reagent "0.1.0"]
 
                                            ; required by carry-devtools:
                                            [cljsjs/jquery-ui "1.11.4-0"]
@@ -34,7 +35,6 @@
 
   :cljsbuild {:builds [{:id           "clojars-deps"
                         :source-paths ["src"
-                                       "../../contrib/reagent/src"
                                        "../../contrib/history/src"
                                        "../../contrib/persistence/src"
                                        "../../contrib/logging/src"

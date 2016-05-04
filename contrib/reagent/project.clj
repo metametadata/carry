@@ -1,7 +1,7 @@
 (defproject
   carry-reagent "0.1.0"
   :description "Reagent bindings for Carry."
-  :url "https://github.com/metametadata/carry"
+  :url "https://github.com/metametadata/carry/tree/master/contrib/reagent"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
