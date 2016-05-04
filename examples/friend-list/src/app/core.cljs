@@ -5,7 +5,7 @@
             [carry-reagent.core :as carry-reagent]
             [carry-history.core :as h]
             [carry-logging.core :as logging]
-            [carry-devtools.core :as devtools]
+            [carry-debugger.core :as debugger]
             [reagent.core :as r]
             [hodgepodge.core :as hp]
             [devtools.core :as chrome-devtools]))
@@ -19,11 +19,11 @@
   (let [history (h/new-hash-history)
         storage hp/local-storage
         app-spec (-> (friend-list/new-spec history api/search)
-                     (devtools/add-debugger storage :friend-list-debugger-model)
+                     (debugger/add storage :friend-list-debugger-model)
                      logging/add)
         app (carry/app app-spec)
         [app-view-model app-view] (carry-reagent/connect app friend-list/view-model friend-list/view)
-        [_ debugger-view] (devtools/connect-debugger-ui app)]
+        [_ debugger-view] (debugger/connect app)]
     ((:dispatch-signal app) :on-start)
 
     (r/render [:div app-view debugger-view]

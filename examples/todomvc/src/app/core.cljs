@@ -4,7 +4,7 @@
             [app.view :refer [new-view]]
             [carry-history.core :as h]
             [carry-logging.core :as logging]
-            [carry-devtools.core :as devtools]
+            [carry-debugger.core :as debugger]
             [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]
@@ -24,7 +24,7 @@
 
         ; define spec
         app-spec (-> (spec/new-spec history storage :todomvc-model ["Finish this project" "Take a bath"])
-                     (devtools/add-debugger storage :todomvc-debugger-model)
+                     (debugger/add storage :todomvc-debugger-model)
                      logging/add)
 
         ; create app from spec
@@ -34,7 +34,7 @@
         [app-view-model app-view] (carry-reagent/connect app view-model (new-view history))
 
         ; create debugger GUI
-        [_ debugger-view] (devtools/connect-debugger-ui app)]
+        [_ debugger-view] (debugger/connect app)]
     ; perform initial side effects
     ((:dispatch-signal app) :on-start)
 

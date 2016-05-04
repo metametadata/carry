@@ -13,7 +13,7 @@ ClojureScript application framework.
 
 ## Middleware
 
-* [Devtools](https://github.com/metametadata/carry/tree/master/contrib/devtools)
+* [Debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger)
 * [History](https://github.com/metametadata/carry/tree/master/contrib/history)
 * [Logging](https://github.com/metametadata/carry/tree/master/contrib/logging)
 * [Persistence](https://github.com/metametadata/carry/tree/master/contrib/persistence)

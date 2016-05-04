@@ -6,7 +6,7 @@
                  [reagent "0.6.0-SNAPSHOT" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "15.0.2-0"]
 
-                 ; required by carry-devtools:
+                 ; required by carry-debugger:
                  [com.rpl/specter "0.10.0"]
                  [funcool/hodgepodge "0.1.4"]
                  [prismatic/schema "1.1.0"]
@@ -37,7 +37,7 @@
                                        "../../contrib/history/src"
                                        "../../contrib/schema/src"
                                        "../../contrib/logging/src"
-                                       "../../contrib/devtools/src"]
+                                       "../../contrib/debugger/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -56,7 +56,7 @@
                                        "../../contrib/history/src"
                                        "../../contrib/schema/src"
                                        "../../contrib/logging/src"
-                                       "../../contrib/devtools/src"]
+                                       "../../contrib/debugger/src"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced
@@ -73,7 +73,7 @@
                                        "../../contrib/history/src"
                                        "../../contrib/schema/src"
                                        "../../contrib/logging/src"
-                                       "../../contrib/devtools/src"]
+                                       "../../contrib/debugger/src"]
                         :compiler     {:main          'unit.runner
                                        :output-to     "resources/private/js/compiled/testable.js"
                                        :output-dir    "resources/private/js/compiled/out"

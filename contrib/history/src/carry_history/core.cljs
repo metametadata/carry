@@ -110,7 +110,7 @@
                        (listen history #(dispatch-signal [::on-history-event {:token %1 :browser-event? %2 :event-data %3}])))
 
                ; initial signal
-               (when (not (-> @model :carry-devtools.core/debugger :replay-mode?))
+               (when (not (-> @model :carry-debugger.core/debugger :replay-mode?))
                  (dispatch-signal [::on-history-event {:token (token history) :browser-event? true :event-data nil}])))
 
              :on-stop
@@ -154,7 +154,7 @@
   So using HistoryProtocol's replace-token/push-token would not trigger this signal.
   You can still force sending this signal by passing {:treat-as-browser-event? true} event-data to these functions.
 
-  Middleware is friendly to carry-devtools: it won't automatically dispatch initial signal on app start if debugger's replay mode is on."
+  Middleware is friendly to carry-debugger: it won't automatically dispatch initial signal on app start if debugger's replay mode is on."
   [spec history]
   (-> spec
       (update :initial-model -wrap-initial-model)

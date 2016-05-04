@@ -1,8 +1,9 @@
-(ns carry-devtools.core
+(ns carry-debugger.core
   (:require [carry-reagent.core :as carry-reagent]
             [carry-schema.core :as schema-middleware]
             [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
+            [cljs.reader]
             [com.rpl.specter :as s]
             [reagent.core :as r]
             [goog.events]
@@ -526,11 +527,11 @@
      [-signals-view @signal-events @action-events dispatch]]]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
-(defn add-debugger
+(defn add
   "Adds debugging capabilities to the app.
 
    All signals and actions will be recorded and stored in the model.
-   After app is created use |connect-debugger-ui| for rendering the debugger.
+   After app is created use |connect| for rendering the debugger.
    For correct work it must be the last middleware wrapping the app.
 
    Storage is expected to be a transient map (e.g. see hodgepodge lib).
@@ -538,7 +539,7 @@
    Custom keyboard shortcut can toggle the visibility.
 
    Applying debugger middleware more than once will lead to undefined behaviour."
-  ([spec storage storage-key] (add-debugger spec storage storage-key "ctrl+h"))
+  ([spec storage storage-key] (add spec storage storage-key "ctrl+h"))
   ([spec storage storage-key toggle-visibility-shortcut]
    (-> spec
        (update :initial-model -wrap-initial-model toggle-visibility-shortcut)
@@ -547,8 +548,10 @@
 
        (schema-middleware/add Schema))))
 
-(defn connect-debugger-ui
-  "Returns [debugger-view-model debugger-view]. App spec must be wrapped by |add-debugger|.
+(defn connect
+  "Creates Reagent component for showing a debugger for app which uses debugger middleware.
+  Returns [debugger-view-model debugger-view].
+
   Debugger view is resizable."
   [app]
   (carry-reagent/connect app -view-model -view))

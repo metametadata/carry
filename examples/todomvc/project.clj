@@ -22,7 +22,7 @@
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
-  :profiles {:local-deps   {:dependencies [; required by carry-devtools:
+  :profiles {:local-deps   {:dependencies [; required by carry-debugger:
                                            [cljsjs/jquery-ui "1.11.4-0"]
                                            [cljsjs/filesaverjs "1.1.20151003-0"]]}
 
@@ -32,14 +32,14 @@
                                            [carry-history "0.1.0"]
                                            [carry-schema "0.1.0"]
 
-                                           ; required by carry-devtools:
+                                           ; required by carry-debugger:
                                            [cljsjs/jquery-ui "1.11.4-0"]
                                            [cljsjs/filesaverjs "1.1.20151003-0"]]}}
 
   :cljsbuild {:builds [{:id           "clojars-deps"
                         :source-paths ["src"
                                        "../../contrib/persistence/src"
-                                       "../../contrib/devtools/src"]
+                                       "../../contrib/debugger/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/clojars-deps/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -57,7 +57,7 @@
                                        "../../contrib/history/src"
                                        "../../contrib/persistence/src"
                                        "../../contrib/logging/src"
-                                       "../../contrib/devtools/src"
+                                       "../../contrib/debugger/src"
                                        "../../contrib/schema/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/local-deps/out"
@@ -76,7 +76,7 @@
                                        "../../contrib/history/src"
                                        "../../contrib/persistence/src"
                                        "../../contrib/logging/src"
-                                       "../../contrib/devtools/src"
+                                       "../../contrib/debugger/src"
                                        "../../contrib/schema/src"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"

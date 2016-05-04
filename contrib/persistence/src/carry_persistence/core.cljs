@@ -22,7 +22,7 @@
              (do
                (app-control model signal dispatch-signal dispatch-action)
 
-               (when (not (-> @model :carry-devtools.core/debugger :replay-mode?))
+               (when (not (-> @model :carry-debugger.core/debugger :replay-mode?))
                  (let [loaded-model (get storage key :not-found)]
                    (when (not= loaded-model :not-found)
                      ((load-wrapper load-from-storage) model loaded-model dispatch-signal))))
@@ -66,7 +66,7 @@
   Optional :blacklist set should contain model keys which will not be saved and loaded.
   Optional :load-wrapper allows decorating model update function (e.g. it's possible to cancel loading based on loaded data).
 
-  Middleware is friendly to carry-devtools:
+  Middleware is friendly to carry-debugger:
 
   * it won't persist debugger data in order to not conflict with debugger's persistence implementation
   * it won't load model from storage on app start if debugger's replay mode is on"
@@ -74,7 +74,7 @@
    (add spec storage key nil))
   ([spec storage key {:keys [blacklist load-wrapper] :or {blacklist #{} load-wrapper identity} :as _options}]
    {:pre [(set? blacklist)]}
-   (let [blacklist (conj blacklist :carry-devtools.core/debugger)]
+   (let [blacklist (conj blacklist :carry-debugger.core/debugger)]
      (-> spec
          ; Key is injected into wrappers in case several persistence middlewares are applied to the same spec.
          ; Without key the load signal would be always handled by the "top" persistence layer.

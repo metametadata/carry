@@ -6,7 +6,7 @@
                  [reagent "0.6.0-SNAPSHOT" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "15.0.2-0"]
 
-                 ; required by carry-devtools:
+                 ; required by carry-debugger:
                  [com.rpl/specter "0.10.0"]
                  [funcool/hodgepodge "0.1.4"]
                  [prismatic/schema "1.1.0"]
