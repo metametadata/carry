@@ -1,5 +1,5 @@
 # carry-reagent
 
-Reagent bindings for Carry.
+[Reagent](https://github.com/reagent-project/reagent) bindings for Carry.
 
 [![Clojars Project](https://img.shields.io/clojars/v/carry-reagent.svg)](https://clojars.org/carry-reagent)
