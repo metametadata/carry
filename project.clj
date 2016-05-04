@@ -9,6 +9,4 @@
 
   :pedantic? :abort
 
-  :source-paths ["src"]
-
-  :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"])
+  :source-paths ["src"])
