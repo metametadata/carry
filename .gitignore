@@ -20,3 +20,4 @@ pom.xml.asc
 /examples/*/figwheel_server.log
 /examples/*/resources/public/js/compiled
 /examples/*/resources/private
+/contrib/*/target
