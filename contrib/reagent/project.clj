@@ -16,7 +16,4 @@
 
   :source-paths ["src"]
 
-  :repositories {"snapshots" {:url           "https://clojars.org/repo"
-                              :sign-releases false}
-                 "releases"  {:url           "https://clojars.org/repo"
-                              :sign-releases false}})
+  :repositories {"clojars" {:sign-releases false}})
