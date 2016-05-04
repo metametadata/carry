@@ -19,6 +19,13 @@ get a Browser Connected REPL. An easy way to try it is:
 
 and you should see an alert in the browser window.
 
+You can also directly access the app map:
+
+    cljs.user=> (ns app.core)
+    nil
+    app.core=> (keys app)
+    (:model :dispatch-signal)
+
 To clean all compiled files:
 
     lein clean
