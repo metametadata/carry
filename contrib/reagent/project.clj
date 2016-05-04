@@ -9,7 +9,7 @@
 
                  [carry "0.1.0" :scope "provided"]
 
-                 [reagent "0.6.0-SNAPSHOT" :exclusions [cljsjs/react] :scope "provided"]
+                 [reagent "0.6.0-alpha" :exclusions [cljsjs/react] :scope "provided"]
                  [cljsjs/react-with-addons "15.0.2-0" :scope "provided"]]
 
   :pedantic? :abort
