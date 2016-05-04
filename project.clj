@@ -1,4 +1,5 @@
-(defproject carry "0.1.0"
+(defproject
+  carry "0.2.0-SNAPSHOT"
   :description "ClojureScript application framework."
   :url "https://github.com/metametadata/carry"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
