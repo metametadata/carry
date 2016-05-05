@@ -27,12 +27,12 @@
                                            [cljsjs/filesaverjs "1.1.20151003-0"]]}
 
              :clojars-deps {:dependencies [[carry "0.1.0"]
-                                           [carry-debugger "0.1.0"]
+                                           [carry-debugger "0.2.0"]
                                            [carry-history "0.3.0"]
                                            [carry-logging "0.1.0"]
                                            [carry-persistence "0.3.0"]
                                            [carry-reagent "0.2.0"]
-                                           [carry-schema "0.2.0"]]}}
+                                           [carry-schema "0.3.0"]]}}
 
   :cljsbuild {:builds [{:id           "clojars-deps"
                         :source-paths ["src"]
