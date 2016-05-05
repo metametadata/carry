@@ -79,6 +79,12 @@
                 
                 
                 
+                    <li >
+                        <a href="../api/">API Reference</a>
+                    </li>
+                
+                
+                
                     <li class="active">
                         <a href="./">Developer Guide</a>
                     </li>
@@ -95,7 +101,7 @@
                 </li>
                 
                     <li >
-                        <a rel="next" href="../examples/">
+                        <a rel="next" href="../api/">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
@@ -136,10 +142,12 @@
         <div class="col-md-9" role="main">
 
 <h1 id="documentation">Documentation</h1>
-<p>Project uses <a href="http://www.mkdocs.org/">MkDocs</a> with <a href="https://github.com/chrissimpkins/cinder">Cinder</a> theme and <a href="http://plantuml.com/">PlantUML</a> to generate documentation static site.</p>
+<p>Project uses <a href="http://www.mkdocs.org/">MkDocs</a> with <a href="https://github.com/chrissimpkins/cinder">Cinder</a> theme and <a href="http://plantuml.com/">PlantUML</a> to generate documentation static site.
+<a href="https://github.com/weavejester/codox">Codox</a> is used to generate API reference.</p>
 <p>Serve site without examples locally with automatic build: <code>mkdocs serve</code></p>
 <p>Build site without examples into site folder: <code>mkdocs build --clean</code></p>
-<p>Build site with graphs and examples (requires <a href="http://www.pyinvoke.org/">PyInvoke</a>): <code>inv site</code></p>
+<p>Build API docs into site folder: <code>lein codox</code></p>
+<p>Build site with API reference, graphs and examples (requires <a href="http://www.pyinvoke.org/">PyInvoke</a>): <code>inv site</code></p>
 <h1 id="deploying">Deploying</h1>
 <p>Deploy to Clojars: <code>lein deploy clojars</code></p>
 <p>Deploy site to gh-pages branch: <code>ghp-import -p site</code></p></div>
