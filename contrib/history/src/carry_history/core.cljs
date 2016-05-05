@@ -26,8 +26,8 @@
   (token->href [this token] "Returns the href for the specified token to be used in HTML links."))
 
 ; Implementation of HistoryProtocol using Closure API
-(def ^:dynamic *-history-event-data* nil)
-(defrecord -History [-goog-history]
+(def ^:dynamic ^:no-doc *-history-event-data* nil)
+(defrecord ^:no-doc -History [-goog-history]
   HistoryProtocol
   (listen
     [_this callback]
@@ -86,12 +86,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
 ;;; Init
-(defn -wrap-initial-model
+(defn ^:no-doc -wrap-initial-model
   [app-initial-model]
   (merge {::token "/"} app-initial-model))
 
 ;;; Control
-(defn -wrap-control
+(defn ^:no-doc -wrap-control
   [app-control history]
   (let [unlisten (atom nil)]
     (fn control
@@ -130,7 +130,7 @@
              (app-control model signal dispatch-signal dispatch-action)))))
 
 ;;; Reconcile
-(defn -wrap-reconcile
+(defn ^:no-doc -wrap-reconcile
   "Updates the token."
   [app-reconcile]
   (fn reconcile
@@ -162,7 +162,7 @@
       (update :reconcile -wrap-reconcile)))
 
 ;;; Link
-(defn -pure-click?
+(defn ^:no-doc -pure-click?
   "Returns false if the user did a middle-click, right-click, or used a modifier"
   [e]
   (not (or (.-altKey e)
@@ -171,7 +171,7 @@
            (.-shiftKey e)
            (not (zero? (.-button e))))))
 
-(defn -on-click
+(defn ^:no-doc -on-click
   [e history token replace?]
   (when (-pure-click? e)
     (.preventDefault e)
@@ -180,7 +180,7 @@
       (push-token history token {:treat-as-browser-event? true}))))
 
 (defn link
-  "Link component which changes current URL without sending request to server.
+  "Link Reagent component which changes current URL without sending request to server.
   Will replace current token instead of pushing if :replace? attribute is true (attribute is false by default).
 
   If history middleware is added then clicking the link will produce :on-enter signal."

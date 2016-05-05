@@ -15,7 +15,7 @@
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;; Model
-(def Schema
+(def ^:no-doc -Schema
   {::debugger {:initial-model              {schema/Any schema/Any}
 
                :signal-events              [{:id        schema/Int
@@ -39,7 +39,7 @@
 
    schema/Any schema/Any})
 
-(defn -wrap-initial-model
+(defn ^:no-doc -wrap-initial-model
   [app-initial-model toggle-visibility-shortcut]
   (assoc app-initial-model ::debugger
                            {:initial-model              app-initial-model
@@ -56,13 +56,13 @@
                             :visible?                   true
                             :toggle-visibility-shortcut toggle-visibility-shortcut}))
 
-(defn -signal-event
+(defn ^:no-doc -signal-event
   [id parent-id signal]
   {:id        id
    :parent-id parent-id
    :signal    signal})
 
-(defn -action-event
+(defn ^:no-doc -action-event
   [id signal-id action result]
   {:id          id
    :signal-id   signal-id
@@ -73,30 +73,30 @@
    ; this key only makes sense for enabled actions; should not include ::debugger data
    :result      result})
 
-(defn -update-action-events
+(defn ^:no-doc -update-action-events
   [model pred f & args]
   (s/transform [::debugger :action-events s/ALL pred]
                #(apply f % args)
                model))
 
-(defn -update-action-event
+(defn ^:no-doc -update-action-event
   [model id f & args]
   (apply -update-action-events model #(= (:id %) id) f args))
 
-(defn -find-signal
+(defn ^:no-doc -find-signal
   [model id]
   (s/select-one [::debugger :signal-events s/ALL #(= (:id %) id)] model))
 
-(defn -find-action
+(defn ^:no-doc -find-action
   [model id]
   (s/select-one [::debugger :action-events s/ALL #(= (:id %) id)] model))
 
-(defn -signal-id->parent-id
+(defn ^:no-doc -signal-id->parent-id
   "Returns a map."
   [signal-events]
   (into {} (map #(-> [(:id %) (:parent-id %)]) signal-events)))
 
-(defn -signal-parent-ids
+(defn ^:no-doc -signal-parent-ids
   "Returns a set containing: id of parent, parent of parent, etc.
   Non-existent parent ids are ignored."
   [id->parent-id id]
@@ -112,7 +112,7 @@
 
           @result)))))
 
-(defn -signals-with-actions
+(defn ^:no-doc -signals-with-actions
   "Returns set of ids of signals which have actions or child signals with actions."
   [model]
   (let [signal-id->parent-id (-signal-id->parent-id (-> model ::debugger :signal-events))
@@ -124,7 +124,7 @@
 
     @result))
 
-(defn -remove-orphaned-signals
+(defn ^:no-doc -remove-orphaned-signals
   "Orphaned signal has no actions and no orphaned child signals."
   [model]
   (let [kept-ids (-signals-with-actions model)
@@ -133,7 +133,7 @@
     (assoc-in model [::debugger :signal-events] new-signal-events)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Control
-(defn -save-file
+(defn ^:no-doc -save-file
   "Uses filesaverjs lib."
   [filename content]
   (let [blob (new js/Blob
@@ -141,7 +141,7 @@
                   (clj->js {:type "text/plain;charset=UTF-8"}))]
     (js/saveAs blob filename)))
 
-(defn -wrap-control
+(defn ^:no-doc -wrap-control
   [app-control storage storage-key toggle-visibility-shortcut]
   (let [unlisten-shortcuts (atom nil)]
     (fn control
@@ -242,7 +242,7 @@
                (record-and-dispatch-to-app signal nil))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
-(defn -wrap-reconcile
+(defn ^:no-doc -wrap-reconcile
   [app-reconcile]
   (fn reconcile
     [model action]
@@ -323,11 +323,11 @@
                  (reconcile [::app-action (:id unknown-signal-event) action]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
-(defn -signal-indent
+(defn ^:no-doc -signal-indent
   [signal-id->parent-id id]
   (count (-signal-parent-ids signal-id->parent-id id)))
 
-(defn -view-model
+(defn ^:no-doc -view-model
   [model]
   (let [debugger (reaction (::debugger @model))
         signal-events (reaction (-> @debugger :signal-events))
@@ -344,8 +344,8 @@
                                       @signal-events))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View
-(def -color-replay "rgb(240, 240, 30)")
-(def -style-menu-button {:margin        "5px 3px"
+(def ^:no-doc -color-replay "rgb(240, 240, 30)")
+(def ^:no-doc -style-menu-button {:margin        "5px 3px"
                          :padding       4
                          :font-size     "inherit"
                          :font-family   "inherit"
@@ -356,14 +356,14 @@
                          :border        0
                          :background    "none"})
 
-(defn -menu-button
+(defn ^:no-doc -menu-button
   [style caption on-click title]
   [:button {:style    (merge -style-menu-button style)
             :title    title
             :on-click on-click}
    caption])
 
-(defn -menu-file-selector
+(defn ^:no-doc -menu-file-selector
   "Styled file input which invokes the callback with loaded file content."
   [caption on-load title]
   [:label {:style -style-menu-button
@@ -381,7 +381,7 @@
             ; hack to allow on-change be fired when the same file is selected twice in a row
             :value     ""}]])
 
-(defn -menu
+(defn ^:no-doc -menu
   [replay-mode? toggle-visibility-shortcut dispatch]
   [:div {:style {:text-align  "center"
                  :white-space "nowrap"
@@ -394,7 +394,7 @@
    [-menu-button (if replay-mode? {:color -color-replay} {:color "grey"}) "Replay⥀" #(dispatch ::on-toggle-replay-mode) "Replay current session before next app start?"]
    [-menu-button {} "Hide" #(dispatch ::on-toggle-visibility) (str "Hides debugger view (" toggle-visibility-shortcut ")")]])
 
-(defn -actions-view
+(defn ^:no-doc -actions-view
   [action-events signal-id dispatch]
   [:div
    (for [{:keys [id action enabled? for-replay?]} (filter #(= (:signal-id %) signal-id)
@@ -425,7 +425,7 @@
                :title    "Print model state after this action"}
          "model"])])])
 
-(defn -signal-view
+(defn ^:no-doc -signal-view
   [{:keys [id parent-id signal highlighted?] :as _signal-event} dispatch]
   [:div {:style         {:margin-top       8
                          :padding-left     4
@@ -442,7 +442,7 @@
      [:span (pr-str (first signal)) " " (clojure.string/join " " (map pr-str (rest signal)))]
      (pr-str signal))])
 
-(defn -signals-view
+(defn ^:no-doc -signals-view
   [signal-events action-events dispatch]
   [:div
    (doall
@@ -452,13 +452,13 @@
         [-signal-view signal-event dispatch]
         [-actions-view action-events (:id signal-event) dispatch]]))])
 
-(defn -initial-model-view
+(defn ^:no-doc -initial-model-view
   [initial-model]
   [:div {:style {:border-bottom "thin solid grey"}
          :title "Initial model"}
    [:div (pr-str initial-model)]])
 
-(defn -resizable-div
+(defn ^:no-doc -resizable-div
   "Uses jQuery UI."
   [_attrs & _body]
   (r/create-class {:reagent-render      (fn [attrs & body]
@@ -467,7 +467,7 @@
                                                                (clj->js {:grid    25
                                                                          :handles "n, e, s, w, ne, se, sw, nw"})))}))
 
-(defn -autoscrollable-div
+(defn ^:no-doc -autoscrollable-div
   "Will scroll to bottom on any update. Will not scroll if scroll position is not at the bottom."
   [_attrs & _body]
   (let [autoscroll? (atom true)
@@ -486,7 +486,7 @@
                      :component-did-mount          scroll
                      :component-did-update         scroll})))
 
-(defn -overlay
+(defn ^:no-doc -overlay
   [& body]
   (into [:div {:style {:position       "fixed"
                        :left           0
@@ -497,7 +497,7 @@
                        :pointer-events "none"}}]
         body))
 
-(defn -view
+(defn ^:no-doc -view
   [{:keys [visible? toggle-visibility-shortcut replay-mode? initial-model signal-events action-events]}
    dispatch]
   [-overlay
@@ -546,7 +546,7 @@
        (update :control -wrap-control storage storage-key toggle-visibility-shortcut)
        (update :reconcile -wrap-reconcile)
 
-       (schema-middleware/add Schema))))
+       (schema-middleware/add -Schema))))
 
 (defn connect
   "Creates Reagent component for showing a debugger for app which uses debugger middleware.

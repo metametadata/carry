@@ -1,16 +1,16 @@
 (ns carry-persistence.core
   (:require [cljs.core.match :refer-macros [match]]))
 
-(defn -whitelist
+(defn ^:no-doc -whitelist
   "Removes blacklisted keys from the specified map."
   [m blacklist]
   (apply dissoc m blacklist))
 
-(defn -save
+(defn ^:no-doc -save
   [storage key model]
   (assoc! storage key model))
 
-(defn -wrap-control
+(defn ^:no-doc -wrap-control
   [app-control storage key blacklist load-wrapper]
   (fn control
     [model signal dispatch-signal dispatch-action]
@@ -43,7 +43,7 @@
              :else
              (app-control model signal dispatch-signal dispatch-action)))))
 
-(defn -wrap-reconcile
+(defn ^:no-doc -wrap-reconcile
   [app-reconcile key blacklist]
   (fn reconcile
     [model action]
