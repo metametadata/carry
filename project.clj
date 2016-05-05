@@ -9,4 +9,6 @@
 
   :pedantic? :abort
 
-  :source-paths ["src"])
+  :source-paths ["src"]
+
+  :repositories {"clojars" {:sign-releases false}})
