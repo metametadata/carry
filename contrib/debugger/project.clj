@@ -9,10 +9,9 @@
 
                  [carry-schema "0.1.0"]
                  [carry-reagent "0.1.0"]
-                 [reagent "0.6.0-alpha" :exclusions [cljsjs/react]]
-                 [cljsjs/react-with-addons "15.0.2-0"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]
+                 [reagent "0.6.0-alpha2"]
                  [prismatic/schema "1.1.0"]
                  [com.rpl/specter "0.10.0"]
                  [cljsjs/jquery-ui "1.11.4-0"]
