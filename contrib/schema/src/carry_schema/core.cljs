@@ -14,7 +14,9 @@
               (let [new-model (reconcile model action)]
                 (when-let [problems (s/check schema new-model)]
                   ; using console log for better printing in Chrome console (in particular with binaryage/cljs-devtools)
-                  (.log js/console "VALIDATION PROBLEMS:" problems)
+                  (.log js/console "VALIDATION PROBLEMS:")
+                  (.log js/console "  EDN:" (pr-str problems))
+                  (.log js/console "  Raw:" problems)
                   (throw (ex-info "Model validation failed. See more info above." {})))
 
                 new-model)))))
