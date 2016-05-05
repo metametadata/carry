@@ -17,6 +17,6 @@
                   (.log js/console "VALIDATION PROBLEMS:")
                   (.log js/console "  EDN:" (pr-str problems))
                   (.log js/console "  Raw:" problems)
-                  (throw (ex-info "Model validation failed. See more info above." {})))
+                  (throw (ex-info "Model validation failed." {:problems problems})))
 
                 new-model)))))
