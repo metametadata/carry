@@ -2,7 +2,7 @@
   (:require))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Readonly atoms
-(defn -readonly-validator
+(defn ^:no-doc -readonly-validator
   [val]
   (throw (js/Error. (str "readonly atom cannot be reset to " (pr-str val)))))
 
@@ -12,14 +12,14 @@
   (set-validator! a -readonly-validator)
   a)
 
-(defn -allow-resetting-only-to-value!
+(defn ^:no-doc -allow-resetting-only-to-value!
   "Allows to change the atom only to the specified value."
   [a new-value]
   (set-validator! a #(or (= % new-value)
                          (throw (js/Error. (str "readonly atom cannot be reset to " (pr-str %))))))
   a)
 
-(defn -reset-readonly-atom!
+(defn ^:no-doc -reset-readonly-atom!
   "Bypasses write protection of the specified readonly atom."
   [a new-value]
   (-allow-resetting-only-to-value! a new-value)             ; prohibits modifying atom in watchers using swap!/reset!

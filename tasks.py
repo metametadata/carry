@@ -10,6 +10,11 @@ def graphs():
     run("plantuml -tsvg -o {0} {1}".format(os.path.join(site_path, "graphs"), os.path.join("docs", "graphs")), echo=True)
 
 @task
+def api():
+    """ Compiles API reference into project site folder. """
+    lein("codox")
+
+@task
 def examples():
     """ Compiles examples into project site folder. """
     site_path = os.path.join(os.getcwd(), "site")
@@ -28,7 +33,7 @@ def examples():
                 shutil.copytree(os.path.join("resources", "public"),
                                 os.path.join(site_path, "examples", example_name))
 
-@task(post=[call(graphs), call(examples)])
+@task(post=[call(graphs), call(api), call(examples)])
 def site():
     """ Cleans site folder, builds project site, compiles graphs and examples into site folder. """
     run("mkdocs build --clean", echo=True)

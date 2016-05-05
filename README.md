@@ -27,6 +27,7 @@ More documentation can be found at [the project site](http://metametadata.github
 
 * [Intro](http://metametadata.github.io/carry)
 * [Examples](http://metametadata.github.io/carry/examples/)
+* [API Reference](http://metametadata.github.io/carry/api/)
 * [Developer Guide](http://metametadata.github.io/carry/dev-guide/)
 
 ## License
