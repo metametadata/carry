@@ -1,5 +1,5 @@
 (defproject
-  carry-history "0.2.0"
+  carry-history "0.3.0"
   :description "Carry middleware which simplifies working with browser history."
   :url "https://github.com/metametadata/carry/tree/master/contrib/history"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
@@ -7,7 +7,7 @@
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.8.51" :scope "provided"]
 
-                 [org.clojure/core.match "0.3.0-alpha4" :scope "provided"]]
+                 [org.clojure/core.match "0.3.0-alpha4"]]
 
   :pedantic? :abort
 
