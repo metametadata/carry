@@ -27,11 +27,11 @@
                                            [cljsjs/filesaverjs "1.1.20151003-0"]]}
 
              :clojars-deps {:dependencies [[carry "0.1.0"]
-                                           [carry-reagent "0.1.0"]
+                                           [carry-reagent "0.2.0"]
                                            [carry-logging "0.1.0"]
-                                           [carry-history "0.2.0"]
-                                           [carry-schema "0.1.0"]
-                                           [carry-persistence "0.2.0"]
+                                           [carry-history "0.3.0"]
+                                           [carry-schema "0.2.0"]
+                                           [carry-persistence "0.3.0"]
 
                                            ; required by carry-debugger:
                                            [cljsjs/jquery-ui "1.11.4-0"]
