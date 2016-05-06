@@ -32,7 +32,8 @@ More documentation can be found at [the project site](http://metametadata.github
 ## Example - counter
 
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter)
-[Demo](/examples/counter)
+
+[Demo](https://metametadata.github.com/carry/examples/counter)
 
 Spec and UI definition:
 
@@ -87,7 +88,7 @@ Spec and UI definition:
            :reconcile     -reconcile})
 ```
 
-App entry file:
+Main:
 
 ```cljs
 (ns app.core
@@ -96,17 +97,10 @@ App entry file:
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]))
 
-(enable-console-print!)
-
-(defn main
-  []
-  (let [app (carry/app counter/spec)
-        [app-view-model app-view] (carry-reagent/connect app counter/view-model counter/view)]
+(let [app (carry/app counter/spec)
+      [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
     ((:dispatch-signal app) :on-start)
-    (r/render app-view (.getElementById js/document "root"))
-    (assoc app :view-model app-view-model)))
-
-(def app (main))
+    (r/render app-view (.getElementById js/document "root")))
 ```
 
 ## License
