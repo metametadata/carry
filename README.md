@@ -4,10 +4,8 @@ ClojureScript application framework.
 
 [![Clojars Project](https://img.shields.io/clojars/v/carry.svg)](https://clojars.org/carry)
 
-## Pattern
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
 
-## Documentation
 More documentation can be found at [the project site](http://metametadata.github.io/carry/):
 
 * [Intro](http://metametadata.github.io/carry)
@@ -15,7 +13,7 @@ More documentation can be found at [the project site](http://metametadata.github
 * [API Reference](http://metametadata.github.io/carry/api/)
 * [Developer Guide](http://metametadata.github.io/carry/dev-guide/)
 
-## Related projects 
+## Packages
 
 ### UI Bindings
 
@@ -29,13 +27,13 @@ More documentation can be found at [the project site](http://metametadata.github
 * [Persistence](https://github.com/metametadata/carry/tree/master/contrib/persistence)
 * [Schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 
-## Example - counter
+## Example
 
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter)
 
 [Demo](https://metametadata.github.com/carry/examples/counter)
 
-Spec and UI definition:
+Deifinition of counter spec and UI:
 
 ```cljs
 (ns counter.core
@@ -88,7 +86,7 @@ Spec and UI definition:
            :reconcile     -reconcile})
 ```
 
-Main:
+Main file:
 
 ```cljs
 (ns app.core
