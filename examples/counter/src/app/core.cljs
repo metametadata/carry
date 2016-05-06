@@ -10,10 +10,8 @@
   []
   (let [app (carry/app counter/spec)
         [app-view-model app-view] (carry-reagent/connect app counter/view-model counter/view)]
-    ((:dispatch-signal app) :on-start)
-
     (r/render app-view (.getElementById js/document "root"))
-
+    ((:dispatch-signal app) :on-start)
     (assoc app :view-model app-view-model)))
 
 (def app (main))

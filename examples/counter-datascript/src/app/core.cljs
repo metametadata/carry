@@ -60,7 +60,6 @@
         app (carry/app app-spec)
         [app-view-model app-view] (carry-reagent/connect app view-model view)]
     (r/render app-view (.getElementById js/document "root"))
-
     (assoc app :view-model app-view-model)))
 
 (def app (main))

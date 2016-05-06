@@ -35,12 +35,11 @@
 
         ; create debugger GUI
         [_ debugger-view] (debugger/connect app)]
-    ; perform initial side effects
-    ((:dispatch-signal app) :on-start)
-
-    ; render
     (r/render [:div app-view debugger-view]
               (.getElementById js/document "root"))
+
+    ; perform initial side effects
+    ((:dispatch-signal app) :on-start)
 
     ; return for future debugging
     (assoc app :view-model app-view-model)))

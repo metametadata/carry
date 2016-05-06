@@ -99,8 +99,8 @@ Main:
 
 (let [app (carry/app counter/spec)
       [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-    ((:dispatch-signal app) :on-start)
-    (r/render app-view (.getElementById js/document "root")))
+    (r/render app-view (.getElementById js/document "root"))
+    ((:dispatch-signal app) :on-start))
 ```
 
 ## License

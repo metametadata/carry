@@ -89,10 +89,8 @@
                      logging/add)
         app (carry/app app-spec)
         [app-view-model app-view] (carry-reagent/connect app view-model view)]
-    ((:dispatch-signal app) :on-start)
-
     (r/render app-view (.getElementById js/document "root"))
-
+    ((:dispatch-signal app) :on-start)
     (assoc app :view-model app-view-model)))
 
 (def app (main))

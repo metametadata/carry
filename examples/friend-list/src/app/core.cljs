@@ -24,11 +24,8 @@
         app (carry/app app-spec)
         [app-view-model app-view] (carry-reagent/connect app friend-list/view-model friend-list/view)
         [_ debugger-view] (debugger/connect app)]
+    (r/render [:div app-view debugger-view] (.getElementById js/document "root"))
     ((:dispatch-signal app) :on-start)
-
-    (r/render [:div app-view debugger-view]
-              (.getElementById js/document "root"))
-
     (assoc app :view-model app-view-model)))
 
 (def app (main))

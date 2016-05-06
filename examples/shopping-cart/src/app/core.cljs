@@ -14,10 +14,8 @@
   (let [spec (spec/new-spec api/shop-api-stub)
         app (carry/app spec)
         [app-view-model app-view] (carry-reagent/connect app view-model/view-model view/view)]
-    ((:dispatch-signal app) :on-start)
-
     (r/render app-view (.getElementById js/document "root"))
-
+    ((:dispatch-signal app) :on-start)
     (assoc app :view-model app-view-model)))
 
 (def app (main))
