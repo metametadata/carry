@@ -2,13 +2,38 @@
     "docs": [
         {
             "location": "/", 
-            "text": "Intro\n\n\nWIP.", 
-            "title": "Home"
+            "text": "Carry\n\n\nClojureScript application framework.\n\n\n\n\n\n\nMore documentation can be found at \nthe project site\n:\n\n\n\n\nExamples\n\n\nAPI Reference\n\n\nDeveloper Guide\n\n\n\n\nPackages\n\n\nUI Bindings\n\n\n\n\nReagent\n\n\n\n\nMiddleware\n\n\n\n\nDebugger\n\n\nHistory\n\n\nLogging\n\n\nPersistence\n\n\nSchema\n\n\n\n\nExample\n\n\nSource code\n\n\nDemo\n\n\nCounter spec and UI:\n\n\n(ns counter.core\n  (:require [reagent.core]\n            [cljs.core.match :refer-macros [match]])\n  (:require-macros [reagent.ratom :refer [reaction]]))\n\n(def -initial-model {:val 0})\n\n(defn -control\n  [model signal _dispatch-signal dispatch-action]\n  (match signal\n         :on-start nil\n         :on-stop nil\n\n         :on-increment\n         (dispatch-action :increment)\n\n         :on-decrement\n         (dispatch-action :decrement)\n\n         :on-increment-if-odd\n         (when (odd? (:val @model))\n           (dispatch-action :increment))\n\n         :on-increment-async\n         (.setTimeout js/window #(dispatch-action :increment) 1000)))\n\n(defn -reconcile\n  [model action]\n  (match action\n         :increment (update model :val inc)\n         :decrement (update model :val dec)))\n\n(defn view-model\n  [model]\n  {:counter (reaction (str \n#\n (:val @model)))})\n\n(defn view\n  [{:keys [counter] :as _view-model} dispatch]\n  [:p\n   @counter \n \n\n   [:button {:on-click #(dispatch :on-increment)} \n+\n] \n \n\n   [:button {:on-click #(dispatch :on-decrement)} \n-\n] \n \n\n   [:button {:on-click #(dispatch :on-increment-if-odd)} \nIncrement if odd\n] \n \n\n   [:button {:on-click #(dispatch :on-increment-async)} \nIncrement async\n]])\n\n(def spec {:initial-model -initial-model\n           :control       -control\n           :reconcile     -reconcile})\n\n\n\n\nMain file:\n\n\n(ns app.core\n  (:require [counter.core :as counter]\n            [carry.core :as carry]\n            [carry-reagent.core :as carry-reagent]\n            [reagent.core :as r]))\n\n(let [app (carry/app counter/spec)\n      [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]\n    (r/render app-view (.getElementById js/document \nroot\n))\n    ((:dispatch-signal app) :on-start))\n\n\n\n\nLicense\n\n\nCopyright \u00a9 2016 Yuri Govorushchenko.\n\n\nReleased under an MIT license.", 
+            "title": "Readme"
         }, 
         {
-            "location": "/#intro", 
-            "text": "WIP.", 
-            "title": "Intro"
+            "location": "/#carry", 
+            "text": "ClojureScript application framework.    More documentation can be found at  the project site :   Examples  API Reference  Developer Guide", 
+            "title": "Carry"
+        }, 
+        {
+            "location": "/#packages", 
+            "text": "", 
+            "title": "Packages"
+        }, 
+        {
+            "location": "/#ui-bindings", 
+            "text": "Reagent", 
+            "title": "UI Bindings"
+        }, 
+        {
+            "location": "/#middleware", 
+            "text": "Debugger  History  Logging  Persistence  Schema", 
+            "title": "Middleware"
+        }, 
+        {
+            "location": "/#example", 
+            "text": "Source code  Demo  Counter spec and UI:  (ns counter.core\n  (:require [reagent.core]\n            [cljs.core.match :refer-macros [match]])\n  (:require-macros [reagent.ratom :refer [reaction]]))\n\n(def -initial-model {:val 0})\n\n(defn -control\n  [model signal _dispatch-signal dispatch-action]\n  (match signal\n         :on-start nil\n         :on-stop nil\n\n         :on-increment\n         (dispatch-action :increment)\n\n         :on-decrement\n         (dispatch-action :decrement)\n\n         :on-increment-if-odd\n         (when (odd? (:val @model))\n           (dispatch-action :increment))\n\n         :on-increment-async\n         (.setTimeout js/window #(dispatch-action :increment) 1000)))\n\n(defn -reconcile\n  [model action]\n  (match action\n         :increment (update model :val inc)\n         :decrement (update model :val dec)))\n\n(defn view-model\n  [model]\n  {:counter (reaction (str  #  (:val @model)))})\n\n(defn view\n  [{:keys [counter] :as _view-model} dispatch]\n  [:p\n   @counter    \n   [:button {:on-click #(dispatch :on-increment)}  + ]    \n   [:button {:on-click #(dispatch :on-decrement)}  - ]    \n   [:button {:on-click #(dispatch :on-increment-if-odd)}  Increment if odd ]    \n   [:button {:on-click #(dispatch :on-increment-async)}  Increment async ]])\n\n(def spec {:initial-model -initial-model\n           :control       -control\n           :reconcile     -reconcile})  Main file:  (ns app.core\n  (:require [counter.core :as counter]\n            [carry.core :as carry]\n            [carry-reagent.core :as carry-reagent]\n            [reagent.core :as r]))\n\n(let [app (carry/app counter/spec)\n      [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]\n    (r/render app-view (.getElementById js/document  root ))\n    ((:dispatch-signal app) :on-start))", 
+            "title": "Example"
+        }, 
+        {
+            "location": "/#license", 
+            "text": "Copyright \u00a9 2016 Yuri Govorushchenko.  Released under an MIT license.", 
+            "title": "License"
         }, 
         {
             "location": "/examples/", 
@@ -62,7 +87,7 @@
         }, 
         {
             "location": "/api/", 
-            "text": "It is a placeholder file, \nit will be replaced by API Reference docs generated by external tool.", 
+            "text": "It is a placeholder file, it will be replaced by API Reference docs generated by external tool.", 
             "title": "API Reference"
         }, 
         {

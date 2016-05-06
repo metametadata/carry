@@ -2,3 +2,7 @@
 .bs-sidenav > .second-level {
   margin-left: 1em;
 }
+
+.bs-sidenav > .third-level {
+  margin-left: 2em;
+}
