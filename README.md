@@ -19,9 +19,6 @@ ClojureScript application framework.
 * [Persistence](https://github.com/metametadata/carry/tree/master/contrib/persistence)
 * [Schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 
-## Screenshot of a time traveling debugger
-![debugger](http://i.imgur.com/ZOH6Noj.png)
-
 ## Documentation
 More documentation can be found at [the project site](http://metametadata.github.io/carry/):
 
