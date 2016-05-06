@@ -4,6 +4,8 @@ Middleware for debugging Carry applications.
 
 [![Clojars Project](https://img.shields.io/clojars/v/carry-debugger.svg)](https://clojars.org/carry-debugger)
 
+[API Reference](http://metametadata.github.io/carry/api/carry-debugger.core.html)
+
 ![screenshot](http://i.imgur.com/ZOH6Noj.png)
 
 Debugger requires jQuery UI CSS to be included in HTML for correct rendering:
