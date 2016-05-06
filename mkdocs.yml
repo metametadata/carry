@@ -6,7 +6,7 @@ repo_url: https://github.com/metametadata/carry/
 theme: cinder
 
 pages:
-- Home: 'index.md'
+- Readme: 'index.md'
 - Examples: 'examples/index.md'
 - API Reference: 'api/index.md'
 - Developer Guide: 'dev-guide.md'

@@ -1,3 +1,1 @@
-# Intro
-
-WIP.
+It is a placeholder file, it will be replaced by README.md during site generation.

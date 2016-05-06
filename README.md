@@ -8,7 +8,6 @@ ClojureScript application framework.
 
 More documentation can be found at [the project site](http://metametadata.github.io/carry/):
 
-* [Intro](http://metametadata.github.io/carry)
 * [Examples](http://metametadata.github.io/carry/examples/)
 * [API Reference](http://metametadata.github.io/carry/api/)
 * [Developer Guide](http://metametadata.github.io/carry/dev-guide/)
@@ -33,7 +32,7 @@ More documentation can be found at [the project site](http://metametadata.github
 
 [Demo](https://metametadata.github.com/carry/examples/counter)
 
-Deifinition of counter spec and UI:
+Counter spec and UI:
 
 ```cljs
 (ns counter.core
