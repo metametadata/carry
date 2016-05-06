@@ -46,14 +46,10 @@
 (defn view
   [{:keys [counter] :as _view-model} dispatch]
   [:p
-   @counter
-   " "
-   [:button {:on-click #(dispatch :on-increment)} "+"]
-   " "
-   [:button {:on-click #(dispatch :on-decrement)} "-"]
-   " "
-   [:button {:on-click #(dispatch :on-increment-if-odd)} "Increment if odd"]
-   " "
+   @counter " "
+   [:button {:on-click #(dispatch :on-increment)} "+"] " "
+   [:button {:on-click #(dispatch :on-decrement)} "-"] " "
+   [:button {:on-click #(dispatch :on-increment-if-odd)} "Increment if odd"] " "
    [:button {:on-click #(dispatch :on-increment-async)} "Increment async"]])
 
 (defn main
