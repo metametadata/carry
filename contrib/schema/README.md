@@ -6,4 +6,4 @@ Carry middleware for model validation using [Schema](https://github.com/plumatic
 
 [API Reference](http://metametadata.github.io/carry/api/carry-schema.core.html)
 
-![screenshot](http://i.imgur.com/6pmOHzO.png)
+![screenshot](http://i.imgur.com/g5I2RnZ.png)
