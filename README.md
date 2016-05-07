@@ -45,8 +45,7 @@ Counter spec and UI:
 
 ```cljs
 (ns counter.core
-  (:require [reagent.core]
-            [cljs.core.match :refer-macros [match]])
+  (:require [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (def -initial-model {:val 0})
