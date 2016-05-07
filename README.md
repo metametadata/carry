@@ -38,9 +38,8 @@ does not dictate use of any particular routing library.
 
 ## Example
 
+[Demo](https://metametadata.github.com/carry/examples/counter),
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter)
-
-[Demo](https://metametadata.github.com/carry/examples/counter)
 
 Counter spec and UI:
 
