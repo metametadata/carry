@@ -3,9 +3,9 @@
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (defn -q
-  "Queries model's db and returns result as a map with specified keys."
-  [model keys q & args]
-  (map #(zipmap keys %) (apply d/q q (:db @model) args)))
+  "Queries Datascript db and returns result as a map with specified keys."
+  [db keys q & args]
+  (map #(zipmap keys %) (apply d/q q db args)))
 
 (defn -format-price
   [price]
@@ -13,7 +13,8 @@
 
 (defn view-model
   [model]
-  (let [cart-products (reaction (->> (-q model
+  (let [db (reaction (:db @model))
+        cart-products (reaction (->> (-q @db
                                          [:id :title :price :quantity]
                                          '[:find ?e ?t ?p ?q
                                            :where
@@ -30,7 +31,7 @@
                                        -format-price))
      :checking-out?      checking-out?
      :checkout-disabled? (reaction (or @checking-out? (empty? @cart-products)))
-     :products           (reaction (->> (-q model
+     :products           (reaction (->> (-q @db
                                             [:id :title :price :sold-out?]
                                             '[:find ?e ?t ?p ?sold-out?
                                               :where
