@@ -144,11 +144,13 @@
 <h1 id="documentation">Documentation</h1>
 <p>Project uses <a href="http://www.mkdocs.org/">MkDocs</a> with <a href="https://github.com/chrissimpkins/cinder">Cinder</a> theme and <a href="http://plantuml.com/">PlantUML</a> to generate documentation static site.
 <a href="https://github.com/weavejester/codox">Codox</a> is used to generate API reference.
-Some tasks are scripted using <a href="http://www.pyinvoke.org/">PyInvoke</a>.</p>
-<p>Serve site without examples locally with automatic build: <code>mkdocs serve</code></p>
-<p>Build site without examples into site folder: <code>mkdocs build --clean</code></p>
-<p>Build API docs into site folder: <code>lein codox</code></p>
-<p>Build site with API reference, graphs and examples: <code>inv site</code></p>
+Tasks are scripted using <a href="http://www.pyinvoke.org/">PyInvoke</a>.</p>
+<p>Serve site pages locally with automatic build (but it won't work for index page): <code>mkdocs serve</code></p>
+<p>Build only site pages: <code>inv mkdocs</code></p>
+<p>Build API reference into site folder: <code>inv api</code></p>
+<p>Build graphs into site folder: <code>inv graphs</code></p>
+<p>Build examples into site folder: <code>inv examples</code></p>
+<p>Build the whole site: <code>inv site</code></p>
 <h1 id="deploying">Deploying</h1>
 <p>Deploy to Clojars: <code>lein deploy clojars</code></p>
 <p>Deploy site to gh-pages branch: <code>ghp-import -p site</code></p></div>
