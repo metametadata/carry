@@ -15,6 +15,6 @@
                 (when-let [problems (s/check schema new-model)]
                   ; using console log for better printing in Chrome console (in particular with binaryage/cljs-devtools)
                   (.log js/console "VALIDATION PROBLEMS:" problems)
-                  (throw (js/Error. (str "Model validation failed. Problems:" (pr-str problems)))))
+                  (throw (js/Error. (str "Model validation failed. Problems: " (pr-str problems)))))
 
                 new-model)))))
