@@ -7,7 +7,7 @@ ClojureScript single-page application framework inspired by
 [Cerebral](https://github.com/cerebral/cerebral).
 
 The core of the framework is a simple state management library with 
-UI binding, routing, debugging, etc. implemented as separate optional packages.
+UI binding, history management, debugging, etc. implemented as separate optional packages.
 
 [![Clojars Project](https://img.shields.io/clojars/v/carry.svg)](https://clojars.org/carry)
 
@@ -35,20 +35,6 @@ does not dictate use of any particular routing library.
 * State can be modified only by dispatching actions.
 * Anyone can read model value at any given time and subscribe to its changes.
 * When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -> signal -> action -> model -> UI -> etc.
-
-## Packages
-
-### UI Bindings
-
-* [Reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
-
-### Middleware
-
-* [Debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger)
-* [History](https://github.com/metametadata/carry/tree/master/contrib/history)
-* [Logging](https://github.com/metametadata/carry/tree/master/contrib/logging)
-* [Persistence](https://github.com/metametadata/carry/tree/master/contrib/persistence)
-* [Schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 
 ## Example
 
@@ -123,6 +109,20 @@ Main file:
     (r/render app-view (.getElementById js/document "root"))
     ((:dispatch-signal app) :on-start))
 ```
+
+## Packages
+
+### UI Bindings
+
+* [Reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+
+### Middleware
+
+* [Debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger)
+* [History](https://github.com/metametadata/carry/tree/master/contrib/history)
+* [Logging](https://github.com/metametadata/carry/tree/master/contrib/logging)
+* [Persistence](https://github.com/metametadata/carry/tree/master/contrib/persistence)
+* [Schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 
 ## Documentation
 
