@@ -31,4 +31,4 @@
                          "contrib/schema/src/"]
           :output-path  "site/api"
           :metadata     {:doc/format :markdown}
-          :project      {:name "carry" :description "ClojureScript application framework."}})
+          :project      {:name "Carry" :description "ClojureScript application framework." :version "0.1.0"}})
