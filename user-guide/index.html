@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">   
     <link rel="shortcut icon" href="../img/favicon.ico">
 
-    <title>Examples - Carry</title>
+    <title>User Guide - Carry</title>
 
     <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
@@ -73,14 +73,14 @@
                 
                 
                 
-                    <li >
-                        <a href="../user-guide/">User Guide</a>
+                    <li class="active">
+                        <a href="./">User Guide</a>
                     </li>
                 
                 
                 
-                    <li class="active">
-                        <a href="./">Examples</a>
+                    <li >
+                        <a href="../examples/">Examples</a>
                     </li>
                 
                 
@@ -107,12 +107,12 @@
                 </li>
                 
                     <li >
-                        <a rel="next" href="../user-guide/">
+                        <a rel="next" href="..">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../api/">
+                        <a rel="prev" href="../examples/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -137,94 +137,46 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="first-level active"><a href="#counter-vanilla">Counter Vanilla</a></li>
+        <li class="first-level active"><a href="#app">App</a></li>
         
     
-        <li class="first-level "><a href="#counter">Counter</a></li>
+        <li class="first-level "><a href="#model">Model</a></li>
         
     
-        <li class="first-level "><a href="#friend-list">Friend List</a></li>
+        <li class="first-level "><a href="#signals">Signals</a></li>
         
     
-        <li class="first-level "><a href="#todomvc">TodoMVC</a></li>
+        <li class="first-level "><a href="#control">Control</a></li>
         
     
-        <li class="first-level "><a href="#counter-with-datascript">Counter with DataScript</a></li>
+        <li class="first-level "><a href="#actions">Actions</a></li>
         
     
-        <li class="first-level "><a href="#shopping-cart">Shopping Cart</a></li>
+        <li class="first-level "><a href="#reconcile">Reconcile</a></li>
         
     
-        <li class="first-level "><a href="#elm-ish-architecture-examples">Elm-ish Architecture Examples</a></li>
-        
-            <li class="second-level"><a href="#subapps">Subapps</a></li>
-            
-        
-            <li class="second-level"><a href="#counter-list">Counter List</a></li>
-            
+        <li class="first-level "><a href="#usage-with-reagent">Usage with Reagent</a></li>
         
     
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<p>All source code can be found in <a href="https://github.com/metametadata/carry/tree/master/examples/">the Github repository</a>.</p>
-<p>All apps support hot reloading and REPL debugging via <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a>.</p>
-<h1 id="counter-vanilla">Counter Vanilla</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-vanilla">Source code</a></p>
-<p><a href="../examples/counter-vanilla">Demo</a></p>
-<p>The most trivial example.</p>
-<h1 id="counter">Counter</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/counter">Source code</a></p>
-<p><a href="../examples/counter">Demo</a></p>
-<p>The basic example of using Carry with Reagent.</p>
-<h1 id="friend-list">Friend List</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/friend-list">Source code</a></p>
-<p><a href="../examples/friend-list">Demo</a></p>
-<p>Inspired by this <a href="https://github.com/DerekCuevas/friend-list">problem</a> about dynamic search input.
-Demonstrates how to dispatch new signals from app controller and also features:</p>
+<h1 id="app">App</h1>
+<p>In Carry all the code you write is encapsulated behind a single <strong>app</strong> instance. 
+An app is a map with keys:</p>
 <ul>
-<li>basic routing</li>
-<li>model validation using <a href="https://github.com/plumatic/schema">Schema</a></li>
-<li>time traveling debugger</li>
-<li>logging to console</li>
-<li>unit tests</li>
+<li><code>:model</code> - a read-only atom, an in-memory representation of an app state</li>
+<li><code>:dispatch-signal</code> - a function for interaction with an app, always returns nil</li>
 </ul>
-<h1 id="todomvc">TodoMVC</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/todomvc">Source code</a></p>
-<p><a href="../examples/todomvc">Demo</a></p>
-<p>See <a href="http://todomvc.com/">todomvc.com</a>.</p>
-<p>Features:</p>
-<ul>
-<li>routing using <a href="https://github.com/DomKM/silk">Silk</a></li>
-<li>local storage persistence</li>
-<li>time traveling debugger</li>
-<li>logging to console</li>
-<li>model validation using <a href="https://github.com/plumatic/schema">Schema</a></li>
-<li>uses <a href="https://github.com/nathanmarz/specter">Specter</a> for model updates</li>
-</ul>
-<h1 id="counter-with-datascript">Counter with DataScript</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-datascript">Source code</a></p>
-<p><a href="../examples/counter-datascript">Demo</a></p>
-<p>Simplest example of using <a href="https://github.com/tonsky/datascript">DataScript</a> in-memory database for a model.</p>
-<h1 id="shopping-cart">Shopping Cart</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/shopping-cart">Source code</a></p>
-<p><a href="../examples/shopping-cart">Demo</a></p>
-<p>More advanced example of using <a href="https://github.com/tonsky/datascript">DataScript</a>.
-Inspired by <a href="https://github.com/voronianski/flux-comparison">flux-comparison</a> problem.</p>
-<h1 id="elm-ish-architecture-examples">Elm-ish Architecture Examples</h1>
-<p>The proof-of-concept examples of applying <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm-ish architecture</a>
-for reusing existing Carry apps when building a bigger app.
-It's a debatable design pattern because of the resulting code complexity, so use it with caution.</p>
-<h2 id="subapps">Subapps</h2>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/elmish-subapps">Source code</a></p>
-<p><a href="../examples/elmish-subapps">Demo</a></p>
-<p>In this project <a href="#counter">counter app</a> and <a href="#friend-list">friend list app</a> instances are "statically" added to the app spec.
-Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.</p>
-<h2 id="counter-list">Counter List</h2>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/elmish-counter-list">Source code</a></p>
-<p><a href="../examples/elmish-counter-list">Demo</a></p>
-<p>In this example <a href="#counter">counter app</a> instances are created and removed dynamically after app is started.</p></div>
+<p>It's all the API exposed to an end user.</p>
+<p><img alt="app" src="../graphs/app.svg" /></p>
+<h1 id="model">Model</h1>
+<h1 id="signals">Signals</h1>
+<h1 id="control">Control</h1>
+<h1 id="actions">Actions</h1>
+<h1 id="reconcile">Reconcile</h1>
+<h1 id="usage-with-reagent">Usage with Reagent</h1></div>
         
     </div>
 
