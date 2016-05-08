@@ -146,6 +146,9 @@
         <li class="first-level "><a href="#signals">Signals</a></li>
         
     
+        <li class="first-level "><a href="#spec">Spec</a></li>
+        
+    
         <li class="first-level "><a href="#control">Control</a></li>
         
     
@@ -163,16 +166,30 @@
         <div class="col-md-9" role="main">
 
 <h1 id="app">App</h1>
-<p>In Carry all the code you write is encapsulated behind a single <strong>app</strong> instance. 
+<p><img alt="spec" src="../graphs/app.svg" /></p>
+<p>In Carry application all the code you write is encapsulated behind a single <strong>app</strong> instance. 
 An app is a map with keys:</p>
 <ul>
 <li><code>:model</code> - a read-only atom, an in-memory representation of an app state</li>
 <li><code>:dispatch-signal</code> - a function for interaction with an app, always returns nil</li>
 </ul>
-<p>It's all the API exposed to an end user.</p>
-<p><img alt="app" src="../graphs/app.svg" /></p>
+<p>One can imagine an app to be a black box which exposes its current state and modifies it on getting signals from an external world.
+It can also affect an external world as a response to a signal, i.e. perform "side effects".</p>
 <h1 id="model">Model</h1>
 <h1 id="signals">Signals</h1>
+<h1 id="spec">Spec</h1>
+<p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into <code>app</code> function:</p>
+<pre><code class="cljs">(def my-app (carry/app my-spec))
+</code></pre>
+
+<p>A spec is a map with keys:</p>
+<ul>
+<li><code>:initial-model</code> - an initial model value</li>
+<li><code>:control</code> - a function for handling signals</li>
+<li><code>:reconcile</code> - a function for handling actions</li>
+</ul>
+<p>In other words, a spec is needed to define a runtime behavior of an app:</p>
+<p><img alt="spec" src="../graphs/spec-and-app.svg" /></p>
 <h1 id="control">Control</h1>
 <h1 id="actions">Actions</h1>
 <h1 id="reconcile">Reconcile</h1>
