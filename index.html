@@ -167,8 +167,8 @@
 <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm architecture</a>,
 <a href="https://github.com/reactjs/redux/">Redux</a> and
 <a href="https://github.com/cerebral/cerebral">Cerebral</a>.</p>
-<p>The core of the framework is a simple state management library with 
-UI binding, history management, debugging, etc. implemented as separate optional packages.</p>
+<p>The core of the framework is a simple state management library. 
+UI binding, history management, debugging, etc. are implemented as separate optional packages.</p>
 <p><a href="https://clojars.org/carry"><img alt="Clojars Project" src="https://img.shields.io/clojars/v/carry.svg" /></a></p>
 <h2 id="features">Features</h2>
 <ul>
@@ -176,7 +176,7 @@ UI binding, history management, debugging, etc. implemented as separate optional
 <li>Middleware-friendly design for adding cross-cutting concerns such as persistence, logging, etc.</li>
 <li>Agnostic to UI layer.</li>
 <li><a href="https://github.com/reagent-project/reagent">Reagent</a> bindings package achieves code readability and rendering optimization
-by view-model/view separation based on Reagent reactions (<a href="https://github.com/Day8/re-frame#how-flow-happens-in-reagent">similar to re-frame</a>).</li>
+using view-model/view separation based on Reagent reactions (<a href="https://github.com/Day8/re-frame#how-flow-happens-in-reagent">similarly to re-frame</a>).</li>
 <li>Time traveling debugger inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</a> and <a href="http://www.cerebraljs.com/debugger">Cerebral Debugger</a>.</li>
 <li>Live code editing using <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a> and debugger's replay mode.</li>
 <li><a href="https://github.com/evancz/elm-architecture-tutorial/">Elm-ish architecture</a> can be applied to reuse apps inside other apps (aka "fractality").</li>
@@ -186,12 +186,12 @@ does not dictate use of any particular routing library. </li>
 <h2 id="design">Design</h2>
 <p><img alt="pattern" src="http://metametadata.github.io/carry/graphs/pattern.svg" /></p>
 <ul>
-<li>All app state is stored inside a single model atom. </li>
-<li>App is defined by controller, reconciler and initial model value.</li>
-<li>Controller function handles signals to perform side-effects and dispatch actions.</li>
-<li>Anyone can dispatch a new signal into an app: controller itself, views, timers, etc.</li>
-<li>Reconciler is a pure function which returns a modified state based on incoming action.</li>
-<li>State can be modified only by dispatching actions.</li>
+<li>To define a Carry app user provides a spec consisting of: initial model value, controller, reconciler.</li>
+<li>All app state is stored inside a single model atom.</li>
+<li>Controller function receives signals to perform side effects and dispatch actions.</li>
+<li>Anyone can dispatch a new signal: controller, views, timers, etc.</li>
+<li>Reconciler is a pure function which returns a new model value based on incoming action.</li>
+<li>Model can be modified only by dispatching actions.</li>
 <li>Anyone can read model value at any given time and subscribe to its changes.</li>
 <li>When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -&gt; signal -&gt; action -&gt; model -&gt; UI -&gt; etc.</li>
 </ul>
@@ -336,5 +336,5 @@ does not dictate use of any particular routing library. </li>
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-05-07 17:39:36.748336
+Build Date UTC : 2016-05-08 17:08:37.191142
 -->
