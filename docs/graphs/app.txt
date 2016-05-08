@@ -1,0 +1,6 @@
+@startuml
+object app
+
+app : :model : atom, read-only
+app : :dispatch-signal : function
+@enduml
