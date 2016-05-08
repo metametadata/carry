@@ -1,0 +1,12 @@
+@startuml
+object spec
+spec : :initial-model : map
+spec : :control : function
+spec : :reconcile : function
+
+object app
+app : :model : atom, read-only
+app : :dispatch-signal : function
+
+spec .> app : defines
+@enduml
