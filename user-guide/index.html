@@ -148,7 +148,7 @@
             <li class="second-level"><a href="#signals">Signals</a></li>
             
         
-            <li class="second-level"><a href="#spec">Spec</a></li>
+            <li class="second-level"><a href="#creating-an-app">Creating an App</a></li>
             
         
             <li class="second-level"><a href="#control">Control</a></li>
@@ -214,7 +214,7 @@ It can also affect an external world as a response to a signal, i.e. perform "si
 (reset! my-model {:foo :bar})
 ;=&gt; Error: read-only atom cannot be reset to {:foo :bar}
 
-((:dispatch-signal app) :some-model-changing-signal)
+((:dispatch-signal app) some-model-changing-signal)
 ;=&gt; model value has changed!
 
 (remove-watch my-model :my-watcher)
@@ -223,8 +223,18 @@ It can also affect an external world as a response to a signal, i.e. perform "si
 <p>Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.
 As an example, <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a> adds <code>:token</code> to a model.</p>
 <h2 id="signals">Signals</h2>
-<p>.</p>
-<h2 id="spec">Spec</h2>
+<p>Signal is an object which represents a user's intention or, looking at it from a different angle, an already happened event. 
+Signal can be sent to an app by calling its <code>dispatch-signal</code> function:</p>
+<pre><code class="cljs">((:dispatch-signal my-app) my-signal)
+</code></pre>
+
+<p>Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or a vector with a keyword and an additional payload:</p>
+<pre><code class="cljs">:on-clear-completed
+[:on-update-todo id val]
+[:carry-history.core/on-enter token]
+</code></pre>
+
+<h2 id="creating-an-app">Creating an App</h2>
 <p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into <code>app</code> function:</p>
 <pre><code class="cljs">(def my-app (carry/app my-spec))
 </code></pre>
