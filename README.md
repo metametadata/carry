@@ -27,13 +27,14 @@ does not dictate use of any particular routing library.
 ## Design
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
 
-* To define a Carry app user provides a spec consisting of: initial model value, controller, reconciler.
+* An app is defined by its initial model value, controller and reconciler.
 * All app state is stored inside a single model atom.
+* Anyone can read model value at any given time and subscribe to its changes.
 * Controller function receives signals to perform side effects and dispatch actions.
 * Anyone can dispatch a new signal: controller, views, timers, etc.
-* Reconciler is a pure function which returns a new model value based on incoming action.
+* Only controller can dispatch actions.
 * Model can be modified only by dispatching actions.
-* Anyone can read model value at any given time and subscribe to its changes.
+* Reconciler is a pure function which returns a new model value based on an incoming action.
 * When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -> signal -> action -> model -> UI -> etc.
 
 ## Example
