@@ -35,7 +35,7 @@ One can access app's model via `:model` key to obtain a read-only atom that can 
 (reset! my-model {:foo :bar})
 ;=> Error: read-only atom cannot be reset to {:foo :bar}
                
-((:dispatch-signal app) :some-model-changing-signal)
+((:dispatch-signal app) some-model-changing-signal)
 ;=> model value has changed!
 
 (remove-watch my-model :my-watcher)
@@ -45,9 +45,23 @@ Carry requires a model value to be a map. This convention allows writing reusabl
 As an example, [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history) adds `:token` to a model.
 
 ## Signals
-.
 
-## Spec
+Signal is an object which represents a user's intention or, looking at it from a different angle, an already happened event. 
+Signal can be sent to an app by calling its `dispatch-signal` function:
+
+```cljs
+((:dispatch-signal my-app) my-signal)
+```
+
+Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or a vector with a keyword and an additional payload:
+
+```cljs
+:on-clear-completed
+[:on-update-todo id val]
+[:carry-history.core/on-enter token]
+```
+
+## Creating an App
 
 In order to create an instance of a Carry app a user has to pass a **spec** into `app` function:
 
