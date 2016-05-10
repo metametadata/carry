@@ -137,47 +137,94 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="first-level active"><a href="#app">App</a></li>
+        <li class="first-level active"><a href="#basics">Basics</a></li>
+        
+            <li class="second-level"><a href="#app">App</a></li>
+            
+        
+            <li class="second-level"><a href="#model">Model</a></li>
+            
+        
+            <li class="second-level"><a href="#signals">Signals</a></li>
+            
+        
+            <li class="second-level"><a href="#spec">Spec</a></li>
+            
+        
+            <li class="second-level"><a href="#control">Control</a></li>
+            
+        
+            <li class="second-level"><a href="#actions">Actions</a></li>
+            
+        
+            <li class="second-level"><a href="#reconcile">Reconcile</a></li>
+            
+        
+            <li class="second-level"><a href="#usage-with-reagent">Usage with Reagent</a></li>
+            
         
     
-        <li class="first-level "><a href="#model">Model</a></li>
+        <li class="first-level "><a href="#advanced">Advanced</a></li>
         
-    
-        <li class="first-level "><a href="#signals">Signals</a></li>
+            <li class="second-level"><a href="#middleware">Middleware</a></li>
+            
         
-    
-        <li class="first-level "><a href="#spec">Spec</a></li>
+            <li class="second-level"><a href="#writing-tests">Writing Tests</a></li>
+            
         
-    
-        <li class="first-level "><a href="#control">Control</a></li>
+            <li class="second-level"><a href="#elm-ish-architecture">Elm-ish Architecture</a></li>
+            
         
-    
-        <li class="first-level "><a href="#actions">Actions</a></li>
+            <li class="second-level"><a href="#usage-with-datascript">Usage with Datascript</a></li>
+            
         
-    
-        <li class="first-level "><a href="#reconcile">Reconcile</a></li>
-        
-    
-        <li class="first-level "><a href="#usage-with-reagent">Usage with Reagent</a></li>
+            <li class="second-level"><a href="#debugging">Debugging</a></li>
+            
         
     
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<h1 id="app">App</h1>
+<h1 id="basics">Basics</h1>
+<p>This section explains everything you need to start making apps with Carry. </p>
+<h2 id="app">App</h2>
 <p><img alt="spec" src="../graphs/app.svg" /></p>
-<p>In Carry application all the code you write is encapsulated behind a single <strong>app</strong> instance. 
+<p>In a Carry application all the code you write is encapsulated behind a single <strong>app</strong> instance. 
 An app is a map with keys:</p>
 <ul>
 <li><code>:model</code> - a read-only atom, an in-memory representation of an app state</li>
 <li><code>:dispatch-signal</code> - a function for interaction with an app, always returns nil</li>
 </ul>
-<p>One can imagine an app to be a black box which exposes its current state and modifies it on getting signals from an external world.
+<p>One can consider an app to be a black box which exposes its current state and modifies it on getting signals from an external world.
 It can also affect an external world as a response to a signal, i.e. perform "side effects".</p>
-<h1 id="model">Model</h1>
-<h1 id="signals">Signals</h1>
-<h1 id="spec">Spec</h1>
+<h2 id="model">Model</h2>
+<p>Model represents an entire state of an app. </p>
+<p>One can access app's model via <code>:model</code> key to obtain a read-only atom that can be dereferenced and watched, but cannot be mutated:</p>
+<pre><code class="cljs">(def my-model (:model app))
+
+@my-model
+;=&gt; {...}
+
+(add-watch my-model :my-watcher
+           (fn [_key _atom old-state new-state]
+             (when (not= old-state new-state)
+               (println &quot;model value has changed!&quot;))))
+
+(reset! my-model {:foo :bar})
+;=&gt; Error: read-only atom cannot be reset to {:foo :bar}
+
+((:dispatch-signal app) :some-model-changing-signal)
+;=&gt; model value has changed!
+
+(remove-watch my-model :my-watcher)
+</code></pre>
+
+<p>Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.
+As an example, <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a> adds <code>:token</code> to a model.</p>
+<h2 id="signals">Signals</h2>
+<p>.</p>
+<h2 id="spec">Spec</h2>
 <p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into <code>app</code> function:</p>
 <pre><code class="cljs">(def my-app (carry/app my-spec))
 </code></pre>
@@ -190,10 +237,25 @@ It can also affect an external world as a response to a signal, i.e. perform "si
 </ul>
 <p>In other words, a spec is needed to define a runtime behavior of an app:</p>
 <p><img alt="spec" src="../graphs/spec-and-app.svg" /></p>
-<h1 id="control">Control</h1>
-<h1 id="actions">Actions</h1>
-<h1 id="reconcile">Reconcile</h1>
-<h1 id="usage-with-reagent">Usage with Reagent</h1></div>
+<h2 id="control">Control</h2>
+<p>.</p>
+<h2 id="actions">Actions</h2>
+<p>.</p>
+<h2 id="reconcile">Reconcile</h2>
+<p>.</p>
+<h2 id="usage-with-reagent">Usage with Reagent</h2>
+<p>.</p>
+<h1 id="advanced">Advanced</h1>
+<h2 id="middleware">Middleware</h2>
+<p>.</p>
+<h2 id="writing-tests">Writing Tests</h2>
+<p>.</p>
+<h2 id="elm-ish-architecture">Elm-ish Architecture</h2>
+<p>.</p>
+<h2 id="usage-with-datascript">Usage with Datascript</h2>
+<p>.</p>
+<h2 id="debugging">Debugging</h2>
+<p>.</p></div>
         
     </div>
 

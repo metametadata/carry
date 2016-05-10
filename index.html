@@ -192,13 +192,14 @@ does not dictate use of any particular routing library. </li>
 <h2 id="design">Design</h2>
 <p><img alt="pattern" src="http://metametadata.github.io/carry/graphs/pattern.svg" /></p>
 <ul>
-<li>To define a Carry app user provides a spec consisting of: initial model value, controller, reconciler.</li>
+<li>An app is defined by its initial model value, controller and reconciler.</li>
 <li>All app state is stored inside a single model atom.</li>
+<li>Anyone can read model value at any given time and subscribe to its changes.</li>
 <li>Controller function receives signals to perform side effects and dispatch actions.</li>
 <li>Anyone can dispatch a new signal: controller, views, timers, etc.</li>
-<li>Reconciler is a pure function which returns a new model value based on incoming action.</li>
+<li>Only controller can dispatch actions.</li>
 <li>Model can be modified only by dispatching actions.</li>
-<li>Anyone can read model value at any given time and subscribe to its changes.</li>
+<li>Reconciler is a pure function which returns a new model value based on an incoming action.</li>
 <li>When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -&gt; signal -&gt; action -&gt; model -&gt; UI -&gt; etc.</li>
 </ul>
 <h2 id="example">Example</h2>
@@ -342,5 +343,5 @@ does not dictate use of any particular routing library. </li>
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-05-08 19:07:46.906213
+Build Date UTC : 2016-05-10 20:35:09.663503
 -->

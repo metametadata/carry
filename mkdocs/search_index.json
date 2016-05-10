@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/", 
-            "text": "Carry\n\n\nClojureScript single-page application framework inspired by\n\nre-frame\n,\n\nElm architecture\n,\n\nRedux\n and\n\nCerebral\n.\n\n\nThe core of the framework is a simple state management library. \nUI binding, history management, debugging, etc. are implemented as separate optional packages.\n\n\n\n\nFeatures\n\n\n\n\nExplicit functional API with no globals making apps easy to extend and unit test.\n\n\nMiddleware-friendly design for adding cross-cutting concerns such as persistence, logging, etc.\n\n\nAgnostic to UI layer.\n\n\nReagent\n bindings package achieves code readability and rendering optimization\nusing view-model/view separation based on Reagent reactions (\nsimilarly to re-frame\n).\n\n\nTime traveling debugger inspired by \nRedux DevTools\n and \nCerebral Debugger\n.\n\n\nLive code editing using \nFigwheel\n and debugger's replay mode.\n\n\nElm-ish architecture\n can be applied to reuse apps inside other apps (aka \"fractality\").\n\n\nHistory middleware implements transparent sync between model and current URL and\ndoes not dictate use of any particular routing library. \n\n\n\n\nDesign\n\n\n\n\n\n\nTo define a Carry app user provides a spec consisting of: initial model value, controller, reconciler.\n\n\nAll app state is stored inside a single model atom.\n\n\nController function receives signals to perform side effects and dispatch actions.\n\n\nAnyone can dispatch a new signal: controller, views, timers, etc.\n\n\nReconciler is a pure function which returns a new model value based on incoming action.\n\n\nModel can be modified only by dispatching actions.\n\n\nAnyone can read model value at any given time and subscribe to its changes.\n\n\nWhen UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -\n signal -\n action -\n model -\n UI -\n etc.\n\n\n\n\nExample\n\n\nDemo\n,\n\nSource code\n\n\nCounter spec and UI:\n\n\n(ns counter.core\n  (:require [cljs.core.match :refer-macros [match]])\n  (:require-macros [reagent.ratom :refer [reaction]]))\n\n(def -initial-model {:val 0})\n\n(defn -control\n  [model signal _dispatch-signal dispatch-action]\n  (match signal\n         :on-start nil\n         :on-stop nil\n\n         :on-increment\n         (dispatch-action :increment)\n\n         :on-decrement\n         (dispatch-action :decrement)\n\n         :on-increment-if-odd\n         (when (odd? (:val @model))\n           (dispatch-action :increment))\n\n         :on-increment-async\n         (.setTimeout js/window #(dispatch-action :increment) 1000)))\n\n(defn -reconcile\n  [model action]\n  (match action\n         :increment (update model :val inc)\n         :decrement (update model :val dec)))\n\n(defn view-model\n  [model]\n  {:counter (reaction (str \n#\n (:val @model)))})\n\n(defn view\n  [{:keys [counter] :as _view-model} dispatch]\n  [:p\n   @counter \n \n\n   [:button {:on-click #(dispatch :on-increment)} \n+\n] \n \n\n   [:button {:on-click #(dispatch :on-decrement)} \n-\n] \n \n\n   [:button {:on-click #(dispatch :on-increment-if-odd)} \nIncrement if odd\n] \n \n\n   [:button {:on-click #(dispatch :on-increment-async)} \nIncrement async\n]])\n\n(def spec {:initial-model -initial-model\n           :control       -control\n           :reconcile     -reconcile})\n\n\n\n\nMain file:\n\n\n(ns app.core\n  (:require [counter.core :as counter]\n            [carry.core :as carry]\n            [carry-reagent.core :as carry-reagent]\n            [reagent.core :as r]))\n\n(let [app (carry/app counter/spec)\n      [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]\n    (r/render app-view (.getElementById js/document \nroot\n))\n    ((:dispatch-signal app) :on-start))\n\n\n\n\nPackages\n\n\nUI Bindings\n\n\n\n\nReagent\n\n\n\n\nMiddleware\n\n\n\n\nDebugger\n\n\nHistory\n\n\nLogging\n\n\nPersistence\n\n\nSchema\n\n\n\n\nDocumentation\n\n\nMore information can be found at \nthe project site\n:\n\n\n\n\nExamples\n\n\nAPI Reference\n\n\nDeveloper Guide\n\n\n\n\nLicense\n\n\nCopyright \u00a9 2016 Yuri Govorushchenko.\n\n\nReleased under an MIT license.", 
+            "text": "Carry\n\n\nClojureScript single-page application framework inspired by\n\nre-frame\n,\n\nElm architecture\n,\n\nRedux\n and\n\nCerebral\n.\n\n\nThe core of the framework is a simple state management library. \nUI binding, history management, debugging, etc. are implemented as separate optional packages.\n\n\n\n\nFeatures\n\n\n\n\nExplicit functional API with no globals making apps easy to extend and unit test.\n\n\nMiddleware-friendly design for adding cross-cutting concerns such as persistence, logging, etc.\n\n\nAgnostic to UI layer.\n\n\nReagent\n bindings package achieves code readability and rendering optimization\nusing view-model/view separation based on Reagent reactions (\nsimilarly to re-frame\n).\n\n\nTime traveling debugger inspired by \nRedux DevTools\n and \nCerebral Debugger\n.\n\n\nLive code editing using \nFigwheel\n and debugger's replay mode.\n\n\nElm-ish architecture\n can be applied to reuse apps inside other apps (aka \"fractality\").\n\n\nHistory middleware implements transparent sync between model and current URL and\ndoes not dictate use of any particular routing library. \n\n\n\n\nDesign\n\n\n\n\n\n\nAn app is defined by its initial model value, controller and reconciler.\n\n\nAll app state is stored inside a single model atom.\n\n\nAnyone can read model value at any given time and subscribe to its changes.\n\n\nController function receives signals to perform side effects and dispatch actions.\n\n\nAnyone can dispatch a new signal: controller, views, timers, etc.\n\n\nOnly controller can dispatch actions.\n\n\nModel can be modified only by dispatching actions.\n\n\nReconciler is a pure function which returns a new model value based on an incoming action.\n\n\nWhen UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -\n signal -\n action -\n model -\n UI -\n etc.\n\n\n\n\nExample\n\n\nDemo\n,\n\nSource code\n\n\nCounter spec and UI:\n\n\n(ns counter.core\n  (:require [cljs.core.match :refer-macros [match]])\n  (:require-macros [reagent.ratom :refer [reaction]]))\n\n(def -initial-model {:val 0})\n\n(defn -control\n  [model signal _dispatch-signal dispatch-action]\n  (match signal\n         :on-start nil\n         :on-stop nil\n\n         :on-increment\n         (dispatch-action :increment)\n\n         :on-decrement\n         (dispatch-action :decrement)\n\n         :on-increment-if-odd\n         (when (odd? (:val @model))\n           (dispatch-action :increment))\n\n         :on-increment-async\n         (.setTimeout js/window #(dispatch-action :increment) 1000)))\n\n(defn -reconcile\n  [model action]\n  (match action\n         :increment (update model :val inc)\n         :decrement (update model :val dec)))\n\n(defn view-model\n  [model]\n  {:counter (reaction (str \n#\n (:val @model)))})\n\n(defn view\n  [{:keys [counter] :as _view-model} dispatch]\n  [:p\n   @counter \n \n\n   [:button {:on-click #(dispatch :on-increment)} \n+\n] \n \n\n   [:button {:on-click #(dispatch :on-decrement)} \n-\n] \n \n\n   [:button {:on-click #(dispatch :on-increment-if-odd)} \nIncrement if odd\n] \n \n\n   [:button {:on-click #(dispatch :on-increment-async)} \nIncrement async\n]])\n\n(def spec {:initial-model -initial-model\n           :control       -control\n           :reconcile     -reconcile})\n\n\n\n\nMain file:\n\n\n(ns app.core\n  (:require [counter.core :as counter]\n            [carry.core :as carry]\n            [carry-reagent.core :as carry-reagent]\n            [reagent.core :as r]))\n\n(let [app (carry/app counter/spec)\n      [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]\n    (r/render app-view (.getElementById js/document \nroot\n))\n    ((:dispatch-signal app) :on-start))\n\n\n\n\nPackages\n\n\nUI Bindings\n\n\n\n\nReagent\n\n\n\n\nMiddleware\n\n\n\n\nDebugger\n\n\nHistory\n\n\nLogging\n\n\nPersistence\n\n\nSchema\n\n\n\n\nDocumentation\n\n\nMore information can be found at \nthe project site\n:\n\n\n\n\nExamples\n\n\nAPI Reference\n\n\nDeveloper Guide\n\n\n\n\nLicense\n\n\nCopyright \u00a9 2016 Yuri Govorushchenko.\n\n\nReleased under an MIT license.", 
             "title": "Readme"
         }, 
         {
@@ -17,7 +17,7 @@
         }, 
         {
             "location": "/#design", 
-            "text": "To define a Carry app user provides a spec consisting of: initial model value, controller, reconciler.  All app state is stored inside a single model atom.  Controller function receives signals to perform side effects and dispatch actions.  Anyone can dispatch a new signal: controller, views, timers, etc.  Reconciler is a pure function which returns a new model value based on incoming action.  Model can be modified only by dispatching actions.  Anyone can read model value at any given time and subscribe to its changes.  When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -  signal -  action -  model -  UI -  etc.", 
+            "text": "An app is defined by its initial model value, controller and reconciler.  All app state is stored inside a single model atom.  Anyone can read model value at any given time and subscribe to its changes.  Controller function receives signals to perform side effects and dispatch actions.  Anyone can dispatch a new signal: controller, views, timers, etc.  Only controller can dispatch actions.  Model can be modified only by dispatching actions.  Reconciler is a pure function which returns a new model value based on an incoming action.  When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -  signal -  action -  model -  UI -  etc.", 
             "title": "Design"
         }, 
         {
@@ -52,22 +52,27 @@
         }, 
         {
             "location": "/user-guide/", 
-            "text": "App\n\n\n\n\nIn Carry application all the code you write is encapsulated behind a single \napp\n instance. \nAn app is a map with keys:\n\n\n\n\n:model\n - a read-only atom, an in-memory representation of an app state\n\n\n:dispatch-signal\n - a function for interaction with an app, always returns nil\n\n\n\n\nOne can imagine an app to be a black box which exposes its current state and modifies it on getting signals from an external world.\nIt can also affect an external world as a response to a signal, i.e. perform \"side effects\".\n\n\nModel\n\n\nSignals\n\n\nSpec\n\n\nIn order to create an instance of a Carry app a user has to pass a \nspec\n into \napp\n function:\n\n\n(def my-app (carry/app my-spec))\n\n\n\n\nA spec is a map with keys:\n\n\n\n\n:initial-model\n - an initial model value\n\n\n:control\n - a function for handling signals\n\n\n:reconcile\n - a function for handling actions\n\n\n\n\nIn other words, a spec is needed to define a runtime behavior of an app:\n\n\n\n\nControl\n\n\nActions\n\n\nReconcile\n\n\nUsage with Reagent", 
+            "text": "Basics\n\n\nThis section explains everything you need to start making apps with Carry. \n\n\nApp\n\n\n\n\nIn a Carry application all the code you write is encapsulated behind a single \napp\n instance. \nAn app is a map with keys:\n\n\n\n\n:model\n - a read-only atom, an in-memory representation of an app state\n\n\n:dispatch-signal\n - a function for interaction with an app, always returns nil\n\n\n\n\nOne can consider an app to be a black box which exposes its current state and modifies it on getting signals from an external world.\nIt can also affect an external world as a response to a signal, i.e. perform \"side effects\".\n\n\nModel\n\n\nModel represents an entire state of an app. \n\n\nOne can access app's model via \n:model\n key to obtain a read-only atom that can be dereferenced and watched, but cannot be mutated:\n\n\n(def my-model (:model app))\n\n@my-model\n;=\n {...}\n\n(add-watch my-model :my-watcher\n           (fn [_key _atom old-state new-state]\n             (when (not= old-state new-state)\n               (println \nmodel value has changed!\n))))\n\n(reset! my-model {:foo :bar})\n;=\n Error: read-only atom cannot be reset to {:foo :bar}\n\n((:dispatch-signal app) :some-model-changing-signal)\n;=\n model value has changed!\n\n(remove-watch my-model :my-watcher)\n\n\n\n\nCarry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.\nAs an example, \ncarry-history\n adds \n:token\n to a model.\n\n\nSignals\n\n\n.\n\n\nSpec\n\n\nIn order to create an instance of a Carry app a user has to pass a \nspec\n into \napp\n function:\n\n\n(def my-app (carry/app my-spec))\n\n\n\n\nA spec is a map with keys:\n\n\n\n\n:initial-model\n - an initial model value\n\n\n:control\n - a function for handling signals\n\n\n:reconcile\n - a function for handling actions\n\n\n\n\nIn other words, a spec is needed to define a runtime behavior of an app:\n\n\n\n\nControl\n\n\n.\n\n\nActions\n\n\n.\n\n\nReconcile\n\n\n.\n\n\nUsage with Reagent\n\n\n.\n\n\nAdvanced\n\n\nMiddleware\n\n\n.\n\n\nWriting Tests\n\n\n.\n\n\nElm-ish Architecture\n\n\n.\n\n\nUsage with Datascript\n\n\n.\n\n\nDebugging\n\n\n.", 
             "title": "User Guide"
         }, 
         {
+            "location": "/user-guide/#basics", 
+            "text": "This section explains everything you need to start making apps with Carry.", 
+            "title": "Basics"
+        }, 
+        {
             "location": "/user-guide/#app", 
-            "text": "In Carry application all the code you write is encapsulated behind a single  app  instance. \nAn app is a map with keys:   :model  - a read-only atom, an in-memory representation of an app state  :dispatch-signal  - a function for interaction with an app, always returns nil   One can imagine an app to be a black box which exposes its current state and modifies it on getting signals from an external world.\nIt can also affect an external world as a response to a signal, i.e. perform \"side effects\".", 
+            "text": "In a Carry application all the code you write is encapsulated behind a single  app  instance. \nAn app is a map with keys:   :model  - a read-only atom, an in-memory representation of an app state  :dispatch-signal  - a function for interaction with an app, always returns nil   One can consider an app to be a black box which exposes its current state and modifies it on getting signals from an external world.\nIt can also affect an external world as a response to a signal, i.e. perform \"side effects\".", 
             "title": "App"
         }, 
         {
             "location": "/user-guide/#model", 
-            "text": "", 
+            "text": "Model represents an entire state of an app.   One can access app's model via  :model  key to obtain a read-only atom that can be dereferenced and watched, but cannot be mutated:  (def my-model (:model app))\n\n@my-model\n;=  {...}\n\n(add-watch my-model :my-watcher\n           (fn [_key _atom old-state new-state]\n             (when (not= old-state new-state)\n               (println  model value has changed! ))))\n\n(reset! my-model {:foo :bar})\n;=  Error: read-only atom cannot be reset to {:foo :bar}\n\n((:dispatch-signal app) :some-model-changing-signal)\n;=  model value has changed!\n\n(remove-watch my-model :my-watcher)  Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.\nAs an example,  carry-history  adds  :token  to a model.", 
             "title": "Model"
         }, 
         {
             "location": "/user-guide/#signals", 
-            "text": "", 
+            "text": ".", 
             "title": "Signals"
         }, 
         {
@@ -77,23 +82,53 @@
         }, 
         {
             "location": "/user-guide/#control", 
-            "text": "", 
+            "text": ".", 
             "title": "Control"
         }, 
         {
             "location": "/user-guide/#actions", 
-            "text": "", 
+            "text": ".", 
             "title": "Actions"
         }, 
         {
             "location": "/user-guide/#reconcile", 
-            "text": "", 
+            "text": ".", 
             "title": "Reconcile"
         }, 
         {
             "location": "/user-guide/#usage-with-reagent", 
-            "text": "", 
+            "text": ".", 
             "title": "Usage with Reagent"
+        }, 
+        {
+            "location": "/user-guide/#advanced", 
+            "text": "", 
+            "title": "Advanced"
+        }, 
+        {
+            "location": "/user-guide/#middleware", 
+            "text": ".", 
+            "title": "Middleware"
+        }, 
+        {
+            "location": "/user-guide/#writing-tests", 
+            "text": ".", 
+            "title": "Writing Tests"
+        }, 
+        {
+            "location": "/user-guide/#elm-ish-architecture", 
+            "text": ".", 
+            "title": "Elm-ish Architecture"
+        }, 
+        {
+            "location": "/user-guide/#usage-with-datascript", 
+            "text": ".", 
+            "title": "Usage with Datascript"
+        }, 
+        {
+            "location": "/user-guide/#debugging", 
+            "text": ".", 
+            "title": "Debugging"
         }, 
         {
             "location": "/examples/", 
