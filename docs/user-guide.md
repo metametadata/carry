@@ -221,3 +221,6 @@ This section is a WIP. Please see examples in a meantime.
 
 ## Debugging
 This section is a WIP. Please see examples in a meantime.
+
+## Routing
+This section is a WIP. Please see examples in a meantime.
