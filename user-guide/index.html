@@ -226,12 +226,13 @@ It can also affect an external world as a response to a signal, i.e. perform "si
 <p>Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.
 As an example, <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a> adds <code>:token</code> to a model.</p>
 <h2 id="signals">Signals</h2>
-<p>Signal is an object which represents a user's intention or, looking at it from a different angle, a system event. 
-Signal can be sent to an app by calling its <code>dispatch-signal</code> function:</p>
+<p><strong>Signal</strong> is an object which represents a user's intention or, looking at it from a different angle, a system event. 
+Signal can be synchronously sent to an app by calling its <code>dispatch-signal</code> function:</p>
 <pre><code class="cljs">((:dispatch-signal my-app) my-signal)
 </code></pre>
 
-<p>Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or a vector with a keyword and an additional payload:</p>
+<p>Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or
+a serializable vector with a keyword and an additional payload:</p>
 <pre><code class="cljs">:on-clear-completed
 [:on-update-todo id val]
 [:carry-history.core/on-enter token]
@@ -334,9 +335,30 @@ As an example, this is a controller from <a href="../examples/#friend-list">frie
 </code></pre>
 
 <h2 id="actions">Actions</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
+<p><strong>Action</strong> is an object which represents an intention to modify a model.
+Actions can be dispatched only from within a control function via <code>dispatch-action</code>.</p>
+<p>Similar to signals, actions are usually keywords or vectors, for instance:</p>
+<pre><code class="cljs">:increment
+[:set-query q]
+</code></pre>
+
 <h2 id="reconcile">Reconcile</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
+<p><strong>Reconciler (reconcile function, reconcile)</strong> is a part of an application responsible for handling incoming actions.
+It's a pure function which returns a new model value based on a current model value and an incoming action.
+On getting an action an app passes it into a reconciler and then resets app model value with the result.</p>
+<p>An simple example from <a href="../examples/#friend-list">friend-list</a> demo app:</p>
+<pre><code class="cljs">(defn -reconcile
+  [model action]
+  (match action
+         [:set-query q]
+         (assoc model :query q)
+
+         [:set-friends friends]
+         (assoc model :friends friends)))
+</code></pre>
+
+<p>It's important to not put any async code, side effects or nondeterministic code (e.g. random number generation)
+into reconciler. Otherwise, it will make replaying actions unpredictable and break time traveling debugging.</p>
 <h2 id="usage-with-reagent">Usage with Reagent</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
 <h1 id="advanced">Advanced</h1>
