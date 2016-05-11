@@ -46,14 +46,15 @@ As an example, [carry-history](https://github.com/metametadata/carry/tree/master
 
 ## Signals
 
-Signal is an object which represents a user's intention or, looking at it from a different angle, a system event. 
-Signal can be sent to an app by calling its `dispatch-signal` function:
+**Signal** is an object which represents a user's intention or, looking at it from a different angle, a system event. 
+Signal can be synchronously sent to an app by calling its `dispatch-signal` function:
 
 ```cljs
 ((:dispatch-signal my-app) my-signal)
 ```
 
-Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or a vector with a keyword and an additional payload:
+Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or
+a serializable vector with a keyword and an additional payload:
 
 ```cljs
 :on-clear-completed
@@ -167,10 +168,36 @@ As an example, this is a controller from [friend-list](/examples/#friend-list) d
 ```
 
 ## Actions
-This section is a WIP. Please see examples in a meantime.
+**Action** is an object which represents an intention to modify a model.
+Actions can be dispatched only from within a control function via `dispatch-action`.
+
+Similar to signals, actions are usually keywords or vectors, for instance:
+
+```cljs
+:increment
+[:set-query q]
+```
 
 ## Reconcile
-This section is a WIP. Please see examples in a meantime.
+**Reconciler (reconcile function, reconcile)** is a part of an application responsible for handling incoming actions.
+It's a pure function which returns a new model value based on a current model value and an incoming action.
+On getting an action an app passes it into a reconciler and then resets app model value with the result.
+
+An simple example from [friend-list](/examples/#friend-list) demo app:
+
+```cljs
+(defn -reconcile
+  [model action]
+  (match action
+         [:set-query q]
+         (assoc model :query q)
+
+         [:set-friends friends]
+         (assoc model :friends friends)))
+```
+
+It's important to not put any async code, side effects or nondeterministic code (e.g. random number generation)
+into reconciler. Otherwise, it will make replaying actions unpredictable and break time traveling debugging.
 
 ## Usage with Reagent
 This section is a WIP. Please see examples in a meantime.
