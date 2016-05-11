@@ -127,6 +127,7 @@ Main file:
 
 More information can be found at [the project site](http://metametadata.github.io/carry/):
 
+* [User Guide](http://metametadata.github.io/carry/user-guide/)
 * [Examples](http://metametadata.github.io/carry/examples/)
 * [API Reference](http://metametadata.github.io/carry/api/)
 * [Developer Guide](http://metametadata.github.io/carry/dev-guide/)
