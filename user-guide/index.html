@@ -346,7 +346,7 @@ Actions can be dispatched only from within a control function via <code>dispatch
 <p><strong>Reconciler (reconcile function, reconcile)</strong> is a part of an application responsible for handling incoming actions.
 It's a pure function which returns a new model value based on a current model value and an incoming action.
 On getting an action an app passes it into a reconciler and then resets app model value with the result.</p>
-<p>An simple example from <a href="../examples/#friend-list">friend-list</a> demo app:</p>
+<p>A simple example from <a href="../examples/#friend-list">friend-list</a> demo app:</p>
 <pre><code class="cljs">(defn -reconcile
   [model action]
   (match action
