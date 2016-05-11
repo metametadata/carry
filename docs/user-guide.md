@@ -183,7 +183,7 @@ Similar to signals, actions are usually keywords or vectors, for instance:
 It's a pure function which returns a new model value based on a current model value and an incoming action.
 On getting an action an app passes it into a reconciler and then resets app model value with the result.
 
-An simple example from [friend-list](/examples/#friend-list) demo app:
+A simple example from [friend-list](/examples/#friend-list) demo app:
 
 ```cljs
 (defn -reconcile
