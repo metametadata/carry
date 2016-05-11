@@ -169,6 +169,9 @@
             <li class="second-level"><a href="#middleware">Middleware</a></li>
             
         
+            <li class="second-level"><a href="#usage-with-figwheel">Usage with Figwheel</a></li>
+            
+        
             <li class="second-level"><a href="#writing-tests">Writing Tests</a></li>
             
         
@@ -223,7 +226,7 @@ It can also affect an external world as a response to a signal, i.e. perform "si
 <p>Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.
 As an example, <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a> adds <code>:token</code> to a model.</p>
 <h2 id="signals">Signals</h2>
-<p>Signal is an object which represents a user's intention or, looking at it from a different angle, an already happened event. 
+<p>Signal is an object which represents a user's intention or, looking at it from a different angle, a system event. 
 Signal can be sent to an app by calling its <code>dispatch-signal</code> function:</p>
 <pre><code class="cljs">((:dispatch-signal my-app) my-signal)
 </code></pre>
@@ -235,7 +238,7 @@ Signal can be sent to an app by calling its <code>dispatch-signal</code> functio
 </code></pre>
 
 <h2 id="creating-an-app">Creating an App</h2>
-<p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into <code>app</code> function:</p>
+<p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into the <code>app</code> function:</p>
 <pre><code class="cljs">(def my-app (carry/app my-spec))
 </code></pre>
 
@@ -248,24 +251,107 @@ Signal can be sent to an app by calling its <code>dispatch-signal</code> functio
 <p>In other words, a spec is needed to define a runtime behavior of an app:</p>
 <p><img alt="spec" src="../graphs/spec-and-app.svg" /></p>
 <h2 id="control">Control</h2>
-<p>.</p>
+<p><strong>Controller (control function, control)</strong> is a part of an application responsible for handling incoming signals. 
+It can dispatch new signals, modify app model (by dispatching actions) and perform any side effects (e.g. send data to a server).
+Controller is free to contain asynchronous code. The signature of a control function:</p>
+<pre><code class="cljs">(defn control
+  [model signal dispatch-signal dispatch-action])
+</code></pre>
+
+<ul>
+<li><code>model</code> - a read-only atom, the same as app's <code>:model</code></li>
+<li><code>signal</code> - an incoming signal </li>
+<li><code>dispatch-signal</code> - a synchronous function for dispatching new signals, always returns <code>nil</code>, the same as app's <code>:dispatch-signal</code></li>
+<li><code>dispatch-action</code> - a synchronous function for modifying a model, always returns <code>nil</code></li>
+<li>Return value will not be used</li>
+</ul>
+<p>By convention, control should be able to at least handle <code>:on-start</code> and <code>:on-stop</code> signals.
+As we'll see later, it's required by middleware with setup/teardown logic and to support hot reloading.</p>
+<p>It is convenient (but not required) to use <a href="https://github.com/clojure/core.match">pattern matching</a> 
+to switch between signals and destructure signals with payload.
+As an example, this is a controller from <a href="../examples/#friend-list">friend-list</a> demo app:</p>
+<pre><code class="cljs">(ns friend-list.core
+  (:require [carry-history.core :as h]
+            ; ...
+            [goog.functions :refer [debounce]]
+            [cljs.core.match :refer-macros [match]]))
+
+; It's recommended to create a factory function if controller uses external dependencies.
+; It makes code more decoupled and 
+; easier to unit test (stubs/mocks can be easily used instead of real implementations).
+; In this example browser history manager and API client are external dependencies.
+(defn -new-control
+  [history api-search]
+  ; Some helper functions.
+  ; On successful search a new :on-search-success signal will be dispatched.
+  (let [search (fn [q dispatch-signal] (api-search q #(dispatch-signal [:on-search-success q %])))
+        search-on-input (debounce (fn [q dispatch-signal]
+                                    (h/push-token history q)
+                                    (search q dispatch-signal))
+                                  300)]
+    ; Function name is specified for better stacktraces.
+    (fn control
+      [model signal dispatch-signal dispatch-action]
+      (match signal
+             ; This application has no custom setup/teardown logic
+             ; so just return nil on standard signals:             
+             :on-start nil
+             :on-stop nil
+
+             ; Macro will throw an exception on unknown signals.
+
+             ; Signal destructuring example 
+             [:on-input q]
+             (do
+               ; Update model.
+               (dispatch-action [:set-query q])
+
+               ; Begin (possibly async) searching.
+               (search-on-input q dispatch-signal))
+
+             ; ...
+
+             [:on-search-success q friends]
+             ; Note that model has to be dereferenced to get its value.
+             (if (= (:query @model) q)
+               (dispatch-action [:set-friends friends])
+               (println &quot;ignore response for&quot; (pr-str q)
+                        &quot;because current query is&quot; (pr-str (:query @model))))))))
+
+; ...
+
+; Dependencies will be injected in a spec factory function:
+(defn new-spec
+  [history api-search]
+  {; ...
+   :control (-new-control history api-search)})
+
+; ...
+
+; Create and start an app using concrete dependencies.
+(def my-app (carry/app (new-spec my-history my-api-client)))
+((:dispatch-signal app) :on-start)
+</code></pre>
+
 <h2 id="actions">Actions</h2>
-<p>.</p>
+<p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="reconcile">Reconcile</h2>
-<p>.</p>
+<p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="usage-with-reagent">Usage with Reagent</h2>
-<p>.</p>
+<p>This section is a WIP. Please see examples in a meantime.</p>
 <h1 id="advanced">Advanced</h1>
 <h2 id="middleware">Middleware</h2>
-<p>.</p>
+<p>This section is a WIP. Please see examples in a meantime.</p>
+<h2 id="usage-with-figwheel">Usage with Figwheel</h2>
+<p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="writing-tests">Writing Tests</h2>
-<p>.</p>
+<p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="elm-ish-architecture">Elm-ish Architecture</h2>
-<p>.</p>
+<p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="usage-with-datascript">Usage with Datascript</h2>
-<p>.</p>
+<p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="debugging">Debugging</h2>
-<p>.</p></div>
+<p>This section is a WIP. Please see examples in a meantime.</p></div>
         
     </div>
 
