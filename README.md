@@ -14,13 +14,13 @@ UI binding, history management, debugging, etc. are implemented as separate opti
 ## Features
 
 * Explicit functional API with no globals making apps easy to extend and unit test.
-* Middleware-friendly design for adding cross-cutting concerns such as persistence, logging, etc.
 * Agnostic to UI layer.
-* [Reagent](https://github.com/reagent-project/reagent) bindings package achieves code readability and rendering optimization
-using view-model/view separation based on Reagent reactions ([similarly to re-frame](https://github.com/Day8/re-frame#how-flow-happens-in-reagent)).
+* Middleware-friendly design for adding cross-cutting concerns such as persistence, logging, etc.
 * Time traveling debugger inspired by [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/debugger).
 * Live code editing using [Figwheel](https://github.com/bhauman/lein-figwheel) and debugger's replay mode.
 * [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to reuse apps inside other apps (aka "fractality").
+* [Reagent](https://github.com/reagent-project/reagent) bindings package achieves code readability and rendering optimization
+using view-model/view separation based on Reagent reactions ([similarly to re-frame](https://github.com/Day8/re-frame#how-flow-happens-in-reagent)).
 * History middleware implements transparent sync between model and current URL and
 does not dictate use of any particular routing library. 
 

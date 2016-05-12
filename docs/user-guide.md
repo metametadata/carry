@@ -200,7 +200,62 @@ It's important to not put any async code, side effects or nondeterministic code 
 into reconciler. Otherwise, it will make replaying actions unpredictable and break time traveling debugging.
 
 ## Usage with Reagent
-This section is a WIP. Please see examples in a meantime.
+
+Carry can work with any view layer that is able to re-render UI in response to app model changes.
+This chapter is about tying Carry with [Reagent](https://github.com/reagent-project/reagent) 
+(a ClojureScript wrapper for [React](https://facebook.github.io/react/))
+using [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package.
+
+First, let's look at a typical application entry code: 
+
+```cljs
+(ns app.core
+  (:require [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [reagent.core :as r]))
+            
+; ...
+
+(let [app (carry/app my-spec)
+      [_ app-view] (carry-reagent/connect app view-model view)]
+    (r/render app-view (.getElementById js/document "root"))
+    
+    ; ...
+)
+```
+
+In Carry **view** is a UI representation of a model.
+In this example it is a Reagent component `app-view` 
+rendered into DOM using Reagent's [`render`](http://blog.ducky.io/reagent-docs/0.6.0-alpha2/reagent.core.html#var-render) function.
+App view is constructed using `carry-reagent.core/connect` function:
+
+```cljs
+(connect [app view-model view])
+```
+
+* `app` - Carry app instance
+* `view-model` - a function which returns a view model depending on app model
+* `view` - a Reagent component which depends on a view model and can dispatch app signals
+
+### View Model
+
+An example from [TodoMVC](/examples/#todomvc) app:
+
+```cljs
+(defn view-model
+  [model]
+  (let [; ...
+        all-todos (reaction (:todos @model))]
+    (-> model
+        ; ...
+        (carry-reagent/track-keys [:field])
+        (assoc :has-todos? (reaction (-> @all-todos count pos?))
+               :all-completed? (reaction (every? :completed? @all-todos))))))
+```
+
+### View
+
+.
 
 # Advanced
 
