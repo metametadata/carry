@@ -371,7 +371,8 @@ into reconciler. Otherwise, it will make replaying actions unpredictable and bre
 This chapter is about tying Carry with <a href="https://github.com/reagent-project/reagent">Reagent</a> 
 (a ClojureScript wrapper for <a href="https://facebook.github.io/react/">React</a>)
 using <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a> package.</p>
-<p>First, let's look at a typical application entry code: </p>
+<p>In this example Reagent component for app UI is
+inserted into DOM using <a href="http://blog.ducky.io/reagent-docs/0.6.0-alpha2/reagent.core.html#var-render"><code>render</code></a> function: </p>
 <pre><code class="cljs">(ns app.core
   (:require [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
@@ -380,38 +381,73 @@ using <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent
 ; ...
 
 (let [app (carry/app my-spec)
-      [_ app-view] (carry-reagent/connect app view-model view)]
+      [_ app-view] (carry-reagent/connect app my-view-model my-view)]
     (r/render app-view (.getElementById js/document &quot;root&quot;))
 
     ; ...
 )
 </code></pre>
 
-<p>In Carry <strong>view</strong> is a UI representation of a model.
-In this example it is a Reagent component <code>app-view</code> 
-rendered into DOM using Reagent's <a href="http://blog.ducky.io/reagent-docs/0.6.0-alpha2/reagent.core.html#var-render"><code>render</code></a> function.
-App view is constructed using <code>carry-reagent.core/connect</code> function:</p>
+<p>App view is constructed using <code>carry-reagent.core/connect</code> function:</p>
 <pre><code class="cljs">(connect [app view-model view])
 </code></pre>
 
 <ul>
 <li><code>app</code> - Carry app instance</li>
-<li><code>view-model</code> - a function which returns a view model depending on app model</li>
-<li><code>view</code> - a Reagent component which depends on a view model and can dispatch app signals</li>
+<li><code>view-model</code> - a function which produces a view model</li>
+<li><code>view</code> - a Reagent component</li>
+<li>Returns a pair <code>[view-model-instance view-component]</code> (view model is returned mainly for debugging)</li>
 </ul>
-<h3 id="view-model">View Model</h3>
-<p>An example from <a href="../examples/#todomvc">TodoMVC</a> app:</p>
+<p><code>view-model</code> function is called once on <code>connect</code> call.
+Then returned view model instance is passed as an argument into <code>view</code> function to produce a final view component:</p>
 <pre><code class="cljs">(defn view-model
   [model]
-  (let [; ...
-        all-todos (reaction (:todos @model))]
-    (-&gt; model
-        ; ...
-        (carry-reagent/track-keys [:field])
-        (assoc :has-todos? (reaction (-&gt; @all-todos count pos?))
-               :all-completed? (reaction (every? :completed? @all-todos))))))
+  ; define a view model...
+)
+
+(defn view
+  [view-model dispatch]
+  ; a Reagent component that uses data from a view-model and dispatches signals on events...
+)  
 </code></pre>
 
+<p>A view thereby listens to a view model that in turn listens to a model:</p>
+<p><img alt="pattern" src="http://metametadata.github.io/carry/graphs/pattern.svg" /></p>
+<p>In the next section we'll see how to define a view model.</p>
+<h3 id="view-model">View Model</h3>
+<p><strong>View model</strong> contains all the data needed to render a UI.
+It can compute derived model data, split lists of objects into pages, calculate which buttons are enabled, 
+determine which app page to show depending on current URL, etc.</p>
+<p>Usually view model is a map of Reagent reactions. An example from <a href="../examples/#todomvc">TodoMVC</a> app:</p>
+<pre><code class="cljs">(ns app.view-model
+  (:require ; ...
+            [carry-reagent.core :as carry-reagent])
+  (:require-macros [reagent.ratom :refer [reaction]]))
+
+(defn view-model
+  [model]
+  (let [; ...
+        ; Wrap todo items in a reaction.
+        all-todos (reaction (:todos @model))]
+    (-&gt; model
+        ; This helper function call will return {:field (reaction (:field @model))} map.
+        ; Note: :field contains the value of a new todo input.
+        (carry-reagent/track-keys [:field])
+
+        ; Additional view model fields are reactions 
+        ; which will be recalculated if (and only if) all-todos value changes:
+        (assoc :has-todos? (reaction (-&gt; @all-todos count pos?))
+               :all-completed? (reaction (every? :completed? @all-todos))
+               ; ...
+               ))))
+</code></pre>
+
+<p>Argument <code>model</code> is a read-only <strong>Reagent atom (ratom)</strong> that behaves almost exactly as a read-only model atom (i.e. <code>(:model app)</code>), 
+but can also be used in Reagent components and reactions.</p>
+<p><strong>Reaction</strong> is a special ratom-like object that is created using Reagent's <code>reaction</code> macro.
+It is lazily computed from other ratoms/reactions.
+Any Reagent component that dereferences a reaction is going to be re-rendered when reaction value updates.</p>
+<p>Next section demonstrates how to use view model reactions in a view.</p>
 <h3 id="view">View</h3>
 <p>.</p>
 <h1 id="advanced">Advanced</h1>
