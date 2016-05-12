@@ -162,6 +162,10 @@
         
             <li class="second-level"><a href="#usage-with-reagent">Usage with Reagent</a></li>
             
+                <li class="third-level"><a href="#view-model">View Model</a></li>
+            
+                <li class="third-level"><a href="#view">View</a></li>
+            
         
     
         <li class="first-level "><a href="#advanced">Advanced</a></li>
@@ -363,7 +367,53 @@ On getting an action an app passes it into a reconciler and then resets app mode
 <p>It's important to not put any async code, side effects or nondeterministic code (e.g. random number generation)
 into reconciler. Otherwise, it will make replaying actions unpredictable and break time traveling debugging.</p>
 <h2 id="usage-with-reagent">Usage with Reagent</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
+<p>Carry can work with any view layer that is able to re-render UI in response to app model changes.
+This chapter is about tying Carry with <a href="https://github.com/reagent-project/reagent">Reagent</a> 
+(a ClojureScript wrapper for <a href="https://facebook.github.io/react/">React</a>)
+using <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a> package.</p>
+<p>First, let's look at a typical application entry code: </p>
+<pre><code class="cljs">(ns app.core
+  (:require [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [reagent.core :as r]))
+
+; ...
+
+(let [app (carry/app my-spec)
+      [_ app-view] (carry-reagent/connect app view-model view)]
+    (r/render app-view (.getElementById js/document &quot;root&quot;))
+
+    ; ...
+)
+</code></pre>
+
+<p>In Carry <strong>view</strong> is a UI representation of a model.
+In this example it is a Reagent component <code>app-view</code> 
+rendered into DOM using Reagent's <a href="http://blog.ducky.io/reagent-docs/0.6.0-alpha2/reagent.core.html#var-render"><code>render</code></a> function.
+App view is constructed using <code>carry-reagent.core/connect</code> function:</p>
+<pre><code class="cljs">(connect [app view-model view])
+</code></pre>
+
+<ul>
+<li><code>app</code> - Carry app instance</li>
+<li><code>view-model</code> - a function which returns a view model depending on app model</li>
+<li><code>view</code> - a Reagent component which depends on a view model and can dispatch app signals</li>
+</ul>
+<h3 id="view-model">View Model</h3>
+<p>An example from <a href="../examples/#todomvc">TodoMVC</a> app:</p>
+<pre><code class="cljs">(defn view-model
+  [model]
+  (let [; ...
+        all-todos (reaction (:todos @model))]
+    (-&gt; model
+        ; ...
+        (carry-reagent/track-keys [:field])
+        (assoc :has-todos? (reaction (-&gt; @all-todos count pos?))
+               :all-completed? (reaction (every? :completed? @all-todos))))))
+</code></pre>
+
+<h3 id="view">View</h3>
+<p>.</p>
 <h1 id="advanced">Advanced</h1>
 <h2 id="middleware">Middleware</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
