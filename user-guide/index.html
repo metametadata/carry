@@ -370,9 +370,7 @@ into reconciler. Otherwise, it will make replaying actions unpredictable and bre
 <p>Carry can work with any view layer that is able to re-render UI in response to app model changes.
 This chapter is about tying Carry with <a href="https://github.com/reagent-project/reagent">Reagent</a> 
 (a ClojureScript wrapper for <a href="https://facebook.github.io/react/">React</a>)
-using <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a> package.</p>
-<p>In this example Reagent component for app UI is
-inserted into DOM using <a href="http://blog.ducky.io/reagent-docs/0.6.0-alpha2/reagent.core.html#var-render"><code>render</code></a> function: </p>
+using <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a> package: </p>
 <pre><code class="cljs">(ns app.core
   (:require [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
@@ -380,8 +378,24 @@ inserted into DOM using <a href="http://blog.ducky.io/reagent-docs/0.6.0-alpha2/
 
 ; ...
 
-(let [app (carry/app my-spec)
+; Define app view model and view:
+
+(defn my-view-model
+  [model]
+  ; define a view model...
+)
+
+(defn my-view
+  [view-model dispatch]
+  ; a Reagent component that uses data from a view-model and dispatches signals on events...
+)
+
+(let [; Create an app.
+      app (carry/app my-spec)
+
+      ; &quot;Connect&quot; app, view model and view to create a Reagent component.
       [_ app-view] (carry-reagent/connect app my-view-model my-view)]
+    ; Render component into DOM.
     (r/render app-view (.getElementById js/document &quot;root&quot;))
 
     ; ...
@@ -399,19 +413,8 @@ inserted into DOM using <a href="http://blog.ducky.io/reagent-docs/0.6.0-alpha2/
 <li>Returns a pair <code>[view-model-instance view-component]</code> (view model is returned mainly for debugging)</li>
 </ul>
 <p><code>view-model</code> function is called once on <code>connect</code> call.
-Then returned view model instance is passed as an argument into <code>view</code> function to produce a final view component:</p>
-<pre><code class="cljs">(defn view-model
-  [model]
-  ; define a view model...
-)
-
-(defn view
-  [view-model dispatch]
-  ; a Reagent component that uses data from a view-model and dispatches signals on events...
-)  
-</code></pre>
-
-<p>A view thereby listens to a view model that in turn listens to a model:</p>
+Then returned view model instance is passed as an argument into <code>view</code> function to produce a final view component.
+A view thereby listens to a view model that in turn listens to a model:</p>
 <p><img alt="pattern" src="http://metametadata.github.io/carry/graphs/pattern.svg" /></p>
 <p>In the next section we'll see how to define a view model.</p>
 <h3 id="view-model">View Model</h3>
