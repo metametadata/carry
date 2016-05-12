@@ -204,21 +204,34 @@ into reconciler. Otherwise, it will make replaying actions unpredictable and bre
 Carry can work with any view layer that is able to re-render UI in response to app model changes.
 This chapter is about tying Carry with [Reagent](https://github.com/reagent-project/reagent) 
 (a ClojureScript wrapper for [React](https://facebook.github.io/react/))
-using [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package.
-
-In this example Reagent component for app UI is
-inserted into DOM using [`render`](http://blog.ducky.io/reagent-docs/0.6.0-alpha2/reagent.core.html#var-render) function: 
+using [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package: 
 
 ```cljs
 (ns app.core
   (:require [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]))
-            
-; ...
 
-(let [app (carry/app my-spec)
+; ...
+        
+; Define app view model and view:
+
+(defn my-view-model
+  [model]
+  ; define a view model...
+)
+
+(defn my-view
+  [view-model dispatch]
+  ; a Reagent component that uses data from a view-model and dispatches signals on events...
+)
+
+(let [; Create an app.
+      app (carry/app my-spec)
+      
+      ; "Connect" app, view model and view to create a Reagent component.
       [_ app-view] (carry-reagent/connect app my-view-model my-view)]
+    ; Render component into DOM.
     (r/render app-view (.getElementById js/document "root"))
     
     ; ...
@@ -237,20 +250,7 @@ App view is constructed using `carry-reagent.core/connect` function:
 * Returns a pair `[view-model-instance view-component]` (view model is returned mainly for debugging)
 
 `view-model` function is called once on `connect` call.
-Then returned view model instance is passed as an argument into `view` function to produce a final view component:
-
-```cljs
-(defn view-model
-  [model]
-  ; define a view model...
-)
-
-(defn view
-  [view-model dispatch]
-  ; a Reagent component that uses data from a view-model and dispatches signals on events...
-)  
-```
-
+Then returned view model instance is passed as an argument into `view` function to produce a final view component.
 A view thereby listens to a view model that in turn listens to a model:
 
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
