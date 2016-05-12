@@ -206,7 +206,8 @@ This chapter is about tying Carry with [Reagent](https://github.com/reagent-proj
 (a ClojureScript wrapper for [React](https://facebook.github.io/react/))
 using [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package.
 
-First, let's look at a typical application entry code: 
+In this example Reagent component for app UI is
+inserted into DOM using [`render`](http://blog.ducky.io/reagent-docs/0.6.0-alpha2/reagent.core.html#var-render) function: 
 
 ```cljs
 (ns app.core
@@ -217,16 +218,13 @@ First, let's look at a typical application entry code:
 ; ...
 
 (let [app (carry/app my-spec)
-      [_ app-view] (carry-reagent/connect app view-model view)]
+      [_ app-view] (carry-reagent/connect app my-view-model my-view)]
     (r/render app-view (.getElementById js/document "root"))
     
     ; ...
 )
 ```
 
-In Carry **view** is a UI representation of a model.
-In this example it is a Reagent component `app-view` 
-rendered into DOM using Reagent's [`render`](http://blog.ducky.io/reagent-docs/0.6.0-alpha2/reagent.core.html#var-render) function.
 App view is constructed using `carry-reagent.core/connect` function:
 
 ```cljs
@@ -234,24 +232,71 @@ App view is constructed using `carry-reagent.core/connect` function:
 ```
 
 * `app` - Carry app instance
-* `view-model` - a function which returns a view model depending on app model
-* `view` - a Reagent component which depends on a view model and can dispatch app signals
+* `view-model` - a function which produces a view model
+* `view` - a Reagent component
+* Returns a pair `[view-model-instance view-component]` (view model is returned mainly for debugging)
 
-### View Model
-
-An example from [TodoMVC](/examples/#todomvc) app:
+`view-model` function is called once on `connect` call.
+Then returned view model instance is passed as an argument into `view` function to produce a final view component:
 
 ```cljs
 (defn view-model
   [model]
+  ; define a view model...
+)
+
+(defn view
+  [view-model dispatch]
+  ; a Reagent component that uses data from a view-model and dispatches signals on events...
+)  
+```
+
+A view thereby listens to a view model that in turn listens to a model:
+
+![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
+
+In the next section we'll see how to define a view model.
+
+### View Model
+
+**View model** contains all the data needed to render a UI.
+It can compute derived model data, split lists of objects into pages, calculate which buttons are enabled, 
+determine which app page to show depending on current URL, etc.
+
+Usually view model is a map of Reagent reactions. An example from [TodoMVC](/examples/#todomvc) app:
+
+```cljs
+(ns app.view-model
+  (:require ; ...
+            [carry-reagent.core :as carry-reagent])
+  (:require-macros [reagent.ratom :refer [reaction]]))
+
+(defn view-model
+  [model]
   (let [; ...
+        ; Wrap todo items in a reaction.
         all-todos (reaction (:todos @model))]
     (-> model
-        ; ...
+        ; This helper function call will return {:field (reaction (:field @model))} map.
+        ; Note: :field contains the value of a new todo input.
         (carry-reagent/track-keys [:field])
+        
+        ; Additional view model fields are reactions 
+        ; which will be recalculated if (and only if) all-todos value changes:
         (assoc :has-todos? (reaction (-> @all-todos count pos?))
-               :all-completed? (reaction (every? :completed? @all-todos))))))
+               :all-completed? (reaction (every? :completed? @all-todos))
+               ; ...
+               ))))
 ```
+
+Argument `model` is a read-only **Reagent atom (ratom)** that behaves almost exactly as a read-only model atom (i.e. `(:model app)`), 
+but can also be used in Reagent components and reactions.
+
+**Reaction** is a special ratom-like object that is created using Reagent's `reaction` macro.
+It is lazily computed from other ratoms/reactions.
+Any Reagent component that dereferences a reaction is going to be re-rendered when reaction value updates.
+
+Next section demonstrates how to use view model reactions in a view.
 
 ### View
 
