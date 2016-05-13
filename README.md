@@ -13,16 +13,13 @@ UI binding, history management, debugging, etc. are implemented as separate opti
 
 ## Features
 
-* Explicit functional API with no globals making apps easy to extend and unit test.
+* Middleware-friendly functional API with no globals makes apps easy to extend and unit test.
 * Agnostic to UI layer.
-* Middleware-friendly design for adding cross-cutting concerns such as persistence, logging, etc.
 * Time traveling debugger inspired by [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/debugger).
 * Live code editing using [Figwheel](https://github.com/bhauman/lein-figwheel) and debugger's replay mode.
+* [Reagent](https://github.com/reagent-project/reagent) bindings achieve code readability and rendering optimization
+using view-model/view pattern based on Reagent reactions ([similarly to re-frame](https://github.com/Day8/re-frame#how-flow-happens-in-reagent)).
 * [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to reuse apps inside other apps (aka "fractality").
-* [Reagent](https://github.com/reagent-project/reagent) bindings package achieves code readability and rendering optimization
-using view-model/view separation based on Reagent reactions ([similarly to re-frame](https://github.com/Day8/re-frame#how-flow-happens-in-reagent)).
-* History middleware implements transparent sync between model and current URL and
-does not dictate use of any particular routing library. 
 
 ## Design
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
@@ -32,8 +29,8 @@ does not dictate use of any particular routing library.
 * Anyone can read model value at any given time and subscribe to its changes.
 * Controller function receives signals to perform side effects and dispatch actions.
 * Anyone can dispatch a new signal: controller, views, timers, etc.
-* Only controller can dispatch actions.
 * Model can be modified only by dispatching actions.
+* Only controller can dispatch actions.
 * Reconciler is a pure function which returns a new model value based on an incoming action.
 * When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -> signal -> action -> model -> UI -> etc.
 
