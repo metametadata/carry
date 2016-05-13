@@ -400,13 +400,14 @@ As an example, this is a simple middleware which logs all actions and signals co
 ```
 
 More complex middleware can:
- 
+  
 * Modify initial model.
 * Intercept `:on-start`/`:on-stop` signals.
 * Dispatch new signals and actions to an app.
 By convention, they must use namespaced keywords (e.g. `:my-middlware.core/on-something`) to prevent a name clash with other signals.
 * Dispatch own signals and actions which should not be handled by an app. They must also use namespaced keywords.
 * Subscribe to model changes.
+* Have injected dependencies.
 
 All these cases are demonstrated by [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history) middleware:
 
@@ -419,6 +420,7 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
   [app-initial-model]
   (merge {::token "/"} app-initial-model))
 
+; History will be injected on applying the middleware.
 (defn -wrap-control
   [app-control history]
   (let [unlisten (atom nil)]
@@ -485,6 +487,7 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
            :else
            (app-reconcile model action))))
 
+; History is an injected dependency.
 (defn add
   [spec history]
   (-> spec
