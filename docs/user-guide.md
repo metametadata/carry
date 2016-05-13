@@ -301,7 +301,7 @@ Any Reagent component that dereferences a reaction is going to be re-rendered wh
 An example from [TodoMVC](/examples/#todomvc) app:
 
 ```clj
-; A plain Reagent component which is redrawn on when input args change.
+; A plain Reagent component which is redrawn when input args change.
 (defn -header
   [field dispatch]
   ; Reagent uses Hiccup-like syntax for defining HTML.
