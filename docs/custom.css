@@ -6,3 +6,10 @@
 .bs-sidenav > .third-level {
   margin-left: 2em;
 }
+
+/* add scrolling to TOC */
+.bs-sidebar.well {
+    padding: 0;
+    max-height: 85vh;
+    overflow-y: auto;
+}
