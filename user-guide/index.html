@@ -211,7 +211,7 @@ It can also affect an external world as a response to a signal, i.e. perform "si
 <h2 id="model">Model</h2>
 <p>Model represents an entire state of an app. </p>
 <p>One can access app's model via <code>:model</code> key to obtain a read-only atom that can be dereferenced and watched, but cannot be mutated:</p>
-<pre><code class="cljs">(def my-model (:model app))
+<pre><code class="clj">(def my-model (:model app))
 
 @my-model
 ;=&gt; {...}
@@ -235,19 +235,19 @@ As an example, <a href="https://github.com/metametadata/carry/tree/master/contri
 <h2 id="signals">Signals</h2>
 <p><strong>Signal</strong> is an object which represents a user's intention or, looking at it from a different angle, a system event. 
 Signal can be synchronously sent to an app by calling its <code>dispatch-signal</code> function:</p>
-<pre><code class="cljs">((:dispatch-signal my-app) my-signal)
+<pre><code class="clj">((:dispatch-signal my-app) my-signal)
 </code></pre>
 
 <p>Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or
 a serializable vector with a keyword and an additional payload:</p>
-<pre><code class="cljs">:on-clear-completed
+<pre><code class="clj">:on-clear-completed
 [:on-update-todo id val]
 [:carry-history.core/on-enter token]
 </code></pre>
 
 <h2 id="creating-an-app">Creating an App</h2>
 <p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into the <code>app</code> function:</p>
-<pre><code class="cljs">(def my-app (carry/app my-spec))
+<pre><code class="clj">(def my-app (carry/app my-spec))
 </code></pre>
 
 <p>A spec is a map with keys:</p>
@@ -262,7 +262,7 @@ a serializable vector with a keyword and an additional payload:</p>
 <p><strong>Controller (control function, control)</strong> is a part of an application responsible for handling incoming signals. 
 It can dispatch new signals, modify app model (by dispatching actions) and perform any side effects (e.g. send data to a server).
 Controller is free to contain asynchronous code. The signature of a control function:</p>
-<pre><code class="cljs">(defn control
+<pre><code class="clj">(defn control
   [model signal dispatch-signal dispatch-action])
 </code></pre>
 
@@ -278,7 +278,7 @@ As we'll see later, it's required by middleware with setup/teardown logic and to
 <p>It is convenient (but not required) to use <a href="https://github.com/clojure/core.match">pattern matching</a> 
 to switch between signals and destructure signals with payload.
 As an example, this is a controller from <a href="../examples/#friend-list">friend-list</a> demo app:</p>
-<pre><code class="cljs">(ns friend-list.core
+<pre><code class="clj">(ns friend-list.core
   (:require [carry-history.core :as h]
             ; ...
             [goog.functions :refer [debounce]]
@@ -345,7 +345,7 @@ As an example, this is a controller from <a href="../examples/#friend-list">frie
 <p><strong>Action</strong> is an object which represents an intention to modify a model.
 Actions can be dispatched only from within a control function via <code>dispatch-action</code>.</p>
 <p>Similar to signals, actions are usually keywords or vectors, for instance:</p>
-<pre><code class="cljs">:increment
+<pre><code class="clj">:increment
 [:set-query q]
 </code></pre>
 
@@ -354,7 +354,7 @@ Actions can be dispatched only from within a control function via <code>dispatch
 It's a pure function which returns a new model value based on a current model value and an incoming action.
 On getting an action an app passes it into a reconciler and then resets app model value with the result.</p>
 <p>A simple example from <a href="../examples/#friend-list">friend-list</a> demo app:</p>
-<pre><code class="cljs">(defn -reconcile
+<pre><code class="clj">(defn -reconcile
   [model action]
   (match action
          [:set-query q]
@@ -371,7 +371,7 @@ into reconciler. Otherwise, it will make replaying actions unpredictable and bre
 This chapter is about tying Carry with <a href="https://github.com/reagent-project/reagent">Reagent</a> 
 (a ClojureScript wrapper for <a href="https://facebook.github.io/react/">React</a>)
 using <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a> package: </p>
-<pre><code class="cljs">(ns app.core
+<pre><code class="clj">(ns app.core
   (:require [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]))
@@ -403,7 +403,7 @@ using <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent
 </code></pre>
 
 <p>App view is constructed using <code>carry-reagent.core/connect</code> function:</p>
-<pre><code class="cljs">(connect [app view-model view])
+<pre><code class="clj">(connect [app view-model view])
 </code></pre>
 
 <ul>
@@ -422,7 +422,7 @@ A view thereby listens to a view model that in turn listens to a model:</p>
 It can compute derived model data, split lists of objects into pages, calculate which buttons are enabled, 
 determine which app page to show depending on current URL, etc.</p>
 <p>Usually view model is a map of Reagent reactions. An example from <a href="../examples/#todomvc">TodoMVC</a> app:</p>
-<pre><code class="cljs">(ns app.view-model
+<pre><code class="clj">(ns app.view-model
   (:require ; ...
             [carry-reagent.core :as carry-reagent])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -450,9 +450,42 @@ but can also be used in Reagent components and reactions.</p>
 <p><strong>Reaction</strong> is a special ratom-like object that is created using Reagent's <code>reaction</code> macro.
 It is lazily computed from other ratoms/reactions.
 Any Reagent component that dereferences a reaction is going to be re-rendered when reaction value updates.</p>
-<p>Next section demonstrates how to use view model reactions in a view.</p>
 <h3 id="view">View</h3>
-<p>.</p>
+<p>An example from <a href="../examples/#todomvc">TodoMVC</a> app:</p>
+<pre><code class="clj">; A plain Reagent component which is redrawn on when input args change.
+(defn -header
+  [field dispatch]
+  ; Reagent uses Hiccup-like syntax for defining HTML.
+  [:header.header
+   [:h1 &quot;todos&quot;]
+
+   ; Input value is equal to field arg value.
+   [:input.new-todo {:placeholder &quot;What needs to be done?&quot;
+                     :value       field
+
+                     ; Dispatch signals on input events.
+                     :on-change   #(dispatch [:on-update-field (.. % -target -value)])
+                     :on-key-down #(when (-enter-key? %) (dispatch :on-add))}]])
+
+; Top app component that is passed into connect function.
+(defn view
+  ; Destructure view model map for cleaner code in the function body.
+  [{:keys [field has-todos? all-completed?
+           ; ...
+           ] :as _view-model}
+   dispatch]
+  [:section.todoapp
+   ; Deref |field| reaction to get its value for rendering.
+   ; Derefing also makes parent component start watching for |field| changes 
+   ; so that -header will be re-rendered on |field| updates. 
+   [-header @field dispatch]
+
+   ; ...
+   ]))
+</code></pre>
+
+<p>As you can see, we get reactions from a view model and deref them to render actual values.
+Reagent will then "magically" re-render components when the reactions passed into them are updated.  </p>
 <h1 id="advanced">Advanced</h1>
 <h2 id="middleware">Middleware</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
