@@ -178,16 +178,13 @@ UI binding, history management, debugging, etc. are implemented as separate opti
 <p><a href="https://clojars.org/carry"><img alt="Clojars Project" src="https://img.shields.io/clojars/v/carry.svg" /></a></p>
 <h2 id="features">Features</h2>
 <ul>
-<li>Explicit functional API with no globals making apps easy to extend and unit test.</li>
+<li>Middleware-friendly functional API with no globals makes apps easy to extend and unit test.</li>
 <li>Agnostic to UI layer.</li>
-<li>Middleware-friendly design for adding cross-cutting concerns such as persistence, logging, etc.</li>
 <li>Time traveling debugger inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</a> and <a href="http://www.cerebraljs.com/debugger">Cerebral Debugger</a>.</li>
 <li>Live code editing using <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a> and debugger's replay mode.</li>
+<li><a href="https://github.com/reagent-project/reagent">Reagent</a> bindings achieve code readability and rendering optimization
+using view-model/view pattern based on Reagent reactions (<a href="https://github.com/Day8/re-frame#how-flow-happens-in-reagent">similarly to re-frame</a>).</li>
 <li><a href="https://github.com/evancz/elm-architecture-tutorial/">Elm-ish architecture</a> can be applied to reuse apps inside other apps (aka "fractality").</li>
-<li><a href="https://github.com/reagent-project/reagent">Reagent</a> bindings package achieves code readability and rendering optimization
-using view-model/view separation based on Reagent reactions (<a href="https://github.com/Day8/re-frame#how-flow-happens-in-reagent">similarly to re-frame</a>).</li>
-<li>History middleware implements transparent sync between model and current URL and
-does not dictate use of any particular routing library. </li>
 </ul>
 <h2 id="design">Design</h2>
 <p><img alt="pattern" src="http://metametadata.github.io/carry/graphs/pattern.svg" /></p>
@@ -197,8 +194,8 @@ does not dictate use of any particular routing library. </li>
 <li>Anyone can read model value at any given time and subscribe to its changes.</li>
 <li>Controller function receives signals to perform side effects and dispatch actions.</li>
 <li>Anyone can dispatch a new signal: controller, views, timers, etc.</li>
-<li>Only controller can dispatch actions.</li>
 <li>Model can be modified only by dispatching actions.</li>
+<li>Only controller can dispatch actions.</li>
 <li>Reconciler is a pure function which returns a new model value based on an incoming action.</li>
 <li>When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -&gt; signal -&gt; action -&gt; model -&gt; UI -&gt; etc.</li>
 </ul>
@@ -344,5 +341,5 @@ does not dictate use of any particular routing library. </li>
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-05-13 20:47:00.471895
+Build Date UTC : 2016-05-13 22:19:53.657991
 -->

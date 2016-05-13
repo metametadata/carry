@@ -191,27 +191,6 @@
             <li class="second-level"><a href="#routing">Routing</a></li>
             
         
-            <li class="second-level"><a href="#routing7">Routing7</a></li>
-            
-        
-            <li class="second-level"><a href="#routing6">Routing6</a></li>
-            
-        
-            <li class="second-level"><a href="#routing5">Routing5</a></li>
-            
-        
-            <li class="second-level"><a href="#routing4">Routing4</a></li>
-            
-        
-            <li class="second-level"><a href="#routing3">Routing3</a></li>
-            
-        
-            <li class="second-level"><a href="#routing2">Routing2</a></li>
-            
-        
-            <li class="second-level"><a href="#routing1">Routing1</a></li>
-            
-        
     
     </ul>
 </div></div>
@@ -268,7 +247,9 @@ a serializable vector with a keyword and an additional payload:</p>
 
 <h2 id="creating-an-app">Creating an App</h2>
 <p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into the <code>app</code> function:</p>
-<pre><code class="clj">(def my-app (carry/app my-spec))
+<pre><code class="clj">(let [my-app (carry/app my-spec)]
+  ; ...
+  )
 </code></pre>
 
 <p>A spec is a map with keys:</p>
@@ -509,7 +490,152 @@ Any Reagent component that dereferences a reaction is going to be re-rendered wh
 Reagent will then "magically" re-render components when the reactions passed into them are updated.  </p>
 <h1 id="advanced">Advanced</h1>
 <h2 id="middleware">Middleware</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
+<p><strong>Middleware</strong> is a function that gets an app spec and returns an updated spec
+in order to introduce some new app behavior (such as logging, syncing with server, crash reporting).</p>
+<p>Multiple middleware can be applied in a chain to produce a new spec.
+For instance, <a href="../examples/#todomvc">TodoMVC</a> app spec is wrapped by three middleware:</p>
+<pre><code class="clj">(defn new-spec
+  [history storage storage-key todo-titles]
+  (-&gt; {:initial-model (model/new-model todo-titles)
+       :control       control
+       :reconcile     reconcile}
+
+      ; 1
+      (schema/add model/Schema)
+
+      ; 2
+      (persistence/add storage storage-key {:blacklist #{::h/token}})
+
+      ; 3
+      (h/add history)))
+</code></pre>
+
+<p>As an example, this is a simple middleware which logs all actions and signals coming through an app:</p>
+<pre><code class="clj">(ns carry-logging.core)
+
+(defn add
+  &quot;Will print all signals and actions to console.&quot;
+  ([spec] (add spec &quot;&quot;))
+  ([spec prefix]
+   (-&gt; spec
+       ; Wrap control to log signals.
+       (update :control (fn wrap-control [control]
+                          (fn logged-control [model signal dispatch-signal dispatch-action]
+                            (try
+                              ; Log.
+                              (.group js/console (str prefix &quot;signal &quot; (pr-str signal)))
+
+                              ; Call original function.
+                              (control model signal dispatch-signal dispatch-action)
+
+                              ; Always close the group.
+                              (finally
+                                (.groupEnd js/console))))))
+
+       ; Wrap reconcile to log actions.
+       (update :reconcile
+               (fn wrap-reconcile [reconcile]
+                 (fn logged-reconcile [model action]
+                   ; Log.
+                   (.log js/console (str prefix &quot;action&quot;) (pr-str action))
+
+                   ; Call original function.
+                   (reconcile model action)))))))
+</code></pre>
+
+<p>More complex middleware can:</p>
+<ul>
+<li>Modify initial model.</li>
+<li>Intercept <code>:on-start</code>/<code>:on-stop</code> signals.</li>
+<li>Dispatch new signals and actions to an app.
+By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/on-something</code>) to prevent a name clash with other signals.</li>
+<li>Dispatch own signals and actions which should not be handled by an app. They must also use namespaced keywords.</li>
+<li>Subscribe to model changes.</li>
+</ul>
+<p>All these cases are demonstrated by <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a> middleware:</p>
+<pre><code class="cljs">(ns carry-history.core
+  ; ...
+)
+
+(defn -wrap-initial-model
+  [app-initial-model]
+  (merge {::token &quot;/&quot;} app-initial-model))
+
+(defn -wrap-control
+  [app-control history]
+  (let [unlisten (atom nil)]
+    (fn control
+      [model signal dispatch-signal dispatch-action]
+      (match signal
+             ; Intercept :on-start signal.
+             :on-start
+             (do
+               ; Let the wrapped app start first.
+               (app-control model signal dispatch-signal dispatch-action)
+
+               ; Start listening to model updates.
+               (add-watch model ::token-watcher
+                          (fn [_key _atom old-state new-state]
+                            ; ...
+                            ))
+
+               ; Start listening to history events.
+               (reset! unlisten
+                       (listen history #(dispatch-signal [::on-history-event ; ...
+                                                          ])))
+
+               ; ...               
+               )
+
+      ; Intercept clean up signal.
+      :on-stop
+      (do
+        ; Unsubscribe from history events. 
+        ; Otherwise, on hot reload unused listeners will stay in memory.
+        (@unlisten)
+
+        ; There's no need to remove model watchers on hot reload 
+        ; because they will be garbage-collected with the model.
+
+        ; Let the wrapped app continue cleaning up.
+        (app-control model signal dispatch-signal dispatch-action))
+
+      ; Middleware-specific signal that will not be passed further to an app.
+      [::on-history-event {:token token :browser-event? browser-event? :event-data event-data}]
+      (do
+        ; Dispatch a middleware-specific action.
+        (dispatch-action [::set-token token])
+
+        (when (or browser-event? (:treat-as-browser-event? event-data))
+          ; Dispatch a signal to an app.
+          (dispatch-signal [::on-enter token])))
+
+      ; Pass other signals further.
+      :else
+      (app-control model signal dispatch-signal dispatch-action)))))
+
+(defn -wrap-reconcile
+  [app-reconcile]
+  (fn reconcile
+    [model action]
+    (match action
+           ; A middleware-specific action.
+           [::set-token token]
+           (assoc model ::token token)
+
+           ; Pass other actions further.
+           :else
+           (app-reconcile model action))))
+
+(defn add
+  [spec history]
+  (-&gt; spec
+      (update :initial-model -wrap-initial-model)
+      (update :control -wrap-control history)
+      (update :reconcile -wrap-reconcile)))
+</code></pre>
+
+<p>Also see: <a href="../index.html#middleware">ready-to-use middleware packages</a>.</p>
 <h2 id="usage-with-figwheel">Usage with Figwheel</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="writing-tests">Writing Tests</h2>
@@ -521,14 +647,7 @@ Reagent will then "magically" re-render components when the reactions passed int
 <h2 id="debugging">Debugging</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="routing">Routing</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
-<h2 id="routing7">Routing7</h2>
-<h2 id="routing6">Routing6</h2>
-<h2 id="routing5">Routing5</h2>
-<h2 id="routing4">Routing4</h2>
-<h2 id="routing3">Routing3</h2>
-<h2 id="routing2">Routing2</h2>
-<h2 id="routing1">Routing1</h2></div>
+<p>This section is a WIP. Please see examples in a meantime.</p></div>
         
     </div>
 
