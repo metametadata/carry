@@ -21,7 +21,7 @@ Model represents an entire state of an app.
  
 One can access app's model via `:model` key to obtain a read-only atom that can be dereferenced and watched, but cannot be mutated:
 
-```cljs
+```clj
 (def my-model (:model app))
 
 @my-model
@@ -49,14 +49,14 @@ As an example, [carry-history](https://github.com/metametadata/carry/tree/master
 **Signal** is an object which represents a user's intention or, looking at it from a different angle, a system event. 
 Signal can be synchronously sent to an app by calling its `dispatch-signal` function:
 
-```cljs
+```clj
 ((:dispatch-signal my-app) my-signal)
 ```
 
 Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or
 a serializable vector with a keyword and an additional payload:
 
-```cljs
+```clj
 :on-clear-completed
 [:on-update-todo id val]
 [:carry-history.core/on-enter token]
@@ -66,7 +66,7 @@ a serializable vector with a keyword and an additional payload:
 
 In order to create an instance of a Carry app a user has to pass a **spec** into the `app` function:
 
-```cljs
+```clj
 (def my-app (carry/app my-spec))
 ```
 
@@ -85,7 +85,7 @@ In other words, a spec is needed to define a runtime behavior of an app:
 It can dispatch new signals, modify app model (by dispatching actions) and perform any side effects (e.g. send data to a server).
 Controller is free to contain asynchronous code. The signature of a control function:
 
-```cljs
+```clj
 (defn control
   [model signal dispatch-signal dispatch-action])
 ```
@@ -103,7 +103,7 @@ It is convenient (but not required) to use [pattern matching](https://github.com
 to switch between signals and destructure signals with payload.
 As an example, this is a controller from [friend-list](/examples/#friend-list) demo app:
 
-```cljs
+```clj
 (ns friend-list.core
   (:require [carry-history.core :as h]
             ; ...
@@ -173,7 +173,7 @@ Actions can be dispatched only from within a control function via `dispatch-acti
 
 Similar to signals, actions are usually keywords or vectors, for instance:
 
-```cljs
+```clj
 :increment
 [:set-query q]
 ```
@@ -185,7 +185,7 @@ On getting an action an app passes it into a reconciler and then resets app mode
 
 A simple example from [friend-list](/examples/#friend-list) demo app:
 
-```cljs
+```clj
 (defn -reconcile
   [model action]
   (match action
@@ -206,7 +206,7 @@ This chapter is about tying Carry with [Reagent](https://github.com/reagent-proj
 (a ClojureScript wrapper for [React](https://facebook.github.io/react/))
 using [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package: 
 
-```cljs
+```clj
 (ns app.core
   (:require [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
@@ -240,7 +240,7 @@ using [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/
 
 App view is constructed using `carry-reagent.core/connect` function:
 
-```cljs
+```clj
 (connect [app view-model view])
 ```
 
@@ -265,7 +265,7 @@ determine which app page to show depending on current URL, etc.
 
 Usually view model is a map of Reagent reactions. An example from [TodoMVC](/examples/#todomvc) app:
 
-```cljs
+```clj
 (ns app.view-model
   (:require ; ...
             [carry-reagent.core :as carry-reagent])
@@ -296,11 +296,45 @@ but can also be used in Reagent components and reactions.
 It is lazily computed from other ratoms/reactions.
 Any Reagent component that dereferences a reaction is going to be re-rendered when reaction value updates.
 
-Next section demonstrates how to use view model reactions in a view.
-
 ### View
 
-.
+An example from [TodoMVC](/examples/#todomvc) app:
+
+```clj
+; A plain Reagent component which is redrawn on when input args change.
+(defn -header
+  [field dispatch]
+  ; Reagent uses Hiccup-like syntax for defining HTML.
+  [:header.header
+   [:h1 "todos"]
+   
+   ; Input value is equal to field arg value.
+   [:input.new-todo {:placeholder "What needs to be done?"
+                     :value       field
+                     
+                     ; Dispatch signals on input events.
+                     :on-change   #(dispatch [:on-update-field (.. % -target -value)])
+                     :on-key-down #(when (-enter-key? %) (dispatch :on-add))}]])
+
+; Top app component that is passed into connect function.
+(defn view
+  ; Destructure view model map for cleaner code in the function body.
+  [{:keys [field has-todos? all-completed?
+           ; ...
+           ] :as _view-model}
+   dispatch]
+  [:section.todoapp
+   ; Deref |field| reaction to get its value for rendering.
+   ; Derefing also makes parent component start watching for |field| changes 
+   ; so that -header will be re-rendered on |field| updates. 
+   [-header @field dispatch]
+
+   ; ...
+   ]))
+```
+        
+As you can see, we get reactions from a view model and deref them to render actual values.
+Reagent will then "magically" re-render components when the reactions passed into them are updated.  
 
 # Advanced
 

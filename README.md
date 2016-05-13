@@ -44,7 +44,7 @@ does not dictate use of any particular routing library.
 
 Counter spec and UI:
 
-```cljs
+```clj
 (ns counter.core
   (:require [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -96,7 +96,7 @@ Counter spec and UI:
 
 Main file:
 
-```cljs
+```clj
 (ns app.core
   (:require [counter.core :as counter]
             [carry.core :as carry]
