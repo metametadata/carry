@@ -6,7 +6,7 @@
   Strives to provide a better logging than s/defn.
   Logs problems and throws an exception if validation fails effectively prohibiting model change to unallowed state.
   
-  Add it as close to spec as possible in order to not propagate the invalid model to other middlewares."
+  Add it as close to spec as possible in order to not propagate the invalid model to other middleware."
   [spec schema]
   (update spec :reconcile
           (fn wrap-reconcile [reconcile]

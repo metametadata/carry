@@ -59,7 +59,7 @@
 (defn add
   "On start middleware will load the model from storage.
   Saves model into storage on every change.
-  Several middlewares can safely wrap the same spec as long as they use different storage keys.
+  Multiple middleware can safely wrap the same spec as long as they use different storage keys.
 
   Storage is expected to be a transient map (e.g. see hodgepodge lib).
   If this middleware is applied to spec several times then all keys must differ; otherwise, behavior is undefined.
@@ -76,7 +76,7 @@
    {:pre [(set? blacklist)]}
    (let [blacklist (conj blacklist :carry-debugger.core/debugger)]
      (-> spec
-         ; Key is injected into wrappers in case several persistence middlewares are applied to the same spec.
+         ; Key is injected into wrappers in case several persistence middleware are applied to the same spec.
          ; Without key the load signal would be always handled by the "top" persistence layer.
          (update :control -wrap-control storage key blacklist load-wrapper)
          (update :reconcile -wrap-reconcile key blacklist)))))
