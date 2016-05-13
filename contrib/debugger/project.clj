@@ -1,5 +1,5 @@
 (defproject
-  carry-debugger "0.2.0"
+  carry-debugger "0.3.0"
   :description "Middleware for debugging Carry applications."
   :url "https://github.com/metametadata/carry/tree/master/contrib/debugger"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
@@ -8,7 +8,7 @@
                  [org.clojure/clojurescript "1.8.51" :scope "provided"]
 
                  [carry-schema "0.3.0"]
-                 [carry-reagent "0.2.0"]
+                 [carry-reagent "0.3.0"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [reagent "0.6.0-alpha2"]
