@@ -176,6 +176,9 @@
             <li class="second-level"><a href="#middleware">Middleware</a></li>
             
         
+            <li class="second-level"><a href="#debugger">Debugger</a></li>
+            
+        
             <li class="second-level"><a href="#writing-tests">Writing Tests</a></li>
             
         
@@ -183,9 +186,6 @@
             
         
             <li class="second-level"><a href="#usage-with-datascript">Usage with Datascript</a></li>
-            
-        
-            <li class="second-level"><a href="#debugging">Debugging</a></li>
             
         
             <li class="second-level"><a href="#routing">Routing</a></li>
@@ -494,7 +494,8 @@ Reagent will then "magically" re-render components when the reactions passed int
 <li>compile and reload app code in browser on source code changes</li>
 <li>communicate with a running app via REPL</li>
 </ul>
-<p>All the Carry <a href="../examples">examples</a> use it for development builds.</p>
+<p>All the Carry <a href="../examples">examples</a> use Figwheel for development builds and 
+rely on the "bare" <a href="https://github.com/emezeske/lein-cljsbuild">lein-cljsbuild</a> for production builds.</p>
 <p>The main thing to remember is to stop the currently running app before hot reload 
 in order to unsubscribe it from browser events and free memory.
 Here's how you can structure your main app file to be used with Figwheel: </p>
@@ -684,13 +685,78 @@ By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/
 </code></pre>
 
 <p>Also see: <a href="../index.html#middleware">ready-to-use middleware packages</a>.</p>
+<h2 id="debugger">Debugger</h2>
+<p>One of the main features of Carry pattern is that it allows time traveling debugging
+similar to <a href="http://debug.elm-lang.org/">Elm's Debugger</a>,
+<a href="https://github.com/gaearon/redux-devtools">Redux DevTools</a> and <a href="http://www.cerebraljs.com/debugger">Cerebral Debugger</a>.</p>
+<p>Carry has its own visual time traveling debugger with next features:</p>
+<ul>
+<li>Debugger records all app signals and actions and shows them as a tree.</li>
+<li>A signal is displayed as a respective tree leaf if it's dispatched from inside another signal.</li>
+<li>Debugger records results of every action so that every past model value can be logged to console.</li>
+<li>Any action can be disabled/enabled. On toggling an action debugger will reset app model 
+to its initial value and <strong>replay</strong> all enabled actions.
+This way user can immediately see how the app would look like if the action never took place.
+Action replaying is possible because actions are always pure and change app model in a predictable way.
+On the other hand, it's impossible to predictably replay signals as they can perform async side effects.</li>
+<li>Clicking a signal toggles all its child actions.</li>
+<li>Clicking "Replay" button enables debugger's "replay mode" and marks already recorded actions as "to be replayed".
+These actions are saved into local storage and will be automatically replayed on next app start.
+In combination with Figwheel hot reloading this allows editing reconciler code
+and immediately see how it affects a final app state (effectively "changing the past").</li>
+<li>Debugging session can be saved into a file and then loaded.</li>
+<li>"Clear" button removes all recorded signals and actions without modifying current app state.</li>
+<li>"Vacuum" removes all disabled actions and "dangling" signals without enabled actions.</li>
+<li>"Reset" resets an app to its initial state and clears recorded signals and actions.</li>
+<li>Currently debugger uses Reagent+jQuery UI to render a resizable overlay view.</li>
+</ul>
+<p><a href="http://i.imgur.com/ZOH6Noj.png">
+  <img src="http://i.imgur.com/ZOH6Noj.png" alt="debugger" style="width: 50vw; display: block; margin: 0 auto;"/>
+</a></p>
+<p>To use a debugger developer has to apply <a href="https://github.com/metametadata/carry/tree/master/contrib/debugger">carry-debugger</a> middleware,
+connect a debugger view and render it alongside an app view:</p>
+<pre><code class="cljs">(ns app.core
+  (:require [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [carry-debugger.core :as debugger]
+            [reagent.core :as r]
+            [hodgepodge.core :as hp]
+            ; ...
+            ))
+
+; ...
+
+(defn main
+  []
+  (let [; Use hodgepodge lib for dealing with browser's local storage.
+        storage hp/local-storage
+
+        ; Apply middleware.
+        app-spec (-&gt; my-spec
+                     ; Middleware requires a storage and a unique storage key.
+                     (debugger/add storage :my-debugger-model))
+
+        ; App and UI.
+        app (carry/app app-spec)
+        [_ app-view] (carry-reagent/connect app friend-list/view-model friend-list/view)
+
+        ; Connect debugger UI.
+        [_ debugger-view] (debugger/connect app)]
+    ; Render app and debugger views.
+    (r/render [:div app-view debugger-view] (.getElementById js/document &quot;root&quot;))
+
+    ; Start.
+    ((:dispatch-signal app) :on-start)
+
+    ; ...
+    ))
+</code></pre>
+
 <h2 id="writing-tests">Writing Tests</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="elm-ish-architecture">Elm-ish Architecture</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="usage-with-datascript">Usage with Datascript</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
-<h2 id="debugging">Debugging</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="routing">Routing</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p></div>
