@@ -18,7 +18,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
 (defn before-jsload
-  [])
+  []
+  ((:dispatch-signal app) :on-stop))
 
 (defn on-jsload
   []
