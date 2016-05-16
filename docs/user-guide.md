@@ -344,7 +344,8 @@ With [Figwheel](https://github.com/bhauman/lein-figwheel) Leiningen plugin it is
 * compile and reload app code in browser on source code changes
 * communicate with a running app via REPL
 
-All the Carry [examples](/examples) use it for development builds.
+All the Carry [examples](/examples) use Figwheel for development builds and 
+rely on the "bare" [lein-cljsbuild](https://github.com/emezeske/lein-cljsbuild) for production builds.
 
 The main thing to remember is to stop the currently running app before hot reload 
 in order to unsubscribe it from browser events and free memory.
@@ -546,6 +547,79 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
 
 Also see: [ready-to-use middleware packages](/index.html#middleware).
 
+## Debugger
+One of the main features of Carry pattern is that it allows time traveling debugging
+similar to [Elm's Debugger](http://debug.elm-lang.org/),
+[Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/debugger).
+
+Carry has its own visual time traveling debugger with next features:
+
+* Debugger records all app signals and actions and shows them as a tree.
+* A signal is displayed as a respective tree leaf if it's dispatched from inside another signal.
+* Debugger records results of every action so that every past model value can be logged to console.
+* Any action can be disabled/enabled. On toggling an action debugger will reset app model 
+to its initial value and **replay** all enabled actions.
+This way user can immediately see how the app would look like if the action never took place.
+Action replaying is possible because actions are always pure and change app model in a predictable way.
+On the other hand, it's impossible to predictably replay signals as they can perform async side effects.
+* Clicking a signal toggles all its child actions.
+* Clicking "Replay" button enables debugger's "replay mode" and marks already recorded actions as "to be replayed".
+These actions are saved into local storage and will be automatically replayed on next app start.
+In combination with Figwheel hot reloading this allows editing reconciler code
+and immediately see how it affects a final app state (effectively "changing the past").
+* Debugging session can be saved into a file and then loaded.
+* "Clear" button removes all recorded signals and actions without modifying current app state.
+* "Vacuum" removes all disabled actions and "dangling" signals without enabled actions.
+* "Reset" resets an app to its initial state and clears recorded signals and actions.
+* Currently debugger uses Reagent+jQuery UI to render a resizable overlay view.
+
+<a href="http://i.imgur.com/ZOH6Noj.png">
+  <img src="http://i.imgur.com/ZOH6Noj.png" alt="debugger" style="width: 50vw; display: block; margin: 0 auto;"/>
+</a>
+ 
+To use a debugger developer has to apply [carry-debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger) middleware,
+connect a debugger view and render it alongside an app view:
+
+```cljs
+(ns app.core
+  (:require [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [carry-debugger.core :as debugger]
+            [reagent.core :as r]
+            [hodgepodge.core :as hp]
+            ; ...
+            ))
+
+; ...
+
+(defn main
+  []
+  (let [; Use hodgepodge lib for dealing with browser's local storage.
+        storage hp/local-storage
+        
+        ; Apply middleware.
+        app-spec (-> my-spec
+                     ; Middleware requires a storage and a unique storage key.
+                     (debugger/add storage :my-debugger-model))
+                     
+        ; App and UI.
+        app (carry/app app-spec)
+        [_ app-view] (carry-reagent/connect app friend-list/view-model friend-list/view)
+        
+        ; Connect debugger UI.
+        [_ debugger-view] (debugger/connect app)]
+    ; Render app and debugger views.
+    (r/render [:div app-view debugger-view] (.getElementById js/document "root"))
+    
+    ; Start.
+    ((:dispatch-signal app) :on-start)
+    
+    ; ...
+    ))
+```
+
+
+
 ## Writing Tests
 This section is a WIP. Please see examples in a meantime.
 
@@ -553,9 +627,6 @@ This section is a WIP. Please see examples in a meantime.
 This section is a WIP. Please see examples in a meantime.
 
 ## Usage with Datascript
-This section is a WIP. Please see examples in a meantime.
-
-## Debugging
 This section is a WIP. Please see examples in a meantime.
 
 ## Routing
