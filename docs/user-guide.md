@@ -336,7 +336,55 @@ An example from [TodoMVC](/examples/#todomvc) app:
 ```
         
 As you can see, we get reactions from a view model and deref them to render actual values.
-Reagent will then "magically" re-render components when the reactions passed into them are updated.  
+Reagent will then "magically" re-render components when the reactions passed into them are updated.
+  
+## Usage with Figwheel
+With [Figwheel](https://github.com/bhauman/lein-figwheel) Leiningen plugin it is possible to:
+
+* compile and reload app code in browser on source code changes
+* communicate with a running app via REPL
+
+All the Carry [examples](/examples) use it for development builds.
+
+The main thing to remember is to stop the currently running app before hot reload 
+in order to unsubscribe it from browser events and free memory.
+Here's how you can structure your main app file to be used with Figwheel: 
+
+```cljs
+(ns app.core
+  (:require [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [reagent.core :as r]))
+
+; ...
+
+(defn main
+  []
+  (let [app (carry/app my-spec)
+        [app-view-model app-view] (carry-reagent/connect app my-view-model my-view)]
+    (r/render app-view (.getElementById js/document "root"))
+    
+    ; Start the app.
+    ((:dispatch-signal app) :on-start)
+    
+    ; For debugging purposes add view-model into returned map.
+    (assoc app :view-model app-view-model)))
+
+; Start new app and save it into the global var for debugging in REPL.
+(def app (main))
+
+;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
+; These functions should be specified in project.clj :figwheel map.
+
+; Stop current app before loading a new one.
+(defn before-jsload
+  []
+  ((:dispatch-signal app) :on-stop))
+
+(defn on-jsload
+  []
+  #_(. js/console clear))
+```  
 
 # Advanced
 
@@ -497,54 +545,6 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
 ```
 
 Also see: [ready-to-use middleware packages](/index.html#middleware).
-
-## Usage with Figwheel
-With [Figwheel](https://github.com/bhauman/lein-figwheel) Leiningen plugin it is possible to:
-
-* compile and reload app code in browser on source code changes
-* communicate with a running app via REPL
-
-All the Carry [examples](/examples) use it for development builds.
-
-The main thing to remember is to stop the currently running app before hot reload 
-in order to unsubscribe it from browser events and free memory.
-Here's how you can structure your main app file to be used with Figwheel: 
-
-```cljs
-(ns app.core
-  (:require [carry.core :as carry]
-            [carry-reagent.core :as carry-reagent]
-            [reagent.core :as r]))
-
-; ...
-
-(defn main
-  []
-  (let [app (carry/app my-spec)
-        [app-view-model app-view] (carry-reagent/connect app my-view-model my-view)]
-    (r/render app-view (.getElementById js/document "root"))
-    
-    ; Start the app.
-    ((:dispatch-signal app) :on-start)
-    
-    ; For debugging purposes add view-model into returned map.
-    (assoc app :view-model app-view-model)))
-
-; Start new app and save it into the global var for debugging in REPL.
-(def app (main))
-
-;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
-; These functions should be specified in project.clj :figwheel map.
-
-; Stop current app before loading a new one.
-(defn before-jsload
-  []
-  ((:dispatch-signal app) :on-stop))
-
-(defn on-jsload
-  []
-  #_(. js/console clear))
-```
 
 ## Writing Tests
 This section is a WIP. Please see examples in a meantime.
