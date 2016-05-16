@@ -124,8 +124,8 @@
 
     @result))
 
-(defn ^:no-doc -remove-orphaned-signals
-  "Orphaned signal has no actions and no orphaned child signals."
+(defn ^:no-doc -remove-dangling-signals
+  "Dangling signal has no actions and no dangling child signals."
   [model]
   (let [kept-ids (-signals-with-actions model)
         signal-events (-> model ::debugger :signal-events)
@@ -180,7 +180,7 @@
                                 (let [saved-model (-> new-state
                                                       (assoc-in [::debugger :highlighted-signal-id] nil)
                                                       (update-in [::debugger :action-events] #(filter :for-replay? %))
-                                                      -remove-orphaned-signals)]
+                                                      -remove-dangling-signals)]
                                   (assoc! storage storage-key saved-model)))))
 
                  ; now start app as usual
@@ -284,7 +284,7 @@
            ::vacuum
            (-> model
                (update-in [::debugger :action-events] #(filter :enabled? %))
-               -remove-orphaned-signals)
+               -remove-dangling-signals)
 
            ::clear
            (-> model
