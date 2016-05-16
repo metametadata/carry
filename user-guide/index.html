@@ -454,7 +454,7 @@ It is lazily computed from other ratoms/reactions.
 Any Reagent component that dereferences a reaction is going to be re-rendered when reaction value updates.</p>
 <h3 id="view">View</h3>
 <p>An example from <a href="../examples/#todomvc">TodoMVC</a> app:</p>
-<pre><code class="clj">; A plain Reagent component which is redrawn when input args change.
+<pre><code class="clj">; A plain Reagent component which is redrawn when input arguments change.
 (defn -header
   [field dispatch]
   ; Reagent uses Hiccup-like syntax for defining HTML.
@@ -499,7 +499,7 @@ rely on the "bare" <a href="https://github.com/emezeske/lein-cljsbuild">lein-clj
 <p>The main thing to remember is to stop the currently running app before hot reload 
 in order to unsubscribe it from browser events and free memory.
 Here's how you can structure your main app file to be used with Figwheel: </p>
-<pre><code class="cljs">(ns app.core
+<pre><code class="clj">(ns app.core
   (:require [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]))
@@ -600,7 +600,7 @@ By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/
 <li>Have injected dependencies.</li>
 </ul>
 <p>All these cases are demonstrated by <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a> middleware:</p>
-<pre><code class="cljs">(ns carry-history.core
+<pre><code class="clj">(ns carry-history.core
   ; ...
 )
 
@@ -715,7 +715,7 @@ and immediately see how it affects a final app state (effectively "changing the 
 </a></p>
 <p>To use a debugger developer has to apply <a href="https://github.com/metametadata/carry/tree/master/contrib/debugger">carry-debugger</a> middleware,
 connect a debugger view and render it alongside an app view:</p>
-<pre><code class="cljs">(ns app.core
+<pre><code class="clj">(ns app.core
   (:require [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
             [carry-debugger.core :as debugger]
@@ -738,7 +738,7 @@ connect a debugger view and render it alongside an app view:</p>
 
         ; App and UI.
         app (carry/app app-spec)
-        [_ app-view] (carry-reagent/connect app friend-list/view-model friend-list/view)
+        [_ app-view] (carry-reagent/connect app my-view-model my-view)
 
         ; Connect debugger UI.
         [_ debugger-view] (debugger/connect app)]
@@ -752,8 +752,153 @@ connect a debugger view and render it alongside an app view:</p>
     ))
 </code></pre>
 
+<p>There are cases when you'd like to check if debugger is in replay mode.
+For instance, <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a>
+middleware doesn't send its initial <code>:on-enter</code> signal in replay mode.
+Such behavior makes development in replay mode more pleasant as developer expects only marked actions to be replayed on app start.
+Replay mode can be determined by looking at <code>[:carry-debugger.core/debugger :replay-mode?]</code> path in a model map:</p>
+<pre><code class="clj">(ns carry-history.core
+  ; ...
+  )
+
+; ...
+
+(defn -wrap-control
+  [app-control history]
+  (let [unlisten (atom nil)]
+    (fn control
+      [model signal dispatch-signal dispatch-action]
+      (match signal
+             :on-start
+             (do
+               (app-control model signal dispatch-signal dispatch-action)
+
+               ; ...
+
+               ; Check if we're in replay mode before sending an initial signal
+               (when (not (-&gt; @model :carry-debugger.core/debugger :replay-mode?))
+                 (dispatch-signal [; ... 
+                                   ])))
+             ; ...
+             ))))
+; ...
+</code></pre>
+
 <h2 id="writing-tests">Writing Tests</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
+<p>It is comparatively easy to unit test a Carry app because its behavior 
+is implemented in two functions with explicit dependencies: <code>control</code>, <code>reconcile</code>.
+<a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">Reagent bindings</a>
+may also add two more simple functions: <code>view-model</code>, <code>view</code>.</p>
+<p>Let's look at how these functions are tested in
+<a href="https://github.com/metametadata/carry/tree/master/examples/friend-list/">friend-list</a> example:</p>
+<p><strong><code>1. (control [model signal dispatch-signal dispatch-action])</code></strong> </p>
+<p>Control function handles incoming signals to perform side effects, dispatch new signals and actions.
+Such behavior is easy to test using <a href="https://en.wikipedia.org/wiki/Mock_object">mock</a> functions.
+This test uses <a href="https://github.com/metametadata/clj-fakes">clj-fakes</a> 
+isolation framework for recording and checking <code>dispatch-signal</code> and <code>dispatch-action</code> calls
+on receiving <code>:on-enter</code> signal:</p>
+<pre><code class="clj">(ns unit.controller
+  (:require
+    [friend-list.core :as friend-list]
+    [carry.core :as carry]
+    [carry-history.core :as h]
+    [cljs.test :refer-macros [deftest is testing]]
+    [clj-fakes.core :as f :include-macros true]
+    ;...
+    ))
+
+(deftest
+  on-navigation-updates-query-and-searches
+  (f/with-fakes
+    (let [search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
+          {:keys [control]} (friend-list/new-spec :_history search)
+          dispatch-signal (f/recorded-fake)
+          dispatch-action (f/recorded-fake)]
+      ; act
+      (control :_model [::h/on-enter :_new-token] dispatch-signal dispatch-action)
+
+      ; assert
+      (is (f/was-called-once dispatch-action [[:set-query :_new-token]]))
+      (is (f/was-called-once dispatch-signal [[:on-search-success :_new-token :_found-friends]])))))
+</code></pre>
+
+<p>There are several interesting things demonstrated:</p>
+<ul>
+<li>Test is written using <a href="http://c2.com/cgi/wiki?ArrangeActAssert">Arrange-Act-Assert (AAA)</a> pattern.
+Comments are added to better separate these logical blocks. </li>
+<li>Control function is taken from the spec created using public <code>friend-list/new-spec</code> function.
+It could be tempting to instead test by using <code>friend-list/-new-control</code> helper function directly.
+But accessing private members is a bad practice
+and there can also be middleware applied inside <code>new-spec</code> which can affect the tested behavior.</li>
+<li>Instead of using a real async API client we create a fake <code>search</code> 
+function which synchronously returns the expected result and 
+will throw an exception on calls with unexpected arguments.</li>
+<li>Dynamic nature of ClojureScript allows us to use keywords (<code>:_history</code>, <code>:_found-friends</code>, <code>:_model</code>, <code>:_new_token</code>) instead
+of creating objects of correct type
+when we know that their type doesn't really matter in the test case.
+It makes tests more focused and readable.</li>
+</ul>
+<p><strong><code>2. (reconcile [model action])</code></strong></p>
+<p>Reconciler is the easiest function to test because it's pure:</p>
+<pre><code class="clj">(deftest
+  sets-query
+  (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)]
+    (is (= &quot;new query&quot;
+           (:query (reconcile initial-model [:set-query &quot;new query&quot;]))))))
+</code></pre>
+
+<p>Here again we first create a spec in order to get <code>initial-model</code> value and <code>reconcile</code> function.</p>
+<p>Notice, that it's impossible to use a <code>:_new_query</code> keyword because app uses 
+<a href="https://github.com/metametadata/carry/tree/master/contrib/schema">carry-schema</a>
+middleware forcing us to use a string value <code>"new-query"</code> on reconciling.</p>
+<p><strong><code>3. (view-model [model])</code></strong></p>
+<p>These tests make sure that view model really contains Reagent reactions
+at <code>:query</code> and <code>:friends</code> keys:</p>
+<pre><code class="clj">(ns unit.view-model
+  (:require
+    [friend-list.core :as friend-list]
+    [reagent.core :as r]
+    [schema-generators.generators :as g]
+    [cljs.test :refer-macros [deftest is]])
+  (:require-macros [reagent.ratom :refer [run!]]))
+
+(defn test-view-model-tracks-model-key
+  [model-key act-action expected-view-model-value]
+  (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)
+        model (r/atom initial-model)
+        view-model (friend-list/view-model model)
+        witness (atom nil)]
+    (is (contains? view-model model-key) &quot;self-test&quot;)
+    (run! (reset! witness @(model-key view-model)))
+
+    ; act
+    (swap! model reconcile act-action)
+
+    ; force reaction updates
+    (r/flush)
+
+    ; assert
+    (is (= expected-view-model-value @witness))))
+
+(deftest
+  tracks-query
+  (test-view-model-tracks-model-key :query [:set-query &quot;new query&quot;] &quot;new query&quot;))
+
+(deftest
+  tracks-friends
+  (let [new-friends (g/sample 3 friend-list/Friend)]
+    (test-view-model-tracks-model-key :friends [:set-friends new-friends] new-friends)))
+</code></pre>
+
+<ul>
+<li><code>test-view-model-tracks-model-key</code> is a helper function.</li>
+<li><code>r/flush</code> is needed because Reagent doesn't immediately propagate reaction updates (starting from v0.6.0).</li>
+<li><a href="https://github.com/plumatic/schema-generators">schema-generators</a> library is used to automatically generate
+<code>new-friends</code> fixture instead ofunction to testf coding it by hand.</li>
+</ul>
+<p><strong><code>4. (view [view-model dispatch])</code></strong> (This section is a WIP.)</p>
+<p>Unit testing this function is probably not critical because most error-prone UI
+code is located in <code>view-model</code>.</p>
 <h2 id="elm-ish-architecture">Elm-ish Architecture</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="usage-with-datascript">Usage with Datascript</h2>
