@@ -534,7 +534,7 @@ Here's how you can structure your main app file to be used with Figwheel:
 (def app (main))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
-; These function should be specified in project.clj :figwheel map.
+; These functions should be specified in project.clj :figwheel map.
 
 ; Stop current app before loading a new one.
 (defn before-jsload
