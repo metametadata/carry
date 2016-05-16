@@ -604,7 +604,7 @@ connect a debugger view and render it alongside an app view:
                      
         ; App and UI.
         app (carry/app app-spec)
-        [_ app-view] (carry-reagent/connect app friend-list/view-model friend-list/view)
+        [_ app-view] (carry-reagent/connect app my-view-model my-view)
         
         ; Connect debugger UI.
         [_ debugger-view] (debugger/connect app)]
@@ -618,7 +618,39 @@ connect a debugger view and render it alongside an app view:
     ))
 ```
 
+There are cases when you'd like to check if debugger is in replay mode.
+For instance, [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history)
+middleware doesn't send its initial `:on-enter` signal in replay mode.
+Such behavior makes development in replay mode more pleasant as developer expects only marked actions to be replayed on app start.
+Replay mode can be determined by looking at `[:carry-debugger.core/debugger :replay-mode?]` path in a model map:
 
+```cljs
+(ns carry-history.core
+  ; ...
+  )
+
+; ...
+
+(defn -wrap-control
+  [app-control history]
+  (let [unlisten (atom nil)]
+    (fn control
+      [model signal dispatch-signal dispatch-action]
+      (match signal
+             :on-start
+             (do
+               (app-control model signal dispatch-signal dispatch-action)
+
+               ; ...
+               
+               ; Check if we're in replay mode before sending an initial signal
+               (when (not (-> @model :carry-debugger.core/debugger :replay-mode?))
+                 (dispatch-signal [; ... 
+                                   ])))
+             ; ...
+             ))))
+; ...
+```
 
 ## Writing Tests
 This section is a WIP. Please see examples in a meantime.
