@@ -167,13 +167,13 @@
                 <li class="third-level"><a href="#view">View</a></li>
             
         
+            <li class="second-level"><a href="#usage-with-figwheel">Usage with Figwheel</a></li>
+            
+        
     
         <li class="first-level "><a href="#advanced">Advanced</a></li>
         
             <li class="second-level"><a href="#middleware">Middleware</a></li>
-            
-        
-            <li class="second-level"><a href="#usage-with-figwheel">Usage with Figwheel</a></li>
             
         
             <li class="second-level"><a href="#writing-tests">Writing Tests</a></li>
@@ -246,7 +246,7 @@ a serializable vector with a keyword and an additional payload:</p>
 </code></pre>
 
 <h2 id="creating-an-app">Creating an App</h2>
-<p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into the <code>app</code> function:</p>
+<p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into <code>app</code> function:</p>
 <pre><code class="clj">(let [my-app (carry/app my-spec)]
   ; ...
   )
@@ -487,7 +487,52 @@ Any Reagent component that dereferences a reaction is going to be re-rendered wh
 </code></pre>
 
 <p>As you can see, we get reactions from a view model and deref them to render actual values.
-Reagent will then "magically" re-render components when the reactions passed into them are updated.  </p>
+Reagent will then "magically" re-render components when the reactions passed into them are updated.</p>
+<h2 id="usage-with-figwheel">Usage with Figwheel</h2>
+<p>With <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a> Leiningen plugin it is possible to:</p>
+<ul>
+<li>compile and reload app code in browser on source code changes</li>
+<li>communicate with a running app via REPL</li>
+</ul>
+<p>All the Carry <a href="../examples">examples</a> use it for development builds.</p>
+<p>The main thing to remember is to stop the currently running app before hot reload 
+in order to unsubscribe it from browser events and free memory.
+Here's how you can structure your main app file to be used with Figwheel: </p>
+<pre><code class="cljs">(ns app.core
+  (:require [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [reagent.core :as r]))
+
+; ...
+
+(defn main
+  []
+  (let [app (carry/app my-spec)
+        [app-view-model app-view] (carry-reagent/connect app my-view-model my-view)]
+    (r/render app-view (.getElementById js/document &quot;root&quot;))
+
+    ; Start the app.
+    ((:dispatch-signal app) :on-start)
+
+    ; For debugging purposes add view-model into returned map.
+    (assoc app :view-model app-view-model)))
+
+; Start new app and save it into the global var for debugging in REPL.
+(def app (main))
+
+;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
+; These functions should be specified in project.clj :figwheel map.
+
+; Stop current app before loading a new one.
+(defn before-jsload
+  []
+  ((:dispatch-signal app) :on-stop))
+
+(defn on-jsload
+  []
+  #_(. js/console clear))
+</code></pre>
+
 <h1 id="advanced">Advanced</h1>
 <h2 id="middleware">Middleware</h2>
 <p><strong>Middleware</strong> is a function that gets an app spec and returns an updated spec
@@ -639,8 +684,6 @@ By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/
 </code></pre>
 
 <p>Also see: <a href="../index.html#middleware">ready-to-use middleware packages</a>.</p>
-<h2 id="usage-with-figwheel">Usage with Figwheel</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="writing-tests">Writing Tests</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="elm-ish-architecture">Elm-ish Architecture</h2>
