@@ -7,7 +7,7 @@ All apps support hot reloading and REPL debugging via [Figwheel](https://github.
 
 [Demo](/examples/counter-vanilla)
 
-The most trivial example.
+The most trivial example. Uses "vanilla" JavaScript to render a UI.
 
 # Counter
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter)
