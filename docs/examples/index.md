@@ -64,10 +64,6 @@ Inspired by [flux-comparison](https://github.com/voronianski/flux-comparison) pr
 
 # Elm-ish Architecture Examples
 
-The proof-of-concept examples of applying [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/)
-for reusing existing Carry apps when building a bigger app.
-It's a debatable design pattern because of the resulting code complexity, so use it with caution.
-
 ## Subapps
 [Source code](https://github.com/metametadata/carry/tree/master/examples/elmish-subapps)
 
