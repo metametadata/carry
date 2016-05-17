@@ -179,16 +179,16 @@
             <li class="second-level"><a href="#debugger">Debugger</a></li>
             
         
-            <li class="second-level"><a href="#writing-tests">Writing Tests</a></li>
+            <li class="second-level"><a href="#unit-testing">Unit Testing</a></li>
             
         
-            <li class="second-level"><a href="#elm-ish-architecture">Elm-ish Architecture</a></li>
-            
-        
-            <li class="second-level"><a href="#usage-with-datascript">Usage with Datascript</a></li>
+            <li class="second-level"><a href="#composite-apps">Composite Apps</a></li>
             
         
             <li class="second-level"><a href="#routing">Routing</a></li>
+            
+        
+            <li class="second-level"><a href="#usage-with-datascript">Usage with Datascript</a></li>
             
         
     
@@ -417,7 +417,7 @@ using <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent
 <p><code>view-model</code> function is called once on <code>connect</code> call.
 Then returned view model instance is passed as an argument into <code>view</code> function to produce a final view component.
 A view thereby listens to a view model that in turn listens to a model:</p>
-<p><img alt="pattern" src="http://metametadata.github.io/carry/graphs/pattern.svg" /></p>
+<p><img alt="pattern" src="../graphs/pattern.svg" /></p>
 <p>In the next section we'll see how to define a view model.</p>
 <h3 id="view-model">View Model</h3>
 <p><strong>View model</strong> contains all the data needed to render a UI.
@@ -784,7 +784,7 @@ Replay mode can be determined by looking at <code>[:carry-debugger.core/debugger
 ; ...
 </code></pre>
 
-<h2 id="writing-tests">Writing Tests</h2>
+<h2 id="unit-testing">Unit Testing</h2>
 <p>It is comparatively easy to unit test a Carry app because its behavior 
 is implemented in two functions with explicit dependencies: <code>control</code>, <code>reconcile</code>.
 <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">Reagent bindings</a>
@@ -899,11 +899,184 @@ at <code>:query</code> and <code>:friends</code> keys:</p>
 <p><strong><code>4. (view [view-model dispatch])</code></strong> (This section is a WIP.)</p>
 <p>Unit testing this function is probably not critical because most error-prone UI
 code is located in <code>view-model</code>.</p>
-<h2 id="elm-ish-architecture">Elm-ish Architecture</h2>
+<h2 id="composite-apps">Composite Apps</h2>
+<p>A pattern similar to <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm architecture</a> 
+can be applied to build a Carry app which reuses specs from other apps.
+Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity.
+So use it with caution.</p>
+<p>Let's look at <a href="../examples/#counter-list">elmish-counter-list</a> example.
+In this prject <a href="../examples/#counter">counter apps</a> can be created and removed dynamically
+(for a simpler example of a "statically assembled" app please check <a href="../examples/#subapps">subapps</a> project).</p>
+<p><strong><code>1. initial-model</code></strong></p>
+<p>App model stores a list of counter app models:</p>
+<pre><code class="clj">(def initial-model
+  {; list of [id counter-model] vectors
+   :counters (list)
+   :next-id  0})
+</code></pre>
+
+<p>Several helpers are defined to modify a model:</p>
+<pre><code class="cljs">(defn update-counters*
+  &quot;Applies a function of args [counter-model &amp; args] to the counters specified by predicate.
+  The function can have side-effects. Returns a new model.&quot;
+  [model pred f &amp; args]
+  (letfn [(update-counter [[counter-id counter-model :as counter]]
+            (if (pred counter)
+              [counter-id (apply f counter-model args)]
+              counter))]
+    (update model :counters #(doall (map update-counter %)))))
+
+(defn update-counter
+  [model id f &amp; args]
+  (apply update-counters* model #(= id (first %)) f args))
+
+(defn update-every-counter
+  [model f &amp; args]
+  (apply update-counters* model (constantly true) f args))
+
+(defn get-counter
+  [model id]
+  (-&gt;&gt; (:counters model)
+       (filter #(= (first %) id))
+       first
+       second))
+</code></pre>
+
+<p><strong><code>2. view-model</code></strong></p>
+<p>The view model will contain a single <code>:counters</code> reaction with a list of <code>[id counter-view-model]</code> pairs:</p>
+<pre><code class="clj">#_(defn view-model
+    &quot;Naive nonoptimal implementation:
+     counter view-models will be updated on every model update -&gt; 
+     every counter view will be reevaluated on each change.&quot;
+    [model]
+    {:counters (reaction (-&gt; (update-every-counter @model #(counter/view-model (reaction %)))
+                             :counters))})
+
+(defn view-model
+  &quot;Optimized implementation. 
+  Reuses counter view-models from the last reaction calculation.&quot;
+  [model]
+  (let [cached-counter-view-models (atom [])
+        cached-counter-view-model (fn [id]
+                                    (-&gt;&gt; @cached-counter-view-models
+                                         (filter #(= (first %) id))
+                                         first
+                                         second))
+        counter-view-model (fn [id]
+                             (or (cached-counter-view-model id)
+                                 (counter/view-model (reaction (get-counter @model id)))))]
+    {:counters (reaction (reset! cached-counter-view-models
+                                 (mapv (fn [[id _]] [id (counter-view-model id)])
+                                       (:counters @model))))}))
+</code></pre>
+
+<p>The optimized implementation calculates each counter view model only once.
+So that existing counter views are not unnecessarily evaluated by Reagent
+on every adding/removing of a single counter.</p>
+<p>Note that, although <code>counter/view-model</code> expects a read-only ratom model,
+it's also OK to pass it a ratom-like reaction object because we'll only need to create new reactions from it:</p>
+<pre><code class="clj">(counter/view-model (reaction (get-counter @model id))
+</code></pre>
+
+<p><strong><code>3. view</code></strong></p>
+<pre><code class="clj">(defn tagged
+  &quot;Helper function decorator which prepends a tag to the single argument.
+  I.e. it transforms an arg x to [tag x].&quot;
+  [f tag]
+  (fn tagged-fn
+    [x]
+    (f [tag x])))
+
+(defn view-counter
+  [[id view-model] dispatch]
+  [counter/view view-model (tagged dispatch [:on-counter-signal id])])
+
+(defn view
+  [view-model dispatch]
+  (let [counters (map #(view-counter % dispatch) @(:counters view-model))
+        insert [:button {:on-click #(dispatch :on-insert)} &quot;Insert&quot;]
+        remove [:button {:on-click #(dispatch :on-remove)} &quot;Remove&quot;]]
+    (into [:div insert remove] counters)))
+</code></pre>
+
+<p>As you can see, <code>counter/view</code> is reused and will dispatch its signals "tagged"
+with a corresponding signal id.</p>
+<p><strong><code>4. controller</code></strong></p>
+<p>The controller will pass tagged signals to the injected counter controller.
+In a more complex app we would also have to dispatch tagged <code>:on-start</code>/<code>:on-stop</code> signals
+on inserting/removing subapps. But in this example we omit this because counter app has no start/stop code:</p>
+<pre><code class="clj">(defn new-control
+  [counter-control]
+  (fn control
+    [model signal dispatch-signal dispatch-action]
+    (match signal
+           :on-insert (dispatch-action :insert)
+           :on-remove (dispatch-action :remove)
+
+           [[:on-counter-signal id] s]
+           (counter-control (carry/entangle model #(get-counter % id))
+                            s
+                            ; Dispatched actions and signals must also be tagged:
+                            (tagged dispatch-signal [:on-counter-signal id])
+                            (tagged dispatch-action [:counter-action id])))))
+</code></pre>
+
+<p>Carry's <code>entangle</code> helper is used to create a counter model atom for <code>counter-control</code>: </p>
+<pre><code class="clj">(carry/entangle model #(get-counter % id))
+</code></pre>
+
+<p>This call returns a read-only atom which will automatically sync its value with
+<code>(get-counter @model id)</code> on <code>model</code> changes.
+Note that we can't use <code>reaction</code> instead of <code>entangle</code> because <code>counter-control</code>
+can use <code>add-watch/remove-watch</code> on its model and reactions don't support watching in the same way as atoms.</p>
+<p><strong><code>5. reconciler</code></strong></p>
+<p>Reconciler depends on counter's initial model and reconciler:</p>
+<pre><code class="clj">(defn new-reconcile
+  [counter-initial-model counter-reconcile]
+  (fn reconcile
+    [model action]
+    (match action
+           :insert
+           (-&gt; model
+               (update :counters concat [[(:next-id model) counter-initial-model]])
+               (update :next-id inc))
+
+           :remove
+           (update model :counters rest)
+
+           [[:counter-action id] a]
+           (update-counter model id counter-reconcile a))))
+</code></pre>
+
+<p><strong><code>6. main</code></strong></p>
+<p>And finally, app instantiation code:</p>
+<pre><code class="clj">(ns app.core
+  (:require [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [counter.core :as counter]
+            [reagent.core :as r]
+            [cljs.core.match :refer-macros [match]])
+  (:require-macros [reagent.ratom :refer [reaction]]))
+
+; ...
+
+(defn main
+  []
+  (let [app-spec {:initial-model initial-model
+                  :control       (new-control (:control counter/spec))
+                  :reconcile     (new-reconcile (:initial-model counter/spec) 
+                                                (:reconcile counter/spec))}
+        app (carry/app app-spec)
+        [app-view-model app-view] (carry-reagent/connect app view-model view)]
+    (r/render app-view (.getElementById js/document &quot;root&quot;))
+    (assoc app :view-model app-view-model)))
+
+(def app (main))
+</code></pre>
+
+<h2 id="routing">Routing</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p>
 <h2 id="usage-with-datascript">Usage with Datascript</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
-<h2 id="routing">Routing</h2>
 <p>This section is a WIP. Please see examples in a meantime.</p></div>
         
     </div>
