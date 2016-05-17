@@ -62,7 +62,7 @@ Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-
 More advanced example of using [DataScript](https://github.com/tonsky/datascript).
 Inspired by [flux-comparison](https://github.com/voronianski/flux-comparison) problem.
 
-# Elm-ish Architecture Examples
+# Composite Apps
 
 ## Subapps
 [Source code](https://github.com/metametadata/carry/tree/master/examples/elmish-subapps)

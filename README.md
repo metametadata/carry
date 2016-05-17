@@ -19,7 +19,7 @@ UI binding, history management, debugging, etc. are implemented as separate opti
 * Live code editing using [Figwheel](https://github.com/bhauman/lein-figwheel) and debugger's replay mode.
 * [Reagent](https://github.com/reagent-project/reagent) bindings achieve code readability and rendering optimization
 using view-model/view pattern based on Reagent reactions ([similarly to re-frame](https://github.com/Day8/re-frame#how-flow-happens-in-reagent)).
-* [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to reuse apps inside other apps (aka "fractality").
+* Fractality: [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to create composite apps.
 
 ## Design
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
