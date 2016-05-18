@@ -1095,7 +1095,7 @@ This is especially useful during time traveling debugging as toggling token-chan
 </ul>
 <p>Examples using the middleware:</p>
 <ul>
-<li><a href="../examples/#friend-list">Friend List</a> - in this application token is synced with current search query.</li>
+<li><a href="../examples/#friend-list">Friend List</a> - in this application a token is synced with a search query.</li>
 <li><a href="../examples/#todomvc">TodoMVC</a> - here <a href="https://github.com/DomKM/silk">Silk</a> routing library is added to parse and build tokens.</li>
 </ul>
 <p>An example of applying the middleware:</p>
@@ -1111,7 +1111,8 @@ This is especially useful during time traveling debugging as toggling token-chan
       app-spec (-&gt; my-spec
                    (h/add history))
       app (carry/app app-spec)
-      ; ...]
+      ; ...
+      ]
     ((:dispatch-signal app) :on-start)
     ; ...
 </code></pre>
@@ -1119,7 +1120,7 @@ This is especially useful during time traveling debugging as toggling token-chan
 <p>The middleware requires a <a href="https://developer.mozilla.org/en/docs/Web/API/History">History API</a> 
 wrapper to be provided.
 Such object must satisfy <a href="../api/carry-history.core.html#var-HistoryProtocol"><code>HistoryProtocol</code></a>
-and there are several constructors provided to create such instances:</p>
+and there are several constructors for creating such instances:</p>
 <ul>
 <li>
 <p><a href="../api/carry-history.core.html#var-new-legacy-hash-history"><code>(new-legacy-hash-history)</code></a></p>
@@ -1138,7 +1139,7 @@ library for interfacing with History API.</p>
 <p>A wrapped app can now react to token changes:</p>
 <pre><code class="clj">(defn view-model
   [model]
-  {:token (reaction (:carry-history.core/token @model))})
+  {:token (reaction (::h/token @model))})
 
 (defn view
   [{:keys [token] :as _view-model} dispatch]
