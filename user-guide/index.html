@@ -900,15 +900,18 @@ at <code>:query</code> and <code>:friends</code> keys:</p>
 <p>Unit testing this function is probably not critical because most error-prone UI
 code is located in <code>view-model</code>.</p>
 <h2 id="composite-apps">Composite Apps</h2>
-<p>A pattern similar to <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm architecture</a> 
-can be applied to build a Carry app which reuses specs from other apps.
-Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity.
-So use it with caution.</p>
+<p>Because Carry architecture is also based on functions (control, reconcile, view-model, view) 
+which can be nested inside each other,
+a pattern similar to <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm architecture</a> 
+can be applied to build composite apps. A composite app incorporates instances of other Carry apps, but
+still has a single model, controller and reconciler.</p>
+<p>Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity,
+so use it with caution.</p>
 <p>Let's look at <a href="../examples/#counter-list">elmish-counter-list</a> example.
-In this prject <a href="../examples/#counter">counter apps</a> can be created and removed dynamically
+In this project <a href="../examples/#counter">counter apps</a> can be created and removed dynamically
 (for a simpler example of a "statically assembled" app please check <a href="../examples/#subapps">subapps</a> project).</p>
 <p><strong><code>1. initial-model</code></strong></p>
-<p>App model stores a list of counter app models:</p>
+<p>The model will store a list of counter app models:</p>
 <pre><code class="clj">(def initial-model
   {; list of [id counter-model] vectors
    :counters (list)
@@ -999,8 +1002,8 @@ it's also OK to pass it a ratom-like reaction object because we'll only need to 
     (into [:div insert remove] counters)))
 </code></pre>
 
-<p>As you can see, <code>counter/view</code> is reused and will dispatch its signals "tagged"
-with a corresponding signal id.</p>
+<p>As you can see, <code>counter/view</code> is created for each counter and will dispatch its signals "tagged"
+with a corresponding counter id.</p>
 <p><strong><code>4. controller</code></strong></p>
 <p>The controller will pass tagged signals to the injected counter controller.
 In a more complex app we would also have to dispatch tagged <code>:on-start</code>/<code>:on-stop</code> signals
