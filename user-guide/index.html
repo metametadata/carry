@@ -538,6 +538,9 @@ Here's how you can structure your main app file to be used with Figwheel: </p>
 <h2 id="middleware">Middleware</h2>
 <p><strong>Middleware</strong> is a function that gets an app spec and returns an updated spec
 in order to introduce some new app behavior (such as logging, syncing with server, crash reporting).</p>
+<blockquote>
+<p>&#128172; Also see: <a href="../index.html#middleware">ready-to-use middleware packages</a>.</p>
+</blockquote>
 <p>Multiple middleware can be applied in a chain to produce a new spec.
 For instance, <a href="../examples/#todomvc">TodoMVC</a> app spec is wrapped by three middleware:</p>
 <pre><code class="clj">(defn new-spec
@@ -684,7 +687,6 @@ By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/
       (update :reconcile -wrap-reconcile)))
 </code></pre>
 
-<p>Also see: <a href="../index.html#middleware">ready-to-use middleware packages</a>.</p>
 <h2 id="debugger">Debugger</h2>
 <p>One of the main features of Carry pattern is that it allows time traveling debugging
 similar to <a href="http://debug.elm-lang.org/">Elm's Debugger</a>,
@@ -755,8 +757,8 @@ connect a debugger view and render it alongside an app view:</p>
 <p>There are cases when you'd like to check if debugger is in replay mode.
 For instance, <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a>
 middleware doesn't send its initial <code>:on-enter</code> signal in replay mode.
-Such behavior makes development in replay mode more pleasant as developer expects only marked actions to be replayed on app start.
-Replay mode can be determined by looking at <code>[:carry-debugger.core/debugger :replay-mode?]</code> path in a model map:</p>
+Such behavior makes live coding more pleasant as developer expects only marked actions to be replayed on app start.
+Debugger mode can be determined by looking at <code>[:carry-debugger.core/debugger :replay-mode?]</code> path in a model map:</p>
 <pre><code class="clj">(ns carry-history.core
   ; ...
   )
@@ -785,10 +787,9 @@ Replay mode can be determined by looking at <code>[:carry-debugger.core/debugger
 </code></pre>
 
 <h2 id="unit-testing">Unit Testing</h2>
-<p>It is comparatively easy to unit test a Carry app because its behavior 
-is implemented in two functions with explicit dependencies: <code>control</code>, <code>reconcile</code>.
-<a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">Reagent bindings</a>
-may also add two more simple functions: <code>view-model</code>, <code>view</code>.</p>
+<p>It is comparatively easy to unit test a Carry app
+with Reagent bindings because its behavior is implemented in four functions with explicit dependencies:
+<code>control</code>, <code>reconcile</code>, <code>view-model</code>, <code>view</code>.</p>
 <p>Let's look at how these functions are tested in
 <a href="../examples/#friend-list">friend-list</a> example:</p>
 <p><strong><code>1. (control [model signal dispatch-signal dispatch-action])</code></strong> </p>
@@ -822,22 +823,26 @@ on receiving <code>:on-enter</code> signal:</p>
       (is (f/was-called-once dispatch-signal [[:on-search-success :_new-token :_found-friends]])))))
 </code></pre>
 
-<p>There are several interesting things demonstrated:</p>
-<ul>
-<li>Test is written using <a href="http://c2.com/cgi/wiki?ArrangeActAssert">Arrange-Act-Assert (AAA)</a> pattern.
-Comments are added to better separate these logical blocks. </li>
-<li>Control function is taken from the spec created using public <code>friend-list/new-spec</code> function.
-It could be tempting to instead test by using <code>friend-list/-new-control</code> helper function directly.
+<p>&bull; Test is written using <a href="http://c2.com/cgi/wiki?ArrangeActAssert">Arrange-Act-Assert (AAA)</a> pattern.
+Comments are added to better separate these logical blocks.</p>
+<p>&bull; Control function is taken from the spec created using public <code>friend-list/new-spec</code> function:</p>
+<pre><code class="clj">(let [; ...
+      {:keys [control]} (friend-list/new-spec :_history search) ; ...
+</code></pre>
+
+<p>It could be tempting to instead test by using <code>friend-list/-new-control</code> helper function directly.
 But accessing private members is a bad practice
-and there can also be middleware applied inside <code>new-spec</code> which can affect the tested behavior.</li>
-<li>Instead of using a real async API client we create a fake <code>search</code> 
+and there can also be middleware applied inside <code>new-spec</code> which can affect the tested behavior.</p>
+<p>&bull; Instead of using a real async API client we create a fake <code>search</code> 
 function which synchronously returns the expected result and 
-will throw an exception on calls with unexpected arguments.</li>
-<li>Dynamic nature of ClojureScript allows us to use keywords (<code>:_history</code>, <code>:_found-friends</code>, <code>:_model</code>, <code>:_new_token</code>) instead
+will throw an exception on calls with unexpected arguments:</p>
+<pre><code class="clj">(let [search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)]) ; ...
+</code></pre>
+
+<p>&bull; Dynamic nature of ClojureScript allows us to use keywords (<code>:_history</code>, <code>:_found-friends</code>, <code>:_model</code>, <code>:_new_token</code>) instead
 of creating objects of correct type
 when we know that their type doesn't really matter in the test case.
-It makes tests more focused and readable.</li>
-</ul>
+It makes tests more focused and readable.</p>
 <p><strong><code>2. (reconcile [model action])</code></strong></p>
 <p>Reconciler is the easiest function to test because it's pure:</p>
 <pre><code class="clj">(deftest
@@ -894,7 +899,7 @@ at <code>:query</code> and <code>:friends</code> keys:</p>
 <li><code>test-view-model-tracks-model-key</code> is a helper function.</li>
 <li><code>r/flush</code> is needed because Reagent doesn't immediately propagate reaction updates (starting from v0.6.0).</li>
 <li><a href="https://github.com/plumatic/schema-generators">schema-generators</a> library is used to automatically generate
-<code>new-friends</code> fixture instead ofunction to testf coding it by hand.</li>
+<code>new-friends</code> fixture instead of coding it by hand.</li>
 </ul>
 <p><strong><code>4. (view [view-model dispatch])</code></strong> (This section is a WIP.)</p>
 <p>Unit testing this function is probably not critical because most error-prone UI
@@ -908,8 +913,10 @@ still has a single model, controller and reconciler.</p>
 <p>Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity,
 so use it with caution.</p>
 <p>Let's look at <a href="../examples/#counter-list">elmish-counter-list</a> example.
-In this project <a href="../examples/#counter">counter apps</a> can be created and removed dynamically
-(for a simpler example of a "statically assembled" app please check <a href="../examples/#subapps">subapps</a> project).</p>
+In this project <a href="../examples/#counter">counter apps</a> can be created and removed dynamically</p>
+<blockquote>
+<p>&#128172; For a simpler example of a "statically assembled" app please check <a href="../examples/#subapps">subapps</a> project.</p>
+</blockquote>
 <p><strong><code>1. initial-model</code></strong></p>
 <p>The model will store a list of counter app models:</p>
 <pre><code class="clj">(def initial-model
@@ -919,7 +926,7 @@ In this project <a href="../examples/#counter">counter apps</a> can be created a
 </code></pre>
 
 <p>Several helpers are defined to modify a model:</p>
-<pre><code class="cljs">(defn update-counters*
+<pre><code class="clj">(defn update-counters*
   &quot;Applies a function of args [counter-model &amp; args] to the counters specified by predicate.
   The function can have side-effects. Returns a new model.&quot;
   [model pred f &amp; args]
@@ -1024,14 +1031,14 @@ on inserting/removing subapps. But in this example we omit this because counter 
                             (tagged dispatch-action [:counter-action id])))))
 </code></pre>
 
-<p>Carry's <code>entangle</code> helper is used to create a counter model atom for <code>counter-control</code>: </p>
+<p>Carry's <code>entangle</code> helper is used to create a counter model atom for <code>counter-control</code>.
+This call returns a read-only atom which will automatically sync its value with
+<code>(get-counter @model id)</code> on <code>model</code> changes:</p>
 <pre><code class="clj">(carry/entangle model #(get-counter % id))
 </code></pre>
 
-<p>This call returns a read-only atom which will automatically sync its value with
-<code>(get-counter @model id)</code> on <code>model</code> changes.
-Note that we can't use <code>reaction</code> instead of <code>entangle</code> because <code>counter-control</code>
-can use <code>add-watch/remove-watch</code> on its model and reactions don't support watching in the same way as atoms.</p>
+<p>Note that we can't use <code>reaction</code> instead of <code>entangle</code> because <code>counter-control</code>
+can call <code>add-watch/remove-watch</code> on its model and reactions don't support watching in the same way as atoms.</p>
 <p><strong><code>5. reconciler</code></strong></p>
 <p>Reconciler depends on counter's initial model and reconciler:</p>
 <pre><code class="clj">(defn new-reconcile
