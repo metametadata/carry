@@ -47,7 +47,7 @@ Features:
 * model validation using [Schema](https://github.com/plumatic/schema)
 * uses [Specter](https://github.com/nathanmarz/specter) for model updates
 
-# Counter with DataScript
+# Counter DataScript
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter-datascript)
 
 [Demo](/examples/counter-datascript)
