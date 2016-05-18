@@ -1006,8 +1006,8 @@ middleware for routing:
 * [Friend List](/examples/#friend-list)
 * [TodoMVC](/examples/#todomvc)
 
-## Usage with Datascript
+## Usage with DataScript
 See examples:
 
-* [Counter Datascript](/examples/#counter-datascript)
+* [Counter DataScript](/examples/#counter-datascript)
 * [Shopping Cart](/examples/#shopping-cart)
