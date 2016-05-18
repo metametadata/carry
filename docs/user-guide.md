@@ -793,7 +793,7 @@ In this prject [counter apps](/examples/#counter) can be created and removed dyn
 
 **`1. initial-model`**
 
-App model stores a list of counter app models:
+The model will store a list of counter app models:
 
 ```clj
 (def initial-model
@@ -896,8 +896,8 @@ it's also OK to pass it a ratom-like reaction object because we'll only need to 
     (into [:div insert remove] counters)))
 ```
 
-As you can see, `counter/view` is reused and will dispatch its signals "tagged"
-with a corresponding signal id.
+As you can see, `counter/view` is created for each counter and will dispatch its signals "tagged"
+with a corresponding counter id.
 
 **`4. controller`**
 
