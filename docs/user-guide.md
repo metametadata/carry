@@ -1000,11 +1000,91 @@ And finally, app instantiation code:
 ```
 
 ## Routing
-Examples using [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history)
-middleware for routing:
+It's not uncommon for applications to depend on a current URL and modify it in response to user actions.
+For these tasks [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history) middleware
+provides a bidirectional synchronization between a browser URL and a model:
 
-* [Friend List](/examples/#friend-list)
-* [TodoMVC](/examples/#todomvc)
+* An app can react to URL changes by observing model's `:token` (token, roughly, is everything that goes after a hostname).
+* If token in model is changed by an app then a browser will accordingly update its address bar.
+This is especially useful during time traveling debugging as toggling token-changing actions will correctly update a URL.
+
+Examples using the middleware:
+
+* [Friend List](/examples/#friend-list) - in this application token is synced with current search query.
+* [TodoMVC](/examples/#todomvc) - here [Silk](https://github.com/DomKM/silk) routing library is added to parse and build tokens.
+ 
+An example of applying the middleware:
+
+```clj
+(ns app.core
+  (:require [carry.core :as carry] 
+            [carry-history.core :as h]
+            ; ...
+            ))
+
+; ...
+
+(let [history (h/new-hash-history)
+      app-spec (-> my-spec
+                   (h/add history))
+      app (carry/app app-spec)
+      ; ...]
+    ((:dispatch-signal app) :on-start)
+    ; ...
+```
+
+The middleware requires a [History API](https://developer.mozilla.org/en/docs/Web/API/History) 
+wrapper to be provided.
+Such object must satisfy [`HistoryProtocol`](/api/carry-history.core.html#var-HistoryProtocol)
+and there are several constructors provided to create such instances:
+
+* [`(new-legacy-hash-history)`](/api/carry-history.core.html#var-new-legacy-hash-history)
+
+* [`(new-hash-history)`](/api/carry-history.core.html#var-new-hash-history)
+
+* [`(new-history)`](/api/carry-history.core.html#var-new-history)
+
+>&#128172; carry-history uses [Google Closure](https://github.com/clojure/clojurescript/wiki/Google-Closure#libraries)
+library for interfacing with History API.
+
+A wrapped app can now react to token changes:
+
+```clj
+(defn view-model
+  [model]
+  {:token (reaction (:carry-history.core/token @model))})
+  
+(defn view
+  [{:keys [token] :as _view-model} dispatch]
+  [:p "Current token = " (pr-str @token)])
+```
+
+It also becomes possible to react to token changes by handling `::on-enter` signal.
+It will be dispatched on app start and on changes initiated by user actions (e.g. editing an address or clicking Back button):
+
+```clj
+(match signal
+       [::h/on-enter token]
+       (println "navigated to page at " (pr-str token))
+ 
+       ; ...
+```
+
+Package's [`link`](/api/carry-history.core.html#var-link) Reagent component can be used to create in-app links which don't hit the server.
+An example from [TodoMVC](/examples/#todomvc):
+
+```clj
+(defn -footer-filters
+  [visibility-spec history]
+  [:ul.filters
+   (for [{:keys [title route selected?]} visibility-spec]
+     ^{:key route}
+     [:li [h/link history (router/route->token route)
+           {:class (if selected? "selected")}
+           title]])])
+```
+
+Please see [API reference](/api/carry-history.core.html) for more info.
 
 ## Usage with DataScript
 See examples:
