@@ -1053,7 +1053,7 @@ A wrapped app can now react to token changes:
 ```clj
 (defn view-model
   [model]
-  {:token (reaction (:carry-history.core/token @model))})
+  {:token (reaction (::h/token @model))})
   
 (defn view
   [{:keys [token] :as _view-model} dispatch]
