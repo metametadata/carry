@@ -263,7 +263,7 @@ a serializable vector with a keyword and an additional payload:</p>
 <h2 id="control">Control</h2>
 <p><strong>Controller (control function, control)</strong> is a part of an application responsible for handling incoming signals. 
 It can dispatch new signals, modify app model (by dispatching actions) and perform any side effects (e.g. send data to a server).
-Controller is free to contain asynchronous code. The signature of a control function:</p>
+Controller is also free to contain an asynchronous code. The signature of a control function:</p>
 <pre><code class="clj">(defn control
   [model signal dispatch-signal dispatch-action])
 </code></pre>
@@ -790,7 +790,7 @@ is implemented in two functions with explicit dependencies: <code>control</code>
 <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">Reagent bindings</a>
 may also add two more simple functions: <code>view-model</code>, <code>view</code>.</p>
 <p>Let's look at how these functions are tested in
-<a href="https://github.com/metametadata/carry/tree/master/examples/friend-list/">friend-list</a> example:</p>
+<a href="../examples/#friend-list">friend-list</a> example:</p>
 <p><strong><code>1. (control [model signal dispatch-signal dispatch-action])</code></strong> </p>
 <p>Control function handles incoming signals to perform side effects, dispatch new signals and actions.
 Such behavior is easy to test using <a href="https://en.wikipedia.org/wiki/Mock_object">mock</a> functions.
@@ -1078,9 +1078,18 @@ can use <code>add-watch/remove-watch</code> on its model and reactions don't sup
 </code></pre>
 
 <h2 id="routing">Routing</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p>
+<p>Examples using <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a>
+middleware for routing:</p>
+<ul>
+<li><a href="../examples/#friend-list">friend-list</a></li>
+<li><a href="../examples/#todomvc">todomvc</a></li>
+</ul>
 <h2 id="usage-with-datascript">Usage with Datascript</h2>
-<p>This section is a WIP. Please see examples in a meantime.</p></div>
+<p>See examples:</p>
+<ul>
+<li><a href="../examples/#counter-datascript">counter-datascript</a></li>
+<li><a href="../examples/#shopping-cart">shopping-cart</a></li>
+</ul></div>
         
     </div>
 
