@@ -1085,12 +1085,88 @@ can call <code>add-watch/remove-watch</code> on its model and reactions don't su
 </code></pre>
 
 <h2 id="routing">Routing</h2>
-<p>Examples using <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a>
-middleware for routing:</p>
+<p>It's not uncommon for applications to depend on a current URL and modify it in response to user actions.
+For these tasks <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a> middleware
+provides a bidirectional synchronization between a browser URL and a model:</p>
 <ul>
-<li><a href="../examples/#friend-list">Friend List</a></li>
-<li><a href="../examples/#todomvc">TodoMVC</a></li>
+<li>An app can react to URL changes by observing model's <code>:token</code> (token, roughly, is everything that goes after a hostname).</li>
+<li>If token in model is changed by an app then a browser will accordingly update its address bar.
+This is especially useful during time traveling debugging as toggling token-changing actions will correctly update a URL.</li>
 </ul>
+<p>Examples using the middleware:</p>
+<ul>
+<li><a href="../examples/#friend-list">Friend List</a> - in this application token is synced with current search query.</li>
+<li><a href="../examples/#todomvc">TodoMVC</a> - here <a href="https://github.com/DomKM/silk">Silk</a> routing library is added to parse and build tokens.</li>
+</ul>
+<p>An example of applying the middleware:</p>
+<pre><code class="clj">(ns app.core
+  (:require [carry.core :as carry] 
+            [carry-history.core :as h]
+            ; ...
+            ))
+
+; ...
+
+(let [history (h/new-hash-history)
+      app-spec (-&gt; my-spec
+                   (h/add history))
+      app (carry/app app-spec)
+      ; ...]
+    ((:dispatch-signal app) :on-start)
+    ; ...
+</code></pre>
+
+<p>The middleware requires a <a href="https://developer.mozilla.org/en/docs/Web/API/History">History API</a> 
+wrapper to be provided.
+Such object must satisfy <a href="../api/carry-history.core.html#var-HistoryProtocol"><code>HistoryProtocol</code></a>
+and there are several constructors provided to create such instances:</p>
+<ul>
+<li>
+<p><a href="../api/carry-history.core.html#var-new-legacy-hash-history"><code>(new-legacy-hash-history)</code></a></p>
+</li>
+<li>
+<p><a href="../api/carry-history.core.html#var-new-hash-history"><code>(new-hash-history)</code></a></p>
+</li>
+<li>
+<p><a href="../api/carry-history.core.html#var-new-history"><code>(new-history)</code></a></p>
+</li>
+</ul>
+<blockquote>
+<p>&#128172; carry-history uses <a href="https://github.com/clojure/clojurescript/wiki/Google-Closure#libraries">Google Closure</a>
+library for interfacing with History API.</p>
+</blockquote>
+<p>A wrapped app can now react to token changes:</p>
+<pre><code class="clj">(defn view-model
+  [model]
+  {:token (reaction (:carry-history.core/token @model))})
+
+(defn view
+  [{:keys [token] :as _view-model} dispatch]
+  [:p &quot;Current token = &quot; (pr-str @token)])
+</code></pre>
+
+<p>It also becomes possible to react to token changes by handling <code>::on-enter</code> signal.
+It will be dispatched on app start and on changes initiated by user actions (e.g. editing an address or clicking Back button):</p>
+<pre><code class="clj">(match signal
+       [::h/on-enter token]
+       (println &quot;navigated to page at &quot; (pr-str token))
+
+       ; ...
+</code></pre>
+
+<p>Package's <a href="../api/carry-history.core.html#var-link"><code>link</code></a> Reagent component can be used to create in-app links which don't hit the server.
+An example from <a href="../examples/#todomvc">TodoMVC</a>:</p>
+<pre><code class="clj">(defn -footer-filters
+  [visibility-spec history]
+  [:ul.filters
+   (for [{:keys [title route selected?]} visibility-spec]
+     ^{:key route}
+     [:li [h/link history (router/route-&gt;token route)
+           {:class (if selected? &quot;selected&quot;)}
+           title]])])
+</code></pre>
+
+<p>Please see <a href="../api/carry-history.core.html">API reference</a> for more info.</p>
 <h2 id="usage-with-datascript">Usage with DataScript</h2>
 <p>See examples:</p>
 <ul>
