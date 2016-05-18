@@ -85,7 +85,7 @@ In other words, a spec is needed to define a runtime behavior of an app:
 ## Control
 **Controller (control function, control)** is a part of an application responsible for handling incoming signals. 
 It can dispatch new signals, modify app model (by dispatching actions) and perform any side effects (e.g. send data to a server).
-Controller is free to contain asynchronous code. The signature of a control function:
+Controller is also free to contain an asynchronous code. The signature of a control function:
 
 ```clj
 (defn control
@@ -659,7 +659,7 @@ is implemented in two functions with explicit dependencies: `control`, `reconcil
 may also add two more simple functions: `view-model`, `view`.
 
 Let's look at how these functions are tested in
-[friend-list](https://github.com/metametadata/carry/tree/master/examples/friend-list/) example:
+[friend-list](/examples/#friend-list) example:
 
 **`1. (control [model signal dispatch-signal dispatch-action])`** 
 
@@ -989,7 +989,14 @@ And finally, app instantiation code:
 ```
 
 ## Routing
-This section is a WIP. Please see examples in a meantime.
+Examples using [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history)
+middleware for routing:
+
+* [friend-list](/examples/#friend-list)
+* [todomvc](/examples/#todomvc)
 
 ## Usage with Datascript
-This section is a WIP. Please see examples in a meantime.
+See examples:
+
+* [counter-datascript](/examples/#counter-datascript)
+* [shopping-cart](/examples/#shopping-cart)
