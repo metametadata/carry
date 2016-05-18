@@ -782,13 +782,17 @@ Unit testing this function is probably not critical because most error-prone UI
 code is located in `view-model`.
 
 ## Composite Apps
-A pattern similar to [Elm architecture](https://github.com/evancz/elm-architecture-tutorial/) 
-can be applied to build a Carry app which reuses specs from other apps.
-Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity.
-So use it with caution.
+Because Carry architecture is also based on functions (control, reconcile, view-model, view) 
+which can be nested inside each other,
+a pattern similar to [Elm architecture](https://github.com/evancz/elm-architecture-tutorial/) 
+can be applied to build composite apps. A composite app incorporates instances of other Carry apps, but
+still has a single model, controller and reconciler.
+
+Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity,
+so use it with caution.
 
 Let's look at [elmish-counter-list](/examples/#counter-list) example.
-In this prject [counter apps](/examples/#counter) can be created and removed dynamically
+In this project [counter apps](/examples/#counter) can be created and removed dynamically
 (for a simpler example of a "statically assembled" app please check [subapps](/examples/#subapps) project).
 
 **`1. initial-model`**
