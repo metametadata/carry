@@ -1010,7 +1010,7 @@ This is especially useful during time traveling debugging as toggling token-chan
 
 Examples using the middleware:
 
-* [Friend List](/examples/#friend-list) - in this application token is synced with current search query.
+* [Friend List](/examples/#friend-list) - in this application a token is synced with a search query.
 * [TodoMVC](/examples/#todomvc) - here [Silk](https://github.com/DomKM/silk) routing library is added to parse and build tokens.
  
 An example of applying the middleware:
@@ -1028,7 +1028,8 @@ An example of applying the middleware:
       app-spec (-> my-spec
                    (h/add history))
       app (carry/app app-spec)
-      ; ...]
+      ; ...
+      ]
     ((:dispatch-signal app) :on-start)
     ; ...
 ```
@@ -1036,7 +1037,7 @@ An example of applying the middleware:
 The middleware requires a [History API](https://developer.mozilla.org/en/docs/Web/API/History) 
 wrapper to be provided.
 Such object must satisfy [`HistoryProtocol`](/api/carry-history.core.html#var-HistoryProtocol)
-and there are several constructors provided to create such instances:
+and there are several constructors for creating such instances:
 
 * [`(new-legacy-hash-history)`](/api/carry-history.core.html#var-new-legacy-hash-history)
 
