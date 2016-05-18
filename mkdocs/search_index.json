@@ -152,7 +152,7 @@
         }, 
         {
             "location": "/examples/", 
-            "text": "All source code can be found in \nthe Github repository\n.\n\n\nAll apps support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nCounter Vanilla\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example. Uses \"vanilla\" JavaScript to render a UI.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe basic example of using Carry with Reagent.\n\n\nFriend List\n\n\nSource code\n\n\nDemo\n\n\nInspired by this \nproblem\n about dynamic search input.\nDemonstrates how to dispatch new signals from app controller and also features:\n\n\n\n\nbasic routing\n\n\nmodel validation using \nSchema\n\n\ntime traveling debugger\n\n\nlogging to console\n\n\nunit tests\n\n\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nSee \ntodomvc.com\n.\n\n\nFeatures:\n\n\n\n\nrouting using \nSilk\n\n\nlocal storage persistence\n\n\ntime traveling debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter with DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for a model.\n\n\nShopping Cart\n\n\nSource code\n\n\nDemo\n\n\nMore advanced example of using \nDataScript\n.\nInspired by \nflux-comparison\n problem.\n\n\nComposite Apps\n\n\nSubapps\n\n\nSource code\n\n\nDemo\n\n\nIn this project \ncounter app\n and \nfriend list app\n instances are \"statically\" added to the app spec.\nSeveral helper methods are extracted to make it easy to include any subapp at the time of app instantiation.\n\n\nCounter List\n\n\nSource code\n\n\nDemo\n\n\nIn this example \ncounter app\n instances are created and removed dynamically after app is started.", 
+            "text": "All source code can be found in \nthe Github repository\n.\n\n\nAll apps support hot reloading and REPL debugging via \nFigwheel\n.\n\n\nCounter Vanilla\n\n\nSource code\n\n\nDemo\n\n\nThe most trivial example. Uses \"vanilla\" JavaScript to render a UI.\n\n\nCounter\n\n\nSource code\n\n\nDemo\n\n\nThe basic example of using Carry with Reagent.\n\n\nFriend List\n\n\nSource code\n\n\nDemo\n\n\nInspired by this \nproblem\n about dynamic search input.\nDemonstrates how to dispatch new signals from app controller and also features:\n\n\n\n\nbasic routing\n\n\nmodel validation using \nSchema\n\n\ntime traveling debugger\n\n\nlogging to console\n\n\nunit tests\n\n\n\n\nTodoMVC\n\n\nSource code\n\n\nDemo\n\n\nSee \ntodomvc.com\n.\n\n\nFeatures:\n\n\n\n\nrouting using \nSilk\n\n\nlocal storage persistence\n\n\ntime traveling debugger\n\n\nlogging to console\n\n\nmodel validation using \nSchema\n\n\nuses \nSpecter\n for model updates\n\n\n\n\nCounter DataScript\n\n\nSource code\n\n\nDemo\n\n\nSimplest example of using \nDataScript\n in-memory database for a model.\n\n\nShopping Cart\n\n\nSource code\n\n\nDemo\n\n\nMore advanced example of using \nDataScript\n.\nInspired by \nflux-comparison\n problem.\n\n\nComposite Apps\n\n\nSubapps\n\n\nSource code\n\n\nDemo\n\n\nIn this project \ncounter app\n and \nfriend list app\n instances are \"statically\" added to the app spec.\nSeveral helper methods are extracted to make it easy to include any subapp at the time of app instantiation.\n\n\nCounter List\n\n\nSource code\n\n\nDemo\n\n\nIn this example \ncounter app\n instances are created and removed dynamically after app is started.", 
             "title": "Examples"
         }, 
         {
@@ -176,9 +176,9 @@
             "title": "TodoMVC"
         }, 
         {
-            "location": "/examples/#counter-with-datascript", 
+            "location": "/examples/#counter-datascript", 
             "text": "Source code  Demo  Simplest example of using  DataScript  in-memory database for a model.", 
-            "title": "Counter with DataScript"
+            "title": "Counter DataScript"
         }, 
         {
             "location": "/examples/#shopping-cart", 
