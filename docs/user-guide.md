@@ -1003,11 +1003,11 @@ And finally, app instantiation code:
 Examples using [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history)
 middleware for routing:
 
-* [friend-list](/examples/#friend-list)
-* [todomvc](/examples/#todomvc)
+* [Friend List](/examples/#friend-list)
+* [TodoMVC](/examples/#todomvc)
 
 ## Usage with Datascript
 See examples:
 
-* [counter-datascript](/examples/#counter-datascript)
-* [shopping-cart](/examples/#shopping-cart)
+* [Counter Datascript](/examples/#counter-datascript)
+* [Shopping Cart](/examples/#shopping-cart)
