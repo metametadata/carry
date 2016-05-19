@@ -823,26 +823,35 @@ on receiving <code>:on-enter</code> signal:</p>
       (is (f/was-called-once dispatch-signal [[:on-search-success :_new-token :_found-friends]])))))
 </code></pre>
 
-<p>&bull; Test is written using <a href="http://c2.com/cgi/wiki?ArrangeActAssert">Arrange-Act-Assert (AAA)</a> pattern.
+<ul>
+<li>
+<p>Test is written using <a href="http://c2.com/cgi/wiki?ArrangeActAssert">Arrange-Act-Assert (AAA)</a> pattern.
 Comments are added to better separate these logical blocks.</p>
-<p>&bull; Control function is taken from the spec created using public <code>friend-list/new-spec</code> function:</p>
-<pre><code class="clj">(let [; ...
-      {:keys [control]} (friend-list/new-spec :_history search) ; ...
-</code></pre>
-
-<p>It could be tempting to instead test by using <code>friend-list/-new-control</code> helper function directly.
+</li>
+<li>
+<p>Control function is taken from the spec created by <code>friend-list/new-spec</code>.
+It could be tempting to instead test by using <code>friend-list/-new-control</code> helper function.
 But accessing private members is a bad practice
-and there can also be middleware applied inside <code>new-spec</code> which can affect the tested behavior.</p>
-<p>&bull; Instead of using a real async API client we create a fake <code>search</code> 
-function which synchronously returns the expected result and 
-will throw an exception on calls with unexpected arguments:</p>
-<pre><code class="clj">(let [search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)]) ; ...
+and there can also be middleware applied inside <code>new-spec</code> which can affect the tested behavior:</p>
+</li>
+</ul>
+<pre><code class="clj">{:keys [control]} (friend-list/new-spec :_history search)
 </code></pre>
 
-<p>&bull; Dynamic nature of ClojureScript allows us to use keywords (<code>:_history</code>, <code>:_found-friends</code>, <code>:_model</code>, <code>:_new_token</code>) instead
+<ul>
+<li>Instead of using a real async API client we create a fake <code>search</code> 
+function which synchronously returns the expected result and 
+will throw an exception on calls with unexpected arguments:</li>
+</ul>
+<pre><code class="clj">search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
+</code></pre>
+
+<ul>
+<li>Dynamic nature of ClojureScript allows us to use keywords (<code>:_history</code>, <code>:_found-friends</code>, <code>:_model</code>, <code>:_new_token</code>) instead
 of creating objects of correct type
 when we know that their type doesn't really matter in the test case.
-It makes tests more focused and readable.</p>
+It makes tests more focused and readable.</li>
+</ul>
 <p><strong><code>2. (reconcile [model action])</code></strong></p>
 <p>Reconciler is the easiest function to test because it's pure:</p>
 <pre><code class="clj">(deftest
@@ -1093,12 +1102,15 @@ provides a bidirectional synchronization between a browser URL and a model:</p>
 <li>If token in model is changed by an app then a browser will accordingly update its address bar.
 This is especially useful during time traveling debugging as toggling token-changing actions will correctly update a URL.</li>
 </ul>
-<p>Examples using the middleware:</p>
+<blockquote>
+<p>&#128172; Examples:</p>
 <ul>
 <li><a href="../examples/#friend-list">Friend List</a> - in this application a token is synced with a search query.</li>
 <li><a href="../examples/#todomvc">TodoMVC</a> - here <a href="https://github.com/DomKM/silk">Silk</a> routing library is added to parse and build tokens.</li>
 </ul>
-<p>An example of applying the middleware:</p>
+</blockquote>
+<p>Use <a href="../api/carry-history.core.html#var-add"><code>add</code></a> to apply the middleware
+and don't forget to start the app:</p>
 <pre><code class="clj">(ns app.core
   (:require [carry.core :as carry] 
             [carry-history.core :as h]
