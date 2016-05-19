@@ -86,10 +86,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #_(defn view-model
     "Naive nonoptimal implementation:
-     counter view-models will be updated on every model update -> every counter view will be reevaluated on each change."
+     counter view-models will be updated on every model update ->
+      every counter view will be reevaluated on each change."
     [model]
-    {:counters (reaction (-> (update-every-counter @model #(counter/view-model (reaction %)))
-                             :counters))})
+    (let [counter-view-model (fn [counter-id]
+                               (counter/view-model
+                                 (carry/entangle model #(get-counter % counter-id) r/atom)))]
+      {:counters (reaction (map (fn [[id _counter-model]] [id (counter-view-model id)])
+                                (:counters @model)))}))
 
 #_(defn view-model
     "Optimized implementation. View-models for individual counters will be calculated only once.
@@ -97,8 +101,8 @@
     [model]
     (let [counter-view-model (memoize
                                (fn [counter-id]
-                                 (counter/view-model (reaction (get-counter @model counter-id)))))]
-      {:counters (reaction (map (fn [[id _]] [id (counter-view-model id)])
+                                 (counter/view-model (carry/entangle model #(get-counter % counter-id) r/atom))))]
+      {:counters (reaction (map (fn [[id _counter-model]] [id (counter-view-model id)])
                                 (:counters @model)))}))
 
 (defn view-model
@@ -112,7 +116,8 @@
                                          second))
         counter-view-model (fn [id]
                              (or (cached-counter-view-model id)
-                                 (counter/view-model (reaction (get-counter @model id)))))]
+                                 (counter/view-model
+                                   (carry/entangle model #(get-counter % id) r/atom))))]
     {:counters (reaction (reset! cached-counter-view-models
                                  (mapv (fn [[id _]] [id (counter-view-model id)])
                                        (:counters @model))))}))

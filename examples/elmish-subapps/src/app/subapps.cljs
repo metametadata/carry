@@ -1,8 +1,8 @@
 ; Helpers for implementing subapps using Elm-ish architecture
 (ns app.subapps
   (:require [carry.core :as carry]
-            [cljs.core.match :refer-macros [match]])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+            [reagent.core :as r]
+            [cljs.core.match :refer-macros [match]]))
 
 (defn -tagged
   "Helper function decorator which prepends a tag to the single argument.
@@ -65,9 +65,7 @@
   (fn view-model
     [model]
     (assoc (app-view-model model) subapp-key
-                                  ; using reaction (and not, for instance, carry/entangle) is OK
-                                  ; since view model should only create new reactions from it
-                                  (subapp-view-model (reaction (subapp-key @model))))))
+                                  (subapp-view-model (carry/entangle model subapp-key r/atom)))))
 
 (defn include-view
   [subapp-key subapp-view app-view-model app-dispatch]

@@ -849,13 +849,16 @@ Several helpers are defined to modify a model:
 The view model will contain a single `:counters` reaction with a list of `[id counter-view-model]` pairs:
 
 ```clj
-#_(defn view-model
-    "Naive nonoptimal implementation:
-     counter view-models will be updated on every model update -> 
-     every counter view will be reevaluated on each change."
-    [model]
-    {:counters (reaction (-> (update-every-counter @model #(counter/view-model (reaction %)))
-                             :counters))})
+;(defn view-model
+;  "Naive nonoptimal implementation:
+;   counter view-models will be updated on every model update ->
+;    every counter view will be reevaluated on each change."
+;  [model]
+;  (let [counter-view-model (fn [counter-id]
+;                             (counter/view-model
+;                               (carry/entangle model #(get-counter % counter-id) r/atom)))]
+;    {:counters (reaction (map (fn [[id _counter-model]] [id (counter-view-model id)])
+;                              (:counters @model)))}))
 
 (defn view-model
   "Optimized implementation. 
@@ -869,21 +872,23 @@ The view model will contain a single `:counters` reaction with a list of `[id co
                                          second))
         counter-view-model (fn [id]
                              (or (cached-counter-view-model id)
-                                 (counter/view-model (reaction (get-counter @model id)))))]
+                                 (counter/view-model
+                                   (carry/entangle model #(get-counter % id) r/atom))))]
     {:counters (reaction (reset! cached-counter-view-models
                                  (mapv (fn [[id _]] [id (counter-view-model id)])
                                        (:counters @model))))}))
 ```
 
 The optimized implementation calculates each counter view model only once.
-So that existing counter views are not unnecessarily evaluated by Reagent
-on every adding/removing of a single counter.
+So that all existing counter views are not unnecessarily evaluated by Reagent
+on updating a single counter.
 
-Note that, although `counter/view-model` expects a read-only ratom model,
-it's also OK to pass it a ratom-like reaction object because we'll only need to create new reactions from it:
+Carry's [`entangle`](/api/carry.core.html#var-entangle) helper is used to create a counter model ratom for `counter/view-model`.
+This call returns a read-only ratom which will automatically sync its value with
+`(get-counter @model id)` on `model` changes:
 
 ```clj
-(counter/view-model (reaction (get-counter @model id))
+(counter/view-model (carry/entangle model #(get-counter % id) r/atom))
 ```
 
 **`3. view`**
@@ -935,16 +940,11 @@ on inserting/removing subapps. But in this example we omit this because counter 
                             (tagged dispatch-action [:counter-action id])))))
 ```
 
-Carry's `entangle` helper is used to create a counter model atom for `counter-control`.
-This call returns a read-only atom which will automatically sync its value with
-`(get-counter @model id)` on `model` changes:
+`entangle` helper is used to create a counter model atom for `counter-control`:
 
 ```clj
 (carry/entangle model #(get-counter % id))
 ```
-
-Note that we can't use `reaction` instead of `entangle` because `counter-control`
-can call `add-watch/remove-watch` on its model and reactions don't support watching in the same way as atoms.
 
 **`5. reconciler`**
 
