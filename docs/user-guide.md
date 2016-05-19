@@ -660,7 +660,7 @@ with Reagent bindings because its behavior is implemented in four functions with
 Let's look at how these functions are tested in
 [friend-list](/examples/#friend-list) example:
 
-**`1. (control [model signal dispatch-signal dispatch-action])`** 
+**`1. (control model signal dispatch-signal dispatch-action)`** 
 
 Control function handles incoming signals to perform side effects, dispatch new signals and actions.
 Such behavior is easy to test using [mock](https://en.wikipedia.org/wiki/Mock_object) functions.
@@ -719,7 +719,7 @@ of creating objects of correct type
 when we know that their type doesn't really matter in the test case.
 It makes tests more focused and readable.
 
-**`2. (reconcile [model action])`**
+**`2. (reconcile model action)`**
 
 Reconciler is the easiest function to test because it's pure:
 
@@ -737,7 +737,7 @@ Notice, that it's impossible to use a `:_new_query` keyword because app uses
 [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 middleware forcing us to use a string value `"new-query"` on reconciling.
 
-**`3. (view-model [model])`**
+**`3. (view-model model)`**
 
 These tests make sure that view model really contains Reagent reactions
 at `:query` and `:friends` keys:
@@ -784,7 +784,7 @@ at `:query` and `:friends` keys:
 * [schema-generators](https://github.com/plumatic/schema-generators) library is used to automatically generate
 `new-friends` fixture instead of coding it by hand.
 
-**`4. (view [view-model dispatch])`** (This section is a WIP.)
+**`4. (view view-model dispatch)`** (This section is a WIP.)
 
 Unit testing this function is probably not critical because most error-prone UI
 code is located in `view-model`.
@@ -917,7 +917,7 @@ This call returns a read-only ratom which will automatically sync its value with
 As you can see, `counter/view` is created for each counter and will dispatch its signals "tagged"
 with a corresponding counter id.
 
-**`4. controller`**
+**`4. control`**
 
 The controller will pass tagged signals to the injected counter controller.
 In a more complex app we would also have to dispatch tagged `:on-start`/`:on-stop` signals
@@ -946,7 +946,7 @@ on inserting/removing subapps. But in this example we omit this because counter 
 (carry/entangle model #(get-counter % id))
 ```
 
-**`5. reconciler`**
+**`5. reconcile`**
 
 Reconciler depends on counter's initial model and reconciler:
 
