@@ -7,7 +7,7 @@ ClojureScript single-page application framework inspired by
 [Cerebral](https://github.com/cerebral/cerebral).
 
 The core of the framework is a simple state management library. 
-UI binding, history management, debugging, etc. are implemented as separate optional packages.
+UI bindings, routing, debugger, etc. are implemented as separate optional packages.
 
 [![Clojars Project](https://img.shields.io/clojars/v/carry.svg)](https://clojars.org/carry)
 

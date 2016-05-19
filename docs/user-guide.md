@@ -694,29 +694,27 @@ on receiving `:on-enter` signal:
       (is (f/was-called-once dispatch-signal [[:on-search-success :_new-token :_found-friends]])))))
 ```
 
-&bull; Test is written using [Arrange-Act-Assert (AAA)](http://c2.com/cgi/wiki?ArrangeActAssert) pattern.
+* Test is written using [Arrange-Act-Assert (AAA)](http://c2.com/cgi/wiki?ArrangeActAssert) pattern.
 Comments are added to better separate these logical blocks.
  
-&bull; Control function is taken from the spec created using public `friend-list/new-spec` function:
+* Control function is taken from the spec created by `friend-list/new-spec`.
+It could be tempting to instead test by using `friend-list/-new-control` helper function.
+But accessing private members is a bad practice
+and there can also be middleware applied inside `new-spec` which can affect the tested behavior:
 
 ```clj
-(let [; ...
-      {:keys [control]} (friend-list/new-spec :_history search) ; ...
+{:keys [control]} (friend-list/new-spec :_history search)
 ```
 
-It could be tempting to instead test by using `friend-list/-new-control` helper function directly.
-But accessing private members is a bad practice
-and there can also be middleware applied inside `new-spec` which can affect the tested behavior.
-
-&bull; Instead of using a real async API client we create a fake `search` 
+* Instead of using a real async API client we create a fake `search` 
 function which synchronously returns the expected result and 
 will throw an exception on calls with unexpected arguments:
 
 ```clj
-(let [search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)]) ; ...
+search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
 ```
 
-&bull; Dynamic nature of ClojureScript allows us to use keywords (`:_history`, `:_found-friends`, `:_model`, `:_new_token`) instead
+* Dynamic nature of ClojureScript allows us to use keywords (`:_history`, `:_found-friends`, `:_model`, `:_new_token`) instead
 of creating objects of correct type
 when we know that their type doesn't really matter in the test case.
 It makes tests more focused and readable.
@@ -1008,12 +1006,13 @@ provides a bidirectional synchronization between a browser URL and a model:
 * If token in model is changed by an app then a browser will accordingly update its address bar.
 This is especially useful during time traveling debugging as toggling token-changing actions will correctly update a URL.
 
-Examples using the middleware:
-
-* [Friend List](/examples/#friend-list) - in this application a token is synced with a search query.
-* [TodoMVC](/examples/#todomvc) - here [Silk](https://github.com/DomKM/silk) routing library is added to parse and build tokens.
+>&#128172; Examples:
+>
+>* [Friend List](/examples/#friend-list) - in this application a token is synced with a search query.
+>* [TodoMVC](/examples/#todomvc) - here [Silk](https://github.com/DomKM/silk) routing library is added to parse and build tokens.
  
-An example of applying the middleware:
+Use [`add`](/api/carry-history.core.html#var-add) to apply the middleware
+and don't forget to start the app:
 
 ```clj
 (ns app.core
