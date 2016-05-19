@@ -1,10 +1,18 @@
 (defproject
-  elmish-counter-list "0.1.0-SNAPSHOT"
+  subapps "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
 
                  [reagent "0.6.0-SNAPSHOT" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "15.0.2-0"]
+
+                 ; required by carry-debugger:
+                 [com.rpl/specter "0.10.0"]
+                 [funcool/hodgepodge "0.1.4"]
+                 [prismatic/schema "1.1.0"]
+                 [cljsjs/jquery-ui "1.11.4-0"]
+                 [cljsjs/filesaverjs "1.1.20151003-0"]
+                 [binaryage/devtools "0.6.1"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]]
 
@@ -19,7 +27,11 @@
                         :source-paths ["src"
                                        "../../src"
                                        "../../contrib/reagent/src"
-                                       "../counter/src-spec"]
+                                       "../counter/src-spec"
+                                       "../friend-list/src-spec"
+                                       "../../contrib/schema/src"
+                                       "../../contrib/history/src"
+                                       "../../contrib/logging/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -34,7 +46,11 @@
                         :source-paths ["src"
                                        "../../src"
                                        "../../contrib/reagent/src"
-                                       "../counter/src-spec"]
+                                       "../counter/src-spec"
+                                       "../friend-list/src-spec"
+                                       "../../contrib/schema/src"
+                                       "../../contrib/history/src"
+                                       "../../contrib/logging/src"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced

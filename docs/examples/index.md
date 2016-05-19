@@ -65,16 +65,16 @@ Inspired by [flux-comparison](https://github.com/voronianski/flux-comparison) pr
 # Composite Apps
 
 ## Subapps
-[Source code](https://github.com/metametadata/carry/tree/master/examples/elmish-subapps)
+[Source code](https://github.com/metametadata/carry/tree/master/examples/subapps)
 
-[Demo](/examples/elmish-subapps)
+[Demo](/examples/subapps)
 
 In this project [counter app](#counter) and [friend list app](#friend-list) instances are "statically" added to the app spec.
 Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.
 
 ## Counter List
-[Source code](https://github.com/metametadata/carry/tree/master/examples/elmish-counter-list)
+[Source code](https://github.com/metametadata/carry/tree/master/examples/counter-list)
 
-[Demo](/examples/elmish-counter-list)
+[Demo](/examples/counter-list)
 
 In this example [counter app](#counter) instances are created and removed dynamically after app is started.

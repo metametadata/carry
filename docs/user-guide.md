@@ -799,7 +799,7 @@ still has a single model, controller and reconciler.
 Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity,
 so use it with caution.
 
-Let's look at [elmish-counter-list](/examples/#counter-list) example.
+Let's look at [counter-list](/examples/#counter-list) example.
 In this project [counter apps](/examples/#counter) can be created and removed dynamically
 
 >&#128172; For a simpler example of a "statically assembled" app please check [subapps](/examples/#subapps) project.
