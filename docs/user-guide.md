@@ -790,8 +790,7 @@ Unit testing this function is probably not critical because most error-prone UI
 code is located in `view-model`.
 
 ## Composite Apps
-Because Carry architecture is also based on functions (control, reconcile, view-model, view) 
-which can be nested inside each other,
+Because Carry architecture is also based on functions which can be nested inside each other,
 a pattern similar to [Elm architecture](https://github.com/evancz/elm-architecture-tutorial/) 
 can be applied to build composite apps. A composite app incorporates instances of other Carry apps, but
 still has a single model, controller and reconciler.
@@ -800,9 +799,14 @@ Though the idea is quite straightforward, it is a debatable design pattern becau
 so use it with caution.
 
 Let's look at [counter-list](/examples/#counter-list) example.
-In this project [counter apps](/examples/#counter) can be created and removed dynamically
 
 >&#128172; For a simpler example of a "statically assembled" app please check [subapps](/examples/#subapps) project.
+
+In this project [counter apps](/examples/#counter) can be created and removed dynamically:
+
+<a href="http://i.imgur.com/9CNw0ZW.png">
+  <img src="http://i.imgur.com/9CNw0ZW.png" alt="counter-list" style="width: 25vw; display: block; margin: 0 auto;"/>
+</a>
 
 **`1. initial-model`**
 
