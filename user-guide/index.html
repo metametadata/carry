@@ -963,13 +963,16 @@ In this project <a href="../examples/#counter">counter apps</a> can be created a
 
 <p><strong><code>2. view-model</code></strong></p>
 <p>The view model will contain a single <code>:counters</code> reaction with a list of <code>[id counter-view-model]</code> pairs:</p>
-<pre><code class="clj">#_(defn view-model
-    &quot;Naive nonoptimal implementation:
-     counter view-models will be updated on every model update -&gt; 
-     every counter view will be reevaluated on each change.&quot;
-    [model]
-    {:counters (reaction (-&gt; (update-every-counter @model #(counter/view-model (reaction %)))
-                             :counters))})
+<pre><code class="clj">;(defn view-model
+;  &quot;Naive nonoptimal implementation:
+;   counter view-models will be updated on every model update -&gt;
+;    every counter view will be reevaluated on each change.&quot;
+;  [model]
+;  (let [counter-view-model (fn [counter-id]
+;                             (counter/view-model
+;                               (carry/entangle model #(get-counter % counter-id) r/atom)))]
+;    {:counters (reaction (map (fn [[id _counter-model]] [id (counter-view-model id)])
+;                              (:counters @model)))}))
 
 (defn view-model
   &quot;Optimized implementation. 
@@ -983,18 +986,20 @@ In this project <a href="../examples/#counter">counter apps</a> can be created a
                                          second))
         counter-view-model (fn [id]
                              (or (cached-counter-view-model id)
-                                 (counter/view-model (reaction (get-counter @model id)))))]
+                                 (counter/view-model
+                                   (carry/entangle model #(get-counter % id) r/atom))))]
     {:counters (reaction (reset! cached-counter-view-models
                                  (mapv (fn [[id _]] [id (counter-view-model id)])
                                        (:counters @model))))}))
 </code></pre>
 
 <p>The optimized implementation calculates each counter view model only once.
-So that existing counter views are not unnecessarily evaluated by Reagent
-on every adding/removing of a single counter.</p>
-<p>Note that, although <code>counter/view-model</code> expects a read-only ratom model,
-it's also OK to pass it a ratom-like reaction object because we'll only need to create new reactions from it:</p>
-<pre><code class="clj">(counter/view-model (reaction (get-counter @model id))
+So that all existing counter views are not unnecessarily evaluated by Reagent
+on updating a single counter.</p>
+<p>Carry's <a href="../api/carry.core.html#var-entangle"><code>entangle</code></a> helper is used to create a counter model ratom for <code>counter/view-model</code>.
+This call returns a read-only ratom which will automatically sync its value with
+<code>(get-counter @model id)</code> on <code>model</code> changes:</p>
+<pre><code class="clj">(counter/view-model (carry/entangle model #(get-counter % id) r/atom))
 </code></pre>
 
 <p><strong><code>3. view</code></strong></p>
@@ -1040,14 +1045,10 @@ on inserting/removing subapps. But in this example we omit this because counter 
                             (tagged dispatch-action [:counter-action id])))))
 </code></pre>
 
-<p>Carry's <code>entangle</code> helper is used to create a counter model atom for <code>counter-control</code>.
-This call returns a read-only atom which will automatically sync its value with
-<code>(get-counter @model id)</code> on <code>model</code> changes:</p>
+<p><code>entangle</code> helper is used to create a counter model atom for <code>counter-control</code>:</p>
 <pre><code class="clj">(carry/entangle model #(get-counter % id))
 </code></pre>
 
-<p>Note that we can't use <code>reaction</code> instead of <code>entangle</code> because <code>counter-control</code>
-can call <code>add-watch/remove-watch</code> on its model and reactions don't support watching in the same way as atoms.</p>
 <p><strong><code>5. reconciler</code></strong></p>
 <p>Reconciler depends on counter's initial model and reconciler:</p>
 <pre><code class="clj">(defn new-reconcile
