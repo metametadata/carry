@@ -850,7 +850,7 @@ Several helpers are defined to modify a model:
 
 **`2. view-model`**
 
-The view model will contain a single `:counters` reaction with a list of `[id counter-view-model]` pairs:
+The view model will contain `:counters` reaction with a list of `[id counter-view-model]` pairs:
 
 ```clj
 ;(defn view-model
@@ -892,7 +892,7 @@ This call returns a read-only ratom which will automatically sync its value with
 `(get-counter @model id)` on `model` changes:
 
 ```clj
-(counter/view-model (carry/entangle model #(get-counter % id) r/atom))
+(carry/entangle model #(get-counter % id) r/atom)
 ```
 
 **`3. view`**

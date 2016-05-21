@@ -13,7 +13,7 @@ UI bindings, routing, debugger, etc. are implemented as separate optional packag
 
 ## Features
 
-* Middleware-friendly functional API with no globals makes apps easy to extend and unit test.
+* Functional API with no globals makes apps easy to extend and unit test.
 * Agnostic to UI layer.
 * Time traveling debugger inspired by [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/debugger).
 * Live code editing using [Figwheel](https://github.com/bhauman/lein-figwheel) and debugger's replay mode.
@@ -32,7 +32,7 @@ using view-model/view pattern based on Reagent reactions ([similarly to re-frame
 * Model can be modified only by dispatching actions.
 * Only controller can dispatch actions.
 * Reconciler is a pure function which returns a new model value based on an incoming action.
-* When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -> signal -> action -> model -> UI -> etc.
+* When UI layer subscribes to model changes we get a unidirectional data flow: UI -> signal -> action -> model -> UI -> etc.
 
 ## Example
 
