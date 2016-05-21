@@ -178,7 +178,7 @@ UI bindings, routing, debugger, etc. are implemented as separate optional packag
 <p><a href="https://clojars.org/carry"><img alt="Clojars Project" src="https://img.shields.io/clojars/v/carry.svg" /></a></p>
 <h2 id="features">Features</h2>
 <ul>
-<li>Middleware-friendly functional API with no globals makes apps easy to extend and unit test.</li>
+<li>Functional API with no globals makes apps easy to extend and unit test.</li>
 <li>Agnostic to UI layer.</li>
 <li>Time traveling debugger inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</a> and <a href="http://www.cerebraljs.com/debugger">Cerebral Debugger</a>.</li>
 <li>Live code editing using <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a> and debugger's replay mode.</li>
@@ -197,7 +197,7 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
 <li>Model can be modified only by dispatching actions.</li>
 <li>Only controller can dispatch actions.</li>
 <li>Reconciler is a pure function which returns a new model value based on an incoming action.</li>
-<li>When UI layer subscribes to model changes we get a notorious unidirectional data flow: UI -&gt; signal -&gt; action -&gt; model -&gt; UI -&gt; etc.</li>
+<li>When UI layer subscribes to model changes we get a unidirectional data flow: UI -&gt; signal -&gt; action -&gt; model -&gt; UI -&gt; etc.</li>
 </ul>
 <h2 id="example">Example</h2>
 <p><a href="https://metametadata.github.com/carry/examples/counter">Demo</a>,
@@ -341,5 +341,5 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-05-19 17:11:22.130266
+Build Date UTC : 2016-05-21 10:32:16.571522
 -->

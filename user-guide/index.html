@@ -792,7 +792,7 @@ with Reagent bindings because its behavior is implemented in four functions with
 <code>control</code>, <code>reconcile</code>, <code>view-model</code>, <code>view</code>.</p>
 <p>Let's look at how these functions are tested in
 <a href="../examples/#friend-list">friend-list</a> example:</p>
-<p><strong><code>1. (control [model signal dispatch-signal dispatch-action])</code></strong> </p>
+<p><strong><code>1. (control model signal dispatch-signal dispatch-action)</code></strong> </p>
 <p>Control function handles incoming signals to perform side effects, dispatch new signals and actions.
 Such behavior is easy to test using <a href="https://en.wikipedia.org/wiki/Mock_object">mock</a> functions.
 This test uses <a href="https://github.com/metametadata/clj-fakes">clj-fakes</a> 
@@ -852,7 +852,7 @@ of creating objects of correct type
 when we know that their type doesn't really matter in the test case.
 It makes tests more focused and readable.</li>
 </ul>
-<p><strong><code>2. (reconcile [model action])</code></strong></p>
+<p><strong><code>2. (reconcile model action)</code></strong></p>
 <p>Reconciler is the easiest function to test because it's pure:</p>
 <pre><code class="clj">(deftest
   sets-query
@@ -865,7 +865,7 @@ It makes tests more focused and readable.</li>
 <p>Notice, that it's impossible to use a <code>:_new_query</code> keyword because app uses 
 <a href="https://github.com/metametadata/carry/tree/master/contrib/schema">carry-schema</a>
 middleware forcing us to use a string value <code>"new-query"</code> on reconciling.</p>
-<p><strong><code>3. (view-model [model])</code></strong></p>
+<p><strong><code>3. (view-model model)</code></strong></p>
 <p>These tests make sure that view model really contains Reagent reactions
 at <code>:query</code> and <code>:friends</code> keys:</p>
 <pre><code class="clj">(ns unit.view-model
@@ -910,22 +910,24 @@ at <code>:query</code> and <code>:friends</code> keys:</p>
 <li><a href="https://github.com/plumatic/schema-generators">schema-generators</a> library is used to automatically generate
 <code>new-friends</code> fixture instead of coding it by hand.</li>
 </ul>
-<p><strong><code>4. (view [view-model dispatch])</code></strong> (This section is a WIP.)</p>
+<p><strong><code>4. (view view-model dispatch)</code></strong> (This section is a WIP.)</p>
 <p>Unit testing this function is probably not critical because most error-prone UI
 code is located in <code>view-model</code>.</p>
 <h2 id="composite-apps">Composite Apps</h2>
-<p>Because Carry architecture is also based on functions (control, reconcile, view-model, view) 
-which can be nested inside each other,
+<p>Because Carry architecture is also based on functions which can be nested inside each other,
 a pattern similar to <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm architecture</a> 
 can be applied to build composite apps. A composite app incorporates instances of other Carry apps, but
 still has a single model, controller and reconciler.</p>
 <p>Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity,
 so use it with caution.</p>
-<p>Let's look at <a href="../examples/#counter-list">counter-list</a> example.
-In this project <a href="../examples/#counter">counter apps</a> can be created and removed dynamically</p>
+<p>Let's look at <a href="../examples/#counter-list">counter-list</a> example.</p>
 <blockquote>
 <p>&#128172; For a simpler example of a "statically assembled" app please check <a href="../examples/#subapps">subapps</a> project.</p>
 </blockquote>
+<p>In this project <a href="../examples/#counter">counter apps</a> can be created and removed dynamically:</p>
+<p><a href="http://i.imgur.com/9CNw0ZW.png">
+  <img src="http://i.imgur.com/9CNw0ZW.png" alt="counter-list" style="width: 25vw; display: block; margin: 0 auto;"/>
+</a></p>
 <p><strong><code>1. initial-model</code></strong></p>
 <p>The model will store a list of counter app models:</p>
 <pre><code class="clj">(def initial-model
@@ -962,7 +964,7 @@ In this project <a href="../examples/#counter">counter apps</a> can be created a
 </code></pre>
 
 <p><strong><code>2. view-model</code></strong></p>
-<p>The view model will contain a single <code>:counters</code> reaction with a list of <code>[id counter-view-model]</code> pairs:</p>
+<p>The view model will contain <code>:counters</code> reaction with a list of <code>[id counter-view-model]</code> pairs:</p>
 <pre><code class="clj">;(defn view-model
 ;  &quot;Naive nonoptimal implementation:
 ;   counter view-models will be updated on every model update -&gt;
@@ -999,7 +1001,7 @@ on updating a single counter.</p>
 <p>Carry's <a href="../api/carry.core.html#var-entangle"><code>entangle</code></a> helper is used to create a counter model ratom for <code>counter/view-model</code>.
 This call returns a read-only ratom which will automatically sync its value with
 <code>(get-counter @model id)</code> on <code>model</code> changes:</p>
-<pre><code class="clj">(counter/view-model (carry/entangle model #(get-counter % id) r/atom))
+<pre><code class="clj">(carry/entangle model #(get-counter % id) r/atom)
 </code></pre>
 
 <p><strong><code>3. view</code></strong></p>
@@ -1025,7 +1027,7 @@ This call returns a read-only ratom which will automatically sync its value with
 
 <p>As you can see, <code>counter/view</code> is created for each counter and will dispatch its signals "tagged"
 with a corresponding counter id.</p>
-<p><strong><code>4. controller</code></strong></p>
+<p><strong><code>4. control</code></strong></p>
 <p>The controller will pass tagged signals to the injected counter controller.
 In a more complex app we would also have to dispatch tagged <code>:on-start</code>/<code>:on-stop</code> signals
 on inserting/removing subapps. But in this example we omit this because counter app has no start/stop code:</p>
@@ -1049,7 +1051,7 @@ on inserting/removing subapps. But in this example we omit this because counter 
 <pre><code class="clj">(carry/entangle model #(get-counter % id))
 </code></pre>
 
-<p><strong><code>5. reconciler</code></strong></p>
+<p><strong><code>5. reconcile</code></strong></p>
 <p>Reconciler depends on counter's initial model and reconciler:</p>
 <pre><code class="clj">(defn new-reconcile
   [counter-initial-model counter-reconcile]
