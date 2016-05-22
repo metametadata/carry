@@ -1,37 +1,47 @@
-(ns carry.core
-  (:require))
+(ns carry.core)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Read-only atoms
-(defprotocol -ReadOnlyAtom)
-
-(defn -read-only?
+(defn read-only?
+  "Returns true if atom is read-only."
   [a]
-  (satisfies? -ReadOnlyAtom a))
+  (::read-only-atom? (meta a)))
 
-(defn -prohibit-reset!-for-read-only-atoms!
-  "Monkey patches reset! function in order to prohibit changes to read-only atoms. Returns original function."
-  []
-  (let [original-fn reset!
-        new-reset (fn [a new-value]
-                    (when (-read-only? a)
-                      (throw (js/Error. (str "read-only atom cannot be reset to " (pr-str new-value)))))
-
-                    (original-fn a new-value))]
-    (set! reset! new-reset)
-    original-fn))
-
-(def -original-reset! (-prohibit-reset!-for-read-only-atoms!))
-
-(defn ^:no-doc -reset-read-only-atom!
-  "Bypasses write protection of the specified read-only atom."
-  [a new-value]
-  (assert (-read-only? a) "atom must be read-only")
-  (-original-reset! a new-value))
+(defn ^:no-doc -throw-read-only-atom-error
+  [new-state]
+  #?(:clj  (throw (ex-info (str "read-only atom was set to " (pr-str new-state)) {}))
+     :cljs (throw (js/Error. (str "read-only atom was set to " (pr-str new-state))))))
 
 (defn set-read-only!
   "Prohibits swap!/reset! for the specified atom. Returns the updated atom."
   [a]
-  (specify! a -ReadOnlyAtom))
+  (alter-meta! a assoc ::read-only-atom? true)
+  (add-watch a ::read-only-watch
+             (fn read-only-watch
+               [_key _atom old-state new-state]
+               (when (not= old-state new-state)
+                 (-throw-read-only-atom-error new-state)))))
+
+(defn ^:no-doc -set-can-be-set-only-to-value!
+  "Allows swap!/reset! only to the specified value. Returns the updated atom."
+  [a v]
+  (add-watch a ::can-be-reset-only-to-value-watch
+             (fn can-be-reset-only-to-value-watch
+               [_key _atom _old-state new-state]
+               (when (not= new-state v)
+                 (-throw-read-only-atom-error new-state)))))
+
+(defn ^:no-doc -reset-read-only-atom!
+  "Bypasses write protection of the specified read-only atom."
+  [a new-value]
+  (assert (read-only? a))
+
+  (remove-watch a ::read-only-watch)
+  (-set-can-be-set-only-to-value! a new-value)
+
+  (reset! a new-value)
+
+  (remove-watch a ::can-be-reset-only-to-value-watch)
+  (set-read-only! a))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn app

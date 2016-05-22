@@ -1,3 +1,9 @@
+# Tests
+
+Autorun Clojure tests: `lein test-refresh`
+
+Autorun ClojureScript tests: `lein doo phantom test auto`
+
 # Documentation
 
 Project uses [MkDocs](http://www.mkdocs.org/) with [Cinder](https://github.com/chrissimpkins/cinder) theme and [PlantUML](http://plantuml.com/) to generate documentation static site.

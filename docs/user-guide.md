@@ -19,26 +19,31 @@ It can also affect an external world as a response to a signal, i.e. perform "si
 
 Model represents an entire state of an app. 
  
-One can access app's model via `:model` key to obtain a read-only atom that can be dereferenced and watched, but cannot be mutated:
+One can access app's model via `:model` key to obtain a read-only atom that can be dereferenced and watched.
+An exception will be thrown after mutating such atom:
 
 ```clj
 (def my-model (:model app))
 
+; Dereference to get atom value.
 @my-model
 ;=> {...}
 
-(add-watch my-model :my-watcher
+; Start reacting to atom changes.
+(add-watch my-model :my-watch
            (fn [_key _atom old-state new-state]
              (when (not= old-state new-state)
                (println "model value has changed!"))))
                
-(reset! my-model {:foo :bar})
-;=> Error: read-only atom cannot be reset to {:foo :bar}
-               
 ((:dispatch-signal app) some-model-changing-signal)
 ;=> model value has changed!
 
-(remove-watch my-model :my-watcher)
+; Stop watching.
+(remove-watch my-model :my-watch)
+               
+; Mutating an atom will throw an exception.
+(reset! my-model {:foo :bar})
+;=> Error: read-only atom was set to {:foo :bar}
 ```
 
 Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.
@@ -485,7 +490,7 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
                (app-control model signal dispatch-signal dispatch-action)
 
                ; Start listening to model updates.
-               (add-watch model ::token-watcher
+               (add-watch model ::token-watch
                           (fn [_key _atom old-state new-state]
                             ; ...
                             ))
@@ -505,7 +510,7 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
         ; Otherwise, on hot reload unused listeners will stay in memory.
         (@unlisten)
         
-        ; There's no need to remove model watchers on hot reload 
+        ; There's no need to remove model watches on hot reload 
         ; because they will be garbage-collected with the model.
 
         ; Let the wrapped app continue cleaning up.
