@@ -1,6 +1,4 @@
-All source code can be found in [the Github repository](https://github.com/metametadata/carry/tree/master/examples/).
-
-All apps support hot reloading and REPL debugging via [Figwheel](https://github.com/bhauman/lein-figwheel).
+Most apps support hot reloading and REPL debugging via [Figwheel](https://github.com/bhauman/lein-figwheel).
 
 # Counter Vanilla
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter-vanilla)
@@ -47,14 +45,27 @@ Features:
 * model validation using [Schema](https://github.com/plumatic/schema)
 * uses [Specter](https://github.com/nathanmarz/specter) for model updates
 
-# Counter DataScript
+# Pickings
+[Source code](https://github.com/metametadata/pickings)
+
+The small desktop app using Carry.
+
+Features:A
+
+* written in Clojure
+* [Seesaw](https://github.com/daveray/seesaw) for UI
+* [reloaded workflow] (http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded) for easier running from REPL
+
+# Apps Using DataScript
+
+## Counter DataScript
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter-datascript)
 
 [Demo](/examples/counter-datascript)
 
 Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-memory database for a model.
 
-# Shopping Cart
+## Shopping Cart
 [Source code](https://github.com/metametadata/carry/tree/master/examples/shopping-cart)
 
 [Demo](/examples/shopping-cart)
