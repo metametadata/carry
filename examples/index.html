@@ -149,10 +149,16 @@
         <li class="first-level "><a href="#todomvc">TodoMVC</a></li>
         
     
-        <li class="first-level "><a href="#counter-datascript">Counter DataScript</a></li>
+        <li class="first-level "><a href="#pickings">Pickings</a></li>
         
     
-        <li class="first-level "><a href="#shopping-cart">Shopping Cart</a></li>
+        <li class="first-level "><a href="#apps-using-datascript">Apps Using DataScript</a></li>
+        
+            <li class="second-level"><a href="#counter-datascript">Counter DataScript</a></li>
+            
+        
+            <li class="second-level"><a href="#shopping-cart">Shopping Cart</a></li>
+            
         
     
         <li class="first-level "><a href="#composite-apps">Composite Apps</a></li>
@@ -168,8 +174,7 @@
 </div></div>
         <div class="col-md-9" role="main">
 
-<p>All source code can be found in <a href="https://github.com/metametadata/carry/tree/master/examples/">the Github repository</a>.</p>
-<p>All apps support hot reloading and REPL debugging via <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a>.</p>
+<p>Most apps support hot reloading and REPL debugging via <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a>.</p>
 <h1 id="counter-vanilla">Counter Vanilla</h1>
 <p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-vanilla">Source code</a></p>
 <p><a href="../examples/counter-vanilla">Demo</a></p>
@@ -203,11 +208,21 @@ Demonstrates how to dispatch new signals from app controller and also features:<
 <li>model validation using <a href="https://github.com/plumatic/schema">Schema</a></li>
 <li>uses <a href="https://github.com/nathanmarz/specter">Specter</a> for model updates</li>
 </ul>
-<h1 id="counter-datascript">Counter DataScript</h1>
+<h1 id="pickings">Pickings</h1>
+<p><a href="https://github.com/metametadata/pickings">Source code</a></p>
+<p>The small desktop app using Carry.</p>
+<p>Features:A</p>
+<ul>
+<li>written in Clojure</li>
+<li><a href="https://github.com/daveray/seesaw">Seesaw</a> for UI</li>
+<li>[reloaded workflow] (http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded) for easier running from REPL</li>
+</ul>
+<h1 id="apps-using-datascript">Apps Using DataScript</h1>
+<h2 id="counter-datascript">Counter DataScript</h2>
 <p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-datascript">Source code</a></p>
 <p><a href="../examples/counter-datascript">Demo</a></p>
 <p>Simplest example of using <a href="https://github.com/tonsky/datascript">DataScript</a> in-memory database for a model.</p>
-<h1 id="shopping-cart">Shopping Cart</h1>
+<h2 id="shopping-cart">Shopping Cart</h2>
 <p><a href="https://github.com/metametadata/carry/tree/master/examples/shopping-cart">Source code</a></p>
 <p><a href="../examples/shopping-cart">Demo</a></p>
 <p>More advanced example of using <a href="https://github.com/tonsky/datascript">DataScript</a>.
