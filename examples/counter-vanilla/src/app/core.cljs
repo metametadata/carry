@@ -36,7 +36,7 @@
         app (carry/app spec)
         value-el (.getElementById js/document "value")]
     (add-watch (:model app)
-               :render-watcher
+               :render-watch
                (fn [_key _atom _old-state new-state]
                  (set! (.-innerHTML value-el) (:val new-state))))
 

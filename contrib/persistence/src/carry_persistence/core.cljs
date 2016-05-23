@@ -30,7 +30,7 @@
                ; save for the first time and on every future change
                (-save storage key (-whitelist @model blacklist))
                (add-watch model
-                          [::persistence-watcher key]       ; unique key
+                          [::persistence-watch key]         ; unique key
                           (fn [_key _atom old-state new-state]
                             (let [old-state (-whitelist old-state blacklist)
                                   new-state (-whitelist new-state blacklist)]
