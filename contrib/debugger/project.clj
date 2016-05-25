@@ -1,4 +1,4 @@
-(def version "0.3.0")
+(def version "0.4.0")
 
 (defproject
   carry-debugger
@@ -11,7 +11,7 @@
                  [org.clojure/clojurescript "1.8.51" :scope "provided"]
 
                  [carry-schema "0.3.0"]
-                 [carry-reagent "0.3.0"]
+                 [carry-reagent "0.4.0"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [reagent "0.6.0-alpha2"]
