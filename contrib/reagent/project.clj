@@ -7,7 +7,7 @@
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.8.51" :scope "provided"]
 
-                 [carry "0.3.0" "provided"]
+                 [carry "0.3.0" :scope "provided"]
 
                  [reagent "0.6.0-alpha2"]]
 
