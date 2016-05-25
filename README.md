@@ -40,7 +40,7 @@ using view-model/view pattern based on Reagent reactions ([similarly to re-frame
 [Demo](https://metametadata.github.com/carry/examples/counter),
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter)
 
-Counter spec and UI:
+Counter spec:
 
 ```clj
 (ns counter.core
@@ -74,6 +74,14 @@ Counter spec and UI:
          :increment (update model :val inc)
          :decrement (update model :val dec)))
 
+(def spec {:initial-model -initial-model
+           :control       -control
+           :reconcile     -reconcile})
+```
+
+UI:
+
+```clj
 (defn view-model
   [model]
   {:counter (reaction (str "#" (:val @model)))})
@@ -86,10 +94,6 @@ Counter spec and UI:
    [:button {:on-click #(dispatch :on-decrement)} "-"] " "
    [:button {:on-click #(dispatch :on-increment-if-odd)} "Increment if odd"] " "
    [:button {:on-click #(dispatch :on-increment-async)} "Increment async"]])
-
-(def spec {:initial-model -initial-model
-           :control       -control
-           :reconcile     -reconcile})
 ```
 
 Main file:
