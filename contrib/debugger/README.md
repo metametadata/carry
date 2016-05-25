@@ -6,7 +6,7 @@ Middleware for debugging Carry applications.
 
 [Documentation](http://metametadata.github.io/carry/user-guide/#debugger)
 
-[API Reference](http://metametadata.github.io/carry/api/carry-debugger.core.html)
+[API Reference](http://metametadata.github.io/carry/api/debugger/)
 
 ![screenshot](http://i.imgur.com/ZOH6Noj.png)
 

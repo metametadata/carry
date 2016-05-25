@@ -20,7 +20,7 @@ UI bindings, routing, debugger, etc. are implemented as separate optional packag
 * [Reagent](https://github.com/reagent-project/reagent) bindings achieve code readability and rendering optimization
 using view-model/view pattern based on Reagent reactions ([similarly to re-frame](https://github.com/Day8/re-frame#how-flow-happens-in-reagent)).
 * Fractality: [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to create composite apps.
-* Core library can be also used in Clojure projects
+* Core library can be also used in Clojure projects.
 
 ## Design
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)

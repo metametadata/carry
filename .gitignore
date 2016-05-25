@@ -13,6 +13,7 @@ pom.xml.asc
 .lein-repl-history
 .lein-plugins/
 .lein-failures
+/api
 .nrepl-port
 /figwheel_server.log
 .DS_Store
@@ -22,3 +23,4 @@ pom.xml.asc
 /examples/*/resources/public/js/compiled
 /examples/*/resources/private
 /contrib/*/target
+/contrib/*/api

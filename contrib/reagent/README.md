@@ -6,4 +6,4 @@
 
 [Documentation](http://metametadata.github.io/carry/user-guide/#usage-with-reagent)
 
-[API Reference](http://metametadata.github.io/carry/api/carry-reagent.core.html)
+[API Reference](http://metametadata.github.io/carry/api/reagent)

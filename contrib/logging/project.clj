@@ -7,8 +7,16 @@
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.8.51" :scope "provided"]]
 
+  :plugins [[lein-codox "0.9.5"]]
+
   :pedantic? :abort
 
   :source-paths ["src"]
 
-  :repositories {"clojars" {:sign-releases false}})
+  :repositories {"clojars" {:sign-releases false}}
+
+  :codox {:source-uri   "https://github.com/metametadata/carry/blob/master/contrib/logging/{filepath}#L{line}"
+          :language     :clojurescript
+          :source-paths ["src"]
+          :output-path  "api"
+          :metadata     {:doc/format :markdown}})

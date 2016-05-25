@@ -11,8 +11,16 @@
 
                  [reagent "0.6.0-alpha2"]]
 
+  :plugins [[lein-codox "0.9.5"]]
+
   :pedantic? :abort
 
   :source-paths ["src"]
 
-  :repositories {"clojars" {:sign-releases false}})
+  :repositories {"clojars" {:sign-releases false}}
+
+  :codox {:source-uri   "https://github.com/metametadata/carry/blob/master/contrib/reagent/{filepath}#L{line}"
+          :language     :clojurescript
+          :source-paths ["src"]
+          :output-path  "api"
+          :metadata     {:doc/format :markdown}})

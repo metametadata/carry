@@ -6,4 +6,4 @@ Carry middleware which simplifies working with browser history.
 
 [Documentation](http://metametadata.github.io/carry/user-guide/#routing)
 
-[API Reference](http://metametadata.github.io/carry/api/carry-history.core.html)
+[API Reference](http://metametadata.github.io/carry/api/history)

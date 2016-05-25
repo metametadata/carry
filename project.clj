@@ -1,8 +1,5 @@
-(def version "0.3.0")
-
 (defproject
-  carry
-  version
+  carry "0.3.0"
   :description "ClojureScript single-page application framework."
   :url "https://github.com/metametadata/carry"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
@@ -32,22 +29,8 @@
                                        :output-dir    "resources/private/js/compiled/out"
                                        :optimizations :none}}]}
 
-  ; :codox profile is needed to be able to generate docs from contrib code without errors
-  :profiles {:codox {:dependencies [; for carry-debugger:
-                                    [org.clojure/core.match "0.3.0-alpha4"]
-                                    [reagent "0.6.0-alpha2"]]}}
-
   :codox {:source-uri   "https://github.com/metametadata/carry/blob/master/{filepath}#L{line}"
-          :language     :clojurescript
-          :source-paths ["src"
-                         "contrib/debugger/src/"
-                         "contrib/history/src/"
-                         "contrib/logging/src/"
-                         "contrib/persistence/src/"
-                         "contrib/reagent/src/"
-                         "contrib/schema/src/"]
+          :language     :clojure
+          :source-paths ["src"]
           :output-path  "site/api"
-          :metadata     {:doc/format :markdown}
-          :project      {:name        "Carry"
-                         :description "ClojureScript single-page application framework."
-                         :version     ~version}})
+          :metadata     {:doc/format :markdown}})

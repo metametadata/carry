@@ -3,6 +3,7 @@ import contextlib
 import os
 import shutil
 
+
 @task
 def mkdocs(clean=False):
     """ Only build site pages using MkDocs.
@@ -16,6 +17,7 @@ def mkdocs(clean=False):
         shutil.copy2("README.md", index_path)
         run("mkdocs build" + (" --clean" if clean else ""), echo=True)
 
+
 @task
 def graphs():
     """ Compiles graphs into project site folder. """
@@ -24,10 +26,22 @@ def graphs():
                                            os.path.join("docs", "graphs")),
         echo=True)
 
+
 @task
 def api():
-    """ Compiles API reference into project site folder. """
+    """ Compiles API reference for Carry and its contrib projects into site folder. """
+    # core
     lein("codox")
+
+    # contrib projects
+    full_site_path = os.path.join(os.getcwd(), "site")
+    for project_name in os.listdir("contrib"):
+        project_path = os.path.join("contrib", project_name)
+        if os.path.isfile(os.path.join(project_path, "project.clj")):
+            with chdir(project_path):
+                lein("codox")
+                shutil.copytree("api", os.path.join(full_site_path, "api", project_name))
+
 
 @task
 def examples():
@@ -48,10 +62,12 @@ def examples():
                 shutil.copytree(os.path.join("resources", "public"),
                                 os.path.join(full_site_path, "examples", example_name))
 
+
 @task(post=[call(mkdocs, clean=True), call(graphs), call(api), call(examples)])
 def site():
     """ Cleans site folder, builds project site, compiles graphs and examples into site folder. """
     pass
+
 
 ################################################### Helpers
 @contextlib.contextmanager
@@ -59,22 +75,24 @@ def backed_up_file(filepath, backup_path):
     """ File will be returned to its initial state on context exit. """
     with temp_file(backup_path):
         try:
-            print "copy", filepath, "to backup", backup_path
+            print("copy", filepath, "to backup", backup_path)
             shutil.copy2(filepath, backup_path)
             yield
         finally:
-            print "recover", filepath, "from backup", backup_path
+            print("recover", filepath, "from backup", backup_path)
             shutil.copy2(backup_path, filepath)
+
 
 @contextlib.contextmanager
 def temp_file(filepath):
     try:
-        print "create temp file", filepath
+        print("create temp file", filepath)
         open(filepath, 'w').close()
         yield
     finally:
-        print "remove temp file", filepath
+        print("remove temp file", filepath)
         os.remove(filepath)
+
 
 @contextlib.contextmanager
 def chdir(dirname):
@@ -85,6 +103,7 @@ def chdir(dirname):
         yield
     finally:
         os.chdir(curdir)
+
 
 def lein(args):
     run("lein {0}".format(args), echo=True)
