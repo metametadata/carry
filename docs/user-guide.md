@@ -101,7 +101,7 @@ Controller is also free to contain an asynchronous code. The signature of a cont
 * `signal` - an incoming signal 
 * `dispatch-signal` - a synchronous function for dispatching new signals, always returns `nil`, the same as app's `:dispatch-signal`
 * `dispatch-action` - a synchronous function for modifying a model, always returns `nil`
-* Return value will not be used
+* return value will not be used
 
 By convention, control should be able to at least handle `:on-start` and `:on-stop` signals.
 As we'll see later, it's required by middleware with setup/teardown logic and to support hot reloading.
@@ -254,7 +254,7 @@ App view is constructed using `carry-reagent.core/connect` function:
 * `app` - Carry app instance
 * `view-model` - a function which produces a view model
 * `view` - a Reagent component
-* Returns a pair `[view-model-instance view-component]` (view model is returned mainly for debugging)
+* returns a pair `[view-model-instance view-component]` (view model is returned mainly for debugging)
 
 `view-model` function is called once on `connect` call.
 Then returned view model instance is passed as an argument into `view` function to produce a final view component.

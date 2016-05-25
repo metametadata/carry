@@ -50,11 +50,11 @@ Features:
 
 The small desktop app using Carry.
 
-Features:A
+Features:
 
 * written in Clojure
 * [Seesaw](https://github.com/daveray/seesaw) for UI
-* [reloaded workflow] (http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded) for easier running from REPL
+* [reloaded workflow](http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded) for easier running from REPL
 
 # Apps Using DataScript
 
