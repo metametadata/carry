@@ -2,7 +2,7 @@
   (:require))
 
 (defn add
-  "Will print all signals and actions to console with using the specified prefix string."
+  "Will print all signals and actions to console using the specified prefix string."
   ([spec] (add spec ""))
   ([spec prefix]
    {:pre [(:control spec) (:reconcile spec)]}
