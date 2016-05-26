@@ -77,22 +77,22 @@ def backed_up_file(filepath, backup_path):
     """ File will be returned to its initial state on context exit. """
     with temp_file(backup_path):
         try:
-            print("copy", filepath, "to backup", backup_path)
+            print("copy " + filepath + " to backup " + backup_path)
             shutil.copy2(filepath, backup_path)
             yield
         finally:
-            print("recover", filepath, "from backup", backup_path)
+            print("recover " + filepath + " from backup " + backup_path)
             shutil.copy2(backup_path, filepath)
 
 
 @contextlib.contextmanager
 def temp_file(filepath):
     try:
-        print("create temp file", filepath)
+        print("create temp file " + filepath)
         open(filepath, 'w').close()
         yield
     finally:
-        print("remove temp file", filepath)
+        print("remove temp file " + filepath)
         os.remove(filepath)
 
 
@@ -101,7 +101,7 @@ def chdir(dirname):
     curdir = os.getcwd()
     try:
         os.chdir(dirname)
-        print("current dir: %s" % dirname)
+        print("current dir: " + dirname)
         yield
     finally:
         os.chdir(curdir)
