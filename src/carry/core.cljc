@@ -12,7 +12,8 @@
      :cljs (throw (js/Error. (str "read-only atom was set to " (pr-str new-state))))))
 
 (defn set-read-only!
-  "Prohibits swap!/reset! for the specified atom. Returns the updated atom."
+  "Makes the specified atom read-only: an excpetion will be raised after atom value is changed.
+  Returns the updated atom."
   [a]
   (alter-meta! a assoc ::read-only-atom? true)
   (add-watch a ::read-only-watch
@@ -46,23 +47,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn app
   "Constructs an app from a spec map with keys:
-  :initial-model - Initial model value, must be a map.
 
-  :control - Function of args: [model-read-only-atom signal dispatch-signal dispatch-action].
+  * `:initial-model` - Initial model value, must be a map.
+  * `:control` - Function of args: `[model signal dispatch-signal dispatch-action]`.
   It performs side effects, can dispatch actions and new signals.
-  By convention, it must be able to handle :on-start and :on-stop signals in order to be wrappable by middleware.
-  Model atom is useful for reading actual model values in async code and to subscribe to model changes.
-  Functions dispatch-signal and dispatch-action always return nil.
+  By convention, it must be able to handle `:on-start` and `:on-stop` signals in order to be wrappable by middleware.
+  Read-only model atom is useful for reading actual model values in async code and to subscribe to model changes.
+  Functions `dispatch-signal` and `dispatch-action` always return `nil`.
+  * `:reconcile` - Pure function of args: `[model action]`.
+  Given an action and current model value, it must return the new model value.
 
-  :reconcile - Pure function of args: [model-value action]. Given an action, it must return the new model value.
+  Returns a map with keys:
 
-  Returned app is a map with keys:
-  :model - A read-only model atom.
-
-  :dispatch-signal - Function with a single arg: a signal to be sent to an app. Returns nil.
-
-  Data flow:
-  -dispatch-signal-> (control) -dispatch-action-> (reconcile)"
+  * `:model` - A read-only model atom.
+  * `:dispatch-signal` - Function with a single arg: a signal to be sent to an app. Returns `nil`."
   [{:keys [initial-model control reconcile] :as _spec}]
   {:pre [(map? initial-model) (fn? control) (fn? reconcile)]}
   (let [model-atom (set-read-only! (atom initial-model))]
@@ -73,8 +71,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils
 (defn entangle
-  "Returns a read-only atom which automatically syncs its value from (f @a).
-   Args: f - pure function, a - atom, contructor - optional atom contructor, default: atom."
+  "Returns a read-only atom which automatically syncs its value from `(f @a)`.
+   Arguments:
+
+   * `f` - pure function
+   * `a` - atom
+   * `contructor` - atom contructor, default value: `atom`"
   ([a f]
    (entangle a f atom))
   ([a f constructor]
