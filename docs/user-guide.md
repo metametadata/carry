@@ -5,13 +5,14 @@ This section explains everything you need to start making apps with Carry.
 ## Framework Overview
 
 Carry is actually a [very small](https://github.com/metametadata/carry/blob/master/src/carry/core.cljc)
-Clojure/ClojureScript state management library which provides a skeleton for the whole application and
-has no external dependencies.
+Clojure/ClojureScript state management library which provides a skeleton for the whole application.
+ 
+The library is distributed via [Clojars](clojars.org/carry) and has no dependencies.
 
 All the additional features (debugging, UI binding, etc.) are not part of the core project
 and can be provided by third-party packages. [Some of them](/index.html#packages) are already implemented
 and hosted in Carry repo [contrib folder](https://github.com/metametadata/carry/tree/master/contrib).
-Most of these packages are implemented using [middleware](#middleware) pattern.
+Most of these packages are implemented using [Carry middleware pattern](#middleware).
 
 The private/internal API uses a `-` prefix and should not be used (e.g. `-this-is-some-private-thing`).
 
