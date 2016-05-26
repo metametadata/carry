@@ -72,7 +72,7 @@ Signal can be synchronously sent to an app by calling its `dispatch-signal` func
 ((:dispatch-signal my-app) my-signal)
 ```
 
-Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or
+Carry accepts signals of any type. But usually signal is a just keyword with "on-" prefix or
 a serializable vector with a keyword and an additional payload:
 
 ```clj
