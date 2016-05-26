@@ -5,11 +5,12 @@
 
 (defn connect
   "Arguments:
-  app - the app for which UI should be created
-  view-model - function which, given a read-only model ratom, returns reactions (e.g. in a map); returned value will be passed to a view:
-  view - Reagent component function with args: [view-model-return-value dispatch-signal]
 
-  Note that view-model function will be called only once.
+  * `app` - the app for which UI should be created
+  * `view-model` - function which, given a read-only model ratom, returns reactions (e.g. in a map); returned value will be passed to `view`
+  * `view` - Reagent component function with args: `[view-model dispatch-signal]`
+
+  Note that `view-model` function will be called only once.
 
   Returns a pair of: view-model value (mostly for testing/debugging) and argless component to be rendered by Reagent."
   [{:keys [model dispatch-signal] :as _app} view-model view]
