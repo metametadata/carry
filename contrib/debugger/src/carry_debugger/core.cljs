@@ -531,10 +531,10 @@
   "Adds debugging capabilities to the app.
 
    All signals and actions will be recorded and stored in the model.
-   After app is created use |connect| for rendering the debugger.
+   After app is created use [[connect]] for rendering the debugger.
    For correct work it must be the last middleware wrapping the app.
 
-   Storage is expected to be a transient map (e.g. see hodgepodge lib).
+   Storage is expected to be a transient map (e.g. as provided by [hodgepodge](https://github.com/funcool/hodgepodge)).
 
    Custom keyboard shortcut can toggle the visibility.
 
@@ -550,8 +550,6 @@
 
 (defn connect
   "Creates Reagent component for showing a debugger for app which uses debugger middleware.
-  Returns [debugger-view-model debugger-view].
-
-  Debugger view is resizable."
+  Returns `[debugger-view-model debugger-view]`."
   [app]
   (carry-reagent/connect app -view-model -view))
