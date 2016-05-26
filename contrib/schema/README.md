@@ -8,4 +8,4 @@ Carry middleware for model validation using [Schema](https://github.com/plumatic
 
 ![screenshot](http://i.imgur.com/g5I2RnZ.png)
 
-Works best with [binaryage/cljs-devtools](https://github.com/binaryage/cljs-devtools).
+Works best with [cljs-devtools](https://github.com/binaryage/cljs-devtools).

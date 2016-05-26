@@ -550,6 +550,12 @@
 
 (defn connect
   "Creates Reagent component for showing a debugger for app which uses debugger middleware.
-  Returns `[debugger-view-model debugger-view]`."
+  Returns `[debugger-view-model debugger-view]`.
+
+  Debugger requires jQuery UI CSS to be included in HTML for correct rendering:
+
+  ```
+  <link href=\"https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css\" rel=\"stylesheet\" type=\"text/css\">
+  ```"
   [app]
   (carry-reagent/connect app -view-model -view))
