@@ -7,20 +7,23 @@
   (:import goog.history.Html5History
            [goog History]))
 
-;;;;;;;;;;;;;;;;;;;;;;;;; History object deals with browser url bar
+;;;;;;;;;;;;;;;;;;;;;;;;; History
 (defprotocol HistoryProtocol
+  "Protocol for objects managing browser history."
   (listen [this callback]
           "Starts calling back on history events.
-          Callback function signature: [token browser-event? event-data], where:
-            token - new token
-            browser-event? - true if event was initiated by action in browser, e.g. clicking Back button
-            event-data - data which was passed from replace-token/push-token
+          Callback function signature: `[token browser-event? event-data]`, where:
+
+          * `token` - new token
+          * `browser-event?` - `true` if event was initiated by action in browser, e.g. clicking Back button
+          * `event-data` - data which was passed from `replace-token`/`push-token`
+
           Returns a function which stops listening.")
   (replace-token [this token] [this token event-data]
-                 "Replace token and fire an event with additional data passed (data is nil if not specified);
+                 "Replace token and fire an event with additional data passed (data is `nil` if not specified);
                  do nothing if current token is already equal to the specified one.")
   (push-token [this token] [this token event-data]
-              "Push token and fire an event with additional data passed (data is nil if not specified);
+              "Push token and fire an event with additional data passed (data is `nil` if not specified);
               do nothing if current token is already equal to the specified one.")
   (token [this] "Return current token.")
   (token->href [this token] "Returns the href for the specified token to be used in HTML links."))
@@ -146,15 +149,15 @@
 (defn add
   "Applies middleware which syncs app model with browser history.
 
-  After start it begins catching history events and updates ::token in model accordingly.
-  If ::token changes in model (e.g. by toggling action in debugger), then current url is replaced using new token.
-  Initial ::token value will be applied on clicking debugger's Reset.
+  After start it begins catching history events and updates `::token` in model accordingly.
+  If `::token` changes in model (e.g. by toggling action in debugger), then current url is replaced using new token.
+  Initial `::token` value will be applied on clicking debugger's Reset.
 
-  Sends [::on-enter token] signal to app after handling token change event initiated from browser (e.g. on clicking Back button).
-  So using HistoryProtocol's replace-token/push-token would not trigger this signal.
-  You can still force sending this signal by passing {:treat-as-browser-event? true} event-data to these functions.
+  Sends `[::on-enter token]` signal to app after handling token change event initiated from browser (e.g. on clicking Back button).
+  So using [[HistoryProtocol]]'s `replace-token`/`push-token` would not trigger this signal.
+  You can still force sending this signal by passing `{:treat-as-browser-event? true}` event-data to these functions.
 
-  Middleware is friendly to carry-debugger: it won't automatically dispatch initial signal on app start if debugger's replay mode is on."
+  Middleware is friendly to `carry-debugger`: it won't automatically dispatch initial signal on app start if debugger's replay mode is on."
   [spec history]
   (-> spec
       (update :initial-model -wrap-initial-model)
@@ -181,9 +184,9 @@
 
 (defn link
   "Link Reagent component which changes current URL without sending request to server.
-  Will replace current token instead of pushing if :replace? attribute is true (attribute is false by default).
+  Will replace current token instead of pushing if `:replace?` attribute is `true` (attribute is `false` by default).
 
-  If history middleware is added then clicking the link will produce :on-enter signal."
+  If history middleware is added then clicking the link will produce `:on-enter` signal."
   [history token {:keys [replace?] :as attrs} & body]
   (into [:a (merge attrs {:href     (token->href history token)
                           :on-click #(-on-click % history token replace?)})]

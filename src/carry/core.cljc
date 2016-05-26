@@ -2,7 +2,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Read-only atoms
 (defn read-only?
-  "Returns true if atom is read-only."
+  "Returns `true` if atom `a` is read-only."
   [a]
   (::read-only-atom? (meta a)))
 
