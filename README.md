@@ -22,7 +22,7 @@ using view-model/view pattern based on Reagent reactions ([similarly to re-frame
 * Fractality: [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to create composite apps.
 * Core library can be also used in Clojure projects.
 
-## Design
+## Pattern
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
 
 * An app is defined by its initial model value, controller and reconciler.
@@ -35,18 +35,68 @@ using view-model/view pattern based on Reagent reactions ([similarly to re-frame
 * Reconciler is a pure function which returns a new model value based on an incoming action.
 * When UI layer subscribes to model changes we get a unidirectional data flow: UI -> signal -> action -> model -> UI -> etc.
 
-## Example
+## Example (counter app)
 
 [Demo](https://metametadata.github.com/carry/examples/counter),
 [Source code](https://github.com/metametadata/carry/tree/master/examples/counter)
 
-Counter spec:
+HTML:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Carry • Counter</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body>
+    <div id="root"></div>
+    <script src="js/compiled/frontend.js" type="text/javascript"></script>
+</body>
+</html>
+```
+
+Main file:
+
+```clj
+(ns app.core
+  (:require [counter.core :as counter]
+            [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [reagent.core :as r]))
+
+(let [app (carry/app counter/spec)
+      [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
+    (r/render app-view (.getElementById js/document "root"))
+    ((:dispatch-signal app) :on-start))
+```
+
+UI:
 
 ```clj
 (ns counter.core
   (:require [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
+(defn view-model
+  [model]
+  {:counter (reaction (str "#" (:val @model)))})
+
+(defn view
+  [{:keys [counter] :as _view-model} dispatch]
+  [:p
+   @counter " "
+   [:button {:on-click #(dispatch :on-increment)} "+"] " "
+   [:button {:on-click #(dispatch :on-decrement)} "-"] " "
+   [:button {:on-click #(dispatch :on-increment-if-odd)} "Increment if odd"] " "
+   [:button {:on-click #(dispatch :on-increment-async)} "Increment async"]])
+```
+
+Spec:
+
+```clj
 (def -initial-model {:val 0})
 
 (defn -control
@@ -77,38 +127,6 @@ Counter spec:
 (def spec {:initial-model -initial-model
            :control       -control
            :reconcile     -reconcile})
-```
-
-UI:
-
-```clj
-(defn view-model
-  [model]
-  {:counter (reaction (str "#" (:val @model)))})
-
-(defn view
-  [{:keys [counter] :as _view-model} dispatch]
-  [:p
-   @counter " "
-   [:button {:on-click #(dispatch :on-increment)} "+"] " "
-   [:button {:on-click #(dispatch :on-decrement)} "-"] " "
-   [:button {:on-click #(dispatch :on-increment-if-odd)} "Increment if odd"] " "
-   [:button {:on-click #(dispatch :on-increment-async)} "Increment async"]])
-```
-
-Main file:
-
-```clj
-(ns app.core
-  (:require [counter.core :as counter]
-            [carry.core :as carry]
-            [carry-reagent.core :as carry-reagent]
-            [reagent.core :as r]))
-
-(let [app (carry/app counter/spec)
-      [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-    (r/render app-view (.getElementById js/document "root"))
-    ((:dispatch-signal app) :on-start))
 ```
 
 ## Packages
