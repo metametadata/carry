@@ -14,12 +14,15 @@
 
 (defn is-readonly-atom
   [a]
-  (is (not= @a {:val :new-value}) "self test")
+  (assert (map? @a) "self test")
+  (assert (not= @a {:val :new-value}) "self test")
+
   (is (carry/read-only? a))
   (u/is-error-thrown
     #"^read-only atom was set to \{:val :new-value\}"
     (swap! a assoc :val :new-value)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; App
 (deftest
   app-model-is-read-only-atom
   (let [spec {:initial-model {:val 100}
@@ -163,3 +166,33 @@
     (is (= {:val 102} @(:model app)))
     (testing "model is still read-only"
       (is-readonly-atom (:model app)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Entangle
+(deftest
+  entangled-atom-is-read-only
+  (let [source-atom (atom {:val 100})
+        entangled-atom (carry/entangle source-atom identity)]
+    (is-readonly-atom entangled-atom)))
+
+(deftest
+  entangled-atom-reacts-to-source-atom-changes-using-specified-function
+  (let [source-atom (atom {:val 100})
+        entangled-atom (carry/entangle source-atom #(update % :val inc))]
+    (is (= {:val 101} @entangled-atom))
+
+    (swap! source-atom assoc :val 200)
+    (is (= {:val 201} @entangled-atom))
+
+    ; just in case:
+    (is-readonly-atom entangled-atom)))
+
+(deftest
+  entangle-supports-custom-atom-constructor
+  (let [source-atom (atom {:val 100})
+        custom-constructor-used? (atom false)
+        custom-constructor #(do (reset! custom-constructor-used? true)
+                                (atom %))
+        entangled-atom (carry/entangle source-atom #(update % :val inc) custom-constructor)]
+    (is @custom-constructor-used?)
+    (is (= {:val 101} @entangled-atom))
+    (is-readonly-atom entangled-atom)))
