@@ -210,7 +210,7 @@
 <h2 id="framework-overview">Framework Overview</h2>
 <p>Carry is actually a <a href="https://github.com/metametadata/carry/blob/master/src/carry/core.cljc">very small</a>
 Clojure/ClojureScript state management library which provides a skeleton for the whole application.</p>
-<p>The library is distributed via <a href="../clojars.org/carry">Clojars</a> and has no dependencies.</p>
+<p>The library is distributed via <a href="http://clojars.org/carry">Clojars</a> and has no dependencies.</p>
 <p>All the additional features (debugging, UI binding, etc.) are not part of the core project
 and can be provided by third-party packages. <a href="../index.html#packages">Some of them</a> are already implemented
 and hosted in Carry repo <a href="https://github.com/metametadata/carry/tree/master/contrib">contrib folder</a>.
@@ -261,7 +261,7 @@ Signal can be synchronously sent to an app by calling its <code>dispatch-signal<
 <pre><code class="clj">((:dispatch-signal my-app) my-signal)
 </code></pre>
 
-<p>Carry accepts signals of any type. But usually signal is a just keyword with the "on-" prefix or
+<p>Carry accepts signals of any type. But usually signal is a just keyword with "on-" prefix or
 a serializable vector with a keyword and an additional payload:</p>
 <pre><code class="clj">:on-clear-completed
 [:on-update-todo id val]
