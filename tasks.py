@@ -30,11 +30,13 @@ def graphs():
 @task
 def api():
     """ Compiles API reference for Carry and its contrib projects into site folder. """
+    full_site_path = os.path.join(os.getcwd(), "site")
+    shutil.rmtree(os.path.join(full_site_path, "api"))
+
     # core
     lein("codox")
 
     # contrib projects
-    full_site_path = os.path.join(os.getcwd(), "site")
     for project_name in os.listdir("contrib"):
         project_path = os.path.join("contrib", project_name)
         if os.path.isfile(os.path.join(project_path, "project.clj")):
