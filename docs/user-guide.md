@@ -14,7 +14,7 @@ and can be provided by third-party packages. [Some of them](/index.html#packages
 and hosted in Carry repo [contrib folder](https://github.com/metametadata/carry/tree/master/contrib).
 Most of these packages are implemented using [Carry middleware pattern](#middleware).
 
-The private/internal API uses a `-` prefix and should not be used (e.g. `-this-is-some-private-thing`).
+The private/internal API uses `-` prefix and should not be used (e.g. `-this-is-some-private-thing`).
 
 ## App
 
