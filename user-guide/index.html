@@ -92,6 +92,12 @@
                 
                 
                     <li >
+                        <a href="../faq/">FAQ</a>
+                    </li>
+                
+                
+                
+                    <li >
                         <a href="../dev-guide/">Developer Guide</a>
                     </li>
                 
@@ -138,6 +144,9 @@
     <ul class="nav bs-sidenav">
     
         <li class="first-level active"><a href="#basics">Basics</a></li>
+        
+            <li class="second-level"><a href="#framework-overview">Framework Overview</a></li>
+            
         
             <li class="second-level"><a href="#app">App</a></li>
             
@@ -197,7 +206,16 @@
         <div class="col-md-9" role="main">
 
 <h1 id="basics">Basics</h1>
-<p>This section explains everything you need to start making apps with Carry. </p>
+<p>This section explains everything you need to start making apps with Carry.</p>
+<h2 id="framework-overview">Framework Overview</h2>
+<p>Carry is actually a <a href="https://github.com/metametadata/carry/blob/master/src/carry/core.cljc">very small</a>
+Clojure/ClojureScript state management library which provides a skeleton for the whole application.</p>
+<p>The library is distributed via <a href="../clojars.org/carry">Clojars</a> and has no dependencies.</p>
+<p>All the additional features (debugging, UI binding, etc.) are not part of the core project
+and can be provided by third-party packages. <a href="../index.html#packages">Some of them</a> are already implemented
+and hosted in Carry repo <a href="https://github.com/metametadata/carry/tree/master/contrib">contrib folder</a>.
+Most of these packages are implemented using <a href="#middleware">Carry middleware pattern</a>.</p>
+<p>The private/internal API uses <code>-</code> prefix and should not be used (e.g. <code>-this-is-some-private-thing</code>).</p>
 <h2 id="app">App</h2>
 <p><img alt="spec" src="../graphs/app.svg" /></p>
 <p>In a Carry application all the code you write is encapsulated behind a single <strong>app</strong> instance. 

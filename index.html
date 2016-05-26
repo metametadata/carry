@@ -93,6 +93,12 @@
                 
                 
                     <li >
+                        <a href="faq/">FAQ</a>
+                    </li>
+                
+                
+                
+                    <li >
                         <a href="dev-guide/">Developer Guide</a>
                     </li>
                 
@@ -143,10 +149,10 @@
             <li class="second-level"><a href="#features">Features</a></li>
             
         
-            <li class="second-level"><a href="#design">Design</a></li>
+            <li class="second-level"><a href="#pattern">Pattern</a></li>
             
         
-            <li class="second-level"><a href="#example">Example</a></li>
+            <li class="second-level"><a href="#example-counter-app">Example (counter app)</a></li>
             
         
             <li class="second-level"><a href="#packages">Packages</a></li>
@@ -187,7 +193,7 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
 <li>Fractality: <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm-ish architecture</a> can be applied to create composite apps.</li>
 <li>Core library can be also used in Clojure projects.</li>
 </ul>
-<h2 id="design">Design</h2>
+<h2 id="pattern">Pattern</h2>
 <p><img alt="pattern" src="http://metametadata.github.io/carry/graphs/pattern.svg" /></p>
 <ul>
 <li>An app is defined by its initial model value, controller and reconciler.</li>
@@ -200,15 +206,59 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
 <li>Reconciler is a pure function which returns a new model value based on an incoming action.</li>
 <li>When UI layer subscribes to model changes we get a unidirectional data flow: UI -&gt; signal -&gt; action -&gt; model -&gt; UI -&gt; etc.</li>
 </ul>
-<h2 id="example">Example</h2>
+<h2 id="example-counter-app">Example (counter app)</h2>
 <p><a href="https://metametadata.github.com/carry/examples/counter">Demo</a>,
 <a href="https://github.com/metametadata/carry/tree/master/examples/counter">Source code</a></p>
-<p>Counter spec:</p>
+<p>HTML:</p>
+<pre><code class="html">&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+    &lt;title&gt;Carry • Counter&lt;/title&gt;
+    &lt;link rel=&quot;icon&quot; href=&quot;data:;base64,iVBORw0KGgo=&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id=&quot;root&quot;&gt;&lt;/div&gt;
+    &lt;script src=&quot;js/compiled/frontend.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Main file:</p>
+<pre><code class="clj">(ns app.core
+  (:require [counter.core :as counter]
+            [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [reagent.core :as r]))
+
+(let [app (carry/app counter/spec)
+      [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
+    (r/render app-view (.getElementById js/document &quot;root&quot;))
+    ((:dispatch-signal app) :on-start))
+</code></pre>
+
+<p>UI:</p>
 <pre><code class="clj">(ns counter.core
   (:require [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
-(def -initial-model {:val 0})
+(defn view-model
+  [model]
+  {:counter (reaction (str &quot;#&quot; (:val @model)))})
+
+(defn view
+  [{:keys [counter] :as _view-model} dispatch]
+  [:p
+   @counter &quot; &quot;
+   [:button {:on-click #(dispatch :on-increment)} &quot;+&quot;] &quot; &quot;
+   [:button {:on-click #(dispatch :on-decrement)} &quot;-&quot;] &quot; &quot;
+   [:button {:on-click #(dispatch :on-increment-if-odd)} &quot;Increment if odd&quot;] &quot; &quot;
+   [:button {:on-click #(dispatch :on-increment-async)} &quot;Increment async&quot;]])
+</code></pre>
+
+<p>Spec:</p>
+<pre><code class="clj">(def -initial-model {:val 0})
 
 (defn -control
   [model signal _dispatch-signal dispatch-action]
@@ -240,34 +290,6 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
            :reconcile     -reconcile})
 </code></pre>
 
-<p>UI:</p>
-<pre><code class="clj">(defn view-model
-  [model]
-  {:counter (reaction (str &quot;#&quot; (:val @model)))})
-
-(defn view
-  [{:keys [counter] :as _view-model} dispatch]
-  [:p
-   @counter &quot; &quot;
-   [:button {:on-click #(dispatch :on-increment)} &quot;+&quot;] &quot; &quot;
-   [:button {:on-click #(dispatch :on-decrement)} &quot;-&quot;] &quot; &quot;
-   [:button {:on-click #(dispatch :on-increment-if-odd)} &quot;Increment if odd&quot;] &quot; &quot;
-   [:button {:on-click #(dispatch :on-increment-async)} &quot;Increment async&quot;]])
-</code></pre>
-
-<p>Main file:</p>
-<pre><code class="clj">(ns app.core
-  (:require [counter.core :as counter]
-            [carry.core :as carry]
-            [carry-reagent.core :as carry-reagent]
-            [reagent.core :as r]))
-
-(let [app (carry/app counter/spec)
-      [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-    (r/render app-view (.getElementById js/document &quot;root&quot;))
-    ((:dispatch-signal app) :on-start))
-</code></pre>
-
 <h2 id="packages">Packages</h2>
 <h3 id="ui-bindings">UI Bindings</h3>
 <ul>
@@ -287,6 +309,7 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
 <li><a href="http://metametadata.github.io/carry/user-guide/">User Guide</a></li>
 <li><a href="http://metametadata.github.io/carry/examples/">Examples</a></li>
 <li><a href="http://metametadata.github.io/carry/api/">API Reference</a></li>
+<li><a href="http://metametadata.github.io/carry/faq/">FAQ</a></li>
 <li><a href="http://metametadata.github.io/carry/dev-guide/">Developer Guide</a></li>
 </ul>
 <h2 id="license">License</h2>
@@ -344,5 +367,5 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-05-25 20:49:04.140037
+Build Date UTC : 2016-05-26 14:30:03.452147
 -->

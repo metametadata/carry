@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">   
     <link rel="shortcut icon" href="../img/favicon.ico">
 
-    <title>Examples - Carry</title>
+    <title>FAQ - Carry</title>
 
     <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
@@ -79,8 +79,8 @@
                 
                 
                 
-                    <li class="active">
-                        <a href="./">Examples</a>
+                    <li >
+                        <a href="../examples/">Examples</a>
                     </li>
                 
                 
@@ -91,8 +91,8 @@
                 
                 
                 
-                    <li >
-                        <a href="../faq/">FAQ</a>
+                    <li class="active">
+                        <a href="./">FAQ</a>
                     </li>
                 
                 
@@ -113,12 +113,12 @@
                 </li>
                 
                     <li >
-                        <a rel="next" href="../user-guide/">
+                        <a rel="next" href="../api/">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../api/">
+                        <a rel="prev" href="../dev-guide/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -143,106 +143,28 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="first-level active"><a href="#counter-vanilla">Counter Vanilla</a></li>
-        
-    
-        <li class="first-level "><a href="#counter">Counter</a></li>
-        
-    
-        <li class="first-level "><a href="#friend-list">Friend List</a></li>
-        
-    
-        <li class="first-level "><a href="#todomvc">TodoMVC</a></li>
-        
-    
-        <li class="first-level "><a href="#pickings">Pickings</a></li>
-        
-    
-        <li class="first-level "><a href="#apps-using-datascript">Apps Using DataScript</a></li>
-        
-            <li class="second-level"><a href="#counter-datascript">Counter DataScript</a></li>
-            
-        
-            <li class="second-level"><a href="#shopping-cart">Shopping Cart</a></li>
-            
-        
-    
-        <li class="first-level "><a href="#composite-apps">Composite Apps</a></li>
-        
-            <li class="second-level"><a href="#subapps">Subapps</a></li>
-            
-        
-            <li class="second-level"><a href="#counter-list">Counter List</a></li>
-            
+        <li class="first-level active"><a href="#what-are-the-alternative-clojurescript-frameworks">What are the alternative ClojureScript frameworks?</a></li>
         
     
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<p>Most apps support hot reloading and REPL debugging via <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a>.</p>
-<h1 id="counter-vanilla">Counter Vanilla</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-vanilla">Source code</a></p>
-<p><a href="../examples/counter-vanilla">Demo</a></p>
-<p>The most trivial example. Uses "vanilla" JavaScript to render a UI.</p>
-<h1 id="counter">Counter</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/counter">Source code</a></p>
-<p><a href="../examples/counter">Demo</a></p>
-<p>The basic example of using Carry with Reagent.</p>
-<h1 id="friend-list">Friend List</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/friend-list">Source code</a></p>
-<p><a href="../examples/friend-list">Demo</a></p>
-<p>Inspired by this <a href="https://github.com/DerekCuevas/friend-list">problem</a> about dynamic search input.
-Demonstrates how to dispatch new signals from app controller and also features:</p>
+<h1 id="what-are-the-alternative-clojurescript-frameworks">What are the alternative ClojureScript frameworks?</h1>
+<p>Some of the alternatives are:</p>
 <ul>
-<li>basic routing</li>
-<li>model validation using <a href="https://github.com/plumatic/schema">Schema</a></li>
-<li>time traveling debugger</li>
-<li>logging to console</li>
-<li>unit tests</li>
-</ul>
-<h1 id="todomvc">TodoMVC</h1>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/todomvc">Source code</a></p>
-<p><a href="../examples/todomvc">Demo</a></p>
-<p>See <a href="http://todomvc.com/">todomvc.com</a>.</p>
-<p>Features:</p>
-<ul>
-<li>routing using <a href="https://github.com/DomKM/silk">Silk</a></li>
-<li>local storage persistence</li>
-<li>time traveling debugger</li>
-<li>logging to console</li>
-<li>model validation using <a href="https://github.com/plumatic/schema">Schema</a></li>
-<li>uses <a href="https://github.com/nathanmarz/specter">Specter</a> for model updates</li>
-</ul>
-<h1 id="pickings">Pickings</h1>
-<p><a href="https://github.com/metametadata/pickings">Source code</a></p>
-<p>The small desktop app using Carry.</p>
-<p>Features:</p>
-<ul>
-<li>written in Clojure</li>
-<li><a href="https://github.com/daveray/seesaw">Seesaw</a> for UI</li>
-<li><a href="http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded">reloaded workflow</a> for easier running from REPL</li>
-</ul>
-<h1 id="apps-using-datascript">Apps Using DataScript</h1>
-<h2 id="counter-datascript">Counter DataScript</h2>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-datascript">Source code</a></p>
-<p><a href="../examples/counter-datascript">Demo</a></p>
-<p>Simplest example of using <a href="https://github.com/tonsky/datascript">DataScript</a> in-memory database for a model.</p>
-<h2 id="shopping-cart">Shopping Cart</h2>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/shopping-cart">Source code</a></p>
-<p><a href="../examples/shopping-cart">Demo</a></p>
-<p>More advanced example of using <a href="https://github.com/tonsky/datascript">DataScript</a>.
-Inspired by <a href="https://github.com/voronianski/flux-comparison">flux-comparison</a> problem.</p>
-<h1 id="composite-apps">Composite Apps</h1>
-<h2 id="subapps">Subapps</h2>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/subapps">Source code</a></p>
-<p><a href="../examples/subapps">Demo</a></p>
-<p>In this project <a href="#counter">counter app</a> and <a href="#friend-list">friend list app</a> instances are "statically" added to the app spec.
-Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.</p>
-<h2 id="counter-list">Counter List</h2>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-list">Source code</a></p>
-<p><a href="../examples/counter-list">Demo</a></p>
-<p>In this example <a href="#counter">counter app</a> instances are created and removed dynamically after app is started.</p></div>
+<li><a href="https://github.com/condense/ampere">ampere</a></li>
+<li><a href="https://github.com/samroberton/bureaucracy">bureaucracy</a></li>
+<li><a href="https://github.com/metasoarous/catalysis">Catalysis</a></li>
+<li><a href="https://github.com/hoplon">hoplon</a></li>
+<li><a href="https://github.com/keechma/keechma">Keechma</a></li>
+<li><a href="https://github.com/omcljs/om/wiki/Quick-Start-(om.next)">Om Next</a></li>
+<li><a href="https://github.com/krisajenkins/petrol">Petrol</a></li>
+<li><a href="https://github.com/binaryage/pure-frame">Pure-frame</a></li>
+<li><a href="https://github.com/Day8/re-frame">re-frame</a></li>
+<li><a href="https://github.com/nodename/stately">Stately</a></li>
+<li><a href="https://github.com/untangled-web">untangled</a></li>
+</ul></div>
         
     </div>
 
