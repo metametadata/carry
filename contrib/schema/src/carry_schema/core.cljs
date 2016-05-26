@@ -3,7 +3,7 @@
 
 (defn add
   "Middleware will validate the model returned from reconcile function using Plumatic Schema library.
-  Strives to provide a better logging than s/defn.
+  Strives to provide a better logging than `s/defn`.
   Logs problems and throws an exception if validation fails effectively prohibiting model change to unallowed state.
   
   Add it as close to spec as possible in order to not propagate the invalid model to other middleware."

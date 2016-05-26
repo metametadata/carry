@@ -7,3 +7,5 @@ Carry middleware for model validation using [Schema](https://github.com/plumatic
 [API Reference](http://metametadata.github.io/carry/api/schema)
 
 ![screenshot](http://i.imgur.com/g5I2RnZ.png)
+
+Works best with [binaryage/cljs-devtools](https://github.com/binaryage/cljs-devtools).
