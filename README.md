@@ -132,6 +132,7 @@ More information can be found at [the project site](http://metametadata.github.i
 * [User Guide](http://metametadata.github.io/carry/user-guide/)
 * [Examples](http://metametadata.github.io/carry/examples/)
 * [API Reference](http://metametadata.github.io/carry/api/)
+* [FAQ](http://metametadata.github.io/carry/faq/)
 * [Developer Guide](http://metametadata.github.io/carry/dev-guide/)
 
 ## License

@@ -10,4 +10,5 @@ pages:
 - User Guide: 'user-guide.md'
 - Examples: 'examples/index.md'
 - API Reference: 'api/index.md'
+- FAQ: 'faq.md'
 - Developer Guide: 'dev-guide.md'
