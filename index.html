@@ -203,7 +203,7 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
 <h2 id="example">Example</h2>
 <p><a href="https://metametadata.github.com/carry/examples/counter">Demo</a>,
 <a href="https://github.com/metametadata/carry/tree/master/examples/counter">Source code</a></p>
-<p>Counter spec and UI:</p>
+<p>Counter spec:</p>
 <pre><code class="clj">(ns counter.core
   (:require [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
@@ -235,7 +235,13 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
          :increment (update model :val inc)
          :decrement (update model :val dec)))
 
-(defn view-model
+(def spec {:initial-model -initial-model
+           :control       -control
+           :reconcile     -reconcile})
+</code></pre>
+
+<p>UI:</p>
+<pre><code class="clj">(defn view-model
   [model]
   {:counter (reaction (str &quot;#&quot; (:val @model)))})
 
@@ -247,10 +253,6 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
    [:button {:on-click #(dispatch :on-decrement)} &quot;-&quot;] &quot; &quot;
    [:button {:on-click #(dispatch :on-increment-if-odd)} &quot;Increment if odd&quot;] &quot; &quot;
    [:button {:on-click #(dispatch :on-increment-async)} &quot;Increment async&quot;]])
-
-(def spec {:initial-model -initial-model
-           :control       -control
-           :reconcile     -reconcile})
 </code></pre>
 
 <p>Main file:</p>
@@ -342,5 +344,5 @@ using view-model/view pattern based on Reagent reactions (<a href="https://githu
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-05-25 18:30:08.843572
+Build Date UTC : 2016-05-25 20:49:04.140037
 -->

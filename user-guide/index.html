@@ -278,7 +278,7 @@ Controller is also free to contain an asynchronous code. The signature of a cont
 <li><code>signal</code> - an incoming signal </li>
 <li><code>dispatch-signal</code> - a synchronous function for dispatching new signals, always returns <code>nil</code>, the same as app's <code>:dispatch-signal</code></li>
 <li><code>dispatch-action</code> - a synchronous function for modifying a model, always returns <code>nil</code></li>
-<li>Return value will not be used</li>
+<li>return value will not be used</li>
 </ul>
 <p>By convention, control should be able to at least handle <code>:on-start</code> and <code>:on-stop</code> signals.
 As we'll see later, it's required by middleware with setup/teardown logic and to support hot reloading.</p>
@@ -417,7 +417,7 @@ using <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent
 <li><code>app</code> - Carry app instance</li>
 <li><code>view-model</code> - a function which produces a view model</li>
 <li><code>view</code> - a Reagent component</li>
-<li>Returns a pair <code>[view-model-instance view-component]</code> (view model is returned mainly for debugging)</li>
+<li>returns a pair <code>[view-model-instance view-component]</code> (view model is returned mainly for debugging)</li>
 </ul>
 <p><code>view-model</code> function is called once on <code>connect</code> call.
 Then returned view model instance is passed as an argument into <code>view</code> function to produce a final view component.
