@@ -7,7 +7,7 @@ This section explains everything you need to start making apps with Carry.
 Carry is actually a [very small](https://github.com/metametadata/carry/blob/master/src/carry/core.cljc)
 Clojure/ClojureScript state management library which provides a skeleton for the whole application.
  
-The library is distributed via [Clojars](clojars.org/carry) and has no dependencies.
+The library is distributed via [Clojars](http://clojars.org/carry) and has no dependencies.
 
 All the additional features (debugging, UI binding, etc.) are not part of the core project
 and can be provided by third-party packages. [Some of them](/index.html#packages) are already implemented
