@@ -15,7 +15,7 @@
   (fn control
     [model signal dispatch-signal dispatch-action]
     (letfn [(load-from-storage
-              [_model-reaction loaded-model dispatch-signal]
+              [_model loaded-model dispatch-signal]
               (dispatch-signal [::on-load-from-storage key loaded-model]))]
       (match signal
              :on-start
@@ -57,16 +57,30 @@
            (app-reconcile model action))))
 
 (defn add
-  "On start middleware will load the model from storage.
+  "On start the middleware will load model from the specified storage.
   Saves model into storage on every change.
-  Multiple middleware can safely wrap the same spec as long as they use different storage keys.
+  Multiple middleware can safely wrap the same spec as long as different storage keys are specified.
 
-  Storage is expected to be a transient map (e.g. see hodgepodge lib).
+  Storage is expected to be a transient map (e.g. as provided by [hodgepodge](https://github.com/funcool/hodgepodge)).
   If this middleware is applied to spec several times then all keys must differ; otherwise, behavior is undefined.
-  Optional :blacklist set should contain model keys which will not be saved and loaded.
-  Optional :load-wrapper allows decorating model update function (e.g. it's possible to cancel loading based on loaded data).
 
-  Middleware is friendly to carry-debugger:
+  Optional `:blacklist` set should contain model keys which will not be saved and loaded.
+
+  Optional `:load-wrapper` allows decorating model update function (e.g. it's possible to cancel loading based on loaded data).
+  Wrapper example:
+
+  ```clj
+  (defn -wrap-load-from-storage
+    [load-from-storage]
+    (fn wrapped-load-from-storage
+      [model loaded-model dispatch-signal]
+      ; load only if user set the flag during previous session
+      (when (-> loaded-model :persist?)
+        (load-from-storage model loaded-model dispatch-signal)
+        (dispatch-signal :on-did-load-from-storage))))
+  ```
+
+  Middleware is friendly to `carry-debugger`:
 
   * it won't persist debugger data in order to not conflict with debugger's persistence implementation
   * it won't load model from storage on app start if debugger's replay mode is on"
