@@ -12,7 +12,7 @@
      :cljs (throw (js/Error. (str "read-only atom was set to " (pr-str new-state))))))
 
 (defn set-read-only!
-  "Makes the specified atom read-only: an excpetion will be raised after atom value is changed.
+  "Makes the specified atom read-only: an exception will be raised after atom value is changed.
   Returns the updated atom."
   [a]
   (alter-meta! a assoc ::read-only-atom? true)

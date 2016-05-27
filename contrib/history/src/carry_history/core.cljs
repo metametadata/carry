@@ -166,7 +166,7 @@
 
 ;;; Link
 (defn ^:no-doc -pure-click?
-  "Returns false if the user did a middle-click, right-click, or used a modifier"
+  "Returns false if the user did a middle-click, right-click, or used a modifier."
   [e]
   (not (or (.-altKey e)
            (.-ctrlKey e)
