@@ -230,7 +230,7 @@ It can also affect an external world as a response to a signal, i.e. perform "si
 <p>Model represents an entire state of an app. </p>
 <p>One can access app's model via <code>:model</code> key to obtain a read-only atom that can be dereferenced and watched.
 An exception will be thrown after mutating such atom:</p>
-<pre><code class="clj">(def my-model (:model app))
+<pre><code class="clj">(def my-model (:model my-app))
 
 ; Dereference to get atom value.
 @my-model
@@ -242,7 +242,7 @@ An exception will be thrown after mutating such atom:</p>
              (when (not= old-state new-state)
                (println &quot;model value has changed!&quot;))))
 
-((:dispatch-signal app) some-model-changing-signal)
+((:dispatch-signal my-app) some-model-changing-signal)
 ;=&gt; model value has changed!
 
 ; Stop watching.
