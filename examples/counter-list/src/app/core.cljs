@@ -2,8 +2,10 @@
   (:require [app.spec :refer [spec]]
             [app.view-model :refer [view-model]]
             [app.view :refer [view]]
+
             [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
+
             [reagent.core :as r]))
 
 (enable-console-print!)

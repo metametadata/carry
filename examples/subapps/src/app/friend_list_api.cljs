@@ -1,6 +1,5 @@
 ; API client simulation
-(ns app.friend-list-api
-  (:require))
+(ns app.friend-list-api)
 
 (def -friends
   [{:id 1 :name "Bruce Wayne" :username "@Batman"}
@@ -23,5 +22,4 @@
                                (map f [:name :username])))
                  -friends)
         t (rand-int 1000)]
-    (println "search" (pr-str query) " t =" t)
     (.setTimeout js/window #(on-success result) t)))
