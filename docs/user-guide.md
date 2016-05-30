@@ -827,79 +827,56 @@ In this project [counter apps](/examples/#counter) can be created and removed dy
   <img src="http://i.imgur.com/9CNw0ZW.png" alt="counter-list" style="width: 25vw; display: block; margin: 0 auto;"/>
 </a>
 
+[carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package will be used for UI rendering.
+
 **`1. initial-model`**
 
 The model will store a list of counter app models:
 
 ```clj
+(ns app.model)
+
 (def initial-model
-  {; list of [id counter-model] vectors
-   :counters (list)
-   :next-id  0})
-```
-
-Several helpers are defined to modify a model:
-
-```clj
-(defn update-counters*
-  "Applies a function of args [counter-model & args] to the counters specified by predicate.
-  The function can have side-effects. Returns a new model."
-  [model pred f & args]
-  (letfn [(update-counter [[counter-id counter-model :as counter]]
-            (if (pred counter)
-              [counter-id (apply f counter-model args)]
-              counter))]
-    (update model :counters #(doall (map update-counter %)))))
-
-(defn update-counter
-  [model id f & args]
-  (apply update-counters* model #(= id (first %)) f args))
-
-(defn update-every-counter
-  [model f & args]
-  (apply update-counters* model (constantly true) f args))
-
-(defn get-counter
-  [model id]
-  (->> (:counters model)
-       (filter #(= (first %) id))
-       first
-       second))
+  {; unsorted map: id -> counter-model
+   :counters {}})
 ```
 
 **`2. view-model`**
 
-The view model will contain `:counters` reaction with a list of `[id counter-view-model]` pairs:
+The view model will contain `:counters` reaction with a sorted map of `[id counter-view-model]` pairs:
 
 ```clj
+(ns app.view-model
+  (:require [app.model :as model]
+            [carry.core :as carry]
+            [counter.core :as counter]
+            [reagent.core :as r])
+  (:require-macros [reagent.ratom :refer [reaction]]))
+
 ;(defn view-model
 ;  "Naive nonoptimal implementation:
 ;   counter view-models will be updated on every model update ->
 ;    every counter view will be reevaluated on each change."
 ;  [model]
-;  (let [counter-view-model (fn [counter-id]
+;  (let [counter-view-model (fn [id]
 ;                             (counter/view-model
-;                               (carry/entangle model #(get-counter % counter-id) r/atom)))]
-;    {:counters (reaction (map (fn [[id _counter-model]] [id (counter-view-model id)])
-;                              (:counters @model)))}))
+;                               (carry/entangle model #(get-in % [:counters id]) r/atom)))]
+;    {:counters (reaction (into (sorted-map)
+;                               (for [[id _] (:counters @model)]
+;                                 [id (counter-view-model id)])))}))
 
 (defn view-model
-  "Optimized implementation. 
-  Reuses counter view-models from the last reaction calculation."
+  "Optimized implementation. Reuses counter view-models from the last reaction calculation."
   [model]
-  (let [cached-counter-view-models (atom [])
-        cached-counter-view-model (fn [id]
-                                    (->> @cached-counter-view-models
-                                         (filter #(= (first %) id))
-                                         first
-                                         second))
+  (let [counter-view-models (atom (sorted-map))             ; id -> counter-view-model
         counter-view-model (fn [id]
-                             (or (cached-counter-view-model id)
+                             (or (get @counter-view-models id)
                                  (counter/view-model
-                                   (carry/entangle model #(get-counter % id) r/atom))))]
-    {:counters (reaction (reset! cached-counter-view-models
-                                 (mapv (fn [[id _]] [id (counter-view-model id)])
-                                       (:counters @model))))}))
+                                   (carry/entangle model #(get-in % [:counters id]) r/atom))))]
+    {:counters (reaction (reset! counter-view-models
+                                 (into (sorted-map)
+                                       (for [[id _] (:counters @model)]
+                                         [id (counter-view-model id)]))))}))
 ```
 
 The optimized implementation calculates each counter view model only once.
@@ -908,15 +885,17 @@ on updating a single counter.
 
 Carry's [`entangle`](/api/carry.core.html#var-entangle) helper is used to create a counter model ratom for `counter/view-model`.
 This call returns a read-only ratom which will automatically sync its value with
-`(get-counter @model id)` on `model` changes:
+`(get-in @model [:counters id])` on `model` changes:
 
 ```clj
-(carry/entangle model #(get-counter % id) r/atom)
+(carry/entangle model #(get-in % [:counters id]) r/atom)
 ```
 
 **`3. view`**
 
 ```clj
+(ns app.util)
+
 (defn tagged
   "Helper function decorator which prepends a tag to the single argument.
   I.e. it transforms an arg x to [tag x]."
@@ -924,14 +903,20 @@ This call returns a read-only ratom which will automatically sync its value with
   (fn tagged-fn
     [x]
     (f [tag x])))
+```
 
-(defn view-counter
+```clj
+(ns app.view
+  (:require [app.util :refer [tagged]]
+            [counter.core :as counter]))
+
+(defn -counter
   [[id view-model] dispatch]
   [counter/view view-model (tagged dispatch [:on-counter-signal id])])
 
 (defn view
   [view-model dispatch]
-  (let [counters (map #(view-counter % dispatch) @(:counters view-model))
+  (let [counters (map #(-counter % dispatch) @(:counters view-model))
         insert [:button {:on-click #(dispatch :on-insert)} "Insert"]
         remove [:button {:on-click #(dispatch :on-remove)} "Remove"]]
     (into [:div insert remove] counters)))
@@ -942,81 +927,100 @@ with a corresponding counter id.
 
 **`4. control`**
 
-The controller will pass tagged signals to the injected counter controller.
+The controller will pass tagged signals to the counter controller.
 In a more complex app we would also have to dispatch tagged `:on-start`/`:on-stop` signals
 on inserting/removing subapps. But in this example we omit this because counter app has no start/stop code:
 
 ```clj
-(defn new-control
-  [counter-control]
-  (fn control
-    [model signal dispatch-signal dispatch-action]
-    (match signal
-           :on-insert (dispatch-action :insert)
-           :on-remove (dispatch-action :remove)
+(ns app.controller
+  (:require [app.model :as model]
+            [app.util :refer [tagged]]
+            [counter.core :as counter]
+            [carry.core :as carry]
+            [cljs.core.match :refer-macros [match]]))
 
-           [[:on-counter-signal id] s]
-           (counter-control (carry/entangle model #(get-counter % id))
-                            s
-                            ; Dispatched actions and signals must also be tagged:
-                            (tagged dispatch-signal [:on-counter-signal id])
-                            (tagged dispatch-action [:counter-action id])))))
+(defn control
+  [model signal dispatch-signal dispatch-action]
+  (match signal
+         :on-insert (dispatch-action :insert)
+         :on-remove (dispatch-action :remove)
+
+         [[:on-counter-signal id] s]
+         ((:control counter/spec)
+           (carry/entangle model #(get-in % [:counters id]))
+           s
+           (tagged dispatch-signal [:on-counter-signal id])
+           (tagged dispatch-action [:counter-action id]))))
 ```
 
 `entangle` helper is used to create a counter model atom for `counter-control`:
 
 ```clj
-(carry/entangle model #(get-counter % id))
+(carry/entangle model #(get-in % [:counters id]))
 ```
 
 **`5. reconcile`**
 
-Reconciler depends on counter's initial model and reconciler:
+Reconciler uses counter's initial model and reconciler:
 
 ```clj
-(defn new-reconcile
-  [counter-initial-model counter-reconcile]
-  (fn reconcile
-    [model action]
-    (match action
-           :insert
-           (-> model
-               (update :counters concat [[(:next-id model) counter-initial-model]])
-               (update :next-id inc))
+(ns app.reconciler
+  (:require [counter.core :as counter]
+            [cljs.core.match :refer-macros [match]]))
 
-           :remove
-           (update model :counters rest)
+(defn reconcile
+  [model action]
+  (match action
+         :insert
+         (let [newest-counter-id (apply max -1 (-> model :counters keys))]
+           (assoc-in model [:counters (inc newest-counter-id)] (:initial-model counter/spec)))
 
-           [[:counter-action id] a]
-           (update-counter model id counter-reconcile a))))
+         :remove
+         (let [oldest-counter-id (apply min (-> model :counters keys))]
+           (update model :counters dissoc oldest-counter-id))
+
+         [[:counter-action id] a]
+         (update-in model [:counters id] (:reconcile counter/spec) a)))
 ```
 
-**`6. main`**
+**`6. spec`**
 
-And finally, app instantiation code:
+Let's define a spec in a separate namespace:
+
+```clj
+(ns app.spec
+  (:require [app.model :refer [initial-model]]
+            [app.controller :refer [control]]
+            [app.reconciler :refer [reconcile]]))
+
+(def spec
+  {:initial-model initial-model
+   :control       control
+   :reconcile     reconcile})
+```
+
+**`7. main`**
+
+And finally, here's the app instantiation code:
 
 ```clj
 (ns app.core
-  (:require [carry.core :as carry]
+  (:require [app.spec :refer [spec]]
+            [app.view-model :refer [view-model]]
+            [app.view :refer [view]]
+            
+            [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
-            [counter.core :as counter]
-            [reagent.core :as r]
-            [cljs.core.match :refer-macros [match]])
-  (:require-macros [reagent.ratom :refer [reaction]]))
-  
-; ...
+            
+            [reagent.core :as r]))
 
 (defn main
   []
-  (let [app-spec {:initial-model initial-model
-                  :control       (new-control (:control counter/spec))
-                  :reconcile     (new-reconcile (:initial-model counter/spec) 
-                                                (:reconcile counter/spec))}
-        app (carry/app app-spec)
+  (let [app (carry/app spec)
         [app-view-model app-view] (carry-reagent/connect app view-model view)]
     (r/render app-view (.getElementById js/document "root"))
     (assoc app :view-model app-view-model)))
-    
+
 (def app (main))
 ```
 

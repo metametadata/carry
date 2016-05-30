@@ -89,3 +89,4 @@ Several helper methods are extracted to make it easy to include any subapp at th
 [Demo](/examples/counter-list)
 
 In this example [counter app](#counter) instances are created and removed dynamically after app is started.
+Inspired by [Elm architecture example](http://guide.elm-lang.org/architecture/modularity/counter_list.html).
