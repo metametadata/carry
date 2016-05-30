@@ -37,7 +37,7 @@ One can access app's model via `:model` key to obtain a read-only atom that can 
 An exception will be thrown after mutating such atom:
 
 ```clj
-(def my-model (:model app))
+(def my-model (:model my-app))
 
 ; Dereference to get atom value.
 @my-model
@@ -49,7 +49,7 @@ An exception will be thrown after mutating such atom:
              (when (not= old-state new-state)
                (println "model value has changed!"))))
                
-((:dispatch-signal app) some-model-changing-signal)
+((:dispatch-signal my-app) some-model-changing-signal)
 ;=> model value has changed!
 
 ; Stop watching.
