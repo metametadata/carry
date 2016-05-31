@@ -12,7 +12,8 @@ The most trivial example. Uses "vanilla" JavaScript to render a UI.
 
 [Demo](/examples/counter)
 
-The basic example of using Carry with Reagent.
+The basic example of using Carry with [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+for rendering UI using [Reagent](https://github.com/reagent-project/reagent).
 
 # Friend List
 
@@ -23,10 +24,12 @@ The basic example of using Carry with Reagent.
 Inspired by this [problem](https://github.com/DerekCuevas/friend-list) about dynamic search input.
 Demonstrates how to dispatch new signals from app controller and also features:
 
-* basic routing
-* model validation using [Schema](https://github.com/plumatic/schema)
-* time traveling debugger
-* logging to console
+* [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
+* [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history/) for routing
+* [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema/) for model validation using [Schema](https://github.com/plumatic/schema)
+* [carry-debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger/) for time traveling debugging
+* [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging/) for logging to console
 * unit tests
 
 # TodoMVC
@@ -34,15 +37,17 @@ Demonstrates how to dispatch new signals from app controller and also features:
 
 [Demo](/examples/todomvc)
 
-See [todomvc.com](http://todomvc.com/).
+The implementation of [TodoMVC](http://todomvc.com/) reference example.
 
 Features:
 
-* routing using [Silk](https://github.com/DomKM/silk)
-* local storage persistence
-* time traveling debugger
-* logging to console
-* model validation using [Schema](https://github.com/plumatic/schema)
+* [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
+* [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history/) and [Silk](https://github.com/DomKM/silk) for routing
+* [carry-persistence](https://github.com/metametadata/carry/tree/master/contrib/persistence/) and [hodgepodge](https://github.com/funcool/hodgepodge) for local storage persistence
+* [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema/) for model validation using [Schema](https://github.com/plumatic/schema)
+* [carry-debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger/) for time traveling debugging
+* [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging/) for logging to console
 * uses [Specter](https://github.com/nathanmarz/specter) for model updates
 
 # Pickings
@@ -55,23 +60,6 @@ Features:
 * written in Clojure
 * [Seesaw](https://github.com/daveray/seesaw) for UI
 * [reloaded workflow](http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded) for easier running from REPL
-
-# Apps Using DataScript
-
-## Counter DataScript
-[Source code](https://github.com/metametadata/carry/tree/master/examples/counter-datascript)
-
-[Demo](/examples/counter-datascript)
-
-Simplest example of using [DataScript](https://github.com/tonsky/datascript) in-memory database for a model.
-
-## Shopping Cart
-[Source code](https://github.com/metametadata/carry/tree/master/examples/shopping-cart)
-
-[Demo](/examples/shopping-cart)
-
-More advanced example of using [DataScript](https://github.com/tonsky/datascript).
-Inspired by [flux-comparison](https://github.com/voronianski/flux-comparison) problem.
 
 # Composite Apps
 
@@ -90,3 +78,23 @@ Several helper methods are extracted to make it easy to include any subapp at th
 
 In this example [counter app](#counter) instances are created and removed dynamically after app is started.
 Inspired by [Elm architecture example](http://guide.elm-lang.org/architecture/modularity/counter_list.html).
+
+# Apps Using DataScript
+
+## Counter DataScript
+[Source code](https://github.com/metametadata/carry/tree/master/examples/counter-datascript)
+
+[Demo](/examples/counter-datascript)
+
+The simplest example of using [DataScript](https://github.com/tonsky/datascript) in-memory database for a model and 
+[carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+for rendering UI using [Reagent](https://github.com/reagent-project/reagent).
+
+## Shopping Cart
+[Source code](https://github.com/metametadata/carry/tree/master/examples/shopping-cart)
+
+[Demo](/examples/shopping-cart)
+
+The more advanced example of using [DataScript](https://github.com/tonsky/datascript) 
+and [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/).
+Inspired by [flux-comparison](https://github.com/voronianski/flux-comparison) problem.
