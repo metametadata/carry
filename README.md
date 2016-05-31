@@ -7,18 +7,18 @@ ClojureScript single-page application framework inspired by
 [Cerebral](https://github.com/cerebral/cerebral).
 
 The core of the framework is a simple state management library. 
-UI bindings, routing, debugger, etc. are implemented as separate optional packages.
+UI bindings, routing, debugger, etc. are implemented as separate optional [packages](#packages).
 
 [![Clojars Project](https://img.shields.io/clojars/v/carry.svg)](https://clojars.org/carry)
 
 ## Features
 
 * Functional API with no globals makes apps easy to extend and unit test.
-* Agnostic to UI layer.
+* Agnostic to UI layer: can be effectively used with [Reagent](https://github.com/reagent-project/reagent)
+(via [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package) or
+any other view layer that is able to re-render UI in response to app model changes.
 * Time traveling debugger inspired by [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/debugger).
 * Live code editing using [Figwheel](https://github.com/bhauman/lein-figwheel) and debugger's replay mode.
-* [Reagent](https://github.com/reagent-project/reagent) bindings achieve code readability and rendering optimization
-using view-model/view pattern based on Reagent reactions ([similarly to re-frame](https://github.com/Day8/re-frame#how-flow-happens-in-reagent)).
 * Fractality: [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to create composite apps.
 * Core library can be also used in Clojure projects.
 
@@ -73,7 +73,7 @@ Main file:
     ((:dispatch-signal app) :on-start))
 ```
 
-UI:
+UI (using [Reagent](https://github.com/reagent-project/reagent) and [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)):
 
 ```clj
 (ns counter.core
@@ -133,15 +133,15 @@ Spec:
 
 ### UI Bindings
 
-* [Reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+* [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
 
 ### Middleware
 
-* [Debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger)
-* [History](https://github.com/metametadata/carry/tree/master/contrib/history)
-* [Logging](https://github.com/metametadata/carry/tree/master/contrib/logging)
-* [Persistence](https://github.com/metametadata/carry/tree/master/contrib/persistence)
-* [Schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
+* [carry-debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger)
+* [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history)
+* [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging)
+* [carry-persistence](https://github.com/metametadata/carry/tree/master/contrib/persistence)
+* [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 
 ## Documentation
 
