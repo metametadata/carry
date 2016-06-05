@@ -18,7 +18,7 @@
   {:query   s/Str
    :friends [Friend]
 
-   ; allow any additional keys in order to support keys added by middlewares
+   ; allow any additional keys in order to support keys added by middleware
    s/Any    s/Any})
 
 (def -initial-model
