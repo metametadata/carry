@@ -34,11 +34,15 @@
               :control       control
               :reconcile     reconcile}
         app (carry/app spec)
-        value-el (.getElementById js/document "value")]
+        value-el (.getElementById js/document "value")
+        render (fn [model] (set! (.-innerHTML value-el) (str "#" (:val model))))]
+    (render @(:model app))
+
     (add-watch (:model app)
                :render-watch
-               (fn [_key _atom _old-state new-state]
-                 (set! (.-innerHTML value-el) (:val new-state))))
+               (fn [_key _atom old-state new-state]
+                 (when (not= old-state new-state)
+                   (render new-state))))
 
     (.addEventListener (.getElementById js/document "increment") "click" #((:dispatch-signal app) :on-increment))
     (.addEventListener (.getElementById js/document "decrement") "click" #((:dispatch-signal app) :on-decrement))
