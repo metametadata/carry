@@ -5,8 +5,8 @@
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.8.51" :scope "provided"]
-                 [reagent "0.6.0-alpha2" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.36" :scope "provided"]
+                 [reagent "0.6.0-rc" :scope "provided"]]
 
   :plugins [[lein-codox "0.9.5"]]
 

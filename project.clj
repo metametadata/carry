@@ -5,7 +5,7 @@
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.8.51" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.36" :scope "provided"]]
 
   :plugins [[com.jakemccrary/lein-test-refresh "0.15.0"]
             [lein-doo "0.1.6"]
@@ -24,7 +24,7 @@
 
   :cljsbuild {:builds [{:id           "test"
                         :source-paths ["test" "src"]
-                        :compiler     {:main          'unit.runner
+                        :compiler     {:main          unit.runner
                                        :output-to     "resources/private/js/compiled/testable.js"
                                        :output-dir    "resources/private/js/compiled/out"
                                        :optimizations :none}}]}

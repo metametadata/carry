@@ -1,7 +1,7 @@
 (defproject
   counter "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.8.51"]
+                 [org.clojure/clojurescript "1.9.36"]
 
                  [reagent "0.6.0-rc" :exclusions [cljsjs/react]]
                  [cljsjs/react-with-addons "15.1.0-0"]
@@ -10,8 +10,8 @@
 
   :pedantic? :abort
 
-  :plugins [[lein-cljsbuild "1.1.2"]
-            [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]]
+  :plugins [[lein-cljsbuild "1.1.3"]
+            [lein-figwheel "0.5.3-2" :exclusions [org.clojure/clojure]]]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 

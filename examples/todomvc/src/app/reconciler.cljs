@@ -1,13 +1,14 @@
 (ns app.reconciler
   (:require [app.model :as m]
             [com.rpl.specter :as s]
-            [cljs.core.match :refer-macros [match]]))
+            [cljs.core.match :refer-macros [match]])
+  (:require-macros [com.rpl.specter.macros :refer [transform select-one]]))
 
 (defn -update-todos*
   [model pred f & args]
-  (s/transform [:todos s/ALL pred]
-               #(apply f % args)
-               model))
+  (transform [:todos s/ALL pred]
+             #(apply f % args)
+             model))
 
 (defn -update-todo
   [model id f & args]
@@ -19,7 +20,7 @@
 
 (defn -find-todo
   [model id]
-  (s/select-one [:todos s/ALL #(= (:id %) id)] model))
+  (select-one [:todos s/ALL #(= (:id %) id)] model))
 
 (defn -remove-todos
   [model pred]

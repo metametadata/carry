@@ -12,7 +12,8 @@
             cljsjs.filesaverjs
             cljs.pprint)
   (:import goog.ui.KeyboardShortcutHandler)
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  (:require-macros [com.rpl.specter.macros :refer [transform select-one]]
+                   [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;; Model
 (def ^:no-doc -Schema
@@ -75,7 +76,7 @@
 
 (defn ^:no-doc -update-action-events
   [model pred f & args]
-  (s/transform [::debugger :action-events s/ALL pred]
+  (transform [::debugger :action-events s/ALL pred]
                #(apply f % args)
                model))
 
@@ -85,11 +86,11 @@
 
 (defn ^:no-doc -find-signal
   [model id]
-  (s/select-one [::debugger :signal-events s/ALL #(= (:id %) id)] model))
+  (select-one [::debugger :signal-events s/ALL #(= (:id %) id)] model))
 
 (defn ^:no-doc -find-action
   [model id]
-  (s/select-one [::debugger :action-events s/ALL #(= (:id %) id)] model))
+  (select-one [::debugger :action-events s/ALL #(= (:id %) id)] model))
 
 (defn ^:no-doc -signal-id->parent-id
   "Returns a map."
