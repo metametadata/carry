@@ -17,7 +17,8 @@ UI bindings, routing, debugger, etc. are implemented as separate optional [packa
 * Agnostic to UI layer: can be effectively used with [Reagent](https://github.com/reagent-project/reagent)
 (via [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package) or
 any other view layer that is able to re-render UI in response to app model changes.
-* Time traveling debugger inspired by [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/debugger).
+* [Time traveling debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger)
+inspired by [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/debugger).
 * Live code editing using [Figwheel](https://github.com/bhauman/lein-figwheel) and debugger's replay mode.
 * Fractality: [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to create composite apps.
 * Core library can be also used in Clojure projects.
