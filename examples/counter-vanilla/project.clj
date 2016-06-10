@@ -7,8 +7,8 @@
 
   :pedantic? :abort
 
-  :plugins [[lein-cljsbuild "1.1.2"]
-            [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]]
+  :plugins [[lein-cljsbuild "1.1.3"]
+            [lein-figwheel "0.5.3-2" :exclusions [org.clojure/clojure]]]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 

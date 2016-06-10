@@ -40,7 +40,7 @@
 
     (add-watch (:model app)
                :render-watch
-               (fn [_key _atom old-state new-state]
+               (fn [_key _ref old-state new-state]
                  (when (not= old-state new-state)
                    (render new-state))))
 

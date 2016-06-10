@@ -105,7 +105,7 @@
                (app-control model signal dispatch-signal dispatch-action)
 
                (add-watch model ::token-watch
-                          (fn [_key _atom old-state new-state]
+                          (fn [_key _ref old-state new-state]
                             (when (not= (::token old-state) (::token new-state))
                               (replace-token history (::token new-state)))))
 

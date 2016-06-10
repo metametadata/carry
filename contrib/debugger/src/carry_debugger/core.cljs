@@ -175,7 +175,7 @@
 
                  ; start persisting for replay
                  (add-watch model ::debugger-watch
-                            (fn [_key _atom old-state new-state]
+                            (fn [_key _ref old-state new-state]
                               (when (not= (::debugger old-state) (::debugger new-state))
                                 (let [saved-model (-> new-state
                                                       (assoc-in [::debugger :highlighted-signal-id] nil)

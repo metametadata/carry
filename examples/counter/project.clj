@@ -3,8 +3,8 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
 
-                 [reagent "0.6.0-SNAPSHOT" :exclusions [cljsjs/react]]
-                 [cljsjs/react-with-addons "15.0.2-0"]
+                 [reagent "0.6.0-rc" :exclusions [cljsjs/react]]
+                 [cljsjs/react-with-addons "15.1.0-0"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]]
 

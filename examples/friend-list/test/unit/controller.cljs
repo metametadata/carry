@@ -1,7 +1,6 @@
 (ns unit.controller
   (:require
     [friend-list.core :as friend-list]
-    [carry.core :as carry]
     [carry-history.core :as h]
     [cljs.test :refer-macros [deftest is testing async]]
     [clj-fakes.core :as f :include-macros true]
@@ -26,7 +25,7 @@
   on-search-success-updates-friends
   (f/with-fakes
     (let [{:keys [initial-model control reconcile]} (friend-list/new-spec :_history :_search)
-          model (carry/set-read-only! (atom (reconcile initial-model [:set-query "current query"])))
+          model (atom (reconcile initial-model [:set-query "current query"]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
@@ -40,7 +39,7 @@
   on-search-success-ignores-outdated-results
   (f/with-fakes
     (let [{:keys [initial-model control reconcile]} (friend-list/new-spec :_history :_search)
-          model (carry/set-read-only! (atom (reconcile initial-model [:set-query "current query"])))
+          model (atom (reconcile initial-model [:set-query "current query"]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act

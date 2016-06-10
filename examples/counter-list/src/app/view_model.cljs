@@ -1,7 +1,5 @@
 (ns app.view-model
-  (:require [app.model :as model]
-            [carry.core :as carry]
-            [counter.core :as counter]
+  (:require [counter.core :as counter]
             [reagent.core :as r])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
@@ -12,7 +10,7 @@
     [model]
     (let [counter-view-model (fn [id]
                                (counter/view-model
-                                 (carry/entangle model #(get-in % [:counters id]) r/atom)))]
+                                 (reaction (get-in @model [:counters id]))))]
       {:counters (reaction (into (sorted-map)
                                  (for [[id _] (:counters @model)]
                                    [id (counter-view-model id)])))}))
@@ -24,7 +22,7 @@
         counter-view-model (fn [id]
                              (or (get @counter-view-models id)
                                  (counter/view-model
-                                   (carry/entangle model #(get-in % [:counters id]) r/atom))))]
+                                   (reaction (get-in @model [:counters id])))))]
     {:counters (reaction (reset! counter-view-models
                                  (into (sorted-map)
                                        (for [[id _] (:counters @model)]

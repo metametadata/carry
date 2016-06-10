@@ -18,13 +18,11 @@ The private/internal API uses `-` prefix and should not be used (e.g. `-this-is-
 
 ## App
 
-![spec](/graphs/app.svg)
-
 In a Carry application all the code you write is encapsulated behind a single **app** instance. 
 An app is a map with keys:
 
-* `:model` - a read-only atom, an in-memory representation of an app state
-* `:dispatch-signal` - a function for interaction with an app, always returns nil
+* `:model` - an in-memory representation of an app state
+* `:dispatch-signal` - a function for interaction with an app
 
 One can consider an app to be a black box which exposes its current state and modifies it on getting signals from an external world.
 It can also affect an external world as a response to a signal, i.e. perform "side effects".
@@ -33,19 +31,19 @@ It can also affect an external world as a response to a signal, i.e. perform "si
 
 Model represents an entire state of an app. 
  
-One can access app's model via `:model` key to obtain a read-only atom that can be dereferenced and watched.
-An exception will be thrown after mutating such atom:
+One can access app's model via `:model` key to obtain an object that can be dereferenced and watched.
+An exception will be thrown on mutating such read-only reference:
 
 ```clj
 (def my-model (:model my-app))
 
-; Dereference to get atom value.
+; Dereference to get model value.
 @my-model
 ;=> {...}
 
-; Start reacting to atom changes.
+; Start reacting to model changes.
 (add-watch my-model :my-watch
-           (fn [_key _atom old-state new-state]
+           (fn [_key _ref old-state new-state]
              (when (not= old-state new-state)
                (println "model value has changed!"))))
                
@@ -55,9 +53,9 @@ An exception will be thrown after mutating such atom:
 ; Stop watching.
 (remove-watch my-model :my-watch)
                
-; Mutating an atom will throw an exception.
+; It's impossible to directly mutate a model.
 (reset! my-model {:foo :bar})
-;=> Error: read-only atom was set to {:foo :bar}
+;=> Error: ...
 ```
 
 Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.
@@ -80,6 +78,8 @@ a serializable vector with a keyword and an additional payload:
 [:on-update-todo id val]
 [:carry-history.core/on-enter token]
 ```
+
+`dispatch-signal` always returns `nil`.
 
 ## Creating an App
 
@@ -111,7 +111,7 @@ Controller is also free to contain an asynchronous code. The signature of a cont
   [model signal dispatch-signal dispatch-action])
 ```
 
-* `model` - a read-only atom, the same as app's `:model`
+* `model` - a read-only reference, the same as app's `:model`
 * `signal` - an incoming signal 
 * `dispatch-signal` - a synchronous function for dispatching new signals, always returns `nil`, the same as app's `:dispatch-signal`
 * `dispatch-action` - a synchronous function for modifying a model, always returns `nil`
@@ -298,8 +298,8 @@ Usually view model is a map of Reagent reactions. An example from [TodoMVC](/exa
         ; Wrap todo items in a reaction.
         all-todos (reaction (:todos @model))]
     (-> model
-        ; This helper function call will return {:field (reaction (:field @model))} map.
-        ; Note: :field contains the value of a new todo input.
+        ; This helper function call will return {:field (reaction (:field @model))} map
+        ; (:field contains the value of a new todo input field).
         (carry-reagent/track-keys [:field])
         
         ; Additional view model fields are reactions 
@@ -310,12 +310,11 @@ Usually view model is a map of Reagent reactions. An example from [TodoMVC](/exa
                ))))
 ```
 
-Argument `model` is a read-only **Reagent atom (ratom)** that behaves almost exactly as a read-only model atom (i.e. `(:model app)`), 
-but can also be used in Reagent components and reactions.
-
-**Reaction** is a special ratom-like object that is created using Reagent's `reaction` macro.
-It is lazily computed from other ratoms/reactions.
-Any Reagent component that dereferences a reaction is going to be re-rendered when reaction value updates.
+Argument `model` is a **Reagent reaction** that tracks app model changes.
+**Reaction** is a special reference-like object that is created using Reagent's `reaction` macro.
+It is lazily computed from other reactions and Reagent atoms
+(see [official documentation](http://reagent-project.github.io) for more information about Reagent atoms).
+Any Reagent component that dereferences a reaction is going to be automatically re-rendered when reaction value updates.
 
 ### View
 
@@ -505,7 +504,7 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
 
                ; Start listening to model updates.
                (add-watch model ::token-watch
-                          (fn [_key _atom old-state new-state]
+                          (fn [_key _ref old-state new-state]
                             ; ...
                             ))
                
@@ -774,7 +773,7 @@ at `:query` and `:friends` keys:
   [model-key act-action expected-view-model-value]
   (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)
         model (r/atom initial-model)
-        view-model (friend-list/view-model model)
+        view-model (friend-list/view-model (reaction @model))
         witness (atom nil)]
     (is (contains? view-model model-key) "self-test")
     (run! (reset! witness @(model-key view-model)))
@@ -847,9 +846,7 @@ The view model will contain `:counters` reaction with a sorted map of `[id count
 
 ```clj
 (ns app.view-model
-  (:require [app.model :as model]
-            [carry.core :as carry]
-            [counter.core :as counter]
+  (:require [counter.core :as counter]
             [reagent.core :as r])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
@@ -860,7 +857,7 @@ The view model will contain `:counters` reaction with a sorted map of `[id count
 ;  [model]
 ;  (let [counter-view-model (fn [id]
 ;                             (counter/view-model
-;                               (carry/entangle model #(get-in % [:counters id]) r/atom)))]
+;                               (reaction (get-in @model [:counters id]))))]
 ;    {:counters (reaction (into (sorted-map)
 ;                               (for [[id _] (:counters @model)]
 ;                                 [id (counter-view-model id)])))}))
@@ -872,7 +869,7 @@ The view model will contain `:counters` reaction with a sorted map of `[id count
         counter-view-model (fn [id]
                              (or (get @counter-view-models id)
                                  (counter/view-model
-                                   (carry/entangle model #(get-in % [:counters id]) r/atom))))]
+                                   (reaction (get-in @model [:counters id])))))]
     {:counters (reaction (reset! counter-view-models
                                  (into (sorted-map)
                                        (for [[id _] (:counters @model)]
@@ -883,12 +880,10 @@ The optimized implementation calculates each counter view model only once.
 So that all existing counter views are not unnecessarily evaluated by Reagent
 on updating a single counter.
 
-Carry's [`entangle`](/api/carry.core.html#var-entangle) helper is used to create a counter model ratom for `counter/view-model`.
-This call returns a read-only ratom which will automatically sync its value with
-`(get-in @model [:counters id])` on `model` changes:
+Note how Reagent's `reaction` macro is used to create a counter model reaction for `counter/view-model`:
 
 ```clj
-(carry/entangle model #(get-in % [:counters id]) r/atom)
+(reaction (get-in @model [:counters id]))
 ```
 
 **`3. view`**
@@ -953,7 +948,9 @@ on inserting/removing subapps. But in this example we omit this because counter 
            (tagged dispatch-action [:counter-action id]))))
 ```
 
-`entangle` helper is used to create a counter model atom for `counter-control`:
+Carry's [`entangle`](/api/carry.core.html#var-entangle) helper is used to create a counter model for passing into `counter-control`.
+This call returns a read-only reference object which will automatically sync its value with
+`(get-in @model [:counters id])` on `model` changes:
 
 ```clj
 (carry/entangle model #(get-in % [:counters id]))

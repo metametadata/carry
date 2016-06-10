@@ -9,19 +9,23 @@
 
 (defmacro ^:no-doc is-exception-thrown
   "(is (thrown-with-msg? ...)) for specified exceptions in Clojure/ClojureScript."
-  [clj-exc-class cljs-exc-class re expr]
+  [clj-exc-class clj-re cljs-exc-class cljs-re expr]
   (let [is (if (-cljs-env? &env) 'cljs.test/is
                                  'clojure.test/is)
-        exc-class (if (-cljs-env? &env) cljs-exc-class
-                                        clj-exc-class)]
+        [exc-class re] (if (-cljs-env? &env) [cljs-exc-class cljs-re]
+                                             [clj-exc-class clj-re])]
     `(~is (~'thrown-with-msg? ~exc-class ~re ~expr))))
 
 (defmacro ^:no-doc is-error-thrown
   "(is (thrown-with-msg? ...)) for general exceptions in Clojure/ClojureScript."
   [re expr]
-  `(is-exception-thrown Exception js/Error ~re ~expr))
+  `(is-exception-thrown Exception ~re
+                        js/Error ~re
+                        ~expr))
 
 (defmacro ^:no-doc is-assertion-error-thrown
   "(is (thrown-with-msg? ...)) for assert exceptions in Clojure/ClojureScript."
   [re expr]
-  `(is-exception-thrown AssertionError js/Error ~re ~expr))
+  `(is-exception-thrown AssertionError ~re
+                        js/Error ~re
+                        ~expr))

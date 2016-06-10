@@ -12,34 +12,34 @@
   #?(:cljs
      (:require-macros [unit.utils :as u])))
 
-(defn is-readonly-atom
+(defn is-read-only-reference
   [a]
   (assert (map? @a) "self test")
   (assert (not= @a {:val :new-value}) "self test")
 
-  (is (carry/read-only? a))
-  (u/is-error-thrown
-    #"^read-only atom was set to \{:val :new-value\}"
+  (u/is-exception-thrown
+    java.lang.ClassCastException #"cannot be cast to clojure.lang.IAtom$"
+    js/Error #"^No protocol method ISwap.-swap"
     (swap! a assoc :val :new-value)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; App
 (deftest
-  app-model-is-read-only-atom
+  app-model-is-read-only-reference
   (let [spec {:initial-model {:val 100}
               :control       (constantly nil)
               :reconcile     (constantly nil)}
         app (carry/app spec)]
     (is (= {:val 100} @(:model app)))
-    (is-readonly-atom (:model app))))
+    (is-read-only-reference (:model app))))
 
 (deftest
-  controller-receives-read-only-model-atom
+  controller-receives-read-only-model-reference
   (let [spec {:initial-model {:val 100}
               :control       (fn control [model signal _dispatch-signal _dispatch-action]
                                (if (= signal :on-test-model)
                                  (do
                                    (is (= {:val 100} @model))
-                                   (is-readonly-atom model))
+                                   (is-read-only-reference model))
 
                                  (is nil "unexpected signal")))
               :reconcile     (constantly nil)}
@@ -71,8 +71,9 @@
     ; assert
     (is (= {:val 102} @(:model app)))
 
+    ; and just in case
     (testing "model is still read-only"
-      (is-readonly-atom (:model app)))))
+      (is-read-only-reference (:model app)))))
 
 (deftest
   controller-can-dispatch-new-signals
@@ -110,43 +111,14 @@
     ((:dispatch-signal app) :some-signal)))
 
 (deftest
-  resetting-read-only-model-in-watch-throws-an-exception
-  (let [spec {:initial-model {:val 100}
-              :control       (fn control [_model signal _dispatch-signal dispatch-action]
-                               (if (= signal :on-update-value)
-                                 (dispatch-action :update-value)
-                                 (is nil "unexpected signal")))
-              :reconcile     (fn reconcile [model action]
-                               (if (= action :update-value)
-                                 (update model :val inc)
-                                 (is nil "unexpected action")))}
-        app (carry/app spec)]
-    (add-watch (:model app) :test-watch
-               (fn test-watch
-                 [_key _atom _old-state new-state]
-                 (when (not= new-state {:val :new-value-from-watch}) ; check prevents an infinite loop
-                   (is (carry/read-only? (:model app)))
-                   (u/is-error-thrown
-                     #"^read-only atom was set to \{:val :new-value-from-watch\}"
-                     (reset! (:model app) {:val :new-value-from-watch})))))
-
-    ; act
-    ((:dispatch-signal app) :on-update-value)
-
-    ; assert
-    (is (= {:val :new-value-from-watch} @(:model app)))
-    (testing "model is still read-only"
-      (is-readonly-atom (:model app)))))
-
-(deftest
-  actions-can-be-dispatched-in-watch
+  actions-can-be-dispatched-from-model-watch
   (let [spec {:initial-model {:val 100}
               :control       (fn control [model signal _dispatch-signal dispatch-action]
                                (condp = signal
                                  :on-start
                                  (add-watch model :dispatch-action-watch
                                             (fn dispatch-action-watch
-                                              [_key _atom old-state new-state]
+                                              [_key _ref old-state new-state]
                                               (when (and (not= old-state new-state)
                                                          (= new-state {:val 101}))
                                                 (dispatch-action :update-value))))
@@ -164,35 +136,76 @@
 
     ; assert
     (is (= {:val 102} @(:model app)))
-    (testing "model is still read-only"
-      (is-readonly-atom (:model app)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Entangle
+    ; and just in case
+    (testing "model is still read-only"
+      (is-read-only-reference (:model app)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Entangle
 (deftest
-  entangled-atom-is-read-only
+  entangled-reference-is-read-only
   (let [source-atom (atom {:val 100})
         entangled-atom (carry/entangle source-atom identity)]
-    (is-readonly-atom entangled-atom)))
+    (is-read-only-reference entangled-atom)))
 
 (deftest
-  entangled-atom-reacts-to-source-atom-changes-using-specified-function
+  entangled-reference-reacts-to-source-atom-changes-using-specified-function
   (let [source-atom (atom {:val 100})
-        entangled-atom (carry/entangle source-atom #(update % :val inc))]
-    (is (= {:val 101} @entangled-atom))
+        entangled-ref (carry/entangle source-atom #(update % :val inc))]
+    (is (= {:val 101} @entangled-ref))
 
     (swap! source-atom assoc :val 200)
-    (is (= {:val 201} @entangled-atom))
+    (is (= {:val 201} @entangled-ref))
 
     ; just in case:
-    (is-readonly-atom entangled-atom)))
+    (is-read-only-reference entangled-ref)))
 
 (deftest
-  entangle-supports-custom-atom-constructor
+  entangled-reference-is-watchable
   (let [source-atom (atom {:val 100})
-        custom-constructor-used? (atom false)
-        custom-constructor #(do (reset! custom-constructor-used? true)
-                                (atom %))
-        entangled-atom (carry/entangle source-atom #(update % :val inc) custom-constructor)]
-    (is @custom-constructor-used?)
-    (is (= {:val 101} @entangled-atom))
-    (is-readonly-atom entangled-atom)))
+        entangled-ref (carry/entangle source-atom #(update % :val inc))
+        watch1-old-state (atom nil)
+        watch1-new-state (atom nil)
+        watch2-old-state (atom nil)
+        watch2-new-state (atom nil)]
+    (is (= entangled-ref (add-watch entangled-ref
+                                    :watch1
+                                    (fn [key ref os ns]
+                                      (is (= entangled-ref ref))
+                                      (is (= :watch1 key))
+                                      (reset! watch1-old-state os)
+                                      (reset! watch1-new-state ns)))))
+
+    (is (= entangled-ref (add-watch entangled-ref
+                                    :watch2
+                                    (fn [key ref os ns]
+                                      (is (= entangled-ref ref))
+                                      (is (= :watch2 key))
+                                      (reset! watch2-old-state os)
+                                      (reset! watch2-new-state ns)))))
+
+    (is (= {:val 101} @entangled-ref))
+
+    ; act
+    (swap! source-atom assoc :val 200)
+
+    ; assert
+    (is (= {:val 101} @watch1-old-state))
+    (is (= {:val 201} @watch1-new-state))
+    (is (= {:val 101} @watch2-old-state))
+    (is (= {:val 201} @watch2-new-state))
+
+    ; act
+    (is (= entangled-ref (remove-watch entangled-ref :watch1)))
+    (swap! source-atom assoc :val 300)
+
+    ; assert
+    (is (= {:val 101} @watch1-old-state))
+    (is (= {:val 201} @watch1-new-state))
+    (is (= {:val 201} @watch2-old-state))
+    (is (= {:val 301} @watch2-new-state))))
+
+(deftest entangled-reference-can-be-printed
+  (let [source-atom (atom {:val 100})
+        entangled-ref (carry/entangle source-atom identity)]
+    (is (= "#<Entangled reference: {:val 100}>" (print-str entangled-ref)))))

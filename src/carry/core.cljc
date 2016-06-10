@@ -1,48 +1,62 @@
 (ns carry.core)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Read-only atoms
-(defn read-only?
-  "Returns `true` if atom `a` is read-only."
-  [a]
-  (::read-only-atom? (meta a)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils
+#?(:clj
+   (deftype -EntangledReference [a f]
+     clojure.lang.IRef
+     (deref
+       [_]
+       (f @a))
 
-(defn ^:no-doc -throw-read-only-atom-error
-  [new-state]
-  #?(:clj  (throw (ex-info (str "read-only atom was set to " (pr-str new-state)) {}))
-     :cljs (throw (js/Error. (str "read-only atom was set to " (pr-str new-state))))))
+     (addWatch
+       [this key callback]
+       (add-watch a
+                  [this key]
+                  (fn [_key _ref old-state new-state]
+                    (callback key this (f old-state) (f new-state))))
+       this)
 
-(defn set-read-only!
-  "Makes the specified atom read-only: an exception will be raised after atom value is changed.
-  Returns the updated atom."
-  [a]
-  (alter-meta! a assoc ::read-only-atom? true)
-  (add-watch a ::read-only-watch
-             (fn read-only-watch
-               [_key _atom old-state new-state]
-               (when (not= old-state new-state)
-                 (-throw-read-only-atom-error new-state)))))
+     (removeWatch
+       [this key]
+       (remove-watch a [this key])
+       this))
 
-(defn ^:no-doc -set-can-be-set-only-to-value!
-  "Allows swap!/reset! only to the specified value. Returns the updated atom."
-  [a v]
-  (add-watch a ::can-be-reset-only-to-value-watch
-             (fn can-be-reset-only-to-value-watch
-               [_key _atom _old-state new-state]
-               (when (not= new-state v)
-                 (-throw-read-only-atom-error new-state)))))
+   :cljs
+   (deftype -EntangledReference [a f]
+     IDeref
+     (-deref
+       [_]
+       (f @a))
 
-(defn ^:no-doc -reset-read-only-atom!
-  "Bypasses write protection of the specified read-only atom."
-  [a new-value]
-  (assert (read-only? a))
+     IWatchable
+     (-add-watch [this key callback]
+       (add-watch a
+                  [this key]
+                  (fn [_key _ref old-state new-state]
+                    (callback key this (f old-state) (f new-state)))))
 
-  (remove-watch a ::read-only-watch)
-  (-set-can-be-set-only-to-value! a new-value)
+     (-remove-watch [this key]
+       (remove-watch a [this key]))
 
-  (reset! a new-value)
+     IPrintWithWriter
+     (-pr-writer [this writer _opts]
+       (-write writer (str "#<Entangled reference: " @this ">")))))
 
-  (remove-watch a ::can-be-reset-only-to-value-watch)
-  (set-read-only! a))
+(alter-meta! #'->-EntangledReference assoc :no-doc true)
+
+#?(:clj
+   (defmethod print-method -EntangledReference [v ^java.io.Writer writer]
+     (.write writer (str "#<Entangled reference: " @v ">"))))
+
+(defn entangle
+  "Creates a read-only reference which automatically syncs its value from `(f @a)`.
+  Returned object supports `deref`, `add-watch` and `remove-watch`.
+  Arguments:
+
+   * `a` - source atom
+   * `f` - pure function"
+  [a f]
+  (-EntangledReference. a f))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn app
@@ -59,30 +73,13 @@
 
   Returns a map with keys:
 
-  * `:model` - A read-only model atom.
+  * `:model` - An object that supports `IDeref` and `IWatchable` protocols.
   * `:dispatch-signal` - Function with a single arg: a signal to be sent to an app. Returns `nil`."
   [{:keys [initial-model control reconcile] :as _spec}]
   {:pre [(map? initial-model) (fn? control) (fn? reconcile)]}
-  (let [model-atom (set-read-only! (atom initial-model))]
-    (letfn [(dispatch-action [action] (-reset-read-only-atom! model-atom (reconcile @model-atom action)) nil)
-            (dispatch-signal [signal] (control model-atom signal dispatch-signal dispatch-action) nil)]
-      {:model           model-atom
+  (let [model-atom (atom initial-model)
+        read-only-model-atom (entangle model-atom identity)]
+    (letfn [(dispatch-action [action] (reset! model-atom (reconcile @model-atom action)) nil)
+            (dispatch-signal [signal] (control read-only-model-atom signal dispatch-signal dispatch-action) nil)]
+      {:model           read-only-model-atom
        :dispatch-signal dispatch-signal})))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils
-(defn entangle
-  "Returns a read-only atom which automatically syncs its value from `(f @a)`.
-   Arguments:
-
-   * `f` - pure function
-   * `a` - atom
-   * `contructor` - atom contructor, default value: `atom`"
-  ([a f]
-   (entangle a f atom))
-  ([a f constructor]
-   (let [entangled-atom (set-read-only! (constructor (f @a)))]
-     (add-watch a
-                entangled-atom                              ; unique key
-                (fn [_key _atom _old-state new-state]
-                  (-reset-read-only-atom! entangled-atom (f new-state))))
-     entangled-atom)))
