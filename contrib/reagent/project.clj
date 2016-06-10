@@ -1,5 +1,5 @@
 (defproject
-  carry-reagent "0.4.0"
+  carry-reagent "0.5.0"
   :description "Reagent bindings for Carry."
   :url "https://github.com/metametadata/carry/tree/master/contrib/reagent"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}

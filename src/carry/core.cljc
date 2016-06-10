@@ -49,7 +49,7 @@
      (.write writer (str "#<Entangled reference: " @v ">"))))
 
 (defn entangle
-  "Creates a read-only reference which automatically syncs its value from `(f @a)`.
+  "Creates a read-only reference which automatically syncs its value with `(f @a)`.
   Returned object supports `deref`, `add-watch` and `remove-watch`.
   Arguments:
 

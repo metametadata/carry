@@ -3,7 +3,7 @@
   (:require-macros [reagent.ratom :refer [reaction]]))
 
 (defn -atom->reaction
-  "Creates a reaction which syncs its value from the specified atom."
+  "Creates a reaction which syncs its value with the specified atom."
   [a]
   (let [ra (r/atom @a)]
     (add-watch a
