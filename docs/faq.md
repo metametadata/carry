@@ -11,5 +11,6 @@ Some of the alternatives are:
 - [Petrol](https://github.com/krisajenkins/petrol)
 - [Pure-frame](https://github.com/binaryage/pure-frame)
 - [re-frame](https://github.com/Day8/re-frame)
+- [remlok](https://github.com/gumvic/remlok)
 - [Stately](https://github.com/nodename/stately)
 - [untangled](https://github.com/untangled-web)
