@@ -222,12 +222,12 @@
         }, 
         {
             "location": "/faq/", 
-            "text": "What are the alternative ClojureScript frameworks?\n\n\nSome of the alternatives are:\n\n\n\n\nampere\n\n\nbureaucracy\n\n\nCatalysis\n\n\nhoplon\n\n\nKeechma\n\n\nOm Next\n\n\nPetrol\n\n\nPure-frame\n\n\nre-frame\n\n\nStately\n\n\nuntangled", 
+            "text": "What are the alternative ClojureScript frameworks?\n\n\nSome of the alternatives are:\n\n\n\n\nampere\n\n\nbureaucracy\n\n\nCatalysis\n\n\nhoplon\n\n\nKeechma\n\n\nOm Next\n\n\nPetrol\n\n\nPure-frame\n\n\nre-frame\n\n\nremlok\n\n\nStately\n\n\nuntangled", 
             "title": "FAQ"
         }, 
         {
             "location": "/faq/#what-are-the-alternative-clojurescript-frameworks", 
-            "text": "Some of the alternatives are:   ampere  bureaucracy  Catalysis  hoplon  Keechma  Om Next  Petrol  Pure-frame  re-frame  Stately  untangled", 
+            "text": "Some of the alternatives are:   ampere  bureaucracy  Catalysis  hoplon  Keechma  Om Next  Petrol  Pure-frame  re-frame  remlok  Stately  untangled", 
             "title": "What are the alternative ClojureScript frameworks?"
         }, 
         {

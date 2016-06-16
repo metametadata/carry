@@ -10,8 +10,8 @@
 <ul>
   <li><code>:model</code> - An object that supports <code>IDeref</code> and <code>IWatchable</code> protocols.</li>
   <li><code>:dispatch-signal</code> - Function with a single arg: a signal to be sent to an app. Returns <code>nil</code>.</li>
-</ul></div></div><div class="src-link"><a href="https://github.com/metametadata/carry/blob/master/src/carry/core.cljc#L62">view source</a></div></div><div class="public anchor" id="var-entangle"><h3>entangle</h3><div class="usage"><code>(entangle a f)</code></div><div class="doc"><div class="markdown"><p>Creates a read-only reference which automatically syncs its value with <code>(f @a)</code>. Returned object supports <code>deref</code>, <code>add-watch</code> and <code>remove-watch</code>. Arguments:</p>
+</ul></div></div><div class="src-link"><a href="https://github.com/metametadata/carry/blob/master/src/carry/core.cljc#L62">view source</a></div></div><div class="public anchor" id="var-entangle"><h3>entangle</h3><div class="usage"><code>(entangle r f)</code></div><div class="doc"><div class="markdown"><p>Creates a read-only reference which automatically syncs its value with <code>(f @r)</code>. Returned object supports <code>deref</code>, <code>add-watch</code> and <code>remove-watch</code>. Arguments:</p>
 <ul>
-  <li><code>a</code> - source atom</li>
+  <li><code>r</code> - source reference, it must support <code>deref</code>, <code>add-watch</code> and <code>remove-watch</code> (e.g. an atom or another read-only reference)</li>
   <li><code>f</code> - pure function</li>
 </ul></div></div><div class="src-link"><a href="https://github.com/metametadata/carry/blob/master/src/carry/core.cljc#L51">view source</a></div></div></div></body></html>
