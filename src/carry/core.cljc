@@ -2,15 +2,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils
 #?(:clj
-   (deftype -EntangledReference [a f]
+   (deftype -EntangledReference [r f]
      clojure.lang.IRef
      (deref
        [_]
-       (f @a))
+       (f @r))
 
      (addWatch
        [this key callback]
-       (add-watch a
+       (add-watch r
                   [this key]
                   (fn [_key _ref old-state new-state]
                     (callback key this (f old-state) (f new-state))))
@@ -18,25 +18,25 @@
 
      (removeWatch
        [this key]
-       (remove-watch a [this key])
+       (remove-watch r [this key])
        this))
 
    :cljs
-   (deftype -EntangledReference [a f]
+   (deftype -EntangledReference [r f]
      IDeref
      (-deref
        [_]
-       (f @a))
+       (f @r))
 
      IWatchable
      (-add-watch [this key callback]
-       (add-watch a
+       (add-watch r
                   [this key]
                   (fn [_key _ref old-state new-state]
                     (callback key this (f old-state) (f new-state)))))
 
      (-remove-watch [this key]
-       (remove-watch a [this key]))
+       (remove-watch r [this key]))
 
      IPrintWithWriter
      (-pr-writer [this writer _opts]
@@ -49,14 +49,14 @@
      (.write writer (str "#<Entangled reference: " @v ">"))))
 
 (defn entangle
-  "Creates a read-only reference which automatically syncs its value with `(f @a)`.
+  "Creates a read-only reference which automatically syncs its value with `(f @r)`.
   Returned object supports `deref`, `add-watch` and `remove-watch`.
   Arguments:
 
-   * `a` - source atom
+   * `r` - source reference, it must support `deref`, `add-watch` and `remove-watch` (e.g. an atom or another read-only reference)
    * `f` - pure function"
-  [a f]
-  (-EntangledReference. a f))
+  [r f]
+  (-EntangledReference. r f))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn app
