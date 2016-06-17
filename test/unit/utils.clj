@@ -1,6 +1,5 @@
 (ns unit.utils)
 
-;;;;;;;;;;;;;;;;;;;;;;;; Macros - utils for unit tests; not extracted into separate ns for convenience
 (defn -cljs-env?
   "Take the &env from a macro, and tell whether we are expanding into cljs.
    Source: https://groups.google.com/d/msg/clojurescript/iBY5HaQda4A/w1lAQi9_AwsJ"
