@@ -10,6 +10,7 @@ The core of the framework is a simple state management library.
 UI bindings, routing, debugger, etc. are implemented as separate optional [packages](#packages).
 
 [![Clojars Project](https://img.shields.io/clojars/v/carry.svg)](https://clojars.org/carry)
+[![Gitter](https://img.shields.io/gitter/room/metametadata/carry.svg?maxAge=2592000?style=plastic)](https://gitter.im/metametadata/carry)
 
 ## Features
 
