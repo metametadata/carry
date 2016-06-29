@@ -23,14 +23,14 @@
                                        "../../contrib/reagent/src"
                                        "../counter/src-spec"]
                         :compiler     {:main                 app.core
+                                       :devcards             true
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
                                        :output-dir           "resources/public/js/compiled/out"
                                        :source-map-timestamp true
                                        :compiler-stats       true
                                        :parallel-build       false}
-                        :figwheel     {:devcards      true
-                                       :on-jsload     "app.core/on-jsload"
+                        :figwheel     {:on-jsload     "app.core/on-jsload"
                                        :before-jsload "app.core/before-jsload"}}
 
                        {:id           "min"
@@ -39,6 +39,7 @@
                                        "../../contrib/reagent/src"
                                        "../counter/src-spec"]
                         :compiler     {:main           app.core
+                                       :devcards       true
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced
                                        :pretty-print   false

@@ -3,10 +3,12 @@
             [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]
-            [cljs.core.match :refer-macros [match]])
+            [cljs.core.match :refer-macros [match]]
+            [devcards.core])
   (:require-macros [devcards.core :refer [defcard-rg]]))
 
 (enable-console-print!)
+(devcards.core/start-devcard-ui!)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 (defcard-rg
