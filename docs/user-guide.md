@@ -1190,7 +1190,7 @@ component state values ([demo](http://rigsomelight.com/devcards/#!/devdemos.core
 
 It doesn't work out out-of-box with Carry because a Carry app has no ability to expose its underlying model atom to a card.
 To solve this we use [carry-atom-sync](https://github.com/metametadata/carry/tree/master/contrib/atom-sync) middleware
-which creates a bidirectionally sync between the "data atom" created by Devacrds and an app model:
+which creates a bidirectionally sync between the "data atom" created by Devcards and an app model:
 
 <a href="http://i.imgur.com/5F2sD9A.png">
   <img src="http://i.imgur.com/5F2sD9A.png" alt="debugger" style="width: 50vw; display: block; margin: 0 auto;"/>
