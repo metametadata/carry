@@ -1,7 +1,7 @@
 (ns carry-atom-sync.core
   (:require [cljs.core.match :refer-macros [match]]))
 
-(defn -connect-atom
+(defn ^:no-doc -connect-atom
   [r model dispatch-signal]
   ; sync model from reference
   (add-watch r
@@ -17,7 +17,7 @@
                (when (not= @r new-state)
                  (reset! r new-state)))))
 
-(defn -unconnect-atom
+(defn ^:no-doc -unconnect-atom
   [r model]
   (remove-watch r model)
   (remove-watch model r))
