@@ -39,7 +39,8 @@
                              ; Setup bidirectional sync with data atom.
                              (carry-atom-sync/add data-atom)))
           [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-      ((:dispatch-signal app) :on-start)                    ; Start the app.
+      ; Start the app.
+      ((:dispatch-signal app) :on-start)
 
       ; Render app view.
       [-div-with-unmount-callback
@@ -48,7 +49,7 @@
        ; Stop the app on umount/hot-reload.
        #((:dispatch-signal app) :on-stop)]))
 
-  ; Create devcards atom with initial model value.
+  ; Create data atom with initial model value.
   (atom (:initial-model counter/spec))
 
   ; Card options.
