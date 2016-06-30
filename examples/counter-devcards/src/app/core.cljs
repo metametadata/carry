@@ -13,20 +13,21 @@
 
 (devcards.core/start-devcard-ui!)
 
-(defn -div-with-unmount-callback
-  [_body unmount-cb]
-  (r/create-class {:reagent-render         (fn [body _unmount-cb] (into [:div] body))
-                   :component-will-unmount (fn [_this] (unmount-cb))}))
+(defn -with-mount-callbacks
+  [_component did-mount-cb will-unmount-cb]
+  (r/create-class {:reagent-render         (fn [component _did-mount-cb _will-unmount-cb] component)
+                   :component-did-mount    (fn [_this] (did-mount-cb))
+                   :component-will-unmount (fn [_this] (will-unmount-cb))}))
 
 (defcard-rg
   counter
   (let [app (carry/app (-> counter/spec
                            (logging/add "[counter] ")))
         [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-    ((:dispatch-signal app) :on-start)
 
-    [-div-with-unmount-callback
-     [app-view]
+    [-with-mount-callbacks
+     app-view
+     #((:dispatch-signal app) :on-start)
      #((:dispatch-signal app) :on-stop)]))
 
 (defcard-rg
@@ -44,12 +45,12 @@
 
                              (logging/add "[counter-with-history] ")))
           [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-      ; Start the app.
-      ((:dispatch-signal app) :on-start)
-
       ; Render app view.
-      [-div-with-unmount-callback
-       [app-view]
+      [-with-mount-callbacks
+       app-view
+
+       ; Start the app after mounting.
+       #((:dispatch-signal app) :on-start)
 
        ; Stop the app on umount/hot-reload.
        #((:dispatch-signal app) :on-stop)]))
