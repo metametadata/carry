@@ -8,7 +8,7 @@
 
                  [org.clojure/core.match "0.3.0-alpha4"]
 
-                 [devcards "0.2.1-7"]]
+                 [devcards "0.2.1-7" :exclusions [cljsjs/react cljsjs/react-dom]]]
 
   :pedantic? :abort
 
