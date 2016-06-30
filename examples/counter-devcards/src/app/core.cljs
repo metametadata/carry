@@ -14,10 +14,10 @@
 (devcards.core/start-devcard-ui!)
 
 (defn -with-mount-callbacks
-  [_component did-mount-cb will-unmount-cb]
-  (r/create-class {:reagent-render         (fn [component _did-mount-cb _will-unmount-cb] component)
-                   :component-did-mount    (fn [_this] (did-mount-cb))
-                   :component-will-unmount (fn [_this] (will-unmount-cb))}))
+  [_component on-did-mount on-will-unmount]
+  (r/create-class {:reagent-render         (fn [component _on-did-mount _on-will-unmount] component)
+                   :component-did-mount    (fn [_this] (on-did-mount))
+                   :component-will-unmount (fn [_this] (on-will-unmount))}))
 
 (defcard-rg
   counter

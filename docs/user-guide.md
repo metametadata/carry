@@ -1153,25 +1153,25 @@ On hot reload (e.g. via Figwheel) a new app will be created from scratch.
 This example lacks dispatching standard `:on-start`/`:on-stop` signals, let's fix this:
 
 ```clj
-(defn -div-with-unmount-callback
-  [_body unmount-cb]
-  (r/create-class {:reagent-render         (fn [body _unmount-cb] (into [:div] body))
-                   :component-will-unmount (fn [_this] (unmount-cb))}))
-
+(defn -with-mount-callbacks
+  [_component on-did-mount on-will-unmount]
+  (r/create-class {:reagent-render         (fn [component _on-did-mount _on-will-unmount] component)
+                   :component-did-mount    (fn [_this] (on-did-mount))
+                   :component-will-unmount (fn [_this] (on-will-unmount))}))
 (defcard-rg
   counter
   (let [app (carry/app (-> counter/spec
                            (logging/add "[counter] ")))
         [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-    ((:dispatch-signal app) :on-start)
 
-    [-div-with-unmount-callback
-     [app-view]
+    [-with-mount-callbacks
+     app-view
+     #((:dispatch-signal app) :on-start)
      #((:dispatch-signal app) :on-stop)]))
 ```
 
-We've created a helper Reagent component `-div-with-unmount-callback` for stopping the app
-when the card component is going to unmount on hot reload.
+A helper Reagent component `-with-mount-callbacks` is created for starting the app after mounting and for stopping the app
+when the card component is going to unmount on hot reload. 
 
 Devcards also has an ability to display a simple time traveling "history" widget to go back and forward between recorded
 component state values ([demo](http://rigsomelight.com/devcards/#!/devdemos.core)):
@@ -1219,14 +1219,16 @@ which creates a bidirectionally sync between the "data atom" created by Devcards
                              (assoc :initial-model @data-atom)
 
                              ; Setup bidirectional sync with data atom.
-                             (carry-atom-sync/add data-atom)))
-          [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-      ; Start the app.
-      ((:dispatch-signal app) :on-start)
+                             (carry-atom-sync/add data-atom)
 
+                             (logging/add "[counter-with-history] ")))
+          [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
       ; Render app view.
-      [-div-with-unmount-callback
-       [app-view]
+      [-with-mount-callbacks
+       app-view
+
+       ; Start the app after mounting.
+       #((:dispatch-signal app) :on-start)
 
        ; Stop the app on umount/hot-reload.
        #((:dispatch-signal app) :on-stop)]))
@@ -1245,7 +1247,31 @@ What's happening here:
 2. The data atom is created only the first time and then conveniently preserves its value between hot reloads.
 3. On creation an app takes its initial value from the data atom.
 4. On UI interactions all app model updates are propagated into the data atom enlarging the card's history stack.
-5. On clicking history widget buttons the data atom is updated and its new values are synced back into the app model.
+5. On clicking history widget buttons the data atom is updated and its new values are synced back into the app model. 
  
 Of course, if a lot of cards are created like this then creating a 
-helper macro should be considered in order to reduce code duplication. 
+helper macro should be considered in order to reduce code duplication.
+
+Note that we must start the app only after mounting.
+Otherwise, starting app synchronously in a card function will produce
+a *"setState(...): Cannot update during an existing state transition"* warning on hot reloads
+(because `carry-atom-sync` middleware resets `data-atom`):
+
+```clj
+(defcard-rg
+  counter-with-history
+  (fn [data-atom _]
+   ; ...
+   
+   ; DON'T DO THIS!
+   ((:dispatch-signal app) :on-start)   
+      
+   [-with-mount-callbacks
+    app-view
+    ; ...
+    ])
+    
+   ; ...
+  )
+```
+ 
