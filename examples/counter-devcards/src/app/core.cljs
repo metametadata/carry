@@ -8,6 +8,7 @@
   (:require-macros [devcards.core :refer [defcard-rg]]))
 
 (enable-console-print!)
+
 (devcards.core/start-devcard-ui!)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -21,11 +22,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 (defn -connect-atom
   [r model dispatch-signal]
-  ; sync from reference for the first time
-  (dispatch-signal [::on-reset @r])
-
-  #_(println "1 DATA ATOM WATCHES = " (pr-str (count (.-watches r))))
-
   ; sync model from reference
   (add-watch r
              model
@@ -38,9 +34,7 @@
              r
              (fn [_key _ref _old-state new-state]
                (when (not= @r new-state)
-                 (reset! r new-state))))
-
-  #_(println "2 DATA ATOM WATCHES = " (pr-str (count (.-watches r)))))
+                 (reset! r new-state)))))
 
 (defn -unconnect-atom
   [r model]
@@ -50,7 +44,9 @@
 (defn add-atom-sync
   "Carry middleware.
    On start creates a bidirectional sync between the specified atom-like reference and the app model.
-   Is useful for integration with Devcards or for direct hacking with app model in REPL."
+   On stop sync is removed.
+   Current reference values are not updated until one of the references changes.
+   Is useful for direct hacking with app model in REPL and for integration with Devcards."
   [spec r]
   (-> spec
       (update :control
@@ -85,26 +81,37 @@
                          :else
                          (app-reconcile model action)))))))
 
-(defn with-unmount-callback
+(defn -div-with-unmount-callback
   [_body unmount-cb]
-  (r/create-class {:reagent-render         (fn [body _unmount-cb]
-                                             (into [:div] body))
+  (r/create-class {:reagent-render         (fn [body _unmount-cb] (into [:div] body))
                    :component-will-unmount (fn [_this] (unmount-cb))}))
 
 (defcard-rg
   counter-with-history
+  "Preserves model value between hot reloads."
   (fn [data-atom _]
+    ; Create app instance.
     (let [app (carry/app (-> counter/spec
-                             (add-atom-sync data-atom)))    ; <-- connect devcards atom
+
+                             ; Get model value from data atom.
+                             (assoc :initial-model @data-atom)
+
+                             ; Setup bidirectional sync with data atom.
+                             (add-atom-sync data-atom)))
           [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-      ((:dispatch-signal app) :on-start)                    ; <-- start the app
+      ((:dispatch-signal app) :on-start)                    ; Start the app.
 
-      [with-unmount-callback
+      ; Render app view.
+      [-div-with-unmount-callback
        [app-view]
-       #((:dispatch-signal app) :on-stop)]))                ; <-- stop the app on umount
 
-  (atom (:initial-model counter/spec))                      ; <-- create devcards atom with initial model value
+       ; Stop the app on umount/hot-reload.
+       #((:dispatch-signal app) :on-stop)]))
 
+  ; Create devcards atom with initial model value.
+  (atom (:initial-model counter/spec))
+
+  ; Card options.
   {:inspect-data true
    :history      true})
 
