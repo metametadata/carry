@@ -200,6 +200,9 @@
             <li class="second-level"><a href="#usage-with-datascript">Usage with DataScript</a></li>
             
         
+            <li class="second-level"><a href="#usage-with-devcards">Usage with Devcards</a></li>
+            
+        
     
     </ul>
 </div></div>
@@ -1210,7 +1213,127 @@ An example from <a href="../examples/#todomvc">TodoMVC</a>:</p>
 <ul>
 <li><a href="../examples/#counter-datascript">Counter DataScript</a></li>
 <li><a href="../examples/#shopping-cart">Shopping Cart</a></li>
-</ul></div>
+</ul>
+<h2 id="usage-with-devcards">Usage with Devcards</h2>
+<p>This section describes how to make Carry work with <a href="https://github.com/bhauman/devcards">Devcards</a> for a "visual REPL experience".
+Further I assume you have a basic understanding of Devcards and I won't focus on why it's needed, installation details, etc.
+We'll see how to render Carry/Reagent app instances inside cards.</p>
+<blockquote>
+<p>&#128172; This chapter is based on <a href="../examples/#counter-devcards">counter-devcards</a> example project.</p>
+</blockquote>
+<p>This is a simplest card for the app which uses <code>carry-reagent</code> for UI:</p>
+<p><a href="http://i.imgur.com/5li8ITB.png">
+  <img src="http://i.imgur.com/5li8ITB.png" alt="debugger" style="width: 50vw; display: block; margin: 0 auto;"/>
+</a></p>
+<pre><code class="clj">(ns app.core
+  (:require [counter.core :as counter]
+            [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            [reagent.core :as r]
+            [devcards.core])
+  (:require-macros [devcards.core :refer [defcard-rg]]))
+
+; ...
+
+(defcard-rg
+  counter
+  (let [app (carry/app counter/spec)
+        [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
+    app-view))
+</code></pre>
+
+<p>Here <code>defcard-rg</code> macro is used to render an app Reagent component.
+On hot reload (e.g. via Figwheel) a new app will be created from scratch.</p>
+<p>This example lacks dispatching standard <code>:on-start</code>/<code>:on-stop</code> signals, let's fix this:</p>
+<pre><code class="clj">(defn -div-with-unmount-callback
+  [_body unmount-cb]
+  (r/create-class {:reagent-render         (fn [body _unmount-cb] (into [:div] body))
+                   :component-will-unmount (fn [_this] (unmount-cb))}))
+
+(defcard-rg
+  counter
+  (let [app (carry/app (-&gt; counter/spec
+                           (logging/add &quot;[counter] &quot;)))
+        [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
+    ((:dispatch-signal app) :on-start)
+
+    [-div-with-unmount-callback
+     [app-view]
+     #((:dispatch-signal app) :on-stop)]))
+</code></pre>
+
+<p>We've created a helper Reagent component <code>-div-with-unmount-callback</code> for stopping the app
+when the card component is going to unmount on hot reload.</p>
+<p>Devcards also has an ability to display a simple time traveling "history" widget to go back and forward between recorded
+component state values (<a href="http://rigsomelight.com/devcards/#!/devdemos.core">demo</a>):</p>
+<p><a href="http://i.imgur.com/E9iAXU3.png">
+  <img src="http://i.imgur.com/E9iAXU3.png" alt="debugger" style="width: 15vw; display: block; margin: 0 auto;"/>
+</a></p>
+<pre><code class="clj">(defcard bmi-calculator                        ;; optional symbol name
+  &quot;*Code taken from Reagent readme.*&quot;          ;; optional markdown doc
+  (fn [data-atom _] (bmi-component data-atom)) ;; object of focus
+  {:height 180 :weight 80}                     ;; optional initial data
+  {:inspect-data true :history true})          ;; optional devcard config options
+</code></pre>
+
+<p>It doesn't work out out-of-box with Carry because a Carry app has no ability to expose its underlying model atom to a card.
+To solve this we use <a href="https://github.com/metametadata/carry/tree/master/contrib/atom-sync">carry-atom-sync</a> middleware
+which creates a bidirectionally sync between the "data atom" created by Devacrds and an app model:</p>
+<p><a href="http://i.imgur.com/5F2sD9A.png">
+  <img src="http://i.imgur.com/5F2sD9A.png" alt="debugger" style="width: 50vw; display: block; margin: 0 auto;"/>
+</a></p>
+<pre><code class="clj">(ns app.core
+  (:require [counter.core :as counter]
+            [carry.core :as carry]
+            [carry-atom-sync.core :as carry-atom-sync]
+            [carry-reagent.core :as carry-reagent]
+            [cljs.core.match :refer-macros [match]]
+            [devcards.core])
+  (:require-macros [devcards.core :refer [defcard-rg]]))
+
+; ...
+
+(defcard-rg
+  counter-with-history
+  &quot;Preserves model value between hot reloads.&quot;
+  (fn [data-atom _]
+    ; Create app instance.
+    (let [app (carry/app (-&gt; counter/spec
+
+                             ; Get model value from data atom.
+                             (assoc :initial-model @data-atom)
+
+                             ; Setup bidirectional sync with data atom.
+                             (carry-atom-sync/add data-atom)))
+          [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
+      ; Start the app.
+      ((:dispatch-signal app) :on-start)
+
+      ; Render app view.
+      [-div-with-unmount-callback
+       [app-view]
+
+       ; Stop the app on umount/hot-reload.
+       #((:dispatch-signal app) :on-stop)]))
+
+  ; Create data atom with initial model value.
+  (atom (:initial-model counter/spec))
+
+  ; Card options.
+  {:inspect-data true
+   :history      true})
+</code></pre>
+
+<p>What's happening here:</p>
+<ol>
+<li>A new app instance is created on each hot reload.</li>
+<li>The data atom is created only the first time and then conveniently preserves its value between hot reloads.</li>
+<li>On creation an app takes its initial value from the data atom.</li>
+<li>On UI interactions all app model updates are propagated into the data atom enlarging the card's history stack.</li>
+<li>On clicking history widget buttons the data atom is updated and its new values are synced back into the app model.</li>
+</ol>
+<p>Of course, if a lot of cards are created like this then creating a 
+helper macro should be considered in order to reduce code duplication. </p></div>
         
     </div>
 
