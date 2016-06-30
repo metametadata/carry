@@ -24,6 +24,8 @@
   ; sync from reference for the first time
   (dispatch-signal [::on-reset @r])
 
+  #_(println "1 DATA ATOM WATCHES = " (pr-str (count (.-watches r))))
+
   ; sync model from reference
   (add-watch r
              model
@@ -36,7 +38,14 @@
              r
              (fn [_key _ref _old-state new-state]
                (when (not= @r new-state)
-                 (reset! r new-state)))))
+                 (reset! r new-state))))
+
+  #_(println "2 DATA ATOM WATCHES = " (pr-str (count (.-watches r)))))
+
+(defn -unconnect-atom
+  [r model]
+  (remove-watch r model)
+  (remove-watch model r))
 
 (defn add-atom-sync
   "Carry middleware.
@@ -52,7 +61,14 @@
                          :on-start
                          (do
                            (app-control model signal dispatch-signal dispatch-action)
+
                            (-connect-atom r model dispatch-signal))
+
+                         :on-stop
+                         (do
+                           (-unconnect-atom r model)
+
+                           (app-control model signal dispatch-signal dispatch-action))
 
                          [::on-reset new-model]
                          (dispatch-action [::reset new-model])
@@ -69,21 +85,28 @@
                          :else
                          (app-reconcile model action)))))))
 
+(defn with-unmount-callback
+  [_body unmount-cb]
+  (r/create-class {:reagent-render         (fn [body _unmount-cb]
+                                             (into [:div] body))
+                   :component-will-unmount (fn [_this] (unmount-cb))}))
+
 (defcard-rg
   counter-with-history
   (fn [data-atom _]
     (let [app (carry/app (-> counter/spec
                              (add-atom-sync data-atom)))    ; <-- connect devcards atom
           [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
-      ((:dispatch-signal app) :on-start)
-      app-view))
+      ((:dispatch-signal app) :on-start)                    ; <-- start the app
+
+      [with-unmount-callback
+       [app-view]
+       #((:dispatch-signal app) :on-stop)]))                ; <-- stop the app on umount
 
   (atom (:initial-model counter/spec))                      ; <-- create devcards atom with initial model value
 
   {:inspect-data true
    :history      true})
-
-; TODO: remove previous watches on hot reloads? they may leak memory by holding onto the old app instances
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Figwheel stuff
 (defn before-jsload
