@@ -75,7 +75,8 @@
                                        "../../contrib/persistence/src"
                                        "../../contrib/logging/src"
                                        "../../contrib/debugger/src"
-                                       "../../contrib/schema/src"]
+                                       "../../contrib/schema/src"
+                                       "../../contrib/atom-sync/src"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced
