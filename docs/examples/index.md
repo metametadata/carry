@@ -61,18 +61,6 @@ Features:
 * [Seesaw](https://github.com/daveray/seesaw) for UI
 * [reloaded workflow](http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded) for easier running from REPL
 
-# Counter Devcards
-[Source code](https://github.com/metametadata/carry/tree/master/examples/counter-devcards)
-
-[Demo](/examples/counter-devcards)
-
-An example of using Carry with [Devcards](https://github.com/bhauman/devcards) for a visual REPL experience.
-
-Features:
-
-* [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
-for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
-
 # Composite Apps
 
 ## Subapps
@@ -110,3 +98,17 @@ for rendering UI using [Reagent](https://github.com/reagent-project/reagent).
 The more advanced example of using [DataScript](https://github.com/tonsky/datascript) 
 and [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/).
 Inspired by [flux-comparison](https://github.com/voronianski/flux-comparison) problem.
+
+# Counter Devcards
+[Source code](https://github.com/metametadata/carry/tree/master/examples/counter-devcards)
+
+[Demo](/examples/counter-devcards)
+
+An example of rendering [counter app](#counter) in [Devcards](https://github.com/bhauman/devcards).
+
+Features:
+
+* [carry-atom-sync](https://github.com/metametadata/carry/tree/master/contrib/atom-sync) for making Devcards history work seamlessly with Carry
+* [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+for rendering UI using [Reagent](https://github.com/reagent-project/reagent) 
+* [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging/) for logging to console

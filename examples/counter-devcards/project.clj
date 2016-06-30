@@ -22,6 +22,7 @@
                                        "../../src"
                                        "../../contrib/reagent/src"
                                        "../../contrib/atom-sync/src"
+                                       "../../contrib/logging/src"
                                        "../counter/src-spec"]
                         :compiler     {:main                 app.core
                                        :devcards             true
@@ -39,6 +40,7 @@
                                        "../../src"
                                        "../../contrib/reagent/src"
                                        "../../contrib/atom-sync/src"
+                                       "../../contrib/logging/src"
                                        "../counter/src-spec"]
                         :compiler     {:main           app.core
                                        :devcards       true
