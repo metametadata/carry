@@ -7,12 +7,16 @@
             [carry-debugger.core :as debugger]
             [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
+            [carry-atom-sync.core :as atom-sync]
             [reagent.core :as r]
             [hodgepodge.core :as hp]
             [devtools.core :as chrome-devtools]))
 
 (enable-console-print!)
 (chrome-devtools/install! [:custom-formatters :sanity-hints])
+
+; "model atom" exposed for debugging in REPL
+(def model (atom nil))
 
 (defn main
   []
@@ -24,8 +28,11 @@
 
         ; define spec
         app-spec (-> (spec/new-spec history storage :todomvc-model ["Finish this project" "Take a bath"])
+
+                     ; add debugging middleware:
                      (debugger/add storage :todomvc-debugger-model)
-                     logging/add)
+                     logging/add
+                     (atom-sync/add model))
 
         ; create app from spec
         app (carry/app app-spec)
@@ -41,7 +48,7 @@
     ; perform initial side effects
     ((:dispatch-signal app) :on-start)
 
-    ; return for future debugging
+    ; include view-model for future debugging
     (assoc app :view-model app-view-model)))
 
 ; start app and make it accessible from REPL

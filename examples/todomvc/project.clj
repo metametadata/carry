@@ -32,7 +32,8 @@
                                            [carry-logging "0.1.0"]
                                            [carry-persistence "0.3.0"]
                                            [carry-reagent "0.5.0"]
-                                           [carry-schema "0.4.0"]]}}
+                                           [carry-schema "0.4.0"]
+                                           [carry-atom-sync "0.2.0"]]}}
 
   :cljsbuild {:builds [{:id           "clojars-deps"
                         :source-paths ["src"]
@@ -54,7 +55,8 @@
                                        "../../contrib/persistence/src"
                                        "../../contrib/logging/src"
                                        "../../contrib/debugger/src"
-                                       "../../contrib/schema/src"]
+                                       "../../contrib/schema/src"
+                                       "../../contrib/atom-sync/src"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/local-deps/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"

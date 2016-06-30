@@ -49,6 +49,7 @@ for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
 * [carry-debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger/) for time traveling debugging
 * [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging/) for logging to console
 * uses [Specter](https://github.com/nathanmarz/specter) for model updates
+* [carry-atom-sync](https://github.com/metametadata/carry/tree/master/contrib/atom-sync) to directly access app model as an atom in REPL
 
 # Pickings
 [Source code](https://github.com/metametadata/pickings)

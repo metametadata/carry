@@ -26,6 +26,27 @@ You can also directly access the app map:
     app.core=> (keys app)
     (:model :dispatch-signal :view-model)
 
+Also, thanks to `carry-atom-sync` middleware, `model` helper atom is exposed in REPL and can be used to modify app model directly:
+
+    app.core=> (cljs.pprint/pprint (dissoc @model :carry-debugger.core/debugger))
+    {:field "",
+     :todos
+     ({:id 0,
+       :title "Finish this project",
+       :completed? false,
+       :original-title "",
+       :editing? false}
+      {:id 1,
+       :title "Take a bath",
+       :completed? true,
+       :original-title "",
+       :editing? false}), 
+     :next-id 2, 
+     :carry-history.core/token ""}
+    
+    app.core=> (swap! model assoc :field "kek")
+    {:field "kek", ...}
+
 To clean all compiled files:
 
     lein clean
