@@ -21,6 +21,7 @@
                         :source-paths ["src"
                                        "../../src"
                                        "../../contrib/reagent/src"
+                                       "../../contrib/atom-sync/src"
                                        "../counter/src-spec"]
                         :compiler     {:main                 app.core
                                        :devcards             true
@@ -37,6 +38,7 @@
                         :source-paths ["src"
                                        "../../src"
                                        "../../contrib/reagent/src"
+                                       "../../contrib/atom-sync/src"
                                        "../counter/src-spec"]
                         :compiler     {:main           app.core
                                        :devcards       true

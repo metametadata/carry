@@ -140,6 +140,7 @@ Spec:
 
 ### Middleware
 
+* [carry-atom-sync](https://github.com/metametadata/carry/tree/master/contrib/atom-sync)
 * [carry-debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger)
 * [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history)
 * [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging)
