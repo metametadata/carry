@@ -85,5 +85,4 @@
     (letfn [(dispatch-action [action] (reset! model-atom (reconcile @model-atom action)) nil)
             (dispatch-signal [signal] (control read-only-model-atom signal dispatch-signal dispatch-action) nil)]
       {:model           read-only-model-atom
-       :-model          model-atom
        :dispatch-signal dispatch-signal})))
