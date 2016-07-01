@@ -21,7 +21,15 @@ For comparison also take a look at the list of different TodoMVC examples at
 # Is view model an integral part of Carry architecture?
 No, but it's a convenient UI pattern to follow because:
 
-* It makes code easier to read, refactor and unit test thanks to better separation of concerns. 
-* It makes performance optimizations easier (e.g. by using Reagent's reactions to not recalculate data without a need).
+- It makes code easier to read, refactor and unit test thanks to better separation of concerns. 
+- It makes performance optimizations easier (e.g. by using Reagent's reactions to not recalculate data without a need).
 
 That's why it was enforced in [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package.
+
+# Is there a way to code a reactive view model if I don't use Reagent?
+Yes, there's a number of tools that can do "reactive computations":
+
+- [freactive.core](https://github.com/aaronc/freactive.core)
+- [Javelin](https://github.com/hoplon/javelin)
+- [lentes](https://github.com/funcool/lentes)
+- [`Rum`](https://github.com/tonsky/rum)'s `derived-atom`
