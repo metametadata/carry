@@ -146,6 +146,12 @@
         <li class="first-level active"><a href="#what-are-the-alternative-clojurescript-frameworks">What are the alternative ClojureScript frameworks?</a></li>
         
     
+        <li class="first-level "><a href="#is-view-model-an-integral-part-of-carry-architecture">Is view model an integral part of Carry architecture?</a></li>
+        
+    
+        <li class="first-level "><a href="#is-there-a-way-to-code-a-reactive-view-model-if-i-dont-use-reagent">Is there a way to code a reactive view model if I don't use Reagent?</a></li>
+        
+    
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -167,7 +173,22 @@
 <li><a href="https://github.com/untangled-web">untangled</a></li>
 </ul>
 <p>For comparison also take a look at the list of different TodoMVC examples at 
-<a href="https://github.com/gadfly361/cljs-todomvc">https://github.com/gadfly361/cljs-todomvc</a>.</p></div>
+<a href="https://github.com/gadfly361/cljs-todomvc">https://github.com/gadfly361/cljs-todomvc</a>.</p>
+<h1 id="is-view-model-an-integral-part-of-carry-architecture">Is view model an integral part of Carry architecture?</h1>
+<p>No, but it's a convenient UI pattern to follow because:</p>
+<ul>
+<li>It makes code easier to read, refactor and unit test thanks to better separation of concerns. </li>
+<li>It makes performance optimizations easier (e.g. by using Reagent's reactions to not recalculate data without a need).</li>
+</ul>
+<p>That's why it was enforced in <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a> package.</p>
+<h1 id="is-there-a-way-to-code-a-reactive-view-model-if-i-dont-use-reagent">Is there a way to code a reactive view model if I don't use Reagent?</h1>
+<p>Yes, there's a number of tools that can do "reactive computations":</p>
+<ul>
+<li><a href="https://github.com/aaronc/freactive.core">freactive.core</a></li>
+<li><a href="https://github.com/hoplon/javelin">Javelin</a></li>
+<li><a href="https://github.com/funcool/lentes">lentes</a></li>
+<li><a href="https://github.com/tonsky/rum"><code>Rum</code></a>'s <code>derived-atom</code></li>
+</ul></div>
         
     </div>
 
