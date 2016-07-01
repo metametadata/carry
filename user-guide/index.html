@@ -176,7 +176,7 @@
                 <li class="third-level"><a href="#view">View</a></li>
             
         
-            <li class="second-level"><a href="#usage-with-figwheel">Usage with Figwheel</a></li>
+            <li class="second-level"><a href="#usage-with-figwheel-and-repl">Usage with Figwheel and REPL</a></li>
             
         
     
@@ -514,13 +514,13 @@ Any Reagent component that dereferences a reaction is going to be automatically 
 
 <p>As you can see, we get reactions from a view model and deref them to render actual values.
 Reagent will then "magically" re-render components when the reactions passed into them are updated.</p>
-<h2 id="usage-with-figwheel">Usage with Figwheel</h2>
+<h2 id="usage-with-figwheel-and-repl">Usage with Figwheel and REPL</h2>
 <p>With <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a> Leiningen plugin it is possible to:</p>
 <ul>
 <li>compile and reload app code in browser on source code changes</li>
 <li>communicate with a running app via REPL</li>
 </ul>
-<p>All the Carry <a href="../examples">examples</a> use Figwheel for development builds and 
+<p>Most of Carry <a href="../examples">examples</a> use Figwheel for development builds and 
 rely on the "bare" <a href="https://github.com/emezeske/lein-cljsbuild">lein-cljsbuild</a> for production builds.</p>
 <p>The main thing to remember is to stop the currently running app before hot reload 
 in order to unsubscribe it from browser events and free memory.
@@ -558,6 +558,90 @@ Here's how you can structure your main app file to be used with Figwheel: </p>
 (defn on-jsload
   []
   #_(. js/console clear))
+</code></pre>
+
+<p>To get an interactive development environment run:</p>
+<pre><code>lein figwheel
+</code></pre>
+
+<p>or better:</p>
+<pre><code>rlwrap lein figwheel
+</code></pre>
+
+<p>and open your browser at <a href="http://localhost:3449/">localhost:3449</a>.
+This will auto compile and send all changes to the browser without the
+need to reload. After the compilation process is complete, you will
+get a Browser Connected REPL. An easy way to try it is:</p>
+<pre><code>(js/alert &quot;Am I connected?&quot;)
+</code></pre>
+
+<p>and you should see an alert in the browser window.</p>
+<p>You can also directly access <code>app</code> map from REPL:</p>
+<pre><code>cljs.user=&gt; (ns app.core)
+nil
+
+app.core=&gt; (keys app)
+(:model :dispatch-signal :view-model)
+
+app.core=&gt; @(:model app)
+{...}
+
+app.core=&gt; ((:dispatch-signal app) :on-increment)
+nil
+</code></pre>
+
+<p>You may also want to directly modify the app model in REPL without dispatching signals/actions.
+This can be achieved by using <a href="https://github.com/metametadata/carry/tree/master/contrib/atom-sync">carry-atom-sync</a> middleware
+to create a helper "model atom" specifically for debugging in REPL. An example from <a href="../examples/#todomvc">TodoMVC</a>:</p>
+<pre><code class="clj">(ns app.core
+  (:require [app.spec :as spec]
+            [carry-atom-sync.core :as atom-sync]
+            ; ...
+            )) 
+; ...
+
+; &quot;Model atom&quot; exposed for debugging in REPL.
+(def model (atom nil))
+
+(defn main
+  []
+  (let [app-spec (-&gt; (spec/new-spec ...)
+                     ; ...
+                     ; Apply middleware to setup a sync with &quot;model atom&quot;.
+                     (atom-sync/add model))
+        app (carry/app app-spec)
+        ; ...
+        ]
+    ; ...
+    ((:dispatch-signal app) :on-start)
+    ; ...
+    ))
+
+; ...
+</code></pre>
+
+<p>Now after app is started you can directly work with app model via <code>model</code> atom in REPL:</p>
+<pre><code>app.core=&gt; (cljs.pprint/pprint (dissoc @model :carry-debugger.core/debugger))
+{:field &quot;&quot;,
+ :todos
+ ({:id 0,
+   :title &quot;Finish this project&quot;,
+   :completed? false,
+   :original-title &quot;&quot;,
+   :editing? false}
+  {:id 1,
+   :title &quot;Take a bath&quot;,
+   :completed? true,
+   :original-title &quot;&quot;,
+   :editing? false}), 
+ :next-id 2, 
+ :carry-history.core/token &quot;&quot;}
+
+app.core=&gt; (swap! model assoc :field &quot;foobar&quot;)
+{:field &quot;foobar&quot;, ...}
+
+app.core=&gt; (= @model @(:model app))
+true
 </code></pre>
 
 <h1 id="advanced">Advanced</h1>
