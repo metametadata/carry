@@ -1255,6 +1255,7 @@ This example lacks dispatching standard `:on-start`/`:on-stop` signals, let's fi
   (r/create-class {:reagent-render         (fn [component _on-did-mount _on-will-unmount] component)
                    :component-did-mount    (fn [_this] (on-did-mount))
                    :component-will-unmount (fn [_this] (on-will-unmount))}))
+
 (defcard-rg
   counter
   (let [app (carry/app (-> counter/spec
@@ -1341,12 +1342,12 @@ which creates a bidirectionally sync between the "data atom" created by Devcards
 What's happening here:
 
 1. A new app instance is created on each hot reload.
-2. The data atom is created only the first time and then conveniently preserves its value between hot reloads.
+2. The data atom is created once and then conveniently preserves its value between hot reloads.
 3. On creation an app takes its initial value from the data atom.
 4. On UI interactions all app model updates are propagated into the data atom enlarging the card's history stack.
 5. On clicking history widget buttons the data atom is updated and its new values are synced back into the app model. 
  
-Of course, if a lot of cards are created like this then creating a 
+Of course, if a lot of cards are created like this then extracting a 
 helper macro should be considered in order to reduce code duplication.
 
 Note that we must start the app only after mounting.
@@ -1360,7 +1361,7 @@ a *"setState(...): Cannot update during an existing state transition"* warning o
   (fn [data-atom _]
    ; ...
    
-   ; DON'T DO THIS!
+   ; Will produce a warning:
    ((:dispatch-signal app) :on-start)   
       
    [-with-mount-callbacks
