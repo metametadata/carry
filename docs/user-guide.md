@@ -311,7 +311,7 @@ Usually view model is a map of Reagent reactions. An example from [TodoMVC](/exa
 ```
 
 Argument `model` is a **Reagent reaction** that tracks app model changes.
-**Reaction** is a special reference-like object that is created using Reagent's `reaction` macro.
+Reaction is a special reference-like object that is created using Reagent's `reaction` macro.
 It is lazily computed from other reactions and Reagent atoms
 (see [official documentation](http://reagent-project.github.io) for more information about Reagent atoms).
 Any Reagent component that dereferences a reaction is going to be automatically re-rendered when reaction value updates.
