@@ -17,3 +17,11 @@ Some of the alternatives are:
 
 For comparison also take a look at the list of different TodoMVC examples at 
 [https://github.com/gadfly361/cljs-todomvc](https://github.com/gadfly361/cljs-todomvc).
+
+# Is view model an integral part of Carry architecture?
+No, but it's a convenient UI pattern to follow because:
+
+* It makes code easier to read, refactor and unit test thanks to better separation of concerns. 
+* It makes performance optimizations easier (e.g. by using Reagent's reactions to not recalculate data without a need).
+
+That's why it was enforced in [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package.
