@@ -356,13 +356,13 @@ An example from [TodoMVC](/examples/#todomvc) app:
 As you can see, we get reactions from a view model and deref them to render actual values.
 Reagent will then "magically" re-render components when the reactions passed into them are updated.
   
-## Usage with Figwheel
+## Usage with Figwheel and REPL
 With [Figwheel](https://github.com/bhauman/lein-figwheel) Leiningen plugin it is possible to:
 
 * compile and reload app code in browser on source code changes
 * communicate with a running app via REPL
 
-All the Carry [examples](/examples) use Figwheel for development builds and 
+Most of Carry [examples](/examples) use Figwheel for development builds and 
 rely on the "bare" [lein-cljsbuild](https://github.com/emezeske/lein-cljsbuild) for production builds.
 
 The main thing to remember is to stop the currently running app before hot reload 
@@ -403,7 +403,104 @@ Here's how you can structure your main app file to be used with Figwheel:
 (defn on-jsload
   []
   #_(. js/console clear))
-```  
+```
+
+To get an interactive development environment run:
+
+```
+lein figwheel
+```
+    
+or better:
+
+```
+rlwrap lein figwheel
+```
+
+and open your browser at [localhost:3449](http://localhost:3449/).
+This will auto compile and send all changes to the browser without the
+need to reload. After the compilation process is complete, you will
+get a Browser Connected REPL. An easy way to try it is:
+
+```
+(js/alert "Am I connected?")
+```
+
+and you should see an alert in the browser window.
+
+You can also directly access `app` map from REPL:
+
+```
+cljs.user=> (ns app.core)
+nil
+
+app.core=> (keys app)
+(:model :dispatch-signal :view-model)
+
+app.core=> @(:model app)
+{...}
+
+app.core=> ((:dispatch-signal app) :on-increment)
+nil
+```
+
+You may also want to directly modify the app model in REPL without dispatching signals/actions.
+This can be achieved by using [carry-atom-sync](https://github.com/metametadata/carry/tree/master/contrib/atom-sync) middleware
+to create a helper "model atom" specifically for debugging in REPL. An example from [TodoMVC](/examples/#todomvc):
+
+```clj
+(ns app.core
+  (:require [app.spec :as spec]
+            [carry-atom-sync.core :as atom-sync]
+            ; ...
+            )) 
+; ...
+
+; "Model atom" exposed for debugging in REPL.
+(def model (atom nil))
+
+(defn main
+  []
+  (let [app-spec (-> (spec/new-spec ...)
+                     ; ...
+                     ; Apply middleware to setup a sync with "model atom".
+                     (atom-sync/add model))
+        app (carry/app app-spec)
+        ; ...
+        ]
+    ; ...
+    ((:dispatch-signal app) :on-start)
+    ; ...
+    ))
+
+; ...
+```
+
+Now after app is started you can directly work with app model via `model` atom in REPL:
+
+```
+app.core=> (cljs.pprint/pprint (dissoc @model :carry-debugger.core/debugger))
+{:field "",
+ :todos
+ ({:id 0,
+   :title "Finish this project",
+   :completed? false,
+   :original-title "",
+   :editing? false}
+  {:id 1,
+   :title "Take a bath",
+   :completed? true,
+   :original-title "",
+   :editing? false}), 
+ :next-id 2, 
+ :carry-history.core/token ""}
+
+app.core=> (swap! model assoc :field "foobar")
+{:field "foobar", ...}
+
+app.core=> (= @model @(:model app))
+true
+```
 
 # Advanced
 

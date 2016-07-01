@@ -44,8 +44,8 @@ Also, thanks to `carry-atom-sync` middleware, `model` helper atom is exposed in 
      :next-id 2, 
      :carry-history.core/token ""}
     
-    app.core=> (swap! model assoc :field "kek")
-    {:field "kek", ...}
+    app.core=> (swap! model assoc :field "foobar")
+    {:field "foobar", ...}
 
 To clean all compiled files:
 
