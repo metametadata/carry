@@ -14,3 +14,6 @@ Some of the alternatives are:
 - [remlok](https://github.com/gumvic/remlok)
 - [Stately](https://github.com/nodename/stately)
 - [untangled](https://github.com/untangled-web)
+
+For comparison also take a look at the list of different TodoMVC examples at 
+[https://github.com/gadfly361/cljs-todomvc](https://github.com/gadfly361/cljs-todomvc).
