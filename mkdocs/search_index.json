@@ -232,12 +232,12 @@
         }, 
         {
             "location": "/faq/", 
-            "text": "What are the alternative ClojureScript frameworks?\n\n\nSome of the alternatives are:\n\n\n\n\nampere\n\n\nbureaucracy\n\n\nCatalysis\n\n\nhoplon\n\n\nKeechma\n\n\nOm Next\n\n\nPetrol\n\n\nPure-frame\n\n\nre-frame\n\n\nremlok\n\n\nStately\n\n\nuntangled", 
+            "text": "What are the alternative ClojureScript frameworks?\n\n\nSome of the alternatives are:\n\n\n\n\nampere\n\n\nbureaucracy\n\n\nCatalysis\n\n\nhoplon\n\n\nKeechma\n\n\nOm Next\n\n\nPetrol\n\n\nPure-frame\n\n\nre-frame\n\n\nremlok\n\n\nStately\n\n\nuntangled\n\n\n\n\nFor comparison also take a look at the list of different TodoMVC examples at \n\nhttps://github.com/gadfly361/cljs-todomvc\n.", 
             "title": "FAQ"
         }, 
         {
             "location": "/faq/#what-are-the-alternative-clojurescript-frameworks", 
-            "text": "Some of the alternatives are:   ampere  bureaucracy  Catalysis  hoplon  Keechma  Om Next  Petrol  Pure-frame  re-frame  remlok  Stately  untangled", 
+            "text": "Some of the alternatives are:   ampere  bureaucracy  Catalysis  hoplon  Keechma  Om Next  Petrol  Pure-frame  re-frame  remlok  Stately  untangled   For comparison also take a look at the list of different TodoMVC examples at  https://github.com/gadfly361/cljs-todomvc .", 
             "title": "What are the alternative ClojureScript frameworks?"
         }, 
         {
