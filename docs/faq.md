@@ -33,3 +33,7 @@ Yes, there's a number of tools that can do "reactive computations":
 - [Javelin](https://github.com/hoplon/javelin)
 - [lentes](https://github.com/funcool/lentes)
 - [`Rum`](https://github.com/tonsky/rum)'s `derived-atom`
+
+# Is using `core.match` required in controller/reconciler?
+No, Carry doesn't care how these functions are implemented. They can be driven by multimethods or a simple `cond`.
+But using `core.match` seemed to me like quite a flexible and readable solution. 
