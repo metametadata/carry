@@ -666,6 +666,11 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
       (update :reconcile -wrap-reconcile)))
 ```
 
+Especially note how `:on-start`/`:on-stop` signals are intercepted:
+
+* The middleware let's the wrapped app start first and then runs its own additional initialization code.
+* The order is "reversed" on stopping: the middleware first cleans up after itself and only then let's the wrapped app shutdown.
+
 ## Debugger
 One of the main features of Carry pattern is that it allows time traveling debugging
 similar to [Elm's Debugger](http://debug.elm-lang.org/),
