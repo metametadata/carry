@@ -530,6 +530,11 @@ For instance, [TodoMVC](/examples/#todomvc) app spec is wrapped by three middlew
       (h/add history)))
 ```
 
+An order in which middleware are applied matters. One can think of it as an onion: each middleware is a layer that wraps a spec
+and handles bypassing signals and actions:
+
+![spec](/graphs/middleware.svg)
+
 As an example, this is a simple middleware which logs all actions and signals coming through an app:
 
 ```clj
@@ -547,10 +552,9 @@ As an example, this is a simple middleware which logs all actions and signals co
                               ; Log.
                               (.group js/console (str prefix "signal " (pr-str signal)))
                               
-                              ; Call original function.
+                              ; Let app handle the signal.
                               (control model signal dispatch-signal dispatch-action)
 
-                              ; Always close the group.
                               (finally
                                 (.groupEnd js/console))))))
                                 
@@ -561,7 +565,7 @@ As an example, this is a simple middleware which logs all actions and signals co
                    ; Log.
                    (.log js/console (str prefix "action") (pr-str action))
                    
-                   ; Call original function.
+                   ; Let app handle the action.
                    (reconcile model action)))))))
 ```
 
@@ -571,7 +575,7 @@ More complex middleware can:
 * Intercept `:on-start`/`:on-stop` signals.
 * Dispatch new signals and actions to an app.
 By convention, they must use namespaced keywords (e.g. `:my-middlware.core/on-something`) to prevent a name clash with other signals.
-* Dispatch own signals and actions which should not be handled by an app. They must also use namespaced keywords.
+* Dispatch "own" signals and actions (also namespaced) which should not be handled by a wrapped app.
 * Subscribe to model changes.
 * Have injected dependencies.
 
