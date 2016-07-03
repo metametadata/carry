@@ -1,0 +1,11 @@
+@startuml
+participant history
+participant persistence
+participant schema
+participant app
+
+-> history : signal/action
+history -> persistence : signal/action
+persistence -> schema : signal/action
+schema -> app : signal/action
+@enduml

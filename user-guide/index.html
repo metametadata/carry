@@ -669,6 +669,9 @@ For instance, <a href="../examples/#todomvc">TodoMVC</a> app spec is wrapped by 
       (h/add history)))
 </code></pre>
 
+<p>An order in which middleware are applied matters. One can think of it as an onion: each middleware is a layer that wraps a spec
+and handles bypassing signals and actions:</p>
+<p><img alt="spec" src="../graphs/middleware.svg" /></p>
 <p>As an example, this is a simple middleware which logs all actions and signals coming through an app:</p>
 <pre><code class="clj">(ns carry-logging.core)
 
@@ -684,10 +687,9 @@ For instance, <a href="../examples/#todomvc">TodoMVC</a> app spec is wrapped by 
                               ; Log.
                               (.group js/console (str prefix &quot;signal &quot; (pr-str signal)))
 
-                              ; Call original function.
+                              ; Let app handle the signal.
                               (control model signal dispatch-signal dispatch-action)
 
-                              ; Always close the group.
                               (finally
                                 (.groupEnd js/console))))))
 
@@ -698,7 +700,7 @@ For instance, <a href="../examples/#todomvc">TodoMVC</a> app spec is wrapped by 
                    ; Log.
                    (.log js/console (str prefix &quot;action&quot;) (pr-str action))
 
-                   ; Call original function.
+                   ; Let app handle the action.
                    (reconcile model action)))))))
 </code></pre>
 
@@ -708,7 +710,7 @@ For instance, <a href="../examples/#todomvc">TodoMVC</a> app spec is wrapped by 
 <li>Intercept <code>:on-start</code>/<code>:on-stop</code> signals.</li>
 <li>Dispatch new signals and actions to an app.
 By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/on-something</code>) to prevent a name clash with other signals.</li>
-<li>Dispatch own signals and actions which should not be handled by an app. They must also use namespaced keywords.</li>
+<li>Dispatch "own" signals and actions (also namespaced) which should not be handled by a wrapped app.</li>
 <li>Subscribe to model changes.</li>
 <li>Have injected dependencies.</li>
 </ul>
