@@ -799,6 +799,11 @@ By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/
       (update :reconcile -wrap-reconcile)))
 </code></pre>
 
+<p>Especially note how <code>:on-start</code>/<code>:on-stop</code> signals are intercepted:</p>
+<ul>
+<li>The middleware let's the wrapped app start first and then runs its own additional initialization code.</li>
+<li>The order is "reversed" on stopping: the middleware first cleans up after itself and only then let's the wrapped app shutdown.</li>
+</ul>
 <h2 id="debugger">Debugger</h2>
 <p>One of the main features of Carry pattern is that it allows time traveling debugging
 similar to <a href="http://debug.elm-lang.org/">Elm's Debugger</a>,
