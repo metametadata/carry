@@ -161,6 +161,25 @@
     (is-read-only-reference entangled-ref)))
 
 (deftest
+  entangled-reference-does-not-watch-source-atom-without-need
+  (let [source-atom (atom {:val 100})
+        entangled-ref (carry/entangle source-atom #(update % :val inc))]
+    ; exercise - play with ref a bit, just in case
+    (is (= {:val 101} @entangled-ref))
+    (swap! source-atom assoc :val 200)
+    (is (= {:val 201} @entangled-ref))
+
+    ; assert
+    #?(:clj
+       (is (zero? (count (.getWatches source-atom))))
+
+       :cljs
+       (do
+         (let [watches-prop "watches"]
+           (assert (.hasOwnProperty source-atom watches-prop))
+           (is (zero? (count (aget source-atom watches-prop)))))))))
+
+(deftest
   entangled-reference-is-watchable
   (let [source-atom (atom {:val 100})
         entangled-ref (carry/entangle source-atom #(update % :val inc))
