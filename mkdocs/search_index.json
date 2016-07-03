@@ -232,7 +232,7 @@
         }, 
         {
             "location": "/faq/", 
-            "text": "What are the alternative ClojureScript frameworks?\n\n\nSome of the alternatives are:\n\n\n\n\nampere\n\n\nbureaucracy\n\n\nCatalysis\n\n\nhoplon\n\n\nKeechma\n\n\nOm Next\n\n\nPetrol\n\n\nPure-frame\n\n\nre-frame\n\n\nremlok\n\n\nStately\n\n\nuntangled\n\n\n\n\nFor comparison also take a look at the list of different TodoMVC examples at \n\nhttps://github.com/gadfly361/cljs-todomvc\n.\n\n\nIs view model an integral part of Carry architecture?\n\n\nNo, but it's a convenient UI pattern to follow because:\n\n\n\n\nIt makes code easier to read, refactor and unit test thanks to better separation of concerns. \n\n\nIt makes performance optimizations easier (e.g. by using Reagent's reactions to not recalculate data without a need).\n\n\n\n\nThat's why it was enforced in \ncarry-reagent\n package.\n\n\nIs there a way to code a reactive view model if I don't use Reagent?\n\n\nYes, there's a number of tools that can do \"reactive computations\":\n\n\n\n\nfreactive.core\n\n\nJavelin\n\n\nlentes\n\n\nRum\n's \nderived-atom", 
+            "text": "What are the alternative ClojureScript frameworks?\n\n\nSome of the alternatives are:\n\n\n\n\nampere\n\n\nbureaucracy\n\n\nCatalysis\n\n\nhoplon\n\n\nKeechma\n\n\nOm Next\n\n\nPetrol\n\n\nPure-frame\n\n\nre-frame\n\n\nremlok\n\n\nStately\n\n\nuntangled\n\n\n\n\nFor comparison also take a look at the list of different TodoMVC examples at \n\nhttps://github.com/gadfly361/cljs-todomvc\n.\n\n\nIs view model an integral part of Carry architecture?\n\n\nNo, but it's a convenient UI pattern to follow because:\n\n\n\n\nIt makes code easier to read, refactor and unit test thanks to better separation of concerns. \n\n\nIt makes performance optimizations easier (e.g. by using Reagent's reactions to not recalculate data without a need).\n\n\n\n\nThat's why it was enforced in \ncarry-reagent\n package.\n\n\nIs there a way to code a reactive view model if I don't use Reagent?\n\n\nYes, there's a number of tools that can do \"reactive computations\":\n\n\n\n\nfreactive.core\n\n\nJavelin\n\n\nlentes\n\n\nRum\n's \nderived-atom\n\n\n\n\nIs using \ncore.match\n required in controller/reconciler?\n\n\nNo, Carry doesn't care how these functions are implemented. They can be driven by multimethods or a simple \ncond\n.\nBut using \ncore.match\n seemed to me like quite a flexible and readable solution.", 
             "title": "FAQ"
         }, 
         {
@@ -249,6 +249,11 @@
             "location": "/faq/#is-there-a-way-to-code-a-reactive-view-model-if-i-dont-use-reagent", 
             "text": "Yes, there's a number of tools that can do \"reactive computations\":   freactive.core  Javelin  lentes  Rum 's  derived-atom", 
             "title": "Is there a way to code a reactive view model if I don't use Reagent?"
+        }, 
+        {
+            "location": "/faq/#is-using-corematch-required-in-controllerreconciler", 
+            "text": "No, Carry doesn't care how these functions are implemented. They can be driven by multimethods or a simple  cond .\nBut using  core.match  seemed to me like quite a flexible and readable solution.", 
+            "title": "Is using core.match required in controller/reconciler?"
         }, 
         {
             "location": "/dev-guide/", 
