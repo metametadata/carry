@@ -29,10 +29,11 @@ That's why it was enforced in [carry-reagent](https://github.com/metametadata/ca
 # Is there a way to code a reactive view model if I don't use Reagent?
 Yes, there's a number of tools that can do "reactive computations":
 
+- [Derivatives](https://github.com/martinklepsch/derivatives)
 - [freactive.core](https://github.com/aaronc/freactive.core)
 - [Javelin](https://github.com/hoplon/javelin)
 - [lentes](https://github.com/funcool/lentes)
-- [`Rum`](https://github.com/tonsky/rum)'s `derived-atom`
+- [Rum](https://github.com/tonsky/rum)'s `derived-atom`
 
 # Is using `core.match` required in controller/reconciler?
 No, Carry doesn't care how these functions are implemented. They can be driven by multimethods or a simple `cond`.
