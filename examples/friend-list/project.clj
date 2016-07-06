@@ -18,7 +18,7 @@
                  [org.clojure/core.match "0.3.0-alpha4"]
 
                  ; for tests
-                 [clj-fakes "0.4.0"]
+                 [clj-fakes "0.5.0"]
                  [prismatic/schema-generators "0.1.0"]]
 
   :pedantic? :abort

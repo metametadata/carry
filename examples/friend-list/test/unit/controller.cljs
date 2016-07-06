@@ -60,8 +60,7 @@
           done #(try
                  ; TODO: do not self-test if test has already caught some exceptions
                  ; TODO: unpatch vars?
-                 (fc/self-test-unchecked-fakes ctx)
-                 (fc/self-test-unused-fakes ctx)
+                 (fc/self-test ctx)
 
                  ; hack to "notify" test harness about self-test exception
                  (catch :default e
