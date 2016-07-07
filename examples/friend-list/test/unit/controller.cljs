@@ -52,23 +52,22 @@
 (defn with-fakes-async
   "Helper for defining async tests with fakes.
   f - test body, the function of args [ctx done];
-  ctx - fakes context;
-  done - is a function which performs clj-fakes self-tests and finishes the async test."
+  ctx - clj-fakes context;
+  done - is a function which unpatches all vars, runs clj-fakes self-tests and finishes the async test."
   [f]
   (async done
     (let [ctx (fc/context)
-          done #(try
-                 ; TODO: do not self-test if test has already caught some exceptions
-                 ; TODO: unpatch vars?
-                 (fc/self-test ctx)
+          wrapped-done #(try
+                         (fc/unpatch-all! ctx)
+                         (fc/self-test ctx)
 
-                 ; hack to "notify" test harness about self-test exception
-                 (catch :default e
-                   (is nil e))
+                         ; hack to "notify" test harness about self-test exception
+                         (catch :default e
+                           (is nil e))
 
-                 (finally
-                   (done)))]
-      (f ctx done))))
+                         (finally
+                           (done)))]
+      (f ctx wrapped-done))))
 
 ; sets the timing precision in ms, make it bigger if async tests are flaky
 (def delta 5)
