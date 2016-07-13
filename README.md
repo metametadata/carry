@@ -137,15 +137,22 @@ Spec:
 ### UI Bindings
 
 * [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+(bindings for [Reagent](https://github.com/reagent-project/reagent))
 
 ### Middleware
 
 * [carry-atom-sync](https://github.com/metametadata/carry/tree/master/contrib/atom-sync)
+(creating a bidirectional sync between an app model and a specified atom-like reference)
 * [carry-debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger)
+(time traveling debugger)
 * [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history)
+(working with browser history)
 * [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging)
+(console logging)
 * [carry-persistence](https://github.com/metametadata/carry/tree/master/contrib/persistence)
+(automatic model saving/loading using browser storage)
 * [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
+(model validation using [Schema](https://github.com/plumatic/schema))
 
 ## Documentation
 
