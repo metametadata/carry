@@ -842,9 +842,9 @@ search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
 ```
 
 * Dynamic nature of ClojureScript allows us to use keywords (`:_history`, `:_found-friends`, `:_model`, `:_new_token`) instead
-of creating objects of correct type
-when we know that their type doesn't really matter in the test case.
+of creating objects of correct type when we know that their type doesn't really matter in the test case.
 It makes tests more focused and readable.
+This technique is similar to [using metaconstants in Midje](https://github.com/marick/Midje/wiki/Metaconstants).
 
 **`2. (reconcile model action)`**
 
@@ -860,7 +860,7 @@ Reconciler is the easiest function to test because it's pure:
 
 Here again we first create a spec in order to get `initial-model` value and `reconcile` function.
 
-Notice, that it's impossible to use a `:_new_query` keyword because app uses 
+Notice, that it's impossible to use `:_new_query` "metaconstant" because app uses 
 [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 middleware forcing us to use a string value `"new-query"` on reconciling.
 
