@@ -871,6 +871,8 @@ connect a debugger view and render it alongside an app view:</p>
     ))
 </code></pre>
 
+<p>For correct rendering debugger also requires jQuery UI CSS to be injected into HTML.
+Please see <a href="http://metametadata.github.io/carry/api/debugger/carry-debugger.core.html#var-connect">API reference</a> for more info.</p>
 <p>There are cases when you'd like to check if debugger is in replay mode.
 For instance, <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a>
 middleware doesn't send its initial <code>:on-enter</code> signal in replay mode.
