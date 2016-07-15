@@ -827,7 +827,7 @@ Comments are added to better separate these logical blocks.
 * Control function is taken from the spec created by `friend-list/new-spec`.
 It could be tempting to instead test by using `friend-list/-new-control` helper function.
 But accessing private members is a bad practice
-and there can also be middleware applied inside `new-spec` which can affect the tested behavior:
+and there can also be middleware applied inside `new-spec` which can affect the tested behavior. Thus:
 
 ```clj
 {:keys [control]} (friend-list/new-spec :_history search)
@@ -860,7 +860,7 @@ Reconciler is the easiest function to test because it's pure:
 
 Here again we first create a spec in order to get `initial-model` value and `reconcile` function.
 
-Notice, that it's impossible to use `:_new_query` "metaconstant" because app uses 
+Notice that it's impossible to use `:_new_query` "metaconstant" because app uses 
 [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 middleware forcing us to use a string value `"new-query"` on reconciling.
 
