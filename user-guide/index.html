@@ -930,7 +930,7 @@ on receiving <code>:on-enter</code> signal:</p>
 (deftest
   on-navigation-updates-query-and-searches
   (f/with-fakes
-    (let [search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
+    (let [search (f/fake [[:_new-token (f/arg ifn?)] #(%2 :_found-friends)])
           {:keys [control]} (friend-list/new-spec :_history search)
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
@@ -951,7 +951,7 @@ Comments are added to better separate these logical blocks.</p>
 <p>Control function is taken from the spec created by <code>friend-list/new-spec</code>.
 It could be tempting to instead test by using <code>friend-list/-new-control</code> helper function.
 But accessing private members is a bad practice
-and there can also be middleware applied inside <code>new-spec</code> which can affect the tested behavior:</p>
+and there can also be middleware applied inside <code>new-spec</code> which can affect the tested behavior. Thus:</p>
 </li>
 </ul>
 <pre><code class="clj">{:keys [control]} (friend-list/new-spec :_history search)
@@ -962,7 +962,7 @@ and there can also be middleware applied inside <code>new-spec</code> which can 
 function which synchronously returns the expected result and 
 will throw an exception on calls with unexpected arguments:</li>
 </ul>
-<pre><code class="clj">search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
+<pre><code class="clj">search (f/fake [[:_new-token (f/arg ifn?)] #(%2 :_found-friends)])
 </code></pre>
 
 <ul>
@@ -981,7 +981,7 @@ This technique is similar to <a href="https://github.com/marick/Midje/wiki/Metac
 </code></pre>
 
 <p>Here again we first create a spec in order to get <code>initial-model</code> value and <code>reconcile</code> function.</p>
-<p>Notice, that it's impossible to use <code>:_new_query</code> "metaconstant" because app uses 
+<p>Notice that it's impossible to use <code>:_new_query</code> "metaconstant" because app uses 
 <a href="https://github.com/metametadata/carry/tree/master/contrib/schema">carry-schema</a>
 middleware forcing us to use a string value <code>"new-query"</code> on reconciling.</p>
 <p><strong><code>3. (view-model model)</code></strong></p>
