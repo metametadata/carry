@@ -9,7 +9,7 @@
 (deftest
   on-navigation-updates-query-and-searches
   (f/with-fakes
-    (let [search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
+    (let [search (f/fake [[:_new-token (f/arg ifn?)] #(%2 :_found-friends)])
           {:keys [control]} (friend-list/new-spec :_history search)
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
@@ -76,7 +76,7 @@
   on-input-updates-query-and-debounces-token-setting-and-searching
   (with-fakes-async
     (fn [ctx done]
-      (let [search (fc/fake ctx [[:_latest-token f/any?] #(%2 :_found-friends)])
+      (let [search (fc/fake ctx [[:_latest-token (f/arg ifn?)] #(%2 :_found-friends)])
             history (fc/reify-nice-fake ctx h/HistoryProtocol
                                         (push-token :recorded-fake))
             {:keys [control]} (friend-list/new-spec history search)

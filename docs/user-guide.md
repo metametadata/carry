@@ -809,7 +809,7 @@ on receiving `:on-enter` signal:
 (deftest
   on-navigation-updates-query-and-searches
   (f/with-fakes
-    (let [search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
+    (let [search (f/fake [[:_new-token (f/arg ifn?)] #(%2 :_found-friends)])
           {:keys [control]} (friend-list/new-spec :_history search)
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
@@ -838,7 +838,7 @@ function which synchronously returns the expected result and
 will throw an exception on calls with unexpected arguments:
 
 ```clj
-search (f/fake [[:_new-token f/any?] #(%2 :_found-friends)])
+search (f/fake [[:_new-token (f/arg ifn?)] #(%2 :_found-friends)])
 ```
 
 * Dynamic nature of ClojureScript allows us to use keywords (`:_history`, `:_found-friends`, `:_model`, `:_new_token`) instead
