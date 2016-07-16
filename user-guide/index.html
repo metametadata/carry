@@ -872,7 +872,7 @@ connect a debugger view and render it alongside an app view:</p>
 </code></pre>
 
 <p>For correct rendering debugger also requires jQuery UI CSS to be injected into HTML.
-Please see <a href="http://metametadata.github.io/carry/api/debugger/carry-debugger.core.html#var-connect">API reference</a> for more info.</p>
+Please see <a href="../api/debugger/carry-debugger.core.html#var-connect">API reference</a> for more info.</p>
 <p>There are cases when you'd like to check if debugger is in replay mode.
 For instance, <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a>
 middleware doesn't send its initial <code>:on-enter</code> signal in replay mode.
@@ -1230,7 +1230,7 @@ This is especially useful during time traveling debugging as toggling token-chan
 <li><a href="../examples/#todomvc">TodoMVC</a> - here <a href="https://github.com/DomKM/silk">Silk</a> routing library is added to parse and build tokens.</li>
 </ul>
 </blockquote>
-<p>Use <a href="../api/carry-history.core.html#var-add"><code>add</code></a> to apply the middleware
+<p>Use <a href="../api/history/carry-history.core.html#var-add"><code>add</code></a> to apply the middleware
 and don't forget to start the app:</p>
 <pre><code class="clj">(ns app.core
   (:require [carry.core :as carry] 
@@ -1252,17 +1252,17 @@ and don't forget to start the app:</p>
 
 <p>The middleware requires a <a href="https://developer.mozilla.org/en/docs/Web/API/History">History API</a> 
 wrapper to be provided.
-Such object must satisfy <a href="../api/carry-history.core.html#var-HistoryProtocol"><code>HistoryProtocol</code></a>
+Such object must satisfy <a href="../api/history/carry-history.core.html#var-HistoryProtocol"><code>HistoryProtocol</code></a>
 and there are several constructors for creating such instances:</p>
 <ul>
 <li>
-<p><a href="../api/carry-history.core.html#var-new-legacy-hash-history"><code>(new-legacy-hash-history)</code></a></p>
+<p><a href="../api/history/carry-history.core.html#var-new-legacy-hash-history"><code>(new-legacy-hash-history)</code></a></p>
 </li>
 <li>
-<p><a href="../api/carry-history.core.html#var-new-hash-history"><code>(new-hash-history)</code></a></p>
+<p><a href="../api/history/carry-history.core.html#var-new-hash-history"><code>(new-hash-history)</code></a></p>
 </li>
 <li>
-<p><a href="../api/carry-history.core.html#var-new-history"><code>(new-history)</code></a></p>
+<p><a href="../api/history/carry-history.core.html#var-new-history"><code>(new-history)</code></a></p>
 </li>
 </ul>
 <blockquote>
@@ -1288,7 +1288,7 @@ It will be dispatched on app start and on changes initiated by user actions (e.g
        ; ...
 </code></pre>
 
-<p>Package's <a href="../api/carry-history.core.html#var-link"><code>link</code></a> Reagent component can be used to create in-app links which don't hit the server.
+<p>Package's <a href="../api/history/carry-history.core.html#var-link"><code>link</code></a> Reagent component can be used to create in-app links which don't hit the server.
 An example from <a href="../examples/#todomvc">TodoMVC</a>:</p>
 <pre><code class="clj">(defn -footer-filters
   [visibility-spec history]
@@ -1300,7 +1300,7 @@ An example from <a href="../examples/#todomvc">TodoMVC</a>:</p>
            title]])])
 </code></pre>
 
-<p>Please see <a href="../api/carry-history.core.html">API reference</a> for more info.</p>
+<p>Please see <a href="../api/history/carry-history.core.html">API reference</a> for more info.</p>
 <h2 id="usage-with-datascript">Usage with DataScript</h2>
 <p>See examples:</p>
 <ul>
