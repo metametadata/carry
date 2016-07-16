@@ -743,7 +743,7 @@ connect a debugger view and render it alongside an app view:
 ```
 
 For correct rendering debugger also requires jQuery UI CSS to be injected into HTML.
-Please see [API reference](http://metametadata.github.io/carry/api/debugger/carry-debugger.core.html#var-connect) for more info.
+Please see [API reference](/api/debugger/carry-debugger.core.html#var-connect) for more info.
 
 There are cases when you'd like to check if debugger is in replay mode.
 For instance, [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history)
@@ -1144,7 +1144,7 @@ This is especially useful during time traveling debugging as toggling token-chan
 >* [Friend List](/examples/#friend-list) - in this application a token is synced with a search query.
 >* [TodoMVC](/examples/#todomvc) - here [Silk](https://github.com/DomKM/silk) routing library is added to parse and build tokens.
  
-Use [`add`](/api/carry-history.core.html#var-add) to apply the middleware
+Use [`add`](/api/history/carry-history.core.html#var-add) to apply the middleware
 and don't forget to start the app:
 
 ```clj
@@ -1168,14 +1168,14 @@ and don't forget to start the app:
 
 The middleware requires a [History API](https://developer.mozilla.org/en/docs/Web/API/History) 
 wrapper to be provided.
-Such object must satisfy [`HistoryProtocol`](/api/carry-history.core.html#var-HistoryProtocol)
+Such object must satisfy [`HistoryProtocol`](/api/history/carry-history.core.html#var-HistoryProtocol)
 and there are several constructors for creating such instances:
 
-* [`(new-legacy-hash-history)`](/api/carry-history.core.html#var-new-legacy-hash-history)
+* [`(new-legacy-hash-history)`](/api/history/carry-history.core.html#var-new-legacy-hash-history)
 
-* [`(new-hash-history)`](/api/carry-history.core.html#var-new-hash-history)
+* [`(new-hash-history)`](/api/history/carry-history.core.html#var-new-hash-history)
 
-* [`(new-history)`](/api/carry-history.core.html#var-new-history)
+* [`(new-history)`](/api/history/carry-history.core.html#var-new-history)
 
 >&#128172; carry-history uses [Google Closure](https://github.com/clojure/clojurescript/wiki/Google-Closure#libraries)
 library for interfacing with History API.
@@ -1203,7 +1203,7 @@ It will be dispatched on app start and on changes initiated by user actions (e.g
        ; ...
 ```
 
-Package's [`link`](/api/carry-history.core.html#var-link) Reagent component can be used to create in-app links which don't hit the server.
+Package's [`link`](/api/history/carry-history.core.html#var-link) Reagent component can be used to create in-app links which don't hit the server.
 An example from [TodoMVC](/examples/#todomvc):
 
 ```clj
@@ -1217,7 +1217,7 @@ An example from [TodoMVC](/examples/#todomvc):
            title]])])
 ```
 
-Please see [API reference](/api/carry-history.core.html) for more info.
+Please see [API reference](/api/history/carry-history.core.html) for more info.
 
 ## Usage with DataScript
 See examples:
