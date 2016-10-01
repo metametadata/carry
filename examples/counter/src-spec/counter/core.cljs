@@ -1,4 +1,4 @@
-; namespace is extracted into a separate src folder in order to be reused in elm-ish architecture examples
+; namespace is extracted into a separate src folder in order to be reused in composite app examples
 (ns counter.core
   (:require [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))

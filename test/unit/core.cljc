@@ -224,7 +224,8 @@
     (is (= {:val 201} @watch2-old-state))
     (is (= {:val 301} @watch2-new-state))))
 
-(deftest entangled-reference-can-be-printed
+(deftest
+  entangled-reference-can-be-printed
   (let [source-atom (atom {:val 100})
         entangled-ref (carry/entangle source-atom identity)]
     (is (= "#<Entangled reference: {:val 100}>" (print-str entangled-ref)))))
