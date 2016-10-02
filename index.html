@@ -199,15 +199,15 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
 <h2 id="pattern">Pattern</h2>
 <p><img alt="pattern" src="http://metametadata.github.io/carry/graphs/pattern.svg" /></p>
 <ul>
-<li>An app is defined by its initial model value, controller and reconciler.</li>
+<li>An app is defined by its initial model value, signal handler and action handler.</li>
 <li>All app state is stored inside a single model atom.</li>
 <li>Anyone can read model value at any given time and subscribe to its changes.</li>
-<li>Controller function receives signals to perform side effects and dispatch actions.</li>
-<li>Anyone can dispatch a new signal: controller, views, timers, etc.</li>
+<li>Signal handler performs side effects and dispatches actions.</li>
+<li>Anyone can dispatch a new signal: signal handler, views, timers, etc.</li>
+<li>Typically UI layer dispatches signals on UI events and subscribes to model changes to redraw the GUI when needed.</li>
 <li>Model can be modified only by dispatching actions.</li>
-<li>Only controller can dispatch actions.</li>
-<li>Reconciler is a pure function which returns a new model value based on an incoming action.</li>
-<li>When UI layer subscribes to model changes we get a unidirectional data flow: UI -&gt; signal -&gt; action -&gt; model -&gt; UI -&gt; etc.</li>
+<li>Only signal handler can dispatch actions.</li>
+<li>Action handler is a pure function which returns a new model value based on an incoming action.  </li>
 </ul>
 <h2 id="example-counter-app">Example (counter app)</h2>
 <p><a href="https://metametadata.github.com/carry/examples/counter">Demo</a>,
@@ -263,9 +263,10 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
 <p>Spec:</p>
 <pre><code class="clj">(def -initial-model {:val 0})
 
-(defn -control
+(defn -on-signal
   [model signal _dispatch-signal dispatch-action]
   (match signal
+         ; start and stop are required because counter is used as a subapp in another example
          :on-start nil
          :on-stop nil
 
@@ -282,15 +283,15 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
          :on-increment-async
          (.setTimeout js/window #(dispatch-action :increment) 1000)))
 
-(defn -reconcile
+(defn -on-action
   [model action]
   (match action
          :increment (update model :val inc)
          :decrement (update model :val dec)))
 
 (def spec {:initial-model -initial-model
-           :control       -control
-           :reconcile     -reconcile})
+           :on-signal     -on-signal
+           :on-action     -on-action})
 </code></pre>
 
 <h2 id="packages">Packages</h2>
@@ -378,5 +379,5 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-07-16 19:35:35.821224
+Build Date UTC : 2016-10-02 12:55:14.046175
 -->
