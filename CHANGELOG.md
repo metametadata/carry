@@ -8,6 +8,7 @@ This change should hopefully make the pattern easier to comprehend by reducing t
     Migration guide:
     
     1. Update Carry library and packages dependencies. New versions:
+    
         ```clj
         [carry "0.5.0"]
         [carry-atom-sync "0.3.0"]
