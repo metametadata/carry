@@ -29,14 +29,13 @@
    Sync is removed on :on-stop signal."
   [spec r]
   (-> spec
-      (update :control
-              (fn wrap-control
-                [app-control]
-                (fn control [model signal dispatch-signal dispatch-action]
+      (update :on-signal
+              (fn wrap-on-signal [app-on-signal]
+                (fn on-signal [model signal dispatch-signal dispatch-action]
                   (match signal
                          :on-start
                          (do
-                           (app-control model signal dispatch-signal dispatch-action)
+                           (app-on-signal model signal dispatch-signal dispatch-action)
 
                            (reset! r @model)
                            (-start-syncing r model dispatch-signal))
@@ -45,19 +44,19 @@
                          (do
                            (-stop-syncing r model)
 
-                           (app-control model signal dispatch-signal dispatch-action))
+                           (app-on-signal model signal dispatch-signal dispatch-action))
 
                          [::on-reset new-model]
                          (dispatch-action [::reset new-model])
 
                          :else
-                         (app-control model signal dispatch-signal dispatch-action)))))
-      (update :reconcile
-              (fn wrap-reconcile [app-reconcile]
-                (fn reconcile [model action]
+                         (app-on-signal model signal dispatch-signal dispatch-action)))))
+      (update :on-action
+              (fn wrap-on-action [app-on-action]
+                (fn on-action [model action]
                   (match action
                          [::reset new-model]
                          new-model
 
                          :else
-                         (app-reconcile model action)))))))
+                         (app-on-action model action)))))))

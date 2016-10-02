@@ -2,16 +2,16 @@
   (:require [schema.core :as s]))
 
 (defn add
-  "Middleware will validate the model returned from reconcile function using Plumatic Schema library.
+  "Middleware will validate the model returned from action handler using Plumatic Schema library.
   Strives to provide a better logging than `s/defn`.
   Logs problems and throws an exception if validation fails effectively prohibiting model change to unallowed state.
   
-  Add it as close to spec as possible in order to not propagate the invalid model to other middleware."
+  Apply it as close to spec as possible in order to not propagate the invalid model to other middleware."
   [spec schema]
-  (update spec :reconcile
-          (fn wrap-reconcile [reconcile]
-            (fn validated-reconcile [model action]
-              (let [new-model (reconcile model action)]
+  (update spec :on-action
+          (fn wrap-on-action [app-on-action]
+            (fn on-action [model action]
+              (let [new-model (app-on-action model action)]
                 (when-let [problems (s/check schema new-model)]
                   ; using console log for better printing in Chrome console (in particular with binaryage/cljs-devtools)
                   (.log js/console "VALIDATION PROBLEMS:" problems)

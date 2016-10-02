@@ -88,21 +88,19 @@
     (->-History history)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Middleware
-;;; Init
 (defn ^:no-doc -wrap-initial-model
   [app-initial-model]
   (merge {::token "/"} app-initial-model))
 
-;;; Control
-(defn ^:no-doc -wrap-control
-  [app-control history]
+(defn ^:no-doc -wrap-on-signal
+  [app-on-signal history]
   (let [unlisten (atom nil)]
-    (fn control
+    (fn on-signal
       [model signal dispatch-signal dispatch-action]
       (match signal
              :on-start
              (do
-               (app-control model signal dispatch-signal dispatch-action)
+               (app-on-signal model signal dispatch-signal dispatch-action)
 
                (add-watch model ::token-watch
                           (fn [_key _ref old-state new-state]
@@ -120,7 +118,7 @@
              (do
                (@unlisten)
 
-               (app-control model signal dispatch-signal dispatch-action))
+               (app-on-signal model signal dispatch-signal dispatch-action))
 
              [::on-history-event {:token token :browser-event? browser-event? :event-data event-data}]
              (do
@@ -130,20 +128,19 @@
                  (dispatch-signal [::on-enter token])))
 
              :else
-             (app-control model signal dispatch-signal dispatch-action)))))
+             (app-on-signal model signal dispatch-signal dispatch-action)))))
 
-;;; Reconcile
-(defn ^:no-doc -wrap-reconcile
+(defn ^:no-doc -wrap-on-action
   "Updates the token."
-  [app-reconcile]
-  (fn reconcile
+  [app-on-action]
+  (fn on-action
     [model action]
     (match action
            [::set-token token]
            (assoc model ::token token)
 
            :else
-           (app-reconcile model action))))
+           (app-on-action model action))))
 
 ;;; Middleware
 (defn add
@@ -161,8 +158,8 @@
   [spec history]
   (-> spec
       (update :initial-model -wrap-initial-model)
-      (update :control -wrap-control history)
-      (update :reconcile -wrap-reconcile)))
+      (update :on-signal -wrap-on-signal history)
+      (update :on-action -wrap-on-action)))
 
 ;;; Link
 (defn ^:no-doc -pure-click?

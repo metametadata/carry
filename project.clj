@@ -1,15 +1,15 @@
 (defproject
-  carry "0.4.0"
+  carry "0.5.0"
   :description "ClojureScript single-page application framework."
   :url "https://github.com/metametadata/carry"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.36" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.229" :scope "provided"]]
 
-  :plugins [[com.jakemccrary/lein-test-refresh "0.15.0"]
-            [lein-doo "0.1.6"]
-            [lein-codox "0.9.5"]]
+  :plugins [[com.jakemccrary/lein-test-refresh "0.17.0"]
+            [lein-doo "0.1.7"]
+            [lein-codox "0.10.0"]]
 
   :pedantic? :abort
 

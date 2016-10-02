@@ -1,14 +1,14 @@
 (defproject
-  carry-reagent "0.5.0"
+  carry-reagent "0.6.0"
   :description "Reagent bindings for Carry."
   :url "https://github.com/metametadata/carry/tree/master/contrib/reagent"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.36" :scope "provided"]
-                 [reagent "0.6.0-rc" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.229" :scope "provided"]
+                 [reagent "0.6.0" :scope "provided"]]
 
-  :plugins [[lein-codox "0.9.5"]]
+  :plugins [[lein-codox "0.10.0"]]
 
   :pedantic? :abort
 

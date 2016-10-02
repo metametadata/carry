@@ -1,8 +1,8 @@
-(ns app.reconciler
+(ns app.actions
   (:require [counter.core :as counter]
             [cljs.core.match :refer-macros [match]]))
 
-(defn reconcile
+(defn on-action
   [model action]
   (println "  action =" action)
   (match action
@@ -15,4 +15,4 @@
            (update model :counters dissoc oldest-counter-id))
 
          [[:counter-action id] a]
-         (update-in model [:counters id] (:reconcile counter/spec) a)))
+         (update-in model [:counters id] (:on-action counter/spec) a)))

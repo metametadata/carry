@@ -1,8 +1,8 @@
 @startuml
 object spec
 spec : :initial-model : map
-spec : :control : function
-spec : :reconcile : function
+spec : :on-signal : function
+spec : :on-action : function
 
 object app
 app : :model : read-only map reference

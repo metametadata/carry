@@ -27,14 +27,14 @@
    ::h/token ""})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn -new-control
+(defn -new-on-signal
   [history api-search]
   (let [search (fn [q dispatch-signal] (api-search q #(dispatch-signal [:on-search-success q %])))
         search-on-input (debounce (fn [q dispatch-signal]
                                     (h/push-token history q) ; note that this will not trigger ::h/on-enter signal
                                     (search q dispatch-signal))
                                   300)]
-    (fn control
+    (fn on-signal
       [model signal dispatch-signal dispatch-action]
       (match signal
              :on-start nil
@@ -57,7 +57,7 @@
                         "because current query is" (pr-str (:query @model))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn -reconcile
+(defn -on-action
   [model action]
   (match action
          [:set-query q]
@@ -106,7 +106,7 @@
 (defn new-spec
   [history api-search]
   (-> {:initial-model -initial-model
-       :control       (-new-control history api-search)
-       :reconcile     -reconcile}
+       :on-signal     (-new-on-signal history api-search)
+       :on-action     -on-action}
       (schema/add Schema)
       (h/add history)))

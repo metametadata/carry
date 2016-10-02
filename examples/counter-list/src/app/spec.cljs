@@ -1,9 +1,9 @@
 (ns app.spec
   (:require [app.model :refer [initial-model]]
-            [app.controller :refer [control]]
-            [app.reconciler :refer [reconcile]]))
+            [app.signals :refer [on-signal]]
+            [app.actions :refer [on-action]]))
 
 (def spec
   {:initial-model initial-model
-   :control       control
-   :reconcile     reconcile})
+   :on-signal     on-signal
+   :on-action     on-action})

@@ -1,24 +1,24 @@
 (defproject
   todomvc "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.36"]
+                 [org.clojure/clojurescript "1.9.229"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]
 
-                 [reagent "0.6.0-rc" :exclusions [cljsjs/react]]
-                 [cljsjs/react-with-addons "15.1.0-0"]
+                 [reagent "0.6.0" :exclusions [cljsjs/react]]
+                 [cljsjs/react-with-addons "15.3.1-0"]
 
                  [com.domkm/silk "0.1.2"]
-                 [com.rpl/specter "0.11.2"]
+                 [com.rpl/specter "0.13.0"]
                  [funcool/hodgepodge "0.1.4"]
-                 [prismatic/schema "1.1.1"]
+                 [prismatic/schema "1.1.3"]
 
-                 [binaryage/devtools "0.6.1"]]
+                 [binaryage/devtools "0.8.2"]]
 
   :pedantic? :abort
 
-  :plugins [[lein-cljsbuild "1.1.3"]
-            [lein-figwheel "0.5.3-2" :exclusions [org.clojure/clojure]]]
+  :plugins [[lein-cljsbuild "1.1.4"]
+            [lein-figwheel "0.5.8" :exclusions [org.clojure/clojure]]]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
@@ -26,14 +26,14 @@
                                            [cljsjs/jquery-ui "1.11.4-0"]
                                            [cljsjs/filesaverjs "1.1.20151003-0"]]}
 
-             :clojars-deps {:dependencies [[carry "0.4.0"]
-                                           [carry-debugger "0.5.0"]
-                                           [carry-history "0.3.0"]
-                                           [carry-logging "0.1.0"]
-                                           [carry-persistence "0.3.0"]
-                                           [carry-reagent "0.5.0"]
-                                           [carry-schema "0.4.0"]
-                                           [carry-atom-sync "0.2.0"]]}}
+             :clojars-deps {:dependencies [[carry "0.5.0"]
+                                           [carry-atom-sync "0.3.0"]
+                                           [carry-debugger "0.6.0"]
+                                           [carry-history "0.4.0"]
+                                           [carry-logging "0.2.0"]
+                                           [carry-persistence "0.4.0"]
+                                           [carry-reagent "0.6.0"]
+                                           [carry-schema "0.5.0"]]}}
 
   :cljsbuild {:builds [{:id           "clojars-deps"
                         :source-paths ["src"]

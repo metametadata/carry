@@ -1,10 +1,10 @@
 (ns app.spec
   (:require [app.model :as model]
-            [app.controller :as controller]
-            [app.reconciler :as reconciler]))
+            [app.signals :as signals]
+            [app.actions :as actions]))
 
 (defn new-spec
   [shop]
   {:initial-model model/initial-model
-   :control       (controller/new-control shop)
-   :reconcile     reconciler/reconcile})
+   :on-signal     (signals/new-on-signal shop)
+   :on-action     actions/on-action})

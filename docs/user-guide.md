@@ -94,20 +94,20 @@ In order to create an instance of a Carry app a user has to pass a **spec** into
 A spec is a map with keys:
 
 * `:initial-model` - an initial model value
-* `:control` - a function for handling signals
-* `:reconcile` - a function for handling actions
+* `:on-signal` - a function for handling signals
+* `:on-action` - a function for handling actions
 
 In other words, a spec is needed to define a runtime behavior of an app:
 
 ![spec](/graphs/spec-and-app.svg)
 
-## Control
-**Controller (control function, control)** is a part of an application responsible for handling incoming signals. 
+## Signal Handler
+**Signal handler** is a part of an application responsible for processing incoming signals. 
 It can dispatch new signals, modify app model (by dispatching actions) and perform any side effects (e.g. send data to a server).
-Controller is also free to contain an asynchronous code. The signature of a control function:
+It is free to contain an asynchronous code. The signature of a signal handler function:
 
 ```clj
-(defn control
+(defn on-signal
   [model signal dispatch-signal dispatch-action])
 ```
 
@@ -117,12 +117,12 @@ Controller is also free to contain an asynchronous code. The signature of a cont
 * `dispatch-action` - a synchronous function for modifying a model, always returns `nil`
 * return value will not be used
 
-By convention, control should be able to at least handle `:on-start` and `:on-stop` signals.
+By convention, signal handler should be able to at least handle `:on-start` and `:on-stop` signals.
 As we'll see later, it's required by middleware with setup/teardown logic and to support hot reloading.
 
 It is convenient (but not required) to use [pattern matching](https://github.com/clojure/core.match) 
 to switch between signals and destructure signals with payload.
-As an example, this is a controller from [friend-list](/examples/#friend-list) demo app:
+As an example, this is a handler from [friend-list](/examples/#friend-list) demo app:
 
 ```clj
 (ns friend-list.core
@@ -131,11 +131,11 @@ As an example, this is a controller from [friend-list](/examples/#friend-list) d
             [goog.functions :refer [debounce]]
             [cljs.core.match :refer-macros [match]]))
 
-; It's recommended to create a factory function if controller uses external dependencies.
+; It's recommended to create a factory function if signal handler uses external dependencies.
 ; It makes code more decoupled and 
 ; easier to unit test (stubs/mocks can be easily used instead of real implementations).
 ; In this example browser history manager and API client are external dependencies.
-(defn -new-control
+(defn -new-on-signal
   [history api-search]
   ; Some helper functions.
   ; On successful search a new :on-search-success signal will be dispatched.
@@ -145,15 +145,13 @@ As an example, this is a controller from [friend-list](/examples/#friend-list) d
                                     (search q dispatch-signal))
                                   300)]
     ; Function name is specified for better stacktraces.
-    (fn control
+    (fn on-signal
       [model signal dispatch-signal dispatch-action]
       (match signal
              ; This application has no custom setup/teardown logic
              ; so just return nil on standard signals:             
              :on-start nil
              :on-stop nil
-             
-             ; Macro will throw an exception on unknown signals.
 
              ; Signal destructuring example 
              [:on-input q]
@@ -179,7 +177,7 @@ As an example, this is a controller from [friend-list](/examples/#friend-list) d
 (defn new-spec
   [history api-search]
   {; ...
-   :control (-new-control history api-search)})
+   :on-signal (-new-on-signal history api-search)})
    
 ; ...
 
@@ -190,7 +188,7 @@ As an example, this is a controller from [friend-list](/examples/#friend-list) d
 
 ## Actions
 **Action** is an object which represents an intention to modify a model.
-Actions can be dispatched only from within a control function via `dispatch-action`.
+Actions can be dispatched only from within a signal handler via `dispatch-action`.
 
 Similar to signals, actions are usually keywords or vectors, for instance:
 
@@ -199,15 +197,15 @@ Similar to signals, actions are usually keywords or vectors, for instance:
 [:set-query q]
 ```
 
-## Reconcile
-**Reconciler (reconcile function, reconcile)** is a part of an application responsible for handling incoming actions.
+## Action Handler
+**Action handler** is a part of an application responsible for processing incoming actions.
 It's a pure function which returns a new model value based on a current model value and an incoming action.
-On getting an action an app passes it into a reconciler and then resets app model value with the result.
+On getting an action an app passes it into a action handler and then resets app model value with the result.
 
 A simple example from [friend-list](/examples/#friend-list) demo app:
 
 ```clj
-(defn -reconcile
+(defn -on-action
   [model action]
   (match action
          [:set-query q]
@@ -217,8 +215,8 @@ A simple example from [friend-list](/examples/#friend-list) demo app:
          (assoc model :friends friends)))
 ```
 
-It's important to not put any async code, side effects or nondeterministic code (e.g. random number generation)
-into reconciler. Otherwise, it will make replaying actions unpredictable and break time traveling debugging.
+It's important to not put any asynchronous code, side effects or nondeterministic code (e.g. random number generation)
+into action handler. Otherwise, it will make replaying actions unpredictable and break time traveling debugging.
 
 ## Usage with Reagent
 
@@ -517,8 +515,8 @@ For instance, [TodoMVC](/examples/#todomvc) app spec is wrapped by three middlew
 (defn new-spec
   [history storage storage-key todo-titles]
   (-> {:initial-model (model/new-model todo-titles)
-       :control       control
-       :reconcile     reconcile}
+       :on-signal     on-signal
+       :on-action     on-action}
        
       ; 1
       (schema/add model/Schema)
@@ -537,37 +535,42 @@ and handles bypassing signals and actions:
 
 As an example, this is a simple middleware which logs all actions and signals coming through an app:
 
+
 ```clj
-(ns carry-logging.core)
+(ns carry-logging.core
+  (:require))
 
 (defn add
-  "Will print all signals and actions to console."
+  "Will print all signals and actions to console using the specified prefix string."
   ([spec] (add spec ""))
   ([spec prefix]
    (-> spec
-       ; Wrap control to log signals.
-       (update :control (fn wrap-control [control]
-                          (fn logged-control [model signal dispatch-signal dispatch-action]
-                            (try
-                              ; Log.
-                              (.group js/console (str prefix "signal " (pr-str signal)))
-                              
-                              ; Let app handle the signal.
-                              (control model signal dispatch-signal dispatch-action)
+       ; Wrap signal handler to log signals.
+       (update :on-signal
+               (fn wrap-on-signal [app-on-signal]
+                 (fn on-signal [model signal dispatch-signal dispatch-action]
+                   (try
+                     ; Log.
+                     (.group js/console (str prefix "signal " (pr-str signal)))
+                     
+                     ; Let app handle the signal.
+                     (app-on-signal model signal dispatch-signal dispatch-action)
 
-                              (finally
-                                (.groupEnd js/console))))))
-                                
-       ; Wrap reconcile to log actions.
-       (update :reconcile
-               (fn wrap-reconcile [reconcile]
-                 (fn logged-reconcile [model action]
+                     ; this clause guarantees that group is closed even in case of exception
+                     (finally
+                       (.groupEnd js/console))))))
+                       
+       ; Wrap action handler to log actions.
+       (update :on-action
+               (fn wrap-on-action [app-on-action]
+                 (fn on-action [model action]
                    ; Log.
                    (.log js/console (str prefix "action") (pr-str action))
                    
                    ; Let app handle the action.
-                   (reconcile model action)))))))
+                   (app-on-action model action)))))))
 ```
+
 
 More complex middleware can:
   
@@ -591,17 +594,17 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
   (merge {::token "/"} app-initial-model))
 
 ; History will be injected on applying the middleware.
-(defn -wrap-control
-  [app-control history]
+(defn -wrap-on-signal
+  [app-on-signal history]
   (let [unlisten (atom nil)]
-    (fn control
+    (fn on-signal
       [model signal dispatch-signal dispatch-action]
       (match signal
              ; Intercept :on-start signal.
              :on-start
              (do
                ; Let the wrapped app start first.
-               (app-control model signal dispatch-signal dispatch-action)
+               (app-on-signal model signal dispatch-signal dispatch-action)
 
                ; Start listening to model updates.
                (add-watch model ::token-watch
@@ -628,7 +631,7 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
         ; because they will be garbage-collected with the model.
 
         ; Let the wrapped app continue cleaning up.
-        (app-control model signal dispatch-signal dispatch-action))
+        (app-on-signal model signal dispatch-signal dispatch-action))
 
       ; Middleware-specific signal that will not be passed further to an app.
       [::on-history-event {:token token :browser-event? browser-event? :event-data event-data}]
@@ -642,11 +645,11 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
 
       ; Pass other signals further.
       :else
-      (app-control model signal dispatch-signal dispatch-action)))))
+      (app-on-signal model signal dispatch-signal dispatch-action)))))
       
-(defn -wrap-reconcile
-  [app-reconcile]
-  (fn reconcile
+(defn -wrap-on-action
+  [app-on-action]
+  (fn on-action
     [model action]
     (match action
            ; A middleware-specific action.
@@ -655,15 +658,15 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
 
            ; Pass other actions further.
            :else
-           (app-reconcile model action))))
+           (app-on-action model action))))
 
 ; History is an injected dependency.
 (defn add
   [spec history]
   (-> spec
       (update :initial-model -wrap-initial-model)
-      (update :control -wrap-control history)
-      (update :reconcile -wrap-reconcile)))
+      (update :on-signal -wrap-on-signal history)
+      (update :on-action -wrap-on-action)))
 ```
 
 Especially note how `:on-start`/`:on-stop` signals are intercepted:
@@ -689,7 +692,7 @@ On the other hand, it's impossible to predictably replay signals as they can per
 * Clicking a signal toggles all its child actions.
 * Clicking "Replay" button enables debugger's "replay mode" and marks already recorded actions as "to be replayed".
 These actions are saved into local storage and will be automatically replayed on next app start.
-In combination with Figwheel hot reloading this allows editing reconciler code
+In combination with Figwheel hot reloading this allows editing action handling code
 and immediately see how it affects a final app state (effectively "changing the past").
 * Debugging session can be saved into a file and then loaded.
 * "Clear" button removes all recorded signals and actions without modifying current app state.
@@ -758,15 +761,15 @@ Debugger mode can be determined by looking at `[:carry-debugger.core/debugger :r
 
 ; ...
 
-(defn -wrap-control
-  [app-control history]
+(defn -wrap-on-signal
+  [app-on-signal history]
   (let [unlisten (atom nil)]
-    (fn control
+    (fn on-signal
       [model signal dispatch-signal dispatch-action]
       (match signal
              :on-start
              (do
-               (app-control model signal dispatch-signal dispatch-action)
+               (app-on-signal model signal dispatch-signal dispatch-action)
 
                ; ...
                
@@ -782,21 +785,21 @@ Debugger mode can be determined by looking at `[:carry-debugger.core/debugger :r
 ## Unit Testing
 It is comparatively easy to unit test a Carry app
 with Reagent bindings because its behavior is implemented in four functions with explicit dependencies:
-`control`, `reconcile`, `view-model`, `view`.
+`on-signal`, `on-action`, `view-model`, `view`.
 
 Let's look at how these functions are tested in
 [friend-list](/examples/#friend-list) example:
 
-**`1. (control model signal dispatch-signal dispatch-action)`** 
+**`1. (on-signal model signal dispatch-signal dispatch-action)`** 
 
-Control function handles incoming signals to perform side effects, dispatch new signals and actions.
+Signal handler receives incoming signals to perform side effects, dispatch new signals and actions.
 Such behavior is easy to test using [mock](https://en.wikipedia.org/wiki/Mock_object) functions.
 This test uses [clj-fakes](https://github.com/metametadata/clj-fakes) 
 isolation framework for recording and checking `dispatch-signal` and `dispatch-action` calls
 on receiving `:on-enter` signal:
 
 ```clj
-(ns unit.controller
+(ns unit.signals
   (:require
     [friend-list.core :as friend-list]
     [carry.core :as carry]
@@ -805,16 +808,16 @@ on receiving `:on-enter` signal:
     [clj-fakes.core :as f :include-macros true]
     ;...
     ))
-
+    
 (deftest
   on-navigation-updates-query-and-searches
   (f/with-fakes
     (let [search (f/fake [[:_new-token (f/arg ifn?)] #(%2 :_found-friends)])
-          {:keys [control]} (friend-list/new-spec :_history search)
+          {:keys [on-signal]} (friend-list/new-spec :_history search)
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
-      (control :_model [::h/on-enter :_new-token] dispatch-signal dispatch-action)
+      (on-signal :_model [::h/on-enter :_new-token] dispatch-signal dispatch-action)
 
       ; assert
       (is (f/was-called-once dispatch-action [[:set-query :_new-token]]))
@@ -824,13 +827,13 @@ on receiving `:on-enter` signal:
 * Test is written using [Arrange-Act-Assert (AAA)](http://c2.com/cgi/wiki?ArrangeActAssert) pattern.
 Comments are added to better separate these logical blocks.
  
-* Control function is taken from the spec created by `friend-list/new-spec`.
-It could be tempting to instead test by using `friend-list/-new-control` helper function.
+* Signal handler is taken from the spec created by `friend-list/new-spec`.
+It could be tempting to instead test by using `friend-list/-new-on-signal` helper function.
 But accessing private members is a bad practice
 and there can also be middleware applied inside `new-spec` which can affect the tested behavior. Thus:
 
 ```clj
-{:keys [control]} (friend-list/new-spec :_history search)
+{:keys [on-signal]} (friend-list/new-spec :_history search)
 ```
 
 * Instead of using a real async API client we create a fake `search` 
@@ -846,23 +849,23 @@ of creating objects of correct type when we know that their type doesn't really 
 It makes tests more focused and readable.
 This technique is similar to [using metaconstants in Midje](https://github.com/marick/Midje/wiki/Metaconstants).
 
-**`2. (reconcile model action)`**
+**`2. (on-action model action)`**
 
-Reconciler is the easiest function to test because it's pure:
+Action handler is the easiest function to test because it's pure:
 
 ```clj
 (deftest
   sets-query
-  (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)]
+  (let [{:keys [initial-model on-action]} (friend-list/new-spec :_history :_search)]
     (is (= "new query"
-           (:query (reconcile initial-model [:set-query "new query"]))))))
+           (:query (on-action initial-model [:set-query "new query"]))))))
 ```
 
-Here again we first create a spec in order to get `initial-model` value and `reconcile` function.
+Here again we first create a spec in order to get `initial-model` value and `on-action` function.
 
 Notice that it's impossible to use `:_new_query` "metaconstant" because app uses 
 [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
-middleware forcing us to use a string value `"new-query"` on reconciling.
+middleware forcing us to use a string value `"new-query"` on action handling.
 
 **`3. (view-model model)`**
 
@@ -876,11 +879,11 @@ at `:query` and `:friends` keys:
     [reagent.core :as r]
     [schema-generators.generators :as g]
     [cljs.test :refer-macros [deftest is]])
-  (:require-macros [reagent.ratom :refer [run!]]))
+  (:require-macros [reagent.ratom :refer [run! reaction]]))
 
 (defn test-view-model-tracks-model-key
-  [model-key act-action expected-view-model-value]
-  (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)
+  [model-key action expected-view-model-value]
+  (let [{:keys [initial-model on-action]} (friend-list/new-spec :_history :_search)
         model (r/atom initial-model)
         view-model (friend-list/view-model (reaction @model))
         witness (atom nil)]
@@ -888,7 +891,7 @@ at `:query` and `:friends` keys:
     (run! (reset! witness @(model-key view-model)))
 
     ; act
-    (swap! model reconcile act-action)
+    (swap! model on-action action)
 
     ; force reaction updates
     (r/flush)
@@ -899,7 +902,7 @@ at `:query` and `:friends` keys:
 (deftest
   tracks-query
   (test-view-model-tracks-model-key :query [:set-query "new query"] "new query"))
-  
+
 (deftest
   tracks-friends
   (let [new-friends (g/sample 3 friend-list/Friend)]
@@ -920,7 +923,7 @@ code is located in `view-model`.
 Because Carry architecture is also based on functions which can be nested inside each other,
 a pattern similar to [Elm architecture](https://github.com/evancz/elm-architecture-tutorial/) 
 can be applied to build composite apps. A composite app incorporates instances of other Carry apps, but
-still has a single model, controller and reconciler.
+still has a single model, signal handler and action handler.
 
 Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity,
 so use it with caution.
@@ -1029,35 +1032,34 @@ Note how Reagent's `reaction` macro is used to create a counter model reaction f
 As you can see, `counter/view` is created for each counter and will dispatch its signals "tagged"
 with a corresponding counter id.
 
-**`4. control`**
+**`4. on-signal`**
 
-The controller will pass tagged signals to the counter controller.
+The signal handler will let the individual counter handle the incoming signal.
 In a more complex app we would also have to dispatch tagged `:on-start`/`:on-stop` signals
 on inserting/removing subapps. But in this example we omit this because counter app has no start/stop code:
 
 ```clj
-(ns app.controller
-  (:require [app.model :as model]
-            [app.util :refer [tagged]]
+(ns app.signals
+  (:require [app.util :refer [tagged]]
             [counter.core :as counter]
             [carry.core :as carry]
             [cljs.core.match :refer-macros [match]]))
 
-(defn control
+(defn on-signal
   [model signal dispatch-signal dispatch-action]
-  (match signal
+  (match signal         
          :on-insert (dispatch-action :insert)
          :on-remove (dispatch-action :remove)
 
          [[:on-counter-signal id] s]
-         ((:control counter/spec)
+         ((:on-signal counter/spec)
            (carry/entangle model #(get-in % [:counters id]))
            s
            (tagged dispatch-signal [:on-counter-signal id])
            (tagged dispatch-action [:counter-action id]))))
 ```
 
-Carry's [`entangle`](/api/carry.core.html#var-entangle) helper is used to create a counter model for passing into `counter-control`.
+Carry's [`entangle`](/api/carry.core.html#var-entangle) helper is used to create a counter model for passing into counter signal handler.
 This call returns a read-only reference object which will automatically sync its value with
 `(get-in @model [:counters id])` on `model` changes:
 
@@ -1065,16 +1067,16 @@ This call returns a read-only reference object which will automatically sync its
 (carry/entangle model #(get-in % [:counters id]))
 ```
 
-**`5. reconcile`**
+**`5. on-action`**
 
-Reconciler uses counter's initial model and reconciler:
+Action handler uses counter's initial model and action handler:
 
-```clj
-(ns app.reconciler
+```clj       
+(ns app.actions
   (:require [counter.core :as counter]
             [cljs.core.match :refer-macros [match]]))
 
-(defn reconcile
+(defn on-action
   [model action]
   (match action
          :insert
@@ -1086,7 +1088,7 @@ Reconciler uses counter's initial model and reconciler:
            (update model :counters dissoc oldest-counter-id))
 
          [[:counter-action id] a]
-         (update-in model [:counters id] (:reconcile counter/spec) a)))
+         (update-in model [:counters id] (:on-action counter/spec) a)))
 ```
 
 **`6. spec`**
@@ -1096,13 +1098,13 @@ Let's define a spec in a separate namespace:
 ```clj
 (ns app.spec
   (:require [app.model :refer [initial-model]]
-            [app.controller :refer [control]]
-            [app.reconciler :refer [reconcile]]))
+            [app.signals :refer [on-signal]]
+            [app.actions :refer [on-action]]))
 
 (def spec
   {:initial-model initial-model
-   :control       control
-   :reconcile     reconcile})
+   :on-signal     on-signal
+   :on-action     on-action})
 ```
 
 **`7. main`**
@@ -1360,7 +1362,7 @@ What's happening here:
 5. On clicking history widget buttons the data atom is updated and its new values are synced back into the app model. 
  
 Of course, if a lot of cards are created like this then extracting a 
-helper macro should be considered in order to reduce code duplication.
+helper macro or function should be considered in order to reduce code duplication.
 
 Note that we must start the app only after mounting.
 Otherwise, starting app synchronously in a card function will produce

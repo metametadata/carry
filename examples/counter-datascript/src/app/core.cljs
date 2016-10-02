@@ -11,7 +11,7 @@
 (def counter-id 1)
 (def initial-model {:db (d/init-db #{(d/datom counter-id :val 0)})})
 
-(defn control
+(defn on-signal
   [model signal _dispatch-signal dispatch-action]
   (match signal
          :on-increment
@@ -27,7 +27,7 @@
          :on-increment-async
          (.setTimeout js/window #(dispatch-action :increment) 1000)))
 
-(defn reconcile
+(defn on-action
   [model action]
   ; Instead of pulling counter from db, why not pass the current value from the view, e.g. by dispatching [:increment 3]?
   ; Because in such case time travel debugger will not be able to correctly toggle past actions.
@@ -55,8 +55,8 @@
 (defn main
   []
   (let [app-spec {:initial-model initial-model
-                  :control       control
-                  :reconcile     reconcile}
+                  :on-signal     on-signal
+                  :on-action     on-action}
         app (carry/app app-spec)
         [app-view-model app-view] (carry-reagent/connect app view-model view)]
     (r/render app-view (.getElementById js/document "root"))

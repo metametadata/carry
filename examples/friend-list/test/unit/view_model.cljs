@@ -7,8 +7,8 @@
   (:require-macros [reagent.ratom :refer [run! reaction]]))
 
 (defn test-view-model-tracks-model-key
-  [model-key act-action expected-view-model-value]
-  (let [{:keys [initial-model reconcile]} (friend-list/new-spec :_history :_search)
+  [model-key action expected-view-model-value]
+  (let [{:keys [initial-model on-action]} (friend-list/new-spec :_history :_search)
         model (r/atom initial-model)
         view-model (friend-list/view-model (reaction @model))
         witness (atom nil)]
@@ -16,7 +16,7 @@
     (run! (reset! witness @(model-key view-model)))
 
     ; act
-    (swap! model reconcile act-action)
+    (swap! model on-action action)
 
     ; force reaction updates
     (r/flush)

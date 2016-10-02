@@ -4,7 +4,7 @@
             [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
             [cljs.reader]
-            [com.rpl.specter :as s]
+            [com.rpl.specter :as s :refer [ALL]]            ; ALL is refered explicitly because otherwise Codox cannot generate API docs
             [reagent.core :as r]
             [goog.events]
             [goog.ui.KeyboardShortcutHandler.EventType :as EventType]
@@ -12,8 +12,7 @@
             cljsjs.filesaverjs
             cljs.pprint)
   (:import goog.ui.KeyboardShortcutHandler)
-  (:require-macros [com.rpl.specter.macros :refer [transform select-one]]
-                   [reagent.ratom :refer [reaction]]))
+  (:require-macros [reagent.ratom :refer [reaction]]))
 
 ;;;;;;;;;;;;;;;;;;; Model
 (def ^:no-doc -Schema
@@ -76,9 +75,9 @@
 
 (defn ^:no-doc -update-action-events
   [model pred f & args]
-  (transform [::debugger :action-events s/ALL pred]
-               #(apply f % args)
-               model))
+  (s/transform [::debugger :action-events ALL pred]
+             #(apply f % args)
+             model))
 
 (defn ^:no-doc -update-action-event
   [model id f & args]
@@ -86,11 +85,11 @@
 
 (defn ^:no-doc -find-signal
   [model id]
-  (select-one [::debugger :signal-events s/ALL #(= (:id %) id)] model))
+  (s/select-one [::debugger :signal-events ALL #(= (:id %) id)] model))
 
 (defn ^:no-doc -find-action
   [model id]
-  (select-one [::debugger :action-events s/ALL #(= (:id %) id)] model))
+  (s/select-one [::debugger :action-events ALL #(= (:id %) id)] model))
 
 (defn ^:no-doc -signal-id->parent-id
   "Returns a map."
@@ -133,7 +132,7 @@
         new-signal-events (filter #(contains? kept-ids (:id %)) signal-events)]
     (assoc-in model [::debugger :signal-events] new-signal-events)))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Control
+;;;;;;;;;;;;;;;;;;;;;;;; Signals
 (defn ^:no-doc -save-file
   "Uses filesaverjs lib."
   [filename content]
@@ -142,17 +141,17 @@
                   (clj->js {:type "text/plain;charset=UTF-8"}))]
     (js/saveAs blob filename)))
 
-(defn ^:no-doc -wrap-control
-  [app-control storage storage-key toggle-visibility-shortcut]
+(defn ^:no-doc -wrap-on-signal
+  [app-on-signal storage storage-key toggle-visibility-shortcut]
   (let [unlisten-shortcuts (atom nil)]
-    (fn control
+    (fn on-signal
       [model signal dispatch-signal dispatch-action]
       (letfn [(record-and-dispatch-to-app [signal parent-signal-id]
                 (let [signal-event (-signal-event (-> @model ::debugger :next-signal-id) parent-signal-id signal)
                       intercepted-dispatch-signal #(dispatch-signal [::on-app-signal (:id signal-event) %])
                       intercepted-dispatch-action #(dispatch-action [::app-action (:id signal-event) %])]
                   (dispatch-action [::record-signal-event signal-event])
-                  (app-control model signal intercepted-dispatch-signal intercepted-dispatch-action)))]
+                  (app-on-signal model signal intercepted-dispatch-signal intercepted-dispatch-action)))]
         (match signal
                :on-start
                (do
@@ -242,10 +241,10 @@
                :else
                (record-and-dispatch-to-app signal nil))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;; Reconcile
-(defn ^:no-doc -wrap-reconcile
-  [app-reconcile]
-  (fn reconcile
+;;;;;;;;;;;;;;;;;;;;;;;; Actions
+(defn ^:no-doc -wrap-on-action
+  [app-on-action]
+  (fn on-action
     [model action]
     (match action
            [::record-signal-event signal-event]
@@ -272,7 +271,7 @@
              (if-let [{:keys [id action]} (first action-events)]
                (recur (rest action-events)
                       (as-> new-model m
-                            (app-reconcile m action)
+                            (app-on-action m action)
                             (-update-action-event m id assoc :result (dissoc m ::debugger))))
                new-model))
 
@@ -305,7 +304,7 @@
            [::app-action signal-id a]
            (if (-find-signal model signal-id)
              (as-> model m
-                   (app-reconcile m a)
+                   (app-on-action m a)
                    (update-in m [::debugger :action-events] concat [(-action-event (-> m ::debugger :next-action-id)
                                                                                    signal-id
                                                                                    a
@@ -313,7 +312,7 @@
                    (update-in m [::debugger :next-action-id] inc))
 
              ; else: looks like originating signal could be already cleared -> create "unknown signal" to record this action
-             (reconcile model a))
+             (on-action model a))
 
            ; for bare app actions (e.g. when originating signal was cleared) create an "unknown signal" event
            :else
@@ -321,7 +320,7 @@
              (-> model
                  (update-in [::debugger :signal-events] concat [unknown-signal-event])
                  (update-in [::debugger :next-signal-id] inc)
-                 (reconcile [::app-action (:id unknown-signal-event) action]))))))
+                 (on-action [::app-action (:id unknown-signal-event) action]))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; View model
 (defn ^:no-doc -signal-indent
@@ -347,15 +346,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;; View
 (def ^:no-doc -color-replay "rgb(240, 240, 30)")
 (def ^:no-doc -style-menu-button {:margin        "5px 3px"
-                         :padding       4
-                         :font-size     "inherit"
-                         :font-family   "inherit"
-                         :font-weight   "bold"
-                         :color         "white"
-                         :cursor        "pointer"
-                         :border-radius "3px"
-                         :border        0
-                         :background    "none"})
+                                  :padding       4
+                                  :font-size     "inherit"
+                                  :font-family   "inherit"
+                                  :font-weight   "bold"
+                                  :color         "white"
+                                  :cursor        "pointer"
+                                  :border-radius "3px"
+                                  :border        0
+                                  :background    "none"})
 
 (defn ^:no-doc -menu-button
   [style caption on-click title]
@@ -544,8 +543,8 @@
   ([spec storage storage-key toggle-visibility-shortcut]
    (-> spec
        (update :initial-model -wrap-initial-model toggle-visibility-shortcut)
-       (update :control -wrap-control storage storage-key toggle-visibility-shortcut)
-       (update :reconcile -wrap-reconcile)
+       (update :on-signal -wrap-on-signal storage storage-key toggle-visibility-shortcut)
+       (update :on-action -wrap-on-action)
 
        (schema-middleware/add -Schema))))
 

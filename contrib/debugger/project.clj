@@ -1,4 +1,4 @@
-(def version "0.5.0")
+(def version "0.6.0")
 
 (defproject
   carry-debugger
@@ -8,19 +8,19 @@
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.36" :scope "provided"]
+                 [org.clojure/clojurescript "1.9.229" :scope "provided"]
 
-                 [carry-schema "0.3.0"]
+                 [carry-schema "0.4.0"]
                  [carry-reagent "0.5.0"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]
-                 [reagent "0.6.0-rc"]
-                 [prismatic/schema "1.1.1"]
-                 [com.rpl/specter "0.11.2"]
+                 [reagent "0.6.0"]
+                 [prismatic/schema "1.1.3"]
+                 [com.rpl/specter "0.13.0"]
                  [cljsjs/jquery-ui "1.11.4-0"]
                  [cljsjs/filesaverjs "1.1.20151003-0"]]
 
-  :plugins [[lein-codox "0.9.5"]]
+  :plugins [[lein-codox "0.10.0"]]
 
   :pedantic? :abort
 

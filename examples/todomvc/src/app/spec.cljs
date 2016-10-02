@@ -1,7 +1,7 @@
 (ns app.spec
   (:require [app.model :as model]
-            [app.controller :refer [control]]
-            [app.reconciler :refer [reconcile]]
+            [app.signals :refer [on-signal]]
+            [app.actions :refer [on-action]]
             [carry-schema.core :as schema]
             [carry-history.core :as h]
             [carry-persistence.core :as persistence]))
@@ -9,8 +9,8 @@
 (defn new-spec
   [history storage storage-key todo-titles]
   (-> {:initial-model (model/new-model todo-titles)
-       :control       control
-       :reconcile     reconcile}
+       :on-signal     on-signal
+       :on-action     on-action}
       (schema/add model/Schema)
 
       ; token is blacklisted because on start we want the app to read current token from the urlbar instead of storage

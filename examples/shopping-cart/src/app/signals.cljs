@@ -1,12 +1,11 @@
-(ns app.controller
+(ns app.signals
   (:require [app.api :as api]
-            [datascript.core :as d]
             [cljs.core.match :refer-macros [match]]))
 
-(defn new-control
+(defn new-on-signal
   [shop]
   {:pre [(satisfies? api/ShopAPIProtocol shop)]}
-  (fn control
+  (fn on-signal
     [model signal _dispatch-signal dispatch-action]
     (println "signal" signal)
     (match signal

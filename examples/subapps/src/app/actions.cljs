@@ -1,7 +1,7 @@
-(ns app.reconciler
+(ns app.actions
   (:require [cljs.core.match :refer-macros [match]]))
 
-(defn reconcile
+(defn on-action
   [model action]
   (match action
          :toggle-friend-list

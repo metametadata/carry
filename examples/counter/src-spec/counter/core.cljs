@@ -5,7 +5,7 @@
 
 (def -initial-model {:val 0})
 
-(defn -control
+(defn -on-signal
   [model signal _dispatch-signal dispatch-action]
   (match signal
          ; start and stop are required because counter is used as a subapp in another example
@@ -25,7 +25,7 @@
          :on-increment-async
          (.setTimeout js/window #(dispatch-action :increment) 1000)))
 
-(defn -reconcile
+(defn -on-action
   [model action]
   (match action
          :increment (update model :val inc)
@@ -45,5 +45,5 @@
    [:button {:on-click #(dispatch :on-increment-async)} "Increment async"]])
 
 (def spec {:initial-model -initial-model
-           :control       -control
-           :reconcile     -reconcile})
+           :on-signal     -on-signal
+           :on-action     -on-action})

@@ -30,8 +30,8 @@
         app-spec (-> (spec/new-spec history storage :todomvc-model ["Finish this project" "Take a bath"])
 
                      ; add debugging middleware:
-                     (debugger/add storage :todomvc-debugger-model)
                      logging/add
+                     (debugger/add storage :todomvc-debugger-model)
                      (atom-sync/add model))
 
         ; create app from spec

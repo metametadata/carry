@@ -6,7 +6,7 @@
 
 (def initial-model {:val 0})
 
-(defn control
+(defn on-signal
   [model signal _dispatch-signal dispatch-action]
   (match signal
          :on-increment
@@ -22,7 +22,7 @@
          :on-increment-async
          (.setTimeout js/window #(dispatch-action :increment) 1000)))
 
-(defn reconcile
+(defn on-action
   [model action]
   (match action
          :increment (update model :val inc)
@@ -31,8 +31,8 @@
 (defn main
   []
   (let [spec {:initial-model initial-model
-              :control       control
-              :reconcile     reconcile}
+              :on-signal     on-signal
+              :on-action     on-action}
         app (carry/app spec)
         value-el (.getElementById js/document "value")
         render (fn [model] (set! (.-innerHTML value-el) (str "#" (:val model))))]

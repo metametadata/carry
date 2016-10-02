@@ -66,23 +66,23 @@
   "Constructs an app from a spec map with keys:
 
   * `:initial-model` - Initial model value, must be a map.
-  * `:control` - Function of args: `[model signal dispatch-signal dispatch-action]`.
+  * `:on-signal` - Signal handler. Function of args: `[model signal dispatch-signal dispatch-action]`.
   It performs side effects, can dispatch actions and new signals.
   By convention, it must be able to handle `:on-start` and `:on-stop` signals in order to be wrappable by middleware.
   Read-only model atom is useful for reading actual model values in async code and to subscribe to model changes.
   Functions `dispatch-signal` and `dispatch-action` always return `nil`.
-  * `:reconcile` - Pure function of args: `[model action]`.
+  * `:on-action` - Action handler. Pure function of args: `[model action]`.
   Given an action and current model value, it must return the new model value.
 
   Returns a map with keys:
 
   * `:model` - An object that supports `IDeref` and `IWatchable` protocols.
   * `:dispatch-signal` - Function with a single arg: a signal to be sent to an app. Returns `nil`."
-  [{:keys [initial-model control reconcile] :as _spec}]
-  {:pre [(map? initial-model) (fn? control) (fn? reconcile)]}
+  [{:keys [initial-model on-signal on-action] :as _spec}]
+  {:pre [(map? initial-model) (fn? on-signal) (fn? on-action)]}
   (let [model-atom (atom initial-model)
         read-only-model-atom (entangle model-atom identity)]
-    (letfn [(dispatch-action [action] (reset! model-atom (reconcile @model-atom action)) nil)
-            (dispatch-signal [signal] (control read-only-model-atom signal dispatch-signal dispatch-action) nil)]
+    (letfn [(dispatch-action [action] (reset! model-atom (on-action @model-atom action)) nil)
+            (dispatch-signal [signal] (on-signal read-only-model-atom signal dispatch-signal dispatch-action) nil)]
       {:model           read-only-model-atom
        :dispatch-signal dispatch-signal})))

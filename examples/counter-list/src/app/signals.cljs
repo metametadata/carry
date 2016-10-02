@@ -1,11 +1,10 @@
-(ns app.controller
-  (:require [app.model :as model]
-            [app.util :refer [tagged]]
+(ns app.signals
+  (:require [app.util :refer [tagged]]
             [counter.core :as counter]
             [carry.core :as carry]
             [cljs.core.match :refer-macros [match]]))
 
-(defn control
+(defn on-signal
   [model signal dispatch-signal dispatch-action]
   (println "signal =" signal)
   (match signal
@@ -15,7 +14,7 @@
          :on-remove (dispatch-action :remove)
 
          [[:on-counter-signal id] s]
-         ((:control counter/spec)
+         ((:on-signal counter/spec)
            (carry/entangle model #(get-in % [:counters id]))
            s
            (tagged dispatch-signal [:on-counter-signal id])

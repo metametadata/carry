@@ -28,15 +28,15 @@ inspired by [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cer
 ## Pattern
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
 
-* An app is defined by its initial model value, controller and reconciler.
+* An app is defined by its initial model value, signal handler and action handler.
 * All app state is stored inside a single model atom.
 * Anyone can read model value at any given time and subscribe to its changes.
-* Controller function receives signals to perform side effects and dispatch actions.
-* Anyone can dispatch a new signal: controller, views, timers, etc.
+* Signal handler performs side effects and dispatches actions.
+* Anyone can dispatch a new signal: signal handler, views, timers, etc.
+* Typically UI layer dispatches signals on UI events and subscribes to model changes to redraw the GUI when needed.
 * Model can be modified only by dispatching actions.
-* Only controller can dispatch actions.
-* Reconciler is a pure function which returns a new model value based on an incoming action.
-* When UI layer subscribes to model changes we get a unidirectional data flow: UI -> signal -> action -> model -> UI -> etc.
+* Only signal handler can dispatch actions.
+* Action handler is a pure function which returns a new model value based on an incoming action.  
 
 ## Example (counter app)
 
@@ -102,9 +102,10 @@ Spec:
 ```clj
 (def -initial-model {:val 0})
 
-(defn -control
+(defn -on-signal
   [model signal _dispatch-signal dispatch-action]
   (match signal
+         ; start and stop are required because counter is used as a subapp in another example
          :on-start nil
          :on-stop nil
 
@@ -121,15 +122,15 @@ Spec:
          :on-increment-async
          (.setTimeout js/window #(dispatch-action :increment) 1000)))
 
-(defn -reconcile
+(defn -on-action
   [model action]
   (match action
          :increment (update model :val inc)
          :decrement (update model :val dec)))
 
 (def spec {:initial-model -initial-model
-           :control       -control
-           :reconcile     -reconcile})
+           :on-signal     -on-signal
+           :on-action     -on-action})
 ```
 
 ## Packages

@@ -1,7 +1,7 @@
-(ns app.controller
+(ns app.signals
   (:require [cljs.core.match :refer-macros [match]]))
 
-(defn control
+(defn on-signal
   [_model signal _dispatch-signal dispatch-action]
   (match signal
          :on-start nil

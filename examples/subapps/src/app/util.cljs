@@ -1,7 +1,6 @@
 ; Helpers for implementing subapps using Elm-ish architecture
 (ns app.util
   (:require [carry.core :as carry]
-            [reagent.core :as r]
             [cljs.core.match :refer-macros [match]])
   (:require-macros [reagent.ratom :refer [reaction]]))
 
@@ -17,48 +16,48 @@
   [app-initial-model subapp-key subapp-spec]
   (assoc app-initial-model subapp-key (:initial-model subapp-spec)))
 
-(defn -wrap-control
-  [app-control subapp-key subapp-spec]
-  (fn control
+(defn -wrap-on-signal
+  [app-on-signal subapp-key subapp-spec]
+  (fn on-signal
     [model signal dispatch-signal dispatch-action]
     (match signal
            :on-start
            (do
-             (app-control model signal dispatch-signal dispatch-action)
+             (app-on-signal model signal dispatch-signal dispatch-action)
              (dispatch-signal [[:on-subapp-signal subapp-key] signal]))
 
            :on-stop
            (do
              (dispatch-signal [[:on-subapp-signal subapp-key] signal])
-             (app-control model signal dispatch-signal dispatch-action))
+             (app-on-signal model signal dispatch-signal dispatch-action))
 
            [[:on-subapp-signal subapp-key] s]
-           ((:control subapp-spec)
+           ((:on-signal subapp-spec)
              (carry/entangle model subapp-key)
              s
              (-tagged dispatch-signal [:on-subapp-signal subapp-key])
              (-tagged dispatch-action [:on-subapp-action subapp-key]))
 
            :else
-           (app-control model signal dispatch-signal dispatch-action))))
+           (app-on-signal model signal dispatch-signal dispatch-action))))
 
-(defn -wrap-reconcile
-  [app-reconcile subapp-key subapp-spec]
-  (fn reconcile
+(defn -wrap-on-action
+  [app-on-action subapp-key subapp-spec]
+  (fn on-action
     [model action]
     (match action
            [[:on-subapp-action subapp-key] a]
-           (update model subapp-key (:reconcile subapp-spec) a)
+           (update model subapp-key (:on-action subapp-spec) a)
 
            :else
-           (app-reconcile model action))))
+           (app-on-action model action))))
 
 (defn include-spec
   [app-spec subapp-key subapp-spec]
   (-> app-spec
       (update :initial-model -wrap-initial-model subapp-key subapp-spec)
-      (update :control -wrap-control subapp-key subapp-spec)
-      (update :reconcile -wrap-reconcile subapp-key subapp-spec)))
+      (update :on-signal -wrap-on-signal subapp-key subapp-spec)
+      (update :on-action -wrap-on-action subapp-key subapp-spec)))
 
 (defn include-view-model
   "For this to work app's view model function must return a map."

@@ -9,13 +9,13 @@
   ; initial-model tests:
   ;  ::token is added
   ;  app can also set ::token itself
-  ; controller tests:
+  ; on-signal tests:
   ;  start
   ;  stop
   ;  browser event
   ;  user event
   ;  app event
-  ; reconciler tests:
+  ; on-action tests:
   ;  set-token
   ;  app action
   )

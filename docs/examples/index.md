@@ -22,7 +22,7 @@ for rendering UI using [Reagent](https://github.com/reagent-project/reagent).
 [Demo](/examples/friend-list)
 
 Inspired by this [problem](https://github.com/DerekCuevas/friend-list) about dynamic search input.
-Demonstrates how to dispatch new signals from app controller and also features:
+Demonstrates how to dispatch new signals from signal handler and also features:
 
 * [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
 for rendering UI using [Reagent](https://github.com/reagent-project/reagent)

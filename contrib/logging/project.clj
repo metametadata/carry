@@ -1,13 +1,13 @@
 (defproject
-  carry-logging "0.1.0"
+  carry-logging "0.2.0"
   :description "Console logging middleware for Carry."
   :url "https://github.com/metametadata/carry/tree/master/contrib/logging"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.36" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.229" :scope "provided"]]
 
-  :plugins [[lein-codox "0.9.5"]]
+  :plugins [[lein-codox "0.10.0"]]
 
   :pedantic? :abort
 

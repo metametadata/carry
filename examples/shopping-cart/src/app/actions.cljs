@@ -1,4 +1,4 @@
-(ns app.reconciler
+(ns app.actions
   (:require [datascript.core :as d]
             [cljs.core.match :refer-macros [match]]))
 
@@ -6,7 +6,7 @@
   [model tx-data]
   (update model :db d/db-with tx-data))
 
-(defn reconcile
+(defn on-action
   [model action]
   (println "  action" action)
   (match action
