@@ -179,6 +179,7 @@
 <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm architecture</a>,
 <a href="https://github.com/reactjs/redux/">Redux</a> and
 <a href="https://github.com/cerebral/cerebral">Cerebral</a>.</p>
+<p>Carry provides a structure for making GUI application code easier to modify, debug, test and be worked on by multiple programmers.</p>
 <p>The core of the framework is a simple state management library. 
 UI bindings, routing, debugger, etc. are implemented as separate optional <a href="#packages">packages</a>.</p>
 <p><a href="https://clojars.org/carry"><img alt="Clojars Project" src="https://img.shields.io/clojars/v/carry.svg" /></a>
@@ -186,7 +187,7 @@ UI bindings, routing, debugger, etc. are implemented as separate optional <a hre
 <a href="https://clojurians.slack.com/messages/carry/"><img alt="Slack" src="https://img.shields.io/badge/chat-on_slack-brightgreen.svg?style=flat" /></a></p>
 <h2 id="features">Features</h2>
 <ul>
-<li>Functional API with no globals makes apps easy to extend and unit test.</li>
+<li>Functional API with no globals.</li>
 <li>Agnostic to UI layer: can be effectively used with <a href="https://github.com/reagent-project/reagent">Reagent</a>
 (via <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a> package) or
 any other view layer that is able to re-render UI in response to app model changes.</li>
@@ -194,9 +195,18 @@ any other view layer that is able to re-render UI in response to app model chang
 inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</a> and <a href="http://www.cerebraljs.com/debugger">Cerebral Debugger</a>.</li>
 <li>Live code editing using <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a> and debugger's replay mode.</li>
 <li>Fractality: <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm-ish architecture</a> can be applied to create composite apps.</li>
+<li>Can work with <a href="https://github.com/bhauman/devcards">Devcards</a>.</li>
 <li>Core library can be also used in Clojure projects.</li>
 </ul>
 <h2 id="pattern">Pattern</h2>
+<p>Carry enforces:</p>
+<ul>
+<li>Separation of presentation code.</li>
+<li>Events as first-class citizens.</li>
+<li>Splitting event handling code into side-effectful and "pure" model updating phases.</li>
+<li>Storing model in a single observable atom.</li>
+</ul>
+<p>It also advises to decouple view and view model code in the presentation layer:</p>
 <p><img alt="pattern" src="http://metametadata.github.io/carry/graphs/pattern.svg" /></p>
 <ul>
 <li>An app is defined by its initial model value, signal handler and action handler.</li>
@@ -379,5 +389,5 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-10-02 12:55:14.046175
+Build Date UTC : 2016-10-03 17:49:17.925966
 -->
