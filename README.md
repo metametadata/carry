@@ -6,6 +6,8 @@ ClojureScript single-page application framework inspired by
 [Redux](https://github.com/reactjs/redux/) and
 [Cerebral](https://github.com/cerebral/cerebral).
 
+Carry provides a structure for making GUI application code easier to modify, debug, test and be worked on by multiple programmers.
+
 The core of the framework is a simple state management library. 
 UI bindings, routing, debugger, etc. are implemented as separate optional [packages](#packages).
 
@@ -15,7 +17,7 @@ UI bindings, routing, debugger, etc. are implemented as separate optional [packa
 
 ## Features
 
-* Functional API with no globals makes apps easy to extend and unit test.
+* Functional API with no globals.
 * Agnostic to UI layer: can be effectively used with [Reagent](https://github.com/reagent-project/reagent)
 (via [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package) or
 any other view layer that is able to re-render UI in response to app model changes.
@@ -23,9 +25,19 @@ any other view layer that is able to re-render UI in response to app model chang
 inspired by [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/debugger).
 * Live code editing using [Figwheel](https://github.com/bhauman/lein-figwheel) and debugger's replay mode.
 * Fractality: [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to create composite apps.
+* Can work with [Devcards](https://github.com/bhauman/devcards).
 * Core library can be also used in Clojure projects.
 
 ## Pattern
+Carry enforces:
+
+* Separation of presentation code.
+* Events as first-class citizens.
+* Splitting event handling code into side-effectful and "pure" model updating phases.
+* Storing model in a single observable atom.
+
+It also advises to decouple view and view model code in the presentation layer:
+
 ![pattern](http://metametadata.github.io/carry/graphs/pattern.svg)
 
 * An app is defined by its initial model value, signal handler and action handler.
