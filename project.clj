@@ -15,8 +15,6 @@
 
   :source-paths ["src" "test"]
 
-  :jvm-opts ^:replace ["-Dclojure.compiler.direct-linking=true"]
-
   :test-refresh {:notify-command ["terminal-notifier" "-title" "Tests" "-message"]
                  :quiet          true}
 
