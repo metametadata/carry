@@ -5,16 +5,16 @@ box "UI" #White
 end box
 
 box "App"  #White
+	participant model
 	participant "on-signal"
 	participant "on-action"
-	participant model
 end box
 
--> view : DOM event
-view -> "on-signal" : dispatch signal
+-> view : event
+view -> "on-signal" : dispatch-signal
 "on-signal" -> "on-signal" : side effect
-"on-signal" -> "on-action" : dispatch action
-"on-action" -> model : update
-model -> "view-model" : notify
-"view-model" -> view : notify
+"on-signal" -> "on-action" : dispatch-action
+"on-action" --> model : update
+model --> "view-model" : update
+"view-model" --> view : update
 @enduml
