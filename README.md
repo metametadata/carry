@@ -117,7 +117,6 @@ Spec:
 (defn -on-signal
   [model signal _dispatch-signal dispatch-action]
   (match signal
-         ; start and stop are required because counter is used as a subapp in another example
          :on-start nil
          :on-stop nil
 
