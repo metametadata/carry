@@ -19,7 +19,7 @@
                         :source-paths ["src"
                                        "../../src"
                                        "../../contrib/reagent/src"
-                                       "../counter/src-spec"]
+                                       "../counter/src-public"]
                         :compiler     {:main                 app.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/frontend.js"
@@ -34,7 +34,7 @@
                         :source-paths ["src"
                                        "../../src"
                                        "../../contrib/reagent/src"
-                                       "../counter/src-spec"]
+                                       "../counter/src-public"]
                         :compiler     {:main           app.core
                                        :output-to      "resources/public/js/compiled/frontend.js"
                                        :optimizations  :advanced

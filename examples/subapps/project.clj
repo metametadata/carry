@@ -27,8 +27,8 @@
                         :source-paths ["src"
                                        "../../src"
                                        "../../contrib/reagent/src"
-                                       "../counter/src-spec"
-                                       "../friend-list/src-spec"
+                                       "../counter/src-public"
+                                       "../friend-list/src-public"
                                        "../../contrib/schema/src"
                                        "../../contrib/history/src"
                                        "../../contrib/logging/src"]
@@ -46,8 +46,8 @@
                         :source-paths ["src"
                                        "../../src"
                                        "../../contrib/reagent/src"
-                                       "../counter/src-spec"
-                                       "../friend-list/src-spec"
+                                       "../counter/src-public"
+                                       "../friend-list/src-public"
                                        "../../contrib/schema/src"
                                        "../../contrib/history/src"
                                        "../../contrib/logging/src"]

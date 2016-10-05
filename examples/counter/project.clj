@@ -16,7 +16,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
   :cljsbuild {:builds [{:id           "dev"
-                        :source-paths ["src-spec"
+                        :source-paths ["src-public"
                                        "src"
                                        "../../src"
                                        "../../contrib/reagent/src"]
@@ -31,7 +31,7 @@
                                        :before-jsload "app.core/before-jsload"}}
 
                        {:id           "min"
-                        :source-paths ["src-spec"
+                        :source-paths ["src-public"
                                        "src"
                                        "../../src"
                                        "../../contrib/reagent/src"]

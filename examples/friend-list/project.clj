@@ -31,7 +31,7 @@
 
   :cljsbuild {:builds [{:id           "dev"
                         :source-paths ["src"
-                                       "src-spec"
+                                       "src-public"
                                        "../../src"
                                        "../../contrib/reagent/src"
                                        "../../contrib/history/src"
@@ -50,7 +50,7 @@
 
                        {:id           "min"
                         :source-paths ["src"
-                                       "src-spec"
+                                       "src-public"
                                        "../../src"
                                        "../../contrib/reagent/src"
                                        "../../contrib/history/src"
@@ -67,7 +67,7 @@
                        {:id           "test"
                         :source-paths ["test"
                                        "src"
-                                       "src-spec"
+                                       "src-public"
                                        "../../src"
                                        "../../contrib/reagent/src"
                                        "../../contrib/history/src"
