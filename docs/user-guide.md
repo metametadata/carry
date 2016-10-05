@@ -677,7 +677,7 @@ Especially note how `:on-start`/`:on-stop` signals are intercepted:
 ## Debugger
 One of the main features of Carry pattern is that it allows time traveling debugging
 similar to [Elm's Debugger](http://debug.elm-lang.org/),
-[Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/debugger).
+[Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/documentation/the_debugger).
 
 Carry has its own visual time traveling debugger with next features:
 
