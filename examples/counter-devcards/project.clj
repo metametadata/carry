@@ -23,7 +23,7 @@
                                        "../../contrib/reagent/src"
                                        "../../contrib/atom-sync/src"
                                        "../../contrib/logging/src"
-                                       "../counter/src-spec"]
+                                       "../counter/src-public"]
                         :compiler     {:main                 app.core
                                        :devcards             true
                                        :asset-path           "js/compiled/out"
@@ -41,7 +41,7 @@
                                        "../../contrib/reagent/src"
                                        "../../contrib/atom-sync/src"
                                        "../../contrib/logging/src"
-                                       "../counter/src-spec"]
+                                       "../counter/src-public"]
                         :compiler     {:main           app.core
                                        :devcards       true
                                        :output-to      "resources/public/js/compiled/frontend.js"
