@@ -149,7 +149,7 @@
         <li class="first-level "><a href="#is-view-model-an-integral-part-of-carry-architecture">Is view model an integral part of Carry architecture?</a></li>
         
     
-        <li class="first-level "><a href="#is-there-a-way-to-code-a-reactive-view-model-if-i-dont-use-reagent">Is there a way to code a reactive view model if I don't use Reagent?</a></li>
+        <li class="first-level "><a href="#is-there-a-way-to-code-a-view-model-if-i-dont-use-reagent">Is there a way to code a view model if I don't use Reagent?</a></li>
         
     
         <li class="first-level "><a href="#is-using-corematch-required-in-signalaction-handlers">Is using core.match required in signal/action handlers?</a></li>
@@ -184,13 +184,14 @@
 <li>It makes performance optimizations easier (e.g. by using Reagent's reactions to not recalculate data without a need).</li>
 </ul>
 <p>That's why it was enforced in <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a> package.</p>
-<h1 id="is-there-a-way-to-code-a-reactive-view-model-if-i-dont-use-reagent">Is there a way to code a reactive view model if I don't use Reagent?</h1>
-<p>Yes, there's a number of tools that can do "reactive computations":</p>
+<h1 id="is-there-a-way-to-code-a-view-model-if-i-dont-use-reagent">Is there a way to code a view model if I don't use Reagent?</h1>
+<p>Yes, there's a number of tools that can do reactive/dataflow/structured computations:</p>
 <ul>
 <li><a href="https://github.com/martinklepsch/derivatives">Derivatives</a></li>
 <li><a href="https://github.com/aaronc/freactive.core">freactive.core</a></li>
 <li><a href="https://github.com/hoplon/javelin">Javelin</a></li>
 <li><a href="https://github.com/funcool/lentes">lentes</a></li>
+<li><a href="https://github.com/plumatic/plumbing/">Plumatic Graph</a></li>
 <li><a href="https://github.com/tonsky/rum">Rum</a>'s <code>derived-atom</code></li>
 </ul>
 <h1 id="is-using-corematch-required-in-signalaction-handlers">Is using <code>core.match</code> required in signal/action handlers?</h1>
