@@ -26,13 +26,14 @@ No, but it's a convenient UI pattern to follow because:
 
 That's why it was enforced in [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package.
 
-# Is there a way to code a reactive view model if I don't use Reagent?
-Yes, there's a number of tools that can do "reactive computations":
+# Is there a way to code a view model if I don't use Reagent?
+Yes, there's a number of tools that can do reactive/dataflow/structured computations:
 
 - [Derivatives](https://github.com/martinklepsch/derivatives)
 - [freactive.core](https://github.com/aaronc/freactive.core)
 - [Javelin](https://github.com/hoplon/javelin)
 - [lentes](https://github.com/funcool/lentes)
+- [Plumatic Graph](https://github.com/plumatic/plumbing/)
 - [Rum](https://github.com/tonsky/rum)'s `derived-atom`
 
 # Is using `core.match` required in signal/action handlers?
