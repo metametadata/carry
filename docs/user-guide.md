@@ -1,4 +1,4 @@
-# Framework Overview
+# Basic
 
 Carry is actually a [very small](https://github.com/metametadata/carry/blob/master/src/carry/core.cljc)
 Clojure/ClojureScript state management library which provides a skeleton for the whole application.
@@ -12,7 +12,7 @@ Most of these packages are implemented using [Carry middleware pattern](#middlew
 
 The private/internal API uses `-` prefix and should not be used (e.g. `-this-is-some-private-thing`).
 
-# App
+## App
 
 In a Carry application all the code you write is encapsulated behind a single **app** instance. 
 An app is a map with keys:
@@ -23,7 +23,7 @@ An app is a map with keys:
 One can consider an app to be a black box which exposes its current state and modifies it on getting signals from an external world.
 It can also affect an external world as a response to a signal, i.e. perform "side effects".
 
-# Model
+## Model
 
 Model represents an entire state of an app. 
  
@@ -57,7 +57,7 @@ An exception will be thrown on mutating such read-only reference:
 Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.
 As an example, [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history) adds `:token` to a model.
 
-# Signals
+## Signals
 
 **Signal** is an object which represents a user's intention or, looking at it from a different angle, a system event. 
 Signal can be synchronously sent to an app by calling its `dispatch-signal` function:
@@ -77,7 +77,7 @@ a serializable vector with a keyword and an additional payload:
 
 `dispatch-signal` always returns `nil`.
 
-# Creating an App
+## Creating an App
 
 In order to create an instance of a Carry app a user has to pass a **spec** into `app` function:
 
@@ -97,7 +97,7 @@ In other words, a spec is needed to define a runtime behavior of an app:
 
 ![spec](/graphs/spec-and-app.svg)
 
-# Signal Handler
+## Signal Handler
 **Signal handler** is a part of an application responsible for processing incoming signals. 
 It can dispatch new signals, modify app model (by dispatching actions) and perform any side effects (e.g. send data to a server).
 It is free to contain an asynchronous code. The signature of a signal handler function:
@@ -182,7 +182,7 @@ As an example, this is a handler from [friend-list](/examples/#friend-list) demo
 ((:dispatch-signal app) :on-start)
 ```
 
-# Actions
+## Actions
 **Action** is an object which represents an intention to modify a model.
 Actions can be dispatched only from within a signal handler via `dispatch-action`.
 
@@ -193,7 +193,7 @@ Similar to signals, actions are usually keywords or vectors, for instance:
 [:set-query q]
 ```
 
-# Action Handler
+## Action Handler
 **Action handler** is a part of an application responsible for processing incoming actions.
 It's a pure function which returns a new model value based on a current model value and an incoming action.
 On getting an action an app passes it into a action handler and then resets app model value with the result.
@@ -214,7 +214,7 @@ A simple example from [friend-list](/examples/#friend-list) demo app:
 It's important to not put any asynchronous code, side effects or nondeterministic code (e.g. random number generation)
 into action handler. Otherwise, it will make replaying actions unpredictable and break time traveling debugging.
 
-# Usage with Reagent
+## Usage with Reagent
 
 Carry can work with any view layer that is able to re-render UI in response to app model changes.
 This chapter is about tying Carry with [Reagent](https://github.com/reagent-project/reagent) 
@@ -272,7 +272,7 @@ A view thereby listens to a view model that in turn listens to a model:
 
 In the next section we'll see how to define a view model.
 
-## View Model
+### View Model
 
 **View model** contains all the data needed to render a UI.
 It can compute derived model data, split lists of objects into pages, calculate which buttons are enabled, 
@@ -310,7 +310,7 @@ It is lazily computed from other reactions and Reagent atoms
 (see [official documentation](http://reagent-project.github.io) for more information about Reagent atoms).
 Any Reagent component that dereferences a reaction is going to be automatically re-rendered when reaction value updates.
 
-## View
+### View
 
 An example from [TodoMVC](/examples/#todomvc) app:
 
@@ -350,7 +350,7 @@ An example from [TodoMVC](/examples/#todomvc) app:
 As you can see, we get reactions from a view model and deref them to render actual values.
 Reagent will then "magically" re-render components when the reactions passed into them are updated.
   
-# Usage with Figwheel and REPL
+## Usage with Figwheel and REPL
 With [Figwheel](https://github.com/bhauman/lein-figwheel) Leiningen plugin it is possible to:
 
 * compile and reload app code in browser on source code changes
@@ -496,7 +496,9 @@ app.core=> (= @model @(:model app))
 true
 ```
 
-# Middleware
+# Advanced
+
+## Middleware
 **Middleware** is a function that gets an app spec and returns an updated spec
 in order to introduce some new app behavior (such as logging, syncing with server, crash reporting).
 
@@ -668,7 +670,7 @@ Especially note how `:on-start`/`:on-stop` signals are intercepted:
 * The middleware let's the wrapped app start first and then runs its own additional initialization code.
 * The order is "reversed" on stopping: the middleware first cleans up after itself and only then let's the wrapped app shutdown.
 
-# Debugger
+## Debugger
 One of the main features of Carry pattern is that it allows time traveling debugging
 similar to [Elm's Debugger](http://debug.elm-lang.org/),
 [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/documentation/the_debugger).
@@ -776,7 +778,7 @@ Debugger mode can be determined by looking at `[:carry-debugger.core/debugger :r
 ; ...
 ```
 
-# Unit Testing
+## Unit Testing
 It is comparatively easy to unit test a Carry app
 with Reagent bindings because its behavior is implemented in four functions with explicit dependencies:
 `on-signal`, `on-action`, `view-model`, `view`.
@@ -784,7 +786,7 @@ with Reagent bindings because its behavior is implemented in four functions with
 Let's look at how these functions are tested in
 [friend-list](/examples/#friend-list) example:
 
-<h2>on-signal</h2>
+<h3>on-signal</h3>
  
 ```clj
 (on-signal model signal dispatch-signal dispatch-action)
@@ -847,7 +849,7 @@ of creating objects of correct type when we know that their type doesn't really 
 It makes tests more focused and readable.
 This technique is similar to [using metaconstants in Midje](https://github.com/marick/Midje/wiki/Metaconstants).
 
-<h2>on-action</h2>
+<h3>on-action</h3>
 
 ```clj
 (on-action model action)
@@ -869,7 +871,7 @@ Notice that it's impossible to use `:_new_query` "metaconstant" because app uses
 [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 middleware forcing us to use a string value `"new-query"` on action handling.
 
-<h2>view-model</h2>
+<h3>view-model</h3>
 
 ```clj
 (view-model model)
@@ -920,7 +922,7 @@ at `:query` and `:friends` keys:
 * [schema-generators](https://github.com/plumatic/schema-generators) library is used to automatically generate
 `new-friends` fixture instead of coding it by hand.
 
-<h2>view</h2>
+<h3>view</h3>
 
 ```clj
 (view view-model dispatch)
@@ -931,7 +933,7 @@ at `:query` and `:friends` keys:
 Unit testing this function is probably not critical because most error-prone UI
 code is located in `view-model`.
 
-# Routing
+## Routing
 It's not uncommon for applications to depend on a current URL and modify it in response to user actions.
 For these tasks [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history) middleware
 provides a bidirectional synchronization between a browser URL and a model:
@@ -1020,13 +1022,13 @@ An example from [TodoMVC](/examples/#todomvc):
 
 Please see [API reference](/api/history/carry-history.core.html) for more info.
 
-# Usage with DataScript
+## Usage with DataScript
 See examples:
 
 * [Counter DataScript](/examples/#counter-datascript)
 * [Shopping Cart](/examples/#shopping-cart)
 
-# Usage with Devcards
+## Usage with Devcards
 This section describes how to make Carry work with [Devcards](https://github.com/bhauman/devcards) for a "visual REPL experience".
 Further I assume you have a basic understanding of Devcards and I won't focus on why it's needed, installation details, etc.
 We'll see how to render Carry/Reagent app instances inside cards.
@@ -1186,12 +1188,12 @@ a *"setState(...): Cannot update during an existing state transition"* warning o
   )
 ```
 
-# File Structure
+## File Structure
 
 As an application grows it starts making sense to organize its code using folders and files.
 Let's look at some examples of organizing a source folder.
 
-<h2>Split by "Layer"</h2>
+<h3>Split by "Layer"</h3>
 
 ```plain
 app/
@@ -1225,7 +1227,7 @@ app/
 
 This way a developer working on *foo* feature will have less VCS conflicts with a developer working on *bar*.
     
-<h2>Split by "Feature"</h2>
+<h3>Split by "Feature"</h3>
 
 Here *Foo* and *Bar* can correspond to application screens,
 business logic domains or even single use cases
@@ -1270,11 +1272,11 @@ app/
   core.cljs
 ```
 
-<h2>Conclusion</h2>
+<h3>Conclusion</h3>
 
 There are many ways to organize Carry application code and it's up to you to choose what works best for your project.
 
-# Spec Splitting
+## Spec Splitting
 
 Let's take the project structure example mentioned earlier:
 
@@ -1336,7 +1338,7 @@ Which approach is better? There's no definite answer. For instance, take a look 
 We'll see how to implement the first, stricter and simpler, approach and 
 leave implementing the second approach as an exercise to the reader.
 
-<h2>HOF</h2>
+<h3>HOF</h3>
 
 One of the solutions is to use a higher-order function (HOF) `dispatching-to-either`
 which will assemble a handler (see [example](/examples/#spec-splitting-hof)):
@@ -1414,7 +1416,7 @@ which will assemble a handler (see [example](/examples/#spec-splitting-hof)):
 
 The drawback of this solution is that a spec must be edited every time a new handler file is added.
 
-<h2>Multimethods</h2>
+<h3>Multimethods</h3>
 
 Multimethods can help by allowing to not type the names of all the handlers manually (see [example](/examples/#spec-splitting-multimethods)):
 
@@ -1495,7 +1497,7 @@ Multimethods can help by allowing to not type the names of all the handlers manu
 
 Unfortunately, now there's more cruft in handler files. It's especially obvious in `app.common.signals` listing.
 
-<h2>Multimethods and core.match</h2>
+<h3>Multimethods and core.match</h3>
 
 Let's try to reduce boilerplate by grouping events with the same namespace and using `core.match`
 (see [example](/examples/#spec-splitting-multimethods-core-match)):
@@ -1554,7 +1556,7 @@ Let's try to reduce boilerplate by grouping events with the same namespace and u
 
 All signals and actions must be namespaced now.
 
-<h2>Multimethods and Macros</h2>
+<h3>Multimethods and Macros</h3>
 
 As an alternative, instead of grouping we could use macros to simplify method definitions:
 
@@ -1590,7 +1592,7 @@ As an alternative, instead of grouping we could use macros to simplify method de
   (dispatch-action [:navigate :settings]))
 ```
 
-<h2>Conclusion</h2>
+<h3>Conclusion</h3>
 
 We've covered several ways of assembling handler functions from multiple files:
 
@@ -1601,7 +1603,7 @@ We've covered several ways of assembling handler functions from multiple files:
 
 The takeaway is that handlers are just functions and you can refactor them in any way you want.
 
-# Composite Apps 
+## Composite Apps 
 
 Because Carry architecture is based on functions which can be nested inside each other,
 it is possible to build composite apps reusing existing apps. A composite app incorporates codebases of other Carry apps, but
@@ -1638,7 +1640,7 @@ In this project [counter apps](/examples/#counter) can be created and removed dy
 
 [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package will be used for UI rendering.
 
-<h2>initial-model</h2>
+<h3>initial-model</h3>
 
 The model will store a list of counter app models:
 
@@ -1650,7 +1652,7 @@ The model will store a list of counter app models:
    :counters {}})
 ```
 
-<h2>view-model</h2>
+<h3>view-model</h3>
 
 The view model will contain `:counters` reaction with a sorted map of `[id counter-view-model]` pairs:
 
@@ -1696,7 +1698,7 @@ Note how Reagent's `reaction` macro is used to create a counter model reaction f
 (reaction (get-in @model [:counters id]))
 ```
 
-<h2>view</h2>
+<h3>view</h3>
 
 ```clj
 (ns app.util)
@@ -1730,7 +1732,7 @@ Note how Reagent's `reaction` macro is used to create a counter model reaction f
 As you can see, `counter/view` is created for each counter and will dispatch its signals "tagged"
 with a corresponding counter id.
 
-<h2>on-signal</h2>
+<h3>on-signal</h3>
 
 The signal handler will let the individual counter handle the incoming signal.
 In a more complex app we would also have to dispatch tagged `:on-start`/`:on-stop` signals
@@ -1765,7 +1767,7 @@ This call returns a read-only reference object which will automatically sync its
 (carry/entangle model #(get-in % [:counters id]))
 ```
 
-<h2>on-action</h2>
+<h3>on-action</h3>
 
 Action handler uses counter's initial model and action handler:
 
@@ -1789,7 +1791,7 @@ Action handler uses counter's initial model and action handler:
          (update-in model [:counters id] (:on-action counter/spec) a)))
 ```
 
-<h2>spec</h2>
+<h3>spec</h3>
 
 Let's define a spec in a separate namespace:
 
@@ -1805,7 +1807,7 @@ Let's define a spec in a separate namespace:
    :on-action     on-action})
 ```
 
-<h2>main</h2>
+<h3>main</h3>
 
 And finally, here's the app instantiation code:
 
