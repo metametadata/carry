@@ -143,74 +143,74 @@
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="first-level active"><a href="#basics">Basics</a></li>
+        <li class="first-level active"><a href="#framework-overview">Framework Overview</a></li>
         
-            <li class="second-level"><a href="#framework-overview">Framework Overview</a></li>
-            
+    
+        <li class="first-level "><a href="#app">App</a></li>
         
-            <li class="second-level"><a href="#app">App</a></li>
-            
+    
+        <li class="first-level "><a href="#model">Model</a></li>
         
-            <li class="second-level"><a href="#model">Model</a></li>
-            
+    
+        <li class="first-level "><a href="#signals">Signals</a></li>
         
-            <li class="second-level"><a href="#signals">Signals</a></li>
-            
+    
+        <li class="first-level "><a href="#creating-an-app">Creating an App</a></li>
         
-            <li class="second-level"><a href="#creating-an-app">Creating an App</a></li>
-            
+    
+        <li class="first-level "><a href="#signal-handler">Signal Handler</a></li>
         
-            <li class="second-level"><a href="#signal-handler">Signal Handler</a></li>
-            
+    
+        <li class="first-level "><a href="#actions">Actions</a></li>
         
-            <li class="second-level"><a href="#actions">Actions</a></li>
-            
+    
+        <li class="first-level "><a href="#action-handler">Action Handler</a></li>
         
-            <li class="second-level"><a href="#action-handler">Action Handler</a></li>
-            
+    
+        <li class="first-level "><a href="#usage-with-reagent">Usage with Reagent</a></li>
         
-            <li class="second-level"><a href="#usage-with-reagent">Usage with Reagent</a></li>
-            
-                <li class="third-level"><a href="#view-model">View Model</a></li>
-            
-                <li class="third-level"><a href="#view">View</a></li>
+            <li class="second-level"><a href="#view-model">View Model</a></li>
             
         
-            <li class="second-level"><a href="#usage-with-figwheel-and-repl">Usage with Figwheel and REPL</a></li>
+            <li class="second-level"><a href="#view">View</a></li>
             
         
     
-        <li class="first-level "><a href="#advanced">Advanced</a></li>
+        <li class="first-level "><a href="#usage-with-figwheel-and-repl">Usage with Figwheel and REPL</a></li>
         
-            <li class="second-level"><a href="#middleware">Middleware</a></li>
-            
+    
+        <li class="first-level "><a href="#middleware">Middleware</a></li>
         
-            <li class="second-level"><a href="#debugger">Debugger</a></li>
-            
+    
+        <li class="first-level "><a href="#debugger">Debugger</a></li>
         
-            <li class="second-level"><a href="#unit-testing">Unit Testing</a></li>
-            
+    
+        <li class="first-level "><a href="#unit-testing">Unit Testing</a></li>
         
-            <li class="second-level"><a href="#composite-apps">Composite Apps</a></li>
-            
+    
+        <li class="first-level "><a href="#composite-apps">Composite Apps</a></li>
         
-            <li class="second-level"><a href="#routing">Routing</a></li>
-            
+    
+        <li class="first-level "><a href="#routing">Routing</a></li>
         
-            <li class="second-level"><a href="#usage-with-datascript">Usage with DataScript</a></li>
-            
+    
+        <li class="first-level "><a href="#usage-with-datascript">Usage with DataScript</a></li>
         
-            <li class="second-level"><a href="#usage-with-devcards">Usage with Devcards</a></li>
-            
+    
+        <li class="first-level "><a href="#usage-with-devcards">Usage with Devcards</a></li>
+        
+    
+        <li class="first-level "><a href="#file-structure">File Structure</a></li>
+        
+    
+        <li class="first-level "><a href="#spec-splitting">Spec Splitting</a></li>
         
     
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<h1 id="basics">Basics</h1>
-<p>This section explains everything you need to start making apps with Carry.</p>
-<h2 id="framework-overview">Framework Overview</h2>
+<h1 id="framework-overview">Framework Overview</h1>
 <p>Carry is actually a <a href="https://github.com/metametadata/carry/blob/master/src/carry/core.cljc">very small</a>
 Clojure/ClojureScript state management library which provides a skeleton for the whole application.</p>
 <p>The library is distributed via <a href="http://clojars.org/carry">Clojars</a> and has no dependencies.</p>
@@ -219,7 +219,7 @@ and can be provided by third-party packages. <a href="../index.html#packages">So
 and hosted in Carry repo <a href="https://github.com/metametadata/carry/tree/master/contrib">contrib folder</a>.
 Most of these packages are implemented using <a href="#middleware">Carry middleware pattern</a>.</p>
 <p>The private/internal API uses <code>-</code> prefix and should not be used (e.g. <code>-this-is-some-private-thing</code>).</p>
-<h2 id="app">App</h2>
+<h1 id="app">App</h1>
 <p>In a Carry application all the code you write is encapsulated behind a single <strong>app</strong> instance. 
 An app is a map with keys:</p>
 <ul>
@@ -228,7 +228,7 @@ An app is a map with keys:</p>
 </ul>
 <p>One can consider an app to be a black box which exposes its current state and modifies it on getting signals from an external world.
 It can also affect an external world as a response to a signal, i.e. perform "side effects".</p>
-<h2 id="model">Model</h2>
+<h1 id="model">Model</h1>
 <p>Model represents an entire state of an app. </p>
 <p>One can access app's model via <code>:model</code> key to obtain an object that can be dereferenced and watched.
 An exception will be thrown on mutating such read-only reference:</p>
@@ -257,7 +257,7 @@ An exception will be thrown on mutating such read-only reference:</p>
 
 <p>Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.
 As an example, <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a> adds <code>:token</code> to a model.</p>
-<h2 id="signals">Signals</h2>
+<h1 id="signals">Signals</h1>
 <p><strong>Signal</strong> is an object which represents a user's intention or, looking at it from a different angle, a system event. 
 Signal can be synchronously sent to an app by calling its <code>dispatch-signal</code> function:</p>
 <pre><code class="clj">((:dispatch-signal my-app) my-signal)
@@ -271,7 +271,7 @@ a serializable vector with a keyword and an additional payload:</p>
 </code></pre>
 
 <p><code>dispatch-signal</code> always returns <code>nil</code>.</p>
-<h2 id="creating-an-app">Creating an App</h2>
+<h1 id="creating-an-app">Creating an App</h1>
 <p>In order to create an instance of a Carry app a user has to pass a <strong>spec</strong> into <code>app</code> function:</p>
 <pre><code class="clj">(let [my-app (carry/app my-spec)]
   ; ...
@@ -286,7 +286,7 @@ a serializable vector with a keyword and an additional payload:</p>
 </ul>
 <p>In other words, a spec is needed to define a runtime behavior of an app:</p>
 <p><img alt="spec" src="../graphs/spec-and-app.svg" /></p>
-<h2 id="signal-handler">Signal Handler</h2>
+<h1 id="signal-handler">Signal Handler</h1>
 <p><strong>Signal handler</strong> is a part of an application responsible for processing incoming signals. 
 It can dispatch new signals, modify app model (by dispatching actions) and perform any side effects (e.g. send data to a server).
 It is free to contain an asynchronous code. The signature of a signal handler function:</p>
@@ -367,7 +367,7 @@ As an example, this is a handler from <a href="../examples/#friend-list">friend-
 ((:dispatch-signal app) :on-start)
 </code></pre>
 
-<h2 id="actions">Actions</h2>
+<h1 id="actions">Actions</h1>
 <p><strong>Action</strong> is an object which represents an intention to modify a model.
 Actions can be dispatched only from within a signal handler via <code>dispatch-action</code>.</p>
 <p>Similar to signals, actions are usually keywords or vectors, for instance:</p>
@@ -375,7 +375,7 @@ Actions can be dispatched only from within a signal handler via <code>dispatch-a
 [:set-query q]
 </code></pre>
 
-<h2 id="action-handler">Action Handler</h2>
+<h1 id="action-handler">Action Handler</h1>
 <p><strong>Action handler</strong> is a part of an application responsible for processing incoming actions.
 It's a pure function which returns a new model value based on a current model value and an incoming action.
 On getting an action an app passes it into a action handler and then resets app model value with the result.</p>
@@ -392,7 +392,7 @@ On getting an action an app passes it into a action handler and then resets app 
 
 <p>It's important to not put any asynchronous code, side effects or nondeterministic code (e.g. random number generation)
 into action handler. Otherwise, it will make replaying actions unpredictable and break time traveling debugging.</p>
-<h2 id="usage-with-reagent">Usage with Reagent</h2>
+<h1 id="usage-with-reagent">Usage with Reagent</h1>
 <p>Carry can work with any view layer that is able to re-render UI in response to app model changes.
 This chapter is about tying Carry with <a href="https://github.com/reagent-project/reagent">Reagent</a> 
 (a ClojureScript wrapper for <a href="https://facebook.github.io/react/">React</a>)
@@ -443,7 +443,7 @@ Then returned view model instance is passed as an argument into <code>view</code
 A view thereby listens to a view model that in turn listens to a model:</p>
 <p><img alt="pattern" src="../graphs/pattern.svg" /></p>
 <p>In the next section we'll see how to define a view model.</p>
-<h3 id="view-model">View Model</h3>
+<h2 id="view-model">View Model</h2>
 <p><strong>View model</strong> contains all the data needed to render a UI.
 It can compute derived model data, split lists of objects into pages, calculate which buttons are enabled, 
 determine which app page to show depending on current URL, etc.</p>
@@ -476,7 +476,7 @@ Reaction is a special reference-like object that is created using Reagent's <cod
 It is lazily computed from other reactions and Reagent atoms
 (see <a href="http://reagent-project.github.io">official documentation</a> for more information about Reagent atoms).
 Any Reagent component that dereferences a reaction is going to be automatically re-rendered when reaction value updates.</p>
-<h3 id="view">View</h3>
+<h2 id="view">View</h2>
 <p>An example from <a href="../examples/#todomvc">TodoMVC</a> app:</p>
 <pre><code class="clj">; A plain Reagent component which is redrawn when input arguments change.
 (defn -header
@@ -512,7 +512,7 @@ Any Reagent component that dereferences a reaction is going to be automatically 
 
 <p>As you can see, we get reactions from a view model and deref them to render actual values.
 Reagent will then "magically" re-render components when the reactions passed into them are updated.</p>
-<h2 id="usage-with-figwheel-and-repl">Usage with Figwheel and REPL</h2>
+<h1 id="usage-with-figwheel-and-repl">Usage with Figwheel and REPL</h1>
 <p>With <a href="https://github.com/bhauman/lein-figwheel">Figwheel</a> Leiningen plugin it is possible to:</p>
 <ul>
 <li>compile and reload app code in browser on source code changes</li>
@@ -642,8 +642,7 @@ app.core=&gt; (= @model @(:model app))
 true
 </code></pre>
 
-<h1 id="advanced">Advanced</h1>
-<h2 id="middleware">Middleware</h2>
+<h1 id="middleware">Middleware</h1>
 <p><strong>Middleware</strong> is a function that gets an app spec and returns an updated spec
 in order to introduce some new app behavior (such as logging, syncing with server, crash reporting).</p>
 <blockquote>
@@ -805,7 +804,7 @@ By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/
 <li>The middleware let's the wrapped app start first and then runs its own additional initialization code.</li>
 <li>The order is "reversed" on stopping: the middleware first cleans up after itself and only then let's the wrapped app shutdown.</li>
 </ul>
-<h2 id="debugger">Debugger</h2>
+<h1 id="debugger">Debugger</h1>
 <p>One of the main features of Carry pattern is that it allows time traveling debugging
 similar to <a href="http://debug.elm-lang.org/">Elm's Debugger</a>,
 <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</a> and <a href="http://www.cerebraljs.com/documentation/the_debugger">Cerebral Debugger</a>.</p>
@@ -906,7 +905,7 @@ Debugger mode can be determined by looking at <code>[:carry-debugger.core/debugg
 ; ...
 </code></pre>
 
-<h2 id="unit-testing">Unit Testing</h2>
+<h1 id="unit-testing">Unit Testing</h1>
 <p>It is comparatively easy to unit test a Carry app
 with Reagent bindings because its behavior is implemented in four functions with explicit dependencies:
 <code>on-signal</code>, <code>on-action</code>, <code>view-model</code>, <code>view</code>.</p>
@@ -1033,7 +1032,7 @@ at <code>:query</code> and <code>:friends</code> keys:</p>
 <p><strong><code>4. (view view-model dispatch)</code></strong> (This section is a WIP.)</p>
 <p>Unit testing this function is probably not critical because most error-prone UI
 code is located in <code>view-model</code>.</p>
-<h2 id="composite-apps">Composite Apps</h2>
+<h1 id="composite-apps">Composite Apps</h1>
 <p>Because Carry architecture is also based on functions which can be nested inside each other,
 a pattern similar to <a href="https://github.com/evancz/elm-architecture-tutorial/">Elm architecture</a> 
 can be applied to build composite apps. A composite app incorporates instances of other Carry apps, but
@@ -1214,7 +1213,7 @@ This call returns a read-only reference object which will automatically sync its
 (def app (main))
 </code></pre>
 
-<h2 id="routing">Routing</h2>
+<h1 id="routing">Routing</h1>
 <p>It's not uncommon for applications to depend on a current URL and modify it in response to user actions.
 For these tasks <a href="https://github.com/metametadata/carry/tree/master/contrib/history">carry-history</a> middleware
 provides a bidirectional synchronization between a browser URL and a model:</p>
@@ -1301,13 +1300,13 @@ An example from <a href="../examples/#todomvc">TodoMVC</a>:</p>
 </code></pre>
 
 <p>Please see <a href="../api/history/carry-history.core.html">API reference</a> for more info.</p>
-<h2 id="usage-with-datascript">Usage with DataScript</h2>
+<h1 id="usage-with-datascript">Usage with DataScript</h1>
 <p>See examples:</p>
 <ul>
 <li><a href="../examples/#counter-datascript">Counter DataScript</a></li>
 <li><a href="../examples/#shopping-cart">Shopping Cart</a></li>
 </ul>
-<h2 id="usage-with-devcards">Usage with Devcards</h2>
+<h1 id="usage-with-devcards">Usage with Devcards</h1>
 <p>This section describes how to make Carry work with <a href="https://github.com/bhauman/devcards">Devcards</a> for a "visual REPL experience".
 Further I assume you have a basic understanding of Devcards and I won't focus on why it's needed, installation details, etc.
 We'll see how to render Carry/Reagent app instances inside cards.</p>
@@ -1449,7 +1448,381 @@ a <em>"setState(...): Cannot update during an existing state transition"</em> wa
 
    ; ...
   )
-</code></pre></div>
+</code></pre>
+
+<h1 id="file-structure">File Structure</h1>
+<p>As an application grows it starts making sense to organize its code using folders and files.
+Let's look at some examples of organizing a source folder.</p>
+<h2>Split by "Layer"</h2>
+
+<pre><code class="plain">app/
+  model.cljs &lt;-- initial model and its schema
+  signals.cljs &lt;-- signal handler
+  actions.cljs &lt;-- action handler
+  view_model.cljs
+  view.cljs
+  core.cljs
+</code></pre>
+
+<p>Cons:</p>
+<ul>
+<li>It doesn't work well for several developers working on new features because everyone will touch most layers
+leading to frequent merge conflicts.</li>
+<li>With time it will become harder to navigate the codebase with a few big files.</li>
+</ul>
+<p>So the next step could be splitting each layer by feature and using folders:</p>
+<pre><code class="plain">app/
+  signals/
+    foo.cljs
+    bar.cljs
+  actions/
+    foo.cljs
+    bar.cljs
+  core.cljs
+</code></pre>
+
+<p>This way a developer working on <em>foo</em> feature will have less VCS conflicts with a developer working on <em>bar</em>.</p>
+<h2>Split by "Feature"</h2>
+
+<p>Here <em>Foo</em> and <em>Bar</em> can correspond to application screens,
+business logic domains or even single use cases
+(take a look at <a href="https://8thlight.com/blog/uncle-bob/2011/09/30/Screaming-Architecture.html">"Screaming Architecture"</a>):</p>
+<pre><code class="plain">app/
+  foo.cljs &lt;-- signals, actions and UI for Foo
+  bar.cljs &lt;-- signals, actions and UI for Bar
+  core.cljs
+</code></pre>
+
+<p>Later we can split every feature by layer for easier navigation, e.g.:</p>
+<pre><code class="plain">app/
+  foo/
+    model.cljs
+    signals.cljs
+    actions.cljs
+    view_model.cljs
+    view.cljs
+  bar/
+    model.cljs
+    signals.cljs
+    actions.cljs
+    view_model.cljs
+    view.cljs
+  core.cljs
+</code></pre>
+
+<p>You may also make coarser splits if layers are relatively small, for instance:</p>
+<pre><code class="plain">app/
+  foo/
+    logic.cljs &lt;-- signals, actions and model go here
+    ui.cljs &lt;-- view and view-model go here
+  bar/
+    logic.cljs
+    ui.cljs
+  core.cljs
+</code></pre>
+
+<h2>Conclusion</h2>
+
+<p>There are many ways to organize Carry application code and it's up to you to choose what works best for your project.</p>
+<h1 id="spec-splitting">Spec Splitting</h1>
+<p>Let's take the project structure example mentioned earlier:</p>
+<pre><code class="plain">app/
+  foo/
+    model.cljs
+    signals.cljs
+    actions.cljs
+    view_model.cljs
+    view.cljs
+  bar/
+    model.cljs
+    signals.cljs
+    actions.cljs
+    view_model.cljs
+    view.cljs
+  core.cljs
+</code></pre>
+
+<p>How to define a single Carry spec from the code scattered over all these files?
+It is simple to merge all initial models to get a full model,
+but there can be different ways to assemble handler functions:</p>
+<pre><code class="clj">(def spec {:initial-model (merge app.foo.model/initial-model
+                                 app.bar.model/initial-model)
+           :signal-halder ??? 
+           :action-handler ???}
+</code></pre>
+
+<p>There are two conceptual ways of splitting a handler:</p>
+<ul>
+<li>At a level of "cases" (signals/actions):</li>
+</ul>
+<pre><code class="plain">app/
+  foo/
+    signals.cljs &lt;-- handles signals :on-a, :on-b
+  bar/
+    signals.cljs &lt;-- handles signals :on-c, :on-d
+</code></pre>
+
+<ul>
+<li>Code for each individual signal/action can also be split between files:</li>
+</ul>
+<pre><code class="plain">app/
+  foo/
+    signals.cljs &lt;-- handles :on-a and partially :on-b
+  bar/
+    signals.cljs &lt;-- handles :on-c, :on-d and partially :on-b
+</code></pre>
+
+<p>Which approach is better? There's no definite answer. For instance, take a look at the discussions about the similar problem in Flux/Redux:</p>
+<ul>
+<li><a href="http://www.code-experience.com/problems-with-flux/">Problems with Flux</a></li>
+<li><a href="https://github.com/reactjs/redux/issues/1400#issuecomment-184406378">Redux issue #1400</a></li>
+</ul>
+<p>We'll see how to implement the first, stricter and simpler, approach and 
+leave implementing the second approach as an exercise to the reader.</p>
+<h2>HOF</h2>
+
+<p>One the solutions is to use a higher-order function (HOF) <code>dispatching-to-either</code>
+which will assemble a handler (see <a href="../examples/#spec-splitting-hof">example</a>):</p>
+<pre><code class="clj">(ns app.utils)
+
+(defn dispatching-to-either
+  &quot;Returns a function of any args which calls functions one by one while :cant-handle is returned.&quot;
+  [fns]
+  (fn dispatching-to-either-fn [&amp; args]
+    (loop [f (first fns)
+           next-fns (rest fns)]
+      (when (nil? f)
+        (throw (ex-info (str &quot;No function was able to handle passed args: &quot; (pr-str args))
+                        {})))
+
+      (let [result (apply f args)]
+        (if (= result :cant-handle)
+          (recur (first next-fns) (rest next-fns))
+          result)))))
+</code></pre>
+
+<pre><code class="clj">(ns app.common.signals
+  (:require [cljs.core.match :refer-macros [match]]))
+
+(defn on-signal
+  [_model signal _dispatch-signal dispatch-action]
+  (match signal
+         :on-start nil
+         :on-stop nil
+         :on-home (dispatch-action [:navigate :home])
+         :on-settings (dispatch-action [:navigate :settings])
+         :else :cant-handle))
+</code></pre>
+
+<pre><code class="clj">(ns app.home.signals
+  (:require [cljs.core.match :refer-macros [match]]))
+
+(defn on-signal
+  [_model signal _dispatch-signal dispatch-action]
+  (match signal
+         :on-click (dispatch-action :click)
+         :else :cant-handle))
+</code></pre>
+
+<pre><code class="clj">(ns app.spec
+  (:require [app.common.model]
+            [app.common.signals]
+            [app.common.actions]
+
+            [app.home.model]
+            [app.home.signals]
+            [app.home.actions]
+
+            [app.settings.model]
+            [app.settings.signals]
+            [app.settings.actions]
+
+            [app.utils]))
+
+(def spec {:initial-model (merge app.common.model/initial-model
+                                 app.home.model/initial-model
+                                 app.settings.model/initial-model)
+           :on-signal     (app.utils/dispatching-to-either #{app.common.signals/on-signal
+                                                             app.home.signals/on-signal
+                                                             app.settings.signals/on-signal})
+           :on-action     (app.utils/dispatching-to-either #{app.common.actions/on-action
+                                                             app.home.actions/on-action
+                                                             app.settings.actions/on-action})})
+</code></pre>
+
+<p>The drawback of this solution is that a spec must be edited every time a new handler file is added.</p>
+<h2>Multimethods</h2>
+
+<p>Multimethods can help by allowing to not type the names of all the handlers manually (see <a href="../examples/#spec-splitting-multimethods">example</a>):</p>
+<pre><code class="clj">(ns app.spec
+  (:require [app.common.model]
+            [app.common.actions]
+            [app.common.signals]
+
+            [app.home.model]
+            [app.settings.actions]
+            [app.home.signals]
+
+            [app.settings.model]
+            [app.settings.actions]
+            [app.settings.signals]
+
+            [app.spec-methods]))
+
+(def spec {:initial-model (merge app.common.model/initial-model
+                                 app.home.model/initial-model
+                                 app.settings.model/initial-model)
+
+           ; Voilà:
+           :on-signal     app.spec-methods/on-signal
+           :on-action     app.spec-methods/on-action})
+</code></pre>
+
+<pre><code class="clj">(ns app.common.signals
+  (:require [app.spec-methods :refer [on-signal]]))
+
+(defmethod on-signal :on-start
+  [_model _ _dispatch-signal _dispatch-action]
+  nil)
+
+(defmethod on-signal :on-stop
+  [_model _ _dispatch-signal _dispatch-action]
+  nil)
+
+(defmethod on-signal :on-home
+  [_model _ _dispatch-signal dispatch-action]
+  (dispatch-action [:navigate :home]))
+
+(defmethod on-signal :on-settings
+  [_model _ _dispatch-signal dispatch-action]
+  (dispatch-action [:navigate :settings]))
+</code></pre>
+
+<pre><code class="clj">(ns app.common.actions
+  (:require [app.spec-methods :refer [on-action]]))
+
+(defmethod on-action :navigate
+  [model [_ pane]]
+  (assoc model :pane pane))
+</code></pre>
+
+<pre><code class="clj">(ns app.spec-methods)
+
+(defn -tag
+  &quot;Returns a tag of a variant (read http://jneen.net/posts/2014-11-23-clojure-conj-variants-errata). Examples:
+  [:foo :bar] -&gt; :foo
+  [:foo] -&gt; :foo
+  :foo -&gt; :foo&quot;
+  [variant]
+  (if (sequential? variant)
+    (first variant)
+    variant))
+
+(defmulti on-signal (fn [_model signal _dispatch-signal _dispatch-action]
+                      (-tag signal)))
+
+(defmulti on-action (fn [_model action]
+                      (-tag action)))
+</code></pre>
+
+<p>Unfortunately, now there's more cruft in handler files. It's especially obvious in <code>app.common.signals</code> listing.</p>
+<h2>Multimethods and core.match</h2>
+
+<p>Let's try to reduce boilerplate by grouping events with the same namespace and using <code>core.match</code>
+(see <a href="../examples/#spec-splitting-multimethods-core-match">example</a>):</p>
+<pre><code class="clj">(ns app.spec-methods)
+
+(defn -tag-ns
+  &quot;Returns variant tag's namespace string. Examples:
+  [:a/foo :bar] -&gt; \&quot;a\&quot;
+  [:a/foo] -&gt; \&quot;a\&quot;
+  :a/foo -&gt; \&quot;a\&quot;
+  :foo -&gt; nil&quot;
+  [variant]
+  (-&gt; (if (sequential? variant)
+        (first variant)
+        variant)
+      namespace))
+
+(defmulti on-signal (fn [_model signal _dispatch-signal _dispatch-action]
+                      (-tag-ns signal)))
+
+(defmulti on-action (fn [_model action]
+                      (-tag-ns action)))
+</code></pre>
+
+<pre><code class="clj">(ns app.common.signals
+  (:require [app.spec-methods :refer [on-signal]]
+            [cljs.core.match :refer-macros [match]]))
+
+; Standard signals have no namespace.
+(defmethod on-signal nil
+  [_model signal _dispatch-signal _dispatch-action]
+  (match signal
+         :on-start nil
+         :on-stop nil))
+
+(defmethod on-signal (namespace ::_) ; &lt;-- Note the trick for getting current ns name.
+  [_model signal _dispatch-signal dispatch-action]
+  (match signal
+         ::on-home (dispatch-action [:app.common.actions/navigate :home])
+         ::on-settings (dispatch-action [:app.common.actions/navigate :settings])))
+</code></pre>
+
+<pre><code class="clj">(ns app.common.actions
+  (:require [app.spec-methods :refer [on-action]]
+            [cljs.core.match :refer-macros [match]]))
+
+(defmethod on-action (namespace ::_)
+  [model action]
+  (match action
+         [::navigate pane] (assoc model :pane pane)))
+</code></pre>
+
+<p>All signals and actions must be namespaced now.</p>
+<h2>Multimethods and Macros</h2>
+
+<p>As an alternative, instead of grouping we could use macros to simplify method definitions:</p>
+<pre><code class="clj">(ns app.common.actions
+  (:require ,,,))
+
+; Macro which allows destructuring the event variant without repeating it in the arglist.
+; Inspired by http://jneen.net/posts/2014-11-23-clojure-conj-variants-errata
+(defcase on-action [:navigate pane]
+  [model]
+  (assoc model :pane pane))
+</code></pre>
+
+<pre><code class="clj">(ns app.common.signals
+  (:require ,,,))
+
+(defcase on-signal :on-start
+  [_model _dispatch-signal _dispatch-action]
+  nil)
+
+(defcase on-signal :on-stop
+  [_model _dispatch-signal _dispatch-action]
+  nil)
+
+(defcase on-signal :on-home
+  [_model _dispatch-signal dispatch-action]
+  (dispatch-action [:navigate :home]))
+
+(defcase on-signal :on-settings
+  [_model _dispatch-signal dispatch-action]
+  (dispatch-action [:navigate :settings]))
+</code></pre>
+
+<h2>Conclusion</h2>
+
+<p>We've covered several ways of assembling handler functions from multiple files:</p>
+<ul>
+<li><code>dispatching-to-either</code> helper (<a href="../examples/#spec-splitting-hof">example</a>)</li>
+<li>multimethods for individual events (<a href="../examples/#spec-splitting-multimethods">example</a>)</li>
+<li>multimethods for groups of events (<a href="../examples/#spec-splitting-multimethods-core-match">example</a>)</li>
+<li>macros on top of multimethods</li>
+</ul>
+<p>The takeaway is that handlers are just functions and you can refactor them in any way you want.</p></div>
         
     </div>
 

@@ -158,15 +158,6 @@
         <li class="first-level "><a href="#pickings">Pickings</a></li>
         
     
-        <li class="first-level "><a href="#composite-apps">Composite Apps</a></li>
-        
-            <li class="second-level"><a href="#subapps">Subapps</a></li>
-            
-        
-            <li class="second-level"><a href="#counter-list">Counter List</a></li>
-            
-        
-    
         <li class="first-level "><a href="#apps-using-datascript">Apps Using DataScript</a></li>
         
             <li class="second-level"><a href="#counter-datascript">Counter DataScript</a></li>
@@ -177,6 +168,27 @@
         
     
         <li class="first-level "><a href="#counter-devcards">Counter Devcards</a></li>
+        
+    
+        <li class="first-level "><a href="#spec-splitting">Spec Splitting</a></li>
+        
+            <li class="second-level"><a href="#hof">HOF</a></li>
+            
+        
+            <li class="second-level"><a href="#multimethods">Multimethods</a></li>
+            
+        
+            <li class="second-level"><a href="#multimethods-corematch">Multimethods &amp; core.match</a></li>
+            
+        
+    
+        <li class="first-level "><a href="#composite-apps">Composite Apps</a></li>
+        
+            <li class="second-level"><a href="#subapps">Subapps</a></li>
+            
+        
+            <li class="second-level"><a href="#counter-list">Counter List</a></li>
+            
         
     
     </ul>
@@ -232,17 +244,6 @@ for rendering UI using <a href="https://github.com/reagent-project/reagent">Reag
 <li><a href="https://github.com/daveray/seesaw">Seesaw</a> for UI</li>
 <li><a href="http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded">reloaded workflow</a> for easier running from REPL</li>
 </ul>
-<h1 id="composite-apps">Composite Apps</h1>
-<h2 id="subapps">Subapps</h2>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/subapps">Source code</a></p>
-<p><a href="../examples/subapps">Demo</a></p>
-<p>In this project <a href="#counter">counter app</a> and <a href="#friend-list">friend list app</a> instances are "statically" added to the app spec.
-Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.</p>
-<h2 id="counter-list">Counter List</h2>
-<p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-list">Source code</a></p>
-<p><a href="../examples/counter-list">Demo</a></p>
-<p>In this example <a href="#counter">counter app</a> instances are created and removed dynamically after app is started.
-Inspired by <a href="http://guide.elm-lang.org/architecture/modularity/counter_list.html">Elm architecture example</a>.</p>
 <h1 id="apps-using-datascript">Apps Using DataScript</h1>
 <h2 id="counter-datascript">Counter DataScript</h2>
 <p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-datascript">Source code</a></p>
@@ -266,7 +267,46 @@ Inspired by <a href="https://github.com/voronianski/flux-comparison">flux-compar
 <li><a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a>
 for rendering UI using <a href="https://github.com/reagent-project/reagent">Reagent</a> </li>
 <li><a href="https://github.com/metametadata/carry/tree/master/contrib/logging/">carry-logging</a> for logging to console</li>
-</ul></div>
+</ul>
+<h1 id="spec-splitting">Spec Splitting</h1>
+<h2 id="hof">HOF</h2>
+<p><a href="https://github.com/metametadata/carry/tree/master/examples/spec-splitting-hof">Source code</a></p>
+<p><a href="../examples/spec-splitting-hof">Demo</a></p>
+<p>Demonstrates how to assemble a spec and UI from multiple modules using higher-order functions. </p>
+<p>Features:</p>
+<ul>
+<li><a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a>
+for rendering UI using <a href="https://github.com/reagent-project/reagent">Reagent</a></li>
+</ul>
+<h2 id="multimethods">Multimethods</h2>
+<p><a href="https://github.com/metametadata/carry/tree/master/examples/spec-splitting-multimethods">Source code</a></p>
+<p><a href="../examples/spec-splitting-multimethods">Demo</a></p>
+<p>Demonstrates how to assemble a spec from multiple modules with a help of multimethods. </p>
+<p>Features:</p>
+<ul>
+<li><a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a>
+for rendering UI using <a href="https://github.com/reagent-project/reagent">Reagent</a></li>
+</ul>
+<h2 id="multimethods-corematch">Multimethods &amp; core.match</h2>
+<p><a href="https://github.com/metametadata/carry/tree/master/examples/spec-splitting-multimethods-core-match">Source code</a></p>
+<p><a href="../examples/spec-splitting-multimethods-core-match">Demo</a></p>
+<p>Demonstrates how to assemble a spec from multiple modules with a help of multimethods and <code>core.match</code>. </p>
+<p>Features:</p>
+<ul>
+<li><a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a>
+for rendering UI using <a href="https://github.com/reagent-project/reagent">Reagent</a></li>
+</ul>
+<h1 id="composite-apps">Composite Apps</h1>
+<h2 id="subapps">Subapps</h2>
+<p><a href="https://github.com/metametadata/carry/tree/master/examples/subapps">Source code</a></p>
+<p><a href="../examples/subapps">Demo</a></p>
+<p>In this project <a href="#counter">counter app</a> and <a href="#friend-list">friend list app</a> instances are "statically" added to the app spec.
+Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.</p>
+<h2 id="counter-list">Counter List</h2>
+<p><a href="https://github.com/metametadata/carry/tree/master/examples/counter-list">Source code</a></p>
+<p><a href="../examples/counter-list">Demo</a></p>
+<p>In this example <a href="#counter">counter app</a> instances are created and removed dynamically after app is started.
+Inspired by <a href="http://guide.elm-lang.org/architecture/modularity/counter_list.html">Elm architecture example</a>.</p></div>
         
     </div>
 
