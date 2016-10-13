@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.0
+- Fix: allow passing multimethods into `connect`.
+
 ## 0.6.0
 
 - Bumped dependencies.

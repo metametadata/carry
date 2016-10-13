@@ -23,7 +23,7 @@
 
   Returns a pair of: view-model value (mostly for testing/debugging) and argless component to be rendered by Reagent."
   [{:keys [model dispatch-signal] :as _app} view-model view]
-  {:pre [model (fn? dispatch-signal) (fn? view-model) (fn? view)]}
+  {:pre [model (ifn? dispatch-signal) (ifn? view-model) (ifn? view)]}
   (let [model-reaction (-atom->reaction model)
         app-view-model (view-model model-reaction)
         app-view [view app-view-model dispatch-signal]]
