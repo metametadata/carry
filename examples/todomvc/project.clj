@@ -26,13 +26,13 @@
                                            [cljsjs/jquery-ui "1.11.4-0"]
                                            [cljsjs/filesaverjs "1.1.20151003-0"]]}
 
-             :clojars-deps {:dependencies [[carry "0.5.0"]
+             :clojars-deps {:dependencies [[carry "0.6.0"]
                                            [carry-atom-sync "0.3.0"]
                                            [carry-debugger "0.6.0"]
                                            [carry-history "0.4.0"]
                                            [carry-logging "0.2.0"]
                                            [carry-persistence "0.4.0"]
-                                           [carry-reagent "0.6.0"]
+                                           [carry-reagent "0.7.0"]
                                            [carry-schema "0.5.0"]]}}
 
   :cljsbuild {:builds [{:id           "clojars-deps"
