@@ -1,4 +1,4 @@
-; Helpers for implementing subapps using Elm-ish architecture
+; Helpers for implementing subapps
 (ns app.util
   (:require [carry.core :as carry]
             [cljs.core.match :refer-macros [match]])

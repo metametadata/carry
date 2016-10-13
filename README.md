@@ -2,7 +2,7 @@
 
 ClojureScript single-page application framework inspired by
 [re-frame](https://github.com/Day8/re-frame),
-[Elm architecture](https://github.com/evancz/elm-architecture-tutorial/),
+[Elm Architecture](https://guide.elm-lang.org/architecture/),
 [Redux](https://github.com/reactjs/redux/) and
 [Cerebral](https://github.com/cerebral/cerebral).
 
@@ -24,7 +24,6 @@ any other view layer that is able to re-render UI in response to app model chang
 * [Time traveling debugger](https://github.com/metametadata/carry/tree/master/contrib/debugger)
 inspired by [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/documentation/the_debugger).
 * Live code editing using [Figwheel](https://github.com/bhauman/lein-figwheel) and debugger's replay mode.
-* Fractality: [Elm-ish architecture](https://github.com/evancz/elm-architecture-tutorial/) can be applied to create composite apps.
 * Can work with [Devcards](https://github.com/bhauman/devcards).
 * Core library can be also used in Clojure projects.
 

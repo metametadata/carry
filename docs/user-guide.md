@@ -913,219 +913,6 @@ at `:query` and `:friends` keys:
 Unit testing this function is probably not critical because most error-prone UI
 code is located in `view-model`.
 
-# Composite Apps
-Because Carry architecture is also based on functions which can be nested inside each other,
-a pattern similar to [Elm architecture](https://github.com/evancz/elm-architecture-tutorial/) 
-can be applied to build composite apps. A composite app incorporates instances of other Carry apps, but
-still has a single model, signal handler and action handler.
-
-Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity,
-so use it with caution.
-
-Let's look at [counter-list](/examples/#counter-list) example.
-
->&#128172; For a simpler example of a "statically assembled" app please check [subapps](/examples/#subapps) project.
-
-In this project [counter apps](/examples/#counter) can be created and removed dynamically:
-
-<a href="http://i.imgur.com/9CNw0ZW.png">
-  <img src="http://i.imgur.com/9CNw0ZW.png" alt="counter-list" style="width: 25vw; display: block; margin: 0 auto;"/>
-</a>
-
-[carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package will be used for UI rendering.
-
-**`1. initial-model`**
-
-The model will store a list of counter app models:
-
-```clj
-(ns app.model)
-
-(def initial-model
-  {; unsorted map: id -> counter-model
-   :counters {}})
-```
-
-**`2. view-model`**
-
-The view model will contain `:counters` reaction with a sorted map of `[id counter-view-model]` pairs:
-
-```clj
-(ns app.view-model
-  (:require [counter.core :as counter]
-            [reagent.core :as r])
-  (:require-macros [reagent.ratom :refer [reaction]]))
-
-;(defn view-model
-;  "Naive nonoptimal implementation:
-;   counter view-models will be updated on every model update ->
-;    every counter view will be reevaluated on each change."
-;  [model]
-;  (let [counter-view-model (fn [id]
-;                             (counter/view-model
-;                               (reaction (get-in @model [:counters id]))))]
-;    {:counters (reaction (into (sorted-map)
-;                               (for [[id _] (:counters @model)]
-;                                 [id (counter-view-model id)])))}))
-
-(defn view-model
-  "Optimized implementation. Reuses counter view-models from the last reaction calculation."
-  [model]
-  (let [counter-view-models (atom (sorted-map))             ; id -> counter-view-model
-        counter-view-model (fn [id]
-                             (or (get @counter-view-models id)
-                                 (counter/view-model
-                                   (reaction (get-in @model [:counters id])))))]
-    {:counters (reaction (reset! counter-view-models
-                                 (into (sorted-map)
-                                       (for [[id _] (:counters @model)]
-                                         [id (counter-view-model id)]))))}))
-```
-
-The optimized implementation calculates each counter view model only once.
-So that all existing counter views are not unnecessarily evaluated by Reagent
-on updating a single counter.
-
-Note how Reagent's `reaction` macro is used to create a counter model reaction for `counter/view-model`:
-
-```clj
-(reaction (get-in @model [:counters id]))
-```
-
-**`3. view`**
-
-```clj
-(ns app.util)
-
-(defn tagged
-  "Helper function decorator which prepends a tag to the single argument.
-  I.e. it transforms an arg x to [tag x]."
-  [f tag]
-  (fn tagged-fn
-    [x]
-    (f [tag x])))
-```
-
-```clj
-(ns app.view
-  (:require [app.util :refer [tagged]]
-            [counter.core :as counter]))
-
-(defn -counter
-  [[id view-model] dispatch]
-  [counter/view view-model (tagged dispatch [:on-counter-signal id])])
-
-(defn view
-  [view-model dispatch]
-  (let [counters (map #(-counter % dispatch) @(:counters view-model))
-        insert [:button {:on-click #(dispatch :on-insert)} "Insert"]
-        remove [:button {:on-click #(dispatch :on-remove)} "Remove"]]
-    (into [:div insert remove] counters)))
-```
-
-As you can see, `counter/view` is created for each counter and will dispatch its signals "tagged"
-with a corresponding counter id.
-
-**`4. on-signal`**
-
-The signal handler will let the individual counter handle the incoming signal.
-In a more complex app we would also have to dispatch tagged `:on-start`/`:on-stop` signals
-on inserting/removing subapps. But in this example we omit this because counter app has no start/stop code:
-
-```clj
-(ns app.signals
-  (:require [app.util :refer [tagged]]
-            [counter.core :as counter]
-            [carry.core :as carry]
-            [cljs.core.match :refer-macros [match]]))
-
-(defn on-signal
-  [model signal dispatch-signal dispatch-action]
-  (match signal         
-         :on-insert (dispatch-action :insert)
-         :on-remove (dispatch-action :remove)
-
-         [[:on-counter-signal id] s]
-         ((:on-signal counter/spec)
-           (carry/entangle model #(get-in % [:counters id]))
-           s
-           (tagged dispatch-signal [:on-counter-signal id])
-           (tagged dispatch-action [:counter-action id]))))
-```
-
-Carry's [`entangle`](/api/carry.core.html#var-entangle) helper is used to create a counter model for passing into counter signal handler.
-This call returns a read-only reference object which will automatically sync its value with
-`(get-in @model [:counters id])` on `model` changes:
-
-```clj
-(carry/entangle model #(get-in % [:counters id]))
-```
-
-**`5. on-action`**
-
-Action handler uses counter's initial model and action handler:
-
-```clj       
-(ns app.actions
-  (:require [counter.core :as counter]
-            [cljs.core.match :refer-macros [match]]))
-
-(defn on-action
-  [model action]
-  (match action
-         :insert
-         (let [newest-counter-id (apply max -1 (-> model :counters keys))]
-           (assoc-in model [:counters (inc newest-counter-id)] (:initial-model counter/spec)))
-
-         :remove
-         (let [oldest-counter-id (apply min (-> model :counters keys))]
-           (update model :counters dissoc oldest-counter-id))
-
-         [[:counter-action id] a]
-         (update-in model [:counters id] (:on-action counter/spec) a)))
-```
-
-**`6. spec`**
-
-Let's define a spec in a separate namespace:
-
-```clj
-(ns app.spec
-  (:require [app.model :refer [initial-model]]
-            [app.signals :refer [on-signal]]
-            [app.actions :refer [on-action]]))
-
-(def spec
-  {:initial-model initial-model
-   :on-signal     on-signal
-   :on-action     on-action})
-```
-
-**`7. main`**
-
-And finally, here's the app instantiation code:
-
-```clj
-(ns app.core
-  (:require [app.spec :refer [spec]]
-            [app.view-model :refer [view-model]]
-            [app.view :refer [view]]
-            
-            [carry.core :as carry]
-            [carry-reagent.core :as carry-reagent]
-            
-            [reagent.core :as r]))
-
-(defn main
-  []
-  (let [app (carry/app spec)
-        [app-view-model app-view] (carry-reagent/connect app view-model view)]
-    (r/render app-view (.getElementById js/document "root"))
-    (assoc app :view-model app-view-model)))
-
-(def app (main))
-```
-
 # Routing
 It's not uncommon for applications to depend on a current URL and modify it in response to user actions.
 For these tasks [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history) middleware
@@ -1532,7 +1319,7 @@ leave implementing the second approach as an exercise to the reader.
 
 <h2>HOF</h2>
 
-One the solutions is to use a higher-order function (HOF) `dispatching-to-either`
+One of the solutions is to use a higher-order function (HOF) `dispatching-to-either`
 which will assemble a handler (see [example](/examples/#spec-splitting-hof)):
 
 ```clj
@@ -1794,3 +1581,232 @@ We've covered several ways of assembling handler functions from multiple files:
 * macros on top of multimethods
 
 The takeaway is that handlers are just functions and you can refactor them in any way you want.
+
+# Composite Apps 
+
+Because Carry architecture is based on functions which can be nested inside each other,
+it is possible to build composite apps reusing existing apps. A composite app incorporates codebases of other Carry apps, but
+still has a single model, signal handler and action handler.
+
+Though the idea is quite straightforward, it is a debatable design pattern because of the resulting code complexity,
+so use it with caution.
+ 
+> ⚠ **Update (2016-10-13)**: the pattern described in this chapter was heavily inspired by Elm Architecture
+([v0.16 tutorial](https://github.com/evancz/elm-architecture-tutorial/tree/de5682a5a8e4459aed4637533adb25e462f8a2ae)).
+But as of Elm v0.17 this "parent/child communication" approach is no longer encouraged in Elm community: 
+*flat is better than nested*, so most of the time it's preferred to partition functions between files
+instead of extracting "encapsulated" model/view/update triplets. 
+> 
+> Read more here:
+>
+> * [Discussion: Design of Large Elm apps](https://groups.google.com/forum/#!topic/elm-discuss/_cfOu88oCx4) and
+especially [this message](https://groups.google.com/d/msg/elm-discuss/_cfOu88oCx4/madaA1rBAQAJ)
+> * [Discussion: Do the counters in the Guide teach us a wrong scaling approach?](https://groups.google.com/forum/#!topic/elm-discuss/lC4FwHSPUA0)
+> * [Elm Guide: Scaling The Elm Architecture](https://guide.elm-lang.org/reuse/)
+>
+> This proves my initial sentiment about the complexity of the pattern.
+> Anyway, for educational purposes the chapter is going to stay in this guide.
+
+Let's look at [counter-list](/examples/#counter-list) example.
+
+>&#128172; For a simpler example of a "statically assembled" app please check [subapps](/examples/#subapps) project.
+
+In this project [counter apps](/examples/#counter) can be created and removed dynamically:
+
+<a href="http://i.imgur.com/9CNw0ZW.png">
+  <img src="http://i.imgur.com/9CNw0ZW.png" alt="counter-list" style="width: 25vw; display: block; margin: 0 auto;"/>
+</a>
+
+[carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package will be used for UI rendering.
+
+<h2>initial-model</h2>
+
+The model will store a list of counter app models:
+
+```clj
+(ns app.model)
+
+(def initial-model
+  {; unsorted map: id -> counter-model
+   :counters {}})
+```
+
+<h2>view-model</h2>
+
+The view model will contain `:counters` reaction with a sorted map of `[id counter-view-model]` pairs:
+
+```clj
+(ns app.view-model
+  (:require [counter.core :as counter]
+            [reagent.core :as r])
+  (:require-macros [reagent.ratom :refer [reaction]]))
+
+;(defn view-model
+;  "Naive nonoptimal implementation:
+;   counter view-models will be updated on every model update ->
+;    every counter view will be reevaluated on each change."
+;  [model]
+;  (let [counter-view-model (fn [id]
+;                             (counter/view-model
+;                               (reaction (get-in @model [:counters id]))))]
+;    {:counters (reaction (into (sorted-map)
+;                               (for [[id _] (:counters @model)]
+;                                 [id (counter-view-model id)])))}))
+
+(defn view-model
+  "Optimized implementation. Reuses counter view-models from the last reaction calculation."
+  [model]
+  (let [counter-view-models (atom (sorted-map))             ; id -> counter-view-model
+        counter-view-model (fn [id]
+                             (or (get @counter-view-models id)
+                                 (counter/view-model
+                                   (reaction (get-in @model [:counters id])))))]
+    {:counters (reaction (reset! counter-view-models
+                                 (into (sorted-map)
+                                       (for [[id _] (:counters @model)]
+                                         [id (counter-view-model id)]))))}))
+```
+
+The optimized implementation calculates each counter view model only once.
+So that all existing counter views are not unnecessarily evaluated by Reagent
+on updating a single counter.
+
+Note how Reagent's `reaction` macro is used to create a counter model reaction for `counter/view-model`:
+
+```clj
+(reaction (get-in @model [:counters id]))
+```
+
+<h2>view</h2>
+
+```clj
+(ns app.util)
+
+(defn tagged
+  "Helper function decorator which prepends a tag to the single argument.
+  I.e. it transforms an arg x to [tag x]."
+  [f tag]
+  (fn tagged-fn
+    [x]
+    (f [tag x])))
+```
+
+```clj
+(ns app.view
+  (:require [app.util :refer [tagged]]
+            [counter.core :as counter]))
+
+(defn -counter
+  [[id view-model] dispatch]
+  [counter/view view-model (tagged dispatch [:on-counter-signal id])])
+
+(defn view
+  [view-model dispatch]
+  (let [counters (map #(-counter % dispatch) @(:counters view-model))
+        insert [:button {:on-click #(dispatch :on-insert)} "Insert"]
+        remove [:button {:on-click #(dispatch :on-remove)} "Remove"]]
+    (into [:div insert remove] counters)))
+```
+
+As you can see, `counter/view` is created for each counter and will dispatch its signals "tagged"
+with a corresponding counter id.
+
+<h2>on-signal</h2>
+
+The signal handler will let the individual counter handle the incoming signal.
+In a more complex app we would also have to dispatch tagged `:on-start`/`:on-stop` signals
+on inserting/removing subapps. But in this example we omit this because counter app has no start/stop code:
+
+```clj
+(ns app.signals
+  (:require [app.util :refer [tagged]]
+            [counter.core :as counter]
+            [carry.core :as carry]
+            [cljs.core.match :refer-macros [match]]))
+
+(defn on-signal
+  [model signal dispatch-signal dispatch-action]
+  (match signal         
+         :on-insert (dispatch-action :insert)
+         :on-remove (dispatch-action :remove)
+
+         [[:on-counter-signal id] s]
+         ((:on-signal counter/spec)
+           (carry/entangle model #(get-in % [:counters id]))
+           s
+           (tagged dispatch-signal [:on-counter-signal id])
+           (tagged dispatch-action [:counter-action id]))))
+```
+
+Carry's [`entangle`](/api/carry.core.html#var-entangle) helper is used to create a counter model for passing into counter signal handler.
+This call returns a read-only reference object which will automatically sync its value with
+`(get-in @model [:counters id])` on `model` changes:
+
+```clj
+(carry/entangle model #(get-in % [:counters id]))
+```
+
+<h2>on-action</h2>
+
+Action handler uses counter's initial model and action handler:
+
+```clj       
+(ns app.actions
+  (:require [counter.core :as counter]
+            [cljs.core.match :refer-macros [match]]))
+
+(defn on-action
+  [model action]
+  (match action
+         :insert
+         (let [newest-counter-id (apply max -1 (-> model :counters keys))]
+           (assoc-in model [:counters (inc newest-counter-id)] (:initial-model counter/spec)))
+
+         :remove
+         (let [oldest-counter-id (apply min (-> model :counters keys))]
+           (update model :counters dissoc oldest-counter-id))
+
+         [[:counter-action id] a]
+         (update-in model [:counters id] (:on-action counter/spec) a)))
+```
+
+<h2>spec</h2>
+
+Let's define a spec in a separate namespace:
+
+```clj
+(ns app.spec
+  (:require [app.model :refer [initial-model]]
+            [app.signals :refer [on-signal]]
+            [app.actions :refer [on-action]]))
+
+(def spec
+  {:initial-model initial-model
+   :on-signal     on-signal
+   :on-action     on-action})
+```
+
+<h2>main</h2>
+
+And finally, here's the app instantiation code:
+
+```clj
+(ns app.core
+  (:require [app.spec :refer [spec]]
+            [app.view-model :refer [view-model]]
+            [app.view :refer [view]]
+            
+            [carry.core :as carry]
+            [carry-reagent.core :as carry-reagent]
+            
+            [reagent.core :as r]))
+
+(defn main
+  []
+  (let [app (carry/app spec)
+        [app-view-model app-view] (carry-reagent/connect app view-model view)]
+    (r/render app-view (.getElementById js/document "root"))
+    (assoc app :view-model app-view-model)))
+
+(def app (main))
+```

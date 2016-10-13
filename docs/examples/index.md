@@ -88,6 +88,7 @@ Inspired by [flux-comparison](https://github.com/voronianski/flux-comparison) pr
 [Demo](/examples/counter-devcards)
 
 An example of rendering [counter app](#counter) in [Devcards](https://github.com/bhauman/devcards).
+Also see [guide](/user-guide/#usage-with-devcards).
 
 Features:
 
@@ -97,6 +98,8 @@ for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
 * [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging/) for logging to console
 
 # Spec Splitting
+
+See [guide](/user-guide/#spec-splitting).
 
 ## HOF
 [Source code](https://github.com/metametadata/carry/tree/master/examples/spec-splitting-hof)
@@ -136,6 +139,8 @@ for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
 
 # Composite Apps
 
+See [guide](/user-guide/#composite-apps).
+
 ## Subapps
 [Source code](https://github.com/metametadata/carry/tree/master/examples/subapps)
 
@@ -150,4 +155,4 @@ Several helper methods are extracted to make it easy to include any subapp at th
 [Demo](/examples/counter-list)
 
 In this example [counter app](#counter) instances are created and removed dynamically after app is started.
-Inspired by [Elm architecture example](http://guide.elm-lang.org/architecture/modularity/counter_list.html).
+Inspired by [Elm Architecture v0.16 example](https://github.com/evancz/elm-architecture-tutorial/tree/de5682a5a8e4459aed4637533adb25e462f8a2ae#example-3-a-dynamic-list-of-counters).
