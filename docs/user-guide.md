@@ -784,7 +784,11 @@ with Reagent bindings because its behavior is implemented in four functions with
 Let's look at how these functions are tested in
 [friend-list](/examples/#friend-list) example:
 
-**`1. (on-signal model signal dispatch-signal dispatch-action)`** 
+<h2>on-signal</h2>
+ 
+```clj
+(on-signal model signal dispatch-signal dispatch-action)
+```
 
 Signal handler receives incoming signals to perform side effects, dispatch new signals and actions.
 Such behavior is easy to test using [mock](https://en.wikipedia.org/wiki/Mock_object) functions.
@@ -843,7 +847,11 @@ of creating objects of correct type when we know that their type doesn't really 
 It makes tests more focused and readable.
 This technique is similar to [using metaconstants in Midje](https://github.com/marick/Midje/wiki/Metaconstants).
 
-**`2. (on-action model action)`**
+<h2>on-action</h2>
+
+```clj
+(on-action model action)
+```
 
 Action handler is the easiest function to test because it's pure:
 
@@ -861,7 +869,11 @@ Notice that it's impossible to use `:_new_query` "metaconstant" because app uses
 [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
 middleware forcing us to use a string value `"new-query"` on action handling.
 
-**`3. (view-model model)`**
+<h2>view-model</h2>
+
+```clj
+(view-model model)
+```
 
 These tests make sure that view model really contains Reagent reactions
 at `:query` and `:friends` keys:
@@ -908,7 +920,13 @@ at `:query` and `:friends` keys:
 * [schema-generators](https://github.com/plumatic/schema-generators) library is used to automatically generate
 `new-friends` fixture instead of coding it by hand.
 
-**`4. (view view-model dispatch)`** (This section is a WIP.)
+<h2>view</h2>
+
+```clj
+(view view-model dispatch)
+```
+ 
+(This section is a WIP.)
 
 Unit testing this function is probably not critical because most error-prone UI
 code is located in `view-model`.
@@ -1201,6 +1219,7 @@ app/
   actions/
     foo.cljs
     bar.cljs
+  ...
   core.cljs
 ```
 
