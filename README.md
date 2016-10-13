@@ -17,7 +17,7 @@ UI bindings, routing, debugger, etc. are implemented as separate optional [packa
 
 ## Features
 
-* Functional API with no globals.
+* Functional API without globals and macros.
 * Agnostic to UI layer: can be effectively used with [Reagent](https://github.com/reagent-project/reagent)
 (via [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/) package) or
 any other view layer that is able to re-render UI in response to app model changes.
