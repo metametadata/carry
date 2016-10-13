@@ -911,7 +911,11 @@ with Reagent bindings because its behavior is implemented in four functions with
 <code>on-signal</code>, <code>on-action</code>, <code>view-model</code>, <code>view</code>.</p>
 <p>Let's look at how these functions are tested in
 <a href="../examples/#friend-list">friend-list</a> example:</p>
-<p><strong><code>1. (on-signal model signal dispatch-signal dispatch-action)</code></strong> </p>
+<h2>on-signal</h2>
+
+<pre><code class="clj">(on-signal model signal dispatch-signal dispatch-action)
+</code></pre>
+
 <p>Signal handler receives incoming signals to perform side effects, dispatch new signals and actions.
 Such behavior is easy to test using <a href="https://en.wikipedia.org/wiki/Mock_object">mock</a> functions.
 This test uses <a href="https://github.com/metametadata/clj-fakes">clj-fakes</a> 
@@ -971,7 +975,11 @@ of creating objects of correct type when we know that their type doesn't really 
 It makes tests more focused and readable.
 This technique is similar to <a href="https://github.com/marick/Midje/wiki/Metaconstants">using metaconstants in Midje</a>.</li>
 </ul>
-<p><strong><code>2. (on-action model action)</code></strong></p>
+<h2>on-action</h2>
+
+<pre><code class="clj">(on-action model action)
+</code></pre>
+
 <p>Action handler is the easiest function to test because it's pure:</p>
 <pre><code class="clj">(deftest
   sets-query
@@ -984,7 +992,11 @@ This technique is similar to <a href="https://github.com/marick/Midje/wiki/Metac
 <p>Notice that it's impossible to use <code>:_new_query</code> "metaconstant" because app uses 
 <a href="https://github.com/metametadata/carry/tree/master/contrib/schema">carry-schema</a>
 middleware forcing us to use a string value <code>"new-query"</code> on action handling.</p>
-<p><strong><code>3. (view-model model)</code></strong></p>
+<h2>view-model</h2>
+
+<pre><code class="clj">(view-model model)
+</code></pre>
+
 <p>These tests make sure that view model really contains Reagent reactions
 at <code>:query</code> and <code>:friends</code> keys:</p>
 <pre><code class="clj">(ns unit.view-model
@@ -1029,7 +1041,12 @@ at <code>:query</code> and <code>:friends</code> keys:</p>
 <li><a href="https://github.com/plumatic/schema-generators">schema-generators</a> library is used to automatically generate
 <code>new-friends</code> fixture instead of coding it by hand.</li>
 </ul>
-<p><strong><code>4. (view view-model dispatch)</code></strong> (This section is a WIP.)</p>
+<h2>view</h2>
+
+<pre><code class="clj">(view view-model dispatch)
+</code></pre>
+
+<p>(This section is a WIP.)</p>
 <p>Unit testing this function is probably not critical because most error-prone UI
 code is located in <code>view-model</code>.</p>
 <h1 id="routing">Routing</h1>
@@ -1297,6 +1314,7 @@ leading to frequent merge conflicts.</li>
   actions/
     foo.cljs
     bar.cljs
+  ...
   core.cljs
 </code></pre>
 
