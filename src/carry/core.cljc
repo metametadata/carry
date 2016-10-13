@@ -79,7 +79,7 @@
   * `:model` - An object that supports `IDeref` and `IWatchable` protocols.
   * `:dispatch-signal` - Function with a single arg: a signal to be sent to an app. Returns `nil`."
   [{:keys [initial-model on-signal on-action] :as _spec}]
-  {:pre [(map? initial-model) (fn? on-signal) (fn? on-action)]}
+  {:pre [(map? initial-model) (ifn? on-signal) (ifn? on-action)]}
   (let [model-atom (atom initial-model)
         read-only-model-atom (entangle model-atom identity)]
     (letfn [(dispatch-action [action] (reset! model-atom (on-action @model-atom action)) nil)

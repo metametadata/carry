@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.0
+- Fix: allow using multimethods for signal and action handlers.
+
 ## 0.5.0
 
 - BREAKING CHANGE: library gets rid of terms *controller* and *reconciler* in favour of *signal handler* and *action handler*.

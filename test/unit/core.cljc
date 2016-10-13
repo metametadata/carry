@@ -141,6 +141,27 @@
     (testing "model is still read-only"
       (is-read-only-reference (:model app)))))
 
+(defmulti on-signal-multi (fn [_model signal _dispatch-signal _dispatch-action] signal))
+(defmethod on-signal-multi :on-inc
+  [_model _ _dispatch-signal dispatch-action]
+  (dispatch-action :inc))
+
+(defmulti on-action-multi (fn [_model action] action))
+(defmethod on-action-multi :inc
+  [model _]
+  (update model :val inc))
+
+(deftest
+  regression-handlers-can-be-multimethods
+  (let [spec {:initial-model {:val 100}
+              :on-signal     on-signal-multi
+              :on-action     on-action-multi}
+        app (carry/app spec)]
+    ((:dispatch-signal app) :on-inc)
+
+    ; assert
+    (is (= {:val 101} @(:model app)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Entangle
 (deftest
   entangled-reference-is-read-only
