@@ -62,24 +62,6 @@ Features:
 * [Seesaw](https://github.com/daveray/seesaw) for UI
 * [reloaded workflow](http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded) for easier running from REPL
 
-# Composite Apps
-
-## Subapps
-[Source code](https://github.com/metametadata/carry/tree/master/examples/subapps)
-
-[Demo](/examples/subapps)
-
-In this project [counter app](#counter) and [friend list app](#friend-list) instances are "statically" added to the app spec.
-Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.
-
-## Counter List
-[Source code](https://github.com/metametadata/carry/tree/master/examples/counter-list)
-
-[Demo](/examples/counter-list)
-
-In this example [counter app](#counter) instances are created and removed dynamically after app is started.
-Inspired by [Elm architecture example](http://guide.elm-lang.org/architecture/modularity/counter_list.html).
-
 # Apps Using DataScript
 
 ## Counter DataScript
@@ -113,3 +95,59 @@ Features:
 * [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
 for rendering UI using [Reagent](https://github.com/reagent-project/reagent) 
 * [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging/) for logging to console
+
+# Spec Splitting
+
+## HOF
+[Source code](https://github.com/metametadata/carry/tree/master/examples/spec-splitting-hof)
+
+[Demo](/examples/spec-splitting-hof)
+
+Demonstrates how to assemble a spec and UI from multiple modules using higher-order functions. 
+
+Features:
+
+* [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
+ 
+## Multimethods
+[Source code](https://github.com/metametadata/carry/tree/master/examples/spec-splitting-multimethods)
+
+[Demo](/examples/spec-splitting-multimethods)
+
+Demonstrates how to assemble a spec from multiple modules with a help of multimethods. 
+
+Features:
+
+* [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
+
+## Multimethods & core.match
+[Source code](https://github.com/metametadata/carry/tree/master/examples/spec-splitting-multimethods-core-match)
+
+[Demo](/examples/spec-splitting-multimethods-core-match)
+
+Demonstrates how to assemble a spec from multiple modules with a help of multimethods and `core.match`. 
+
+Features:
+
+* [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/reagent/)
+for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
+
+# Composite Apps
+
+## Subapps
+[Source code](https://github.com/metametadata/carry/tree/master/examples/subapps)
+
+[Demo](/examples/subapps)
+
+In this project [counter app](#counter) and [friend list app](#friend-list) instances are "statically" added to the app spec.
+Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.
+
+## Counter List
+[Source code](https://github.com/metametadata/carry/tree/master/examples/counter-list)
+
+[Demo](/examples/counter-list)
+
+In this example [counter app](#counter) instances are created and removed dynamically after app is started.
+Inspired by [Elm architecture example](http://guide.elm-lang.org/architecture/modularity/counter_list.html).

@@ -1,8 +1,4 @@
-# Basics
-
-This section explains everything you need to start making apps with Carry.
- 
-## Framework Overview
+# Framework Overview
 
 Carry is actually a [very small](https://github.com/metametadata/carry/blob/master/src/carry/core.cljc)
 Clojure/ClojureScript state management library which provides a skeleton for the whole application.
@@ -16,7 +12,7 @@ Most of these packages are implemented using [Carry middleware pattern](#middlew
 
 The private/internal API uses `-` prefix and should not be used (e.g. `-this-is-some-private-thing`).
 
-## App
+# App
 
 In a Carry application all the code you write is encapsulated behind a single **app** instance. 
 An app is a map with keys:
@@ -27,7 +23,7 @@ An app is a map with keys:
 One can consider an app to be a black box which exposes its current state and modifies it on getting signals from an external world.
 It can also affect an external world as a response to a signal, i.e. perform "side effects".
 
-## Model
+# Model
 
 Model represents an entire state of an app. 
  
@@ -61,7 +57,7 @@ An exception will be thrown on mutating such read-only reference:
 Carry requires a model value to be a map. This convention allows writing reusable packages that can store additional data into any Carry app.
 As an example, [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history) adds `:token` to a model.
 
-## Signals
+# Signals
 
 **Signal** is an object which represents a user's intention or, looking at it from a different angle, a system event. 
 Signal can be synchronously sent to an app by calling its `dispatch-signal` function:
@@ -81,7 +77,7 @@ a serializable vector with a keyword and an additional payload:
 
 `dispatch-signal` always returns `nil`.
 
-## Creating an App
+# Creating an App
 
 In order to create an instance of a Carry app a user has to pass a **spec** into `app` function:
 
@@ -101,7 +97,7 @@ In other words, a spec is needed to define a runtime behavior of an app:
 
 ![spec](/graphs/spec-and-app.svg)
 
-## Signal Handler
+# Signal Handler
 **Signal handler** is a part of an application responsible for processing incoming signals. 
 It can dispatch new signals, modify app model (by dispatching actions) and perform any side effects (e.g. send data to a server).
 It is free to contain an asynchronous code. The signature of a signal handler function:
@@ -186,7 +182,7 @@ As an example, this is a handler from [friend-list](/examples/#friend-list) demo
 ((:dispatch-signal app) :on-start)
 ```
 
-## Actions
+# Actions
 **Action** is an object which represents an intention to modify a model.
 Actions can be dispatched only from within a signal handler via `dispatch-action`.
 
@@ -197,7 +193,7 @@ Similar to signals, actions are usually keywords or vectors, for instance:
 [:set-query q]
 ```
 
-## Action Handler
+# Action Handler
 **Action handler** is a part of an application responsible for processing incoming actions.
 It's a pure function which returns a new model value based on a current model value and an incoming action.
 On getting an action an app passes it into a action handler and then resets app model value with the result.
@@ -218,7 +214,7 @@ A simple example from [friend-list](/examples/#friend-list) demo app:
 It's important to not put any asynchronous code, side effects or nondeterministic code (e.g. random number generation)
 into action handler. Otherwise, it will make replaying actions unpredictable and break time traveling debugging.
 
-## Usage with Reagent
+# Usage with Reagent
 
 Carry can work with any view layer that is able to re-render UI in response to app model changes.
 This chapter is about tying Carry with [Reagent](https://github.com/reagent-project/reagent) 
@@ -276,7 +272,7 @@ A view thereby listens to a view model that in turn listens to a model:
 
 In the next section we'll see how to define a view model.
 
-### View Model
+## View Model
 
 **View model** contains all the data needed to render a UI.
 It can compute derived model data, split lists of objects into pages, calculate which buttons are enabled, 
@@ -314,7 +310,7 @@ It is lazily computed from other reactions and Reagent atoms
 (see [official documentation](http://reagent-project.github.io) for more information about Reagent atoms).
 Any Reagent component that dereferences a reaction is going to be automatically re-rendered when reaction value updates.
 
-### View
+## View
 
 An example from [TodoMVC](/examples/#todomvc) app:
 
@@ -354,7 +350,7 @@ An example from [TodoMVC](/examples/#todomvc) app:
 As you can see, we get reactions from a view model and deref them to render actual values.
 Reagent will then "magically" re-render components when the reactions passed into them are updated.
   
-## Usage with Figwheel and REPL
+# Usage with Figwheel and REPL
 With [Figwheel](https://github.com/bhauman/lein-figwheel) Leiningen plugin it is possible to:
 
 * compile and reload app code in browser on source code changes
@@ -500,9 +496,7 @@ app.core=> (= @model @(:model app))
 true
 ```
 
-# Advanced
-
-## Middleware
+# Middleware
 **Middleware** is a function that gets an app spec and returns an updated spec
 in order to introduce some new app behavior (such as logging, syncing with server, crash reporting).
 
@@ -674,7 +668,7 @@ Especially note how `:on-start`/`:on-stop` signals are intercepted:
 * The middleware let's the wrapped app start first and then runs its own additional initialization code.
 * The order is "reversed" on stopping: the middleware first cleans up after itself and only then let's the wrapped app shutdown.
 
-## Debugger
+# Debugger
 One of the main features of Carry pattern is that it allows time traveling debugging
 similar to [Elm's Debugger](http://debug.elm-lang.org/),
 [Redux DevTools](https://github.com/gaearon/redux-devtools) and [Cerebral Debugger](http://www.cerebraljs.com/documentation/the_debugger).
@@ -782,7 +776,7 @@ Debugger mode can be determined by looking at `[:carry-debugger.core/debugger :r
 ; ...
 ```
 
-## Unit Testing
+# Unit Testing
 It is comparatively easy to unit test a Carry app
 with Reagent bindings because its behavior is implemented in four functions with explicit dependencies:
 `on-signal`, `on-action`, `view-model`, `view`.
@@ -919,7 +913,7 @@ at `:query` and `:friends` keys:
 Unit testing this function is probably not critical because most error-prone UI
 code is located in `view-model`.
 
-## Composite Apps
+# Composite Apps
 Because Carry architecture is also based on functions which can be nested inside each other,
 a pattern similar to [Elm architecture](https://github.com/evancz/elm-architecture-tutorial/) 
 can be applied to build composite apps. A composite app incorporates instances of other Carry apps, but
@@ -1132,7 +1126,7 @@ And finally, here's the app instantiation code:
 (def app (main))
 ```
 
-## Routing
+# Routing
 It's not uncommon for applications to depend on a current URL and modify it in response to user actions.
 For these tasks [carry-history](https://github.com/metametadata/carry/tree/master/contrib/history) middleware
 provides a bidirectional synchronization between a browser URL and a model:
@@ -1221,13 +1215,13 @@ An example from [TodoMVC](/examples/#todomvc):
 
 Please see [API reference](/api/history/carry-history.core.html) for more info.
 
-## Usage with DataScript
+# Usage with DataScript
 See examples:
 
 * [Counter DataScript](/examples/#counter-datascript)
 * [Shopping Cart](/examples/#shopping-cart)
 
-## Usage with Devcards
+# Usage with Devcards
 This section describes how to make Carry work with [Devcards](https://github.com/bhauman/devcards) for a "visual REPL experience".
 Further I assume you have a basic understanding of Devcards and I won't focus on why it's needed, installation details, etc.
 We'll see how to render Carry/Reagent app instances inside cards.
@@ -1386,4 +1380,417 @@ a *"setState(...): Cannot update during an existing state transition"* warning o
    ; ...
   )
 ```
- 
+
+# File Structure
+
+As an application grows it starts making sense to organize its code using folders and files.
+Let's look at some examples of organizing a source folder.
+
+<h2>Split by "Layer"</h2>
+
+```plain
+app/
+  model.cljs <-- initial model and its schema
+  signals.cljs <-- signal handler
+  actions.cljs <-- action handler
+  view_model.cljs
+  view.cljs
+  core.cljs
+```
+
+Cons:
+
+* It doesn't work well for several developers working on new features because everyone will touch most layers
+leading to frequent merge conflicts.
+* With time it will become harder to navigate the codebase with a few big files.
+
+So the next step could be splitting each layer by feature and using folders:
+
+```plain
+app/
+  signals/
+    foo.cljs
+    bar.cljs
+  actions/
+    foo.cljs
+    bar.cljs
+  core.cljs
+```
+
+This way a developer working on *foo* feature will have less VCS conflicts with a developer working on *bar*.
+    
+<h2>Split by "Feature"</h2>
+
+Here *Foo* and *Bar* can correspond to application screens,
+business logic domains or even single use cases
+(take a look at ["Screaming Architecture"](https://8thlight.com/blog/uncle-bob/2011/09/30/Screaming-Architecture.html)):
+
+```plain
+app/
+  foo.cljs <-- signals, actions and UI for Foo
+  bar.cljs <-- signals, actions and UI for Bar
+  core.cljs
+```
+
+Later we can split every feature by layer for easier navigation, e.g.:
+
+```plain
+app/
+  foo/
+    model.cljs
+    signals.cljs
+    actions.cljs
+    view_model.cljs
+    view.cljs
+  bar/
+    model.cljs
+    signals.cljs
+    actions.cljs
+    view_model.cljs
+    view.cljs
+  core.cljs
+```
+
+You may also make coarser splits if layers are relatively small, for instance:
+
+```plain
+app/
+  foo/
+    logic.cljs <-- signals, actions and model go here
+    ui.cljs <-- view and view-model go here
+  bar/
+    logic.cljs
+    ui.cljs
+  core.cljs
+```
+
+<h2>Conclusion</h2>
+
+There are many ways to organize Carry application code and it's up to you to choose what works best for your project.
+
+# Spec Splitting
+
+Let's take the project structure example mentioned earlier:
+
+```plain
+app/
+  foo/
+    model.cljs
+    signals.cljs
+    actions.cljs
+    view_model.cljs
+    view.cljs
+  bar/
+    model.cljs
+    signals.cljs
+    actions.cljs
+    view_model.cljs
+    view.cljs
+  core.cljs
+```
+
+How to define a single Carry spec from the code scattered over all these files?
+It is simple to merge all initial models to get a full model,
+but there can be different ways to assemble handler functions:
+
+```clj
+(def spec {:initial-model (merge app.foo.model/initial-model
+                                 app.bar.model/initial-model)
+           :signal-halder ??? 
+           :action-handler ???}
+```
+
+There are two conceptual ways of splitting a handler:
+
+* At a level of "cases" (signals/actions):
+
+```plain
+app/
+  foo/
+    signals.cljs <-- handles signals :on-a, :on-b
+  bar/
+    signals.cljs <-- handles signals :on-c, :on-d
+```
+
+* Code for each individual signal/action can also be split between files:
+
+```plain
+app/
+  foo/
+    signals.cljs <-- handles :on-a and partially :on-b
+  bar/
+    signals.cljs <-- handles :on-c, :on-d and partially :on-b
+```
+
+Which approach is better? There's no definite answer. For instance, take a look at the discussions about the similar problem in Flux/Redux:
+
+* [Problems with Flux](http://www.code-experience.com/problems-with-flux/)
+* [Redux issue #1400](https://github.com/reactjs/redux/issues/1400#issuecomment-184406378)
+
+We'll see how to implement the first, stricter and simpler, approach and 
+leave implementing the second approach as an exercise to the reader.
+
+<h2>HOF</h2>
+
+One the solutions is to use a higher-order function (HOF) `dispatching-to-either`
+which will assemble a handler (see [example](/examples/#spec-splitting-hof)):
+
+```clj
+(ns app.utils)
+
+(defn dispatching-to-either
+  "Returns a function of any args which calls functions one by one while :cant-handle is returned."
+  [fns]
+  (fn dispatching-to-either-fn [& args]
+    (loop [f (first fns)
+           next-fns (rest fns)]
+      (when (nil? f)
+        (throw (ex-info (str "No function was able to handle passed args: " (pr-str args))
+                        {})))
+
+      (let [result (apply f args)]
+        (if (= result :cant-handle)
+          (recur (first next-fns) (rest next-fns))
+          result)))))
+```
+
+```clj
+(ns app.common.signals
+  (:require [cljs.core.match :refer-macros [match]]))
+
+(defn on-signal
+  [_model signal _dispatch-signal dispatch-action]
+  (match signal
+         :on-start nil
+         :on-stop nil
+         :on-home (dispatch-action [:navigate :home])
+         :on-settings (dispatch-action [:navigate :settings])
+         :else :cant-handle))
+```
+
+```clj
+(ns app.home.signals
+  (:require [cljs.core.match :refer-macros [match]]))
+
+(defn on-signal
+  [_model signal _dispatch-signal dispatch-action]
+  (match signal
+         :on-click (dispatch-action :click)
+         :else :cant-handle))
+```
+
+```clj
+(ns app.spec
+  (:require [app.common.model]
+            [app.common.signals]
+            [app.common.actions]
+
+            [app.home.model]
+            [app.home.signals]
+            [app.home.actions]
+
+            [app.settings.model]
+            [app.settings.signals]
+            [app.settings.actions]
+
+            [app.utils]))
+
+(def spec {:initial-model (merge app.common.model/initial-model
+                                 app.home.model/initial-model
+                                 app.settings.model/initial-model)
+           :on-signal     (app.utils/dispatching-to-either #{app.common.signals/on-signal
+                                                             app.home.signals/on-signal
+                                                             app.settings.signals/on-signal})
+           :on-action     (app.utils/dispatching-to-either #{app.common.actions/on-action
+                                                             app.home.actions/on-action
+                                                             app.settings.actions/on-action})})
+```
+
+The drawback of this solution is that a spec must be edited every time a new handler file is added.
+
+<h2>Multimethods</h2>
+
+Multimethods can help by allowing to not type the names of all the handlers manually (see [example](/examples/#spec-splitting-multimethods)):
+
+```clj
+(ns app.spec
+  (:require [app.common.model]
+            [app.common.actions]
+            [app.common.signals]
+
+            [app.home.model]
+            [app.settings.actions]
+            [app.home.signals]
+
+            [app.settings.model]
+            [app.settings.actions]
+            [app.settings.signals]
+
+            [app.spec-methods]))
+
+(def spec {:initial-model (merge app.common.model/initial-model
+                                 app.home.model/initial-model
+                                 app.settings.model/initial-model)
+                                 
+           ; Voilà:
+           :on-signal     app.spec-methods/on-signal
+           :on-action     app.spec-methods/on-action})
+```
+
+```clj
+(ns app.common.signals
+  (:require [app.spec-methods :refer [on-signal]]))
+
+(defmethod on-signal :on-start
+  [_model _ _dispatch-signal _dispatch-action]
+  nil)
+
+(defmethod on-signal :on-stop
+  [_model _ _dispatch-signal _dispatch-action]
+  nil)
+
+(defmethod on-signal :on-home
+  [_model _ _dispatch-signal dispatch-action]
+  (dispatch-action [:navigate :home]))
+
+(defmethod on-signal :on-settings
+  [_model _ _dispatch-signal dispatch-action]
+  (dispatch-action [:navigate :settings]))
+```
+
+```clj
+(ns app.common.actions
+  (:require [app.spec-methods :refer [on-action]]))
+
+(defmethod on-action :navigate
+  [model [_ pane]]
+  (assoc model :pane pane))
+```
+
+```clj
+(ns app.spec-methods)
+
+(defn -tag
+  "Returns a tag of a variant (read http://jneen.net/posts/2014-11-23-clojure-conj-variants-errata). Examples:
+  [:foo :bar] -> :foo
+  [:foo] -> :foo
+  :foo -> :foo"
+  [variant]
+  (if (sequential? variant)
+    (first variant)
+    variant))
+
+(defmulti on-signal (fn [_model signal _dispatch-signal _dispatch-action]
+                      (-tag signal)))
+
+(defmulti on-action (fn [_model action]
+                      (-tag action)))
+```
+
+Unfortunately, now there's more cruft in handler files. It's especially obvious in `app.common.signals` listing.
+
+<h2>Multimethods and core.match</h2>
+
+Let's try to reduce boilerplate by grouping events with the same namespace and using `core.match`
+(see [example](/examples/#spec-splitting-multimethods-core-match)):
+
+```clj
+(ns app.spec-methods)
+
+(defn -tag-ns
+  "Returns variant tag's namespace string. Examples:
+  [:a/foo :bar] -> \"a\"
+  [:a/foo] -> \"a\"
+  :a/foo -> \"a\"
+  :foo -> nil"
+  [variant]
+  (-> (if (sequential? variant)
+        (first variant)
+        variant)
+      namespace))
+
+(defmulti on-signal (fn [_model signal _dispatch-signal _dispatch-action]
+                      (-tag-ns signal)))
+
+(defmulti on-action (fn [_model action]
+                      (-tag-ns action)))
+```
+
+```clj
+(ns app.common.signals
+  (:require [app.spec-methods :refer [on-signal]]
+            [cljs.core.match :refer-macros [match]]))
+
+; Standard signals have no namespace.
+(defmethod on-signal nil
+  [_model signal _dispatch-signal _dispatch-action]
+  (match signal
+         :on-start nil
+         :on-stop nil))
+         
+(defmethod on-signal (namespace ::_) ; <-- Note the trick for getting current ns name.
+  [_model signal _dispatch-signal dispatch-action]
+  (match signal
+         ::on-home (dispatch-action [:app.common.actions/navigate :home])
+         ::on-settings (dispatch-action [:app.common.actions/navigate :settings])))
+```
+
+```clj
+(ns app.common.actions
+  (:require [app.spec-methods :refer [on-action]]
+            [cljs.core.match :refer-macros [match]]))
+
+(defmethod on-action (namespace ::_)
+  [model action]
+  (match action
+         [::navigate pane] (assoc model :pane pane)))
+```
+
+All signals and actions must be namespaced now.
+
+<h2>Multimethods and Macros</h2>
+
+As an alternative, instead of grouping we could use macros to simplify method definitions:
+
+```clj
+(ns app.common.actions
+  (:require ,,,))
+
+; Macro which allows destructuring the event variant without repeating it in the arglist.
+; Inspired by http://jneen.net/posts/2014-11-23-clojure-conj-variants-errata
+(defcase on-action [:navigate pane]
+  [model]
+  (assoc model :pane pane))
+```
+
+```clj
+(ns app.common.signals
+  (:require ,,,))
+
+(defcase on-signal :on-start
+  [_model _dispatch-signal _dispatch-action]
+  nil)
+
+(defcase on-signal :on-stop
+  [_model _dispatch-signal _dispatch-action]
+  nil)
+
+(defcase on-signal :on-home
+  [_model _dispatch-signal dispatch-action]
+  (dispatch-action [:navigate :home]))
+
+(defcase on-signal :on-settings
+  [_model _dispatch-signal dispatch-action]
+  (dispatch-action [:navigate :settings]))
+```
+
+<h2>Conclusion</h2>
+
+We've covered several ways of assembling handler functions from multiple files:
+
+* `dispatching-to-either` helper ([example](/examples/#spec-splitting-hof))
+* multimethods for individual events ([example](/examples/#spec-splitting-multimethods))
+* multimethods for groups of events ([example](/examples/#spec-splitting-multimethods-core-match))
+* macros on top of multimethods
+
+The takeaway is that handlers are just functions and you can refactor them in any way you want.
