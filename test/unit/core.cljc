@@ -1,16 +1,8 @@
 (ns unit.core
-  #?@(:clj  [
-             (:require
-               [clojure.test :refer :all]
-               [unit.utils :as u]
-               [carry.core :as carry]
-               )]
-      :cljs [(:require
-               [cljs.test :refer-macros [deftest is testing]]
-               [carry.core :as carry])
-             ])
-  #?(:cljs
-     (:require-macros [unit.utils :as u])))
+  (:require
+    [clojure.test :refer [deftest is testing]]
+    [unit.utils :as u]
+    [carry.core :as carry]))
 
 (defn is-read-only-reference
   [a]
