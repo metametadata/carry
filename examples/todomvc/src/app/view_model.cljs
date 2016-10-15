@@ -10,14 +10,14 @@
   ; because all-todos is still the same
   (let [token (reaction (:carry-history.core/token @model))
         route (reaction (or (router/token->route @token) ::router/all)) ; on unknown route fallbacks to showing all todos
-        visibility-spec (reaction (->> [{:title "All" :route ::router/all}
-                                        {:title "Active" :route ::router/active}
-                                        {:title "Completed" :route ::router/completed}]
-                                       (mapv #(assoc % :selected? (= (:route %) @route)))))
+        visibility-config (reaction (->> [{:title "All" :route ::router/all}
+                                          {:title "Active" :route ::router/active}
+                                          {:title "Completed" :route ::router/completed}]
+                                         (mapv #(assoc % :selected? (= (:route %) @route)))))
         all-todos (reaction (:todos @model))]
     (-> model
         (carry-reagent/track-keys [:field])
-        (assoc :visibility-spec visibility-spec
+        (assoc :visibility-config visibility-config
                :has-todos? (reaction (-> @all-todos count pos?))
                :todos (reaction (filter (case @route
                                           ::router/all (constantly true)

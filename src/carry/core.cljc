@@ -63,7 +63,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Core
 (defn app
-  "Constructs an app from a spec map with keys:
+  "Constructs an app from a blueprint map with keys:
 
   * `:initial-model` - Initial model value, must be a map.
   * `:on-signal` - Signal handler. Function of args: `[model signal dispatch-signal dispatch-action]`.
@@ -78,7 +78,7 @@
 
   * `:model` - An object that supports `IDeref` and `IWatchable` protocols.
   * `:dispatch-signal` - Function with a single arg: a signal to be sent to an app. Returns `nil`."
-  [{:keys [initial-model on-signal on-action] :as _spec}]
+  [{:keys [initial-model on-signal on-action] :as _blueprint}]
   {:pre [(map? initial-model) (ifn? on-signal) (ifn? on-action)]}
   (let [model-atom (atom initial-model)
         read-only-model-atom (entangle model-atom identity)]

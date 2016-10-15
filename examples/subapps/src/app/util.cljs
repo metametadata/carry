@@ -13,11 +13,11 @@
     (f [tag x])))
 
 (defn -wrap-initial-model
-  [app-initial-model subapp-key subapp-spec]
-  (assoc app-initial-model subapp-key (:initial-model subapp-spec)))
+  [app-initial-model subapp-key subapp-blueprint]
+  (assoc app-initial-model subapp-key (:initial-model subapp-blueprint)))
 
 (defn -wrap-on-signal
-  [app-on-signal subapp-key subapp-spec]
+  [app-on-signal subapp-key subapp-blueprint]
   (fn on-signal
     [model signal dispatch-signal dispatch-action]
     (match signal
@@ -32,7 +32,7 @@
              (app-on-signal model signal dispatch-signal dispatch-action))
 
            [[:on-subapp-signal subapp-key] s]
-           ((:on-signal subapp-spec)
+           ((:on-signal subapp-blueprint)
              (carry/entangle model subapp-key)
              s
              (-tagged dispatch-signal [:on-subapp-signal subapp-key])
@@ -42,22 +42,22 @@
            (app-on-signal model signal dispatch-signal dispatch-action))))
 
 (defn -wrap-on-action
-  [app-on-action subapp-key subapp-spec]
+  [app-on-action subapp-key subapp-blueprint]
   (fn on-action
     [model action]
     (match action
            [[:on-subapp-action subapp-key] a]
-           (update model subapp-key (:on-action subapp-spec) a)
+           (update model subapp-key (:on-action subapp-blueprint) a)
 
            :else
            (app-on-action model action))))
 
-(defn include-spec
-  [app-spec subapp-key subapp-spec]
-  (-> app-spec
-      (update :initial-model -wrap-initial-model subapp-key subapp-spec)
-      (update :on-signal -wrap-on-signal subapp-key subapp-spec)
-      (update :on-action -wrap-on-action subapp-key subapp-spec)))
+(defn include-blueprint
+  [app-blueprint subapp-key subapp-blueprint]
+  (-> app-blueprint
+      (update :initial-model -wrap-initial-model subapp-key subapp-blueprint)
+      (update :on-signal -wrap-on-signal subapp-key subapp-blueprint)
+      (update :on-action -wrap-on-action subapp-key subapp-blueprint)))
 
 (defn include-view-model
   "For this to work app's view model function must return a map."

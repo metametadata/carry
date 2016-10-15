@@ -1,5 +1,5 @@
 (defproject
-  carry-logging "0.2.0"
+  carry-logging "0.3.0"
   :description "Console logging middleware for Carry."
   :url "https://github.com/metametadata/carry/tree/master/contrib/logging"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}

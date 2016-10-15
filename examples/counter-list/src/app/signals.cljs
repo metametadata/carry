@@ -14,7 +14,7 @@
          :on-remove (dispatch-action :remove)
 
          [[:on-counter-signal id] s]
-         ((:on-signal counter/spec)
+         ((:on-signal counter/blueprint)
            (carry/entangle model #(get-in % [:counters id]))
            s
            (tagged dispatch-signal [:on-counter-signal id])

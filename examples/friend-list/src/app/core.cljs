@@ -18,10 +18,10 @@
   []
   (let [history (h/new-hash-history)
         storage hp/local-storage
-        app-spec (-> (friend-list/new-spec history api/search)
-                     logging/add
-                     (debugger/add storage :friend-list-debugger-model))
-        app (carry/app app-spec)
+        blueprint (-> (friend-list/new-blueprint history api/search)
+                      logging/add
+                      (debugger/add storage :friend-list-debugger-model))
+        app (carry/app blueprint)
         [app-view-model app-view] (carry-reagent/connect app friend-list/view-model friend-list/view)
         [_ debugger-view] (debugger/connect app)]
     (r/render [:div app-view debugger-view] (.getElementById js/document "root"))

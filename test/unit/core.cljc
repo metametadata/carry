@@ -25,39 +25,39 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; App
 (deftest
   app-model-is-read-only-reference
-  (let [spec {:initial-model {:val 100}
-              :on-signal     (constantly nil)
-              :on-action     (constantly nil)}
-        app (carry/app spec)]
+  (let [blueprint {:initial-model {:val 100}
+                   :on-signal     (constantly nil)
+                   :on-action     (constantly nil)}
+        app (carry/app blueprint)]
     (is (= {:val 100} @(:model app)))
     (is-read-only-reference (:model app))))
 
 (deftest
   signal-handler-receives-read-only-model-reference
-  (let [spec {:initial-model {:val 100}
-              :on-signal     (fn on-signal [model signal _dispatch-signal _dispatch-action]
-                               (if (= signal :on-test-model)
-                                 (do
-                                   (is (= {:val 100} @model))
-                                   (is-read-only-reference model))
+  (let [blueprint {:initial-model {:val 100}
+                   :on-signal     (fn on-signal [model signal _dispatch-signal _dispatch-action]
+                                    (if (= signal :on-test-model)
+                                      (do
+                                        (is (= {:val 100} @model))
+                                        (is-read-only-reference model))
 
-                                 (is nil "unexpected signal")))
-              :on-action     (constantly nil)}
-        app (carry/app spec)]
+                                      (is nil "unexpected signal")))
+                   :on-action     (constantly nil)}
+        app (carry/app blueprint)]
     ((:dispatch-signal app) :on-test-model)))
 
 (deftest
   action-dispatched-from-signal-handler-updates-model-using-action-handler
-  (let [spec {:initial-model {:val 100}
-              :on-signal     (fn on-signal [_model signal _dispatch-signal dispatch-action]
-                               (if (= signal :on-update-value)
-                                 (dispatch-action :update-value)
-                                 (is nil "unexpected signal")))
-              :on-action     (fn on-action [model action]
-                               (if (= action :update-value)
-                                 (update model :val inc)
-                                 (is nil "unexpected action")))}
-        app (carry/app spec)]
+  (let [blueprint {:initial-model {:val 100}
+                   :on-signal     (fn on-signal [_model signal _dispatch-signal dispatch-action]
+                                    (if (= signal :on-update-value)
+                                      (dispatch-action :update-value)
+                                      (is nil "unexpected signal")))
+                   :on-action     (fn on-action [model action]
+                                    (if (= action :update-value)
+                                      (update model :val inc)
+                                      (is nil "unexpected action")))}
+        app (carry/app blueprint)]
     ; act
     ((:dispatch-signal app) :on-update-value)
 
@@ -77,16 +77,16 @@
 
 (deftest
   signal-handler-can-dispatch-new-signals
-  (let [spec {:initial-model {:val 100}
-              :on-signal     (fn on-signal [_model signal dispatch-signal dispatch-action]
-                               (condp = signal
-                                 :on-dispatch-new-signal (dispatch-signal :on-new-signal)
-                                 :on-new-signal (dispatch-action :update-value)))
-              :on-action     (fn on-action [model action]
-                               (if (= action :update-value)
-                                 (update model :val inc)
-                                 (is nil "unexpected action")))}
-        app (carry/app spec)]
+  (let [blueprint {:initial-model {:val 100}
+                   :on-signal     (fn on-signal [_model signal dispatch-signal dispatch-action]
+                                    (condp = signal
+                                      :on-dispatch-new-signal (dispatch-signal :on-new-signal)
+                                      :on-new-signal (dispatch-action :update-value)))
+                   :on-action     (fn on-action [model action]
+                                    (if (= action :update-value)
+                                      (update model :val inc)
+                                      (is nil "unexpected action")))}
+        app (carry/app blueprint)]
     ; act
     ((:dispatch-signal app) :on-dispatch-new-signal)
 
@@ -95,41 +95,41 @@
 
 (deftest
   dispatch-signal-returns-nil
-  (let [spec {:initial-model {:val 100}
-              :on-signal     (constantly :on-signal-return-value)
-              :on-action     (constantly :on-action-return-value)}
-        app (carry/app spec)]
+  (let [blueprint {:initial-model {:val 100}
+                   :on-signal     (constantly :on-signal-return-value)
+                   :on-action     (constantly :on-action-return-value)}
+        app (carry/app blueprint)]
     (is (nil? ((:dispatch-signal app) :some-signal)))))
 
 (deftest
   dispatch-action-returns-nil
-  (let [spec {:initial-model {:val 100}
-              :on-signal     (fn on-signal [_model _signal _dispatch-signal dispatch-action]
-                               (is (nil? (dispatch-action :some-action))))
-              :on-action     (constantly :on-action-return-value)}
-        app (carry/app spec)]
+  (let [blueprint {:initial-model {:val 100}
+                   :on-signal     (fn on-signal [_model _signal _dispatch-signal dispatch-action]
+                                    (is (nil? (dispatch-action :some-action))))
+                   :on-action     (constantly :on-action-return-value)}
+        app (carry/app blueprint)]
     ((:dispatch-signal app) :some-signal)))
 
 (deftest
   actions-can-be-dispatched-from-model-watch
-  (let [spec {:initial-model {:val 100}
-              :on-signal     (fn on-signal [model signal _dispatch-signal dispatch-action]
-                               (condp = signal
-                                 :on-start
-                                 (add-watch model :dispatch-action-watch
-                                            (fn dispatch-action-watch
-                                              [_key _ref old-state new-state]
-                                              (when (and (not= old-state new-state)
-                                                         (= new-state {:val 101}))
-                                                (dispatch-action :update-value))))
+  (let [blueprint {:initial-model {:val 100}
+                   :on-signal     (fn on-signal [model signal _dispatch-signal dispatch-action]
+                                    (condp = signal
+                                      :on-start
+                                      (add-watch model :dispatch-action-watch
+                                                 (fn dispatch-action-watch
+                                                   [_key _ref old-state new-state]
+                                                   (when (and (not= old-state new-state)
+                                                              (= new-state {:val 101}))
+                                                     (dispatch-action :update-value))))
 
-                                 :on-update-value
-                                 (dispatch-action :update-value)))
-              :on-action     (fn on-action [model action]
-                               (if (= action :update-value)
-                                 (update model :val inc)
-                                 (is nil "unexpected action")))}
-        app (carry/app spec)]
+                                      :on-update-value
+                                      (dispatch-action :update-value)))
+                   :on-action     (fn on-action [model action]
+                                    (if (= action :update-value)
+                                      (update model :val inc)
+                                      (is nil "unexpected action")))}
+        app (carry/app blueprint)]
     ; act
     ((:dispatch-signal app) :on-start)
     ((:dispatch-signal app) :on-update-value)
@@ -153,10 +153,10 @@
 
 (deftest
   regression-handlers-can-be-multimethods
-  (let [spec {:initial-model {:val 100}
-              :on-signal     on-signal-multi
-              :on-action     on-action-multi}
-        app (carry/app spec)]
+  (let [blueprint {:initial-model {:val 100}
+                   :on-signal     on-signal-multi
+                   :on-action     on-action-multi}
+        app (carry/app blueprint)]
     ((:dispatch-signal app) :on-inc)
 
     ; assert

@@ -103,7 +103,7 @@
    [-friend-list @friends]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn new-spec
+(defn new-blueprint
   [history api-search]
   (-> {:initial-model -initial-model
        :on-signal     (-new-on-signal history api-search)

@@ -27,8 +27,8 @@
    and the app model and also updates the reference from the model for the first time.
    The initial reference value is not used.
    Sync is removed on :on-stop signal."
-  [spec r]
-  (-> spec
+  [blueprint r]
+  (-> blueprint
       (update :on-signal
               (fn wrap-on-signal [app-on-signal]
                 (fn on-signal [model signal dispatch-signal dispatch-action]

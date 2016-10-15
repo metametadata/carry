@@ -97,16 +97,16 @@ Features:
 for rendering UI using [Reagent](https://github.com/reagent-project/reagent) 
 * [carry-logging](https://github.com/metametadata/carry/tree/master/contrib/logging/) for logging to console
 
-# Spec Splitting
+# Blueprint Splitting
 
-See [guide](/user-guide/#spec-splitting).
+See [guide](/user-guide/#blueprint-splitting).
 
 ## HOF
-[Source code](https://github.com/metametadata/carry/tree/master/examples/spec-splitting-hof)
+[Source code](https://github.com/metametadata/carry/tree/master/examples/blueprint-splitting-hof)
 
-[Demo](/examples/spec-splitting-hof)
+[Demo](/examples/blueprint-splitting-hof)
 
-Demonstrates how to assemble a spec and UI from multiple modules using higher-order functions. 
+Demonstrates how to assemble a blueprint and UI from multiple modules using higher-order functions. 
 
 Features:
 
@@ -114,11 +114,11 @@ Features:
 for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
  
 ## Multimethods
-[Source code](https://github.com/metametadata/carry/tree/master/examples/spec-splitting-multimethods)
+[Source code](https://github.com/metametadata/carry/tree/master/examples/blueprint-splitting-multimethods)
 
-[Demo](/examples/spec-splitting-multimethods)
+[Demo](/examples/blueprint-splitting-multimethods)
 
-Demonstrates how to assemble a spec from multiple modules with a help of multimethods. 
+Demonstrates how to assemble a blueprint from multiple modules with a help of multimethods. 
 
 Features:
 
@@ -126,11 +126,11 @@ Features:
 for rendering UI using [Reagent](https://github.com/reagent-project/reagent)
 
 ## Multimethods & core.match
-[Source code](https://github.com/metametadata/carry/tree/master/examples/spec-splitting-multimethods-core-match)
+[Source code](https://github.com/metametadata/carry/tree/master/examples/blueprint-splitting-multimethods-core-match)
 
-[Demo](/examples/spec-splitting-multimethods-core-match)
+[Demo](/examples/blueprint-splitting-multimethods-core-match)
 
-Demonstrates how to assemble a spec from multiple modules with a help of multimethods and `core.match`. 
+Demonstrates how to assemble a blueprint from multiple modules with a help of multimethods and `core.match`. 
 
 Features:
 
@@ -146,7 +146,7 @@ See [guide](/user-guide/#composite-apps).
 
 [Demo](/examples/subapps)
 
-In this project [counter app](#counter) and [friend list app](#friend-list) instances are "statically" added to the app spec.
+In this project [counter app](#counter) and [friend list app](#friend-list) instances are "statically" added to the app blueprint.
 Several helper methods are extracted to make it easy to include any subapp at the time of app instantiation.
 
 ## Counter List

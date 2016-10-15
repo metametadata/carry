@@ -1,5 +1,5 @@
 (ns app.core
-  (:require [app.spec :as spec]
+  (:require [app.blueprint :as blueprint]
             [app.view-model :refer [view-model]]
             [app.view :refer [new-view]]
             [carry-history.core :as h]
@@ -26,16 +26,16 @@
         history (h/new-hash-history) #_(h/new-history)
         storage hp/local-storage
 
-        ; define spec
-        app-spec (-> (spec/new-spec history storage :todomvc-model ["Finish this project" "Take a bath"])
+        ; define blueprint
+        blueprint (-> (blueprint/new-blueprint history storage :todomvc-model ["Finish this project" "Take a bath"])
 
-                     ; add debugging middleware:
-                     logging/add
-                     (debugger/add storage :todomvc-debugger-model)
-                     (atom-sync/add model))
+                      ; add debugging middleware:
+                      logging/add
+                      (debugger/add storage :todomvc-debugger-model)
+                      (atom-sync/add model))
 
-        ; create app from spec
-        app (carry/app app-spec)
+        ; create app from blueprint
+        app (carry/app blueprint)
 
         ; create GUI; history is passed into view for rendering links
         [app-view-model app-view] (carry-reagent/connect app view-model (new-view history))

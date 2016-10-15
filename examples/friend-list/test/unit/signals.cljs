@@ -10,7 +10,7 @@
   on-navigation-updates-query-and-searches
   (f/with-fakes
     (let [search (f/fake [[:_new-token (f/arg ifn?)] #(%2 :_found-friends)])
-          {:keys [on-signal]} (friend-list/new-spec :_history search)
+          {:keys [on-signal]} (friend-list/new-blueprint :_history search)
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
@@ -24,7 +24,7 @@
 (deftest
   on-search-success-updates-friends
   (f/with-fakes
-    (let [{:keys [initial-model on-signal on-action]} (friend-list/new-spec :_history :_search)
+    (let [{:keys [initial-model on-signal on-action]} (friend-list/new-blueprint :_history :_search)
           model (atom (on-action initial-model [:set-query "current query"]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
@@ -38,7 +38,7 @@
 (deftest
   on-search-success-ignores-outdated-results
   (f/with-fakes
-    (let [{:keys [initial-model on-signal on-action]} (friend-list/new-spec :_history :_search)
+    (let [{:keys [initial-model on-signal on-action]} (friend-list/new-blueprint :_history :_search)
           model (atom (on-action initial-model [:set-query "current query"]))
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
@@ -79,7 +79,7 @@
       (let [search (fc/fake ctx [[:_latest-token (f/arg ifn?)] #(%2 :_found-friends)])
             history (fc/reify-nice-fake ctx h/HistoryProtocol
                                         (push-token :recorded-fake))
-            {:keys [on-signal]} (friend-list/new-spec history search)
+            {:keys [on-signal]} (friend-list/new-blueprint history search)
             dispatch-signal (fc/recorded-fake ctx)
             dispatch-action (fc/recorded-fake ctx)
             expected-debounce-interval 300]

@@ -1,5 +1,5 @@
 (ns app.core
-  (:require [app.spec :refer [new-spec]]
+  (:require [app.blueprint :refer [new-blueprint]]
             [app.view-model :refer [view-model]]
             [app.view :refer [view]]
 
@@ -15,9 +15,9 @@
 (defn main
   []
   (let [history (h/new-hash-history)
-        app-spec (-> (new-spec history friend-list-api/search)
-                     logging/add)
-        app (carry/app app-spec)
+        blueprint (-> (new-blueprint history friend-list-api/search)
+                      logging/add)
+        app (carry/app blueprint)
         [app-view-model app-view] (carry-reagent/connect app view-model view)]
     (r/render app-view (.getElementById js/document "root"))
     ((:dispatch-signal app) :on-start)

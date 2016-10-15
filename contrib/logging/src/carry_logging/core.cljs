@@ -2,10 +2,10 @@
 
 (defn add
   "Will print all signals and actions to console using the specified prefix string."
-  ([spec] (add spec ""))
-  ([spec prefix]
-   {:pre [(:on-signal spec) (:on-action spec)]}
-   (-> spec
+  ([blueprint] (add blueprint ""))
+  ([blueprint prefix]
+   {:pre [(:on-signal blueprint) (:on-action blueprint)]}
+   (-> blueprint
        (update :on-signal
                (fn wrap-on-signal [app-on-signal]
                  (fn on-signal [model signal dispatch-signal dispatch-action]

@@ -81,23 +81,23 @@ Using prefixes is recommended because it helps distinguish signal names from act
 
 ## Creating an App
 
-In order to create an instance of a Carry app a user has to pass a **spec** into `app` function:
+In order to create an instance of a Carry app a user has to pass a **blueprint** into `app` function:
 
 ```clj
-(let [my-app (carry/app my-spec)]
+(let [my-app (carry/app my-blueprint)]
   ; ...
   )
 ```
 
-A spec is a map with keys:
+A blueprint is a map with keys:
 
 * `:initial-model` - an initial model value
 * `:on-signal` - a function for handling signals
 * `:on-action` - a function for handling actions
 
-In other words, a spec is needed to define a runtime behavior of an app:
+In other words, a blueprint is needed to define a runtime behavior of an app:
 
-![spec](/graphs/spec-and-app.svg)
+![blueprint](/graphs/blueprint-and-app.svg)
 
 ## Signal Handler
 **Signal handler** is a part of an application responsible for processing incoming signals. 
@@ -171,8 +171,8 @@ As an example, this is a handler from [friend-list](/examples/#friend-list) demo
                         
 ; ...
 
-; Dependencies will be injected in a spec factory function:
-(defn new-spec
+; Dependencies will be injected in a blueprint factory function:
+(defn new-blueprint
   [history api-search]
   {; ...
    :on-signal (-new-on-signal history api-search)})
@@ -180,7 +180,7 @@ As an example, this is a handler from [friend-list](/examples/#friend-list) demo
 ; ...
 
 ; Create and start an app using concrete dependencies.
-(def my-app (carry/app (new-spec my-history my-api-client)))
+(def my-app (carry/app (new-blueprint my-history my-api-client)))
 ((:dispatch-signal app) :on-start)
 ```
 
@@ -244,7 +244,7 @@ using [carry-reagent](https://github.com/metametadata/carry/tree/master/contrib/
 )
 
 (let [; Create an app.
-      app (carry/app my-spec)
+      app (carry/app my-blueprint)
       
       ; "Connect" app, view model and view to create a Reagent component.
       [_ app-view] (carry-reagent/connect app my-view-model my-view)]
@@ -375,7 +375,7 @@ Here's how you can structure your main app file to be used with Figwheel:
 
 (defn main
   []
-  (let [app (carry/app my-spec)
+  (let [app (carry/app my-blueprint)
         [app-view-model app-view] (carry-reagent/connect app my-view-model my-view)]
     (r/render app-view (.getElementById js/document "root"))
     
@@ -446,7 +446,7 @@ to create a helper "model atom" specifically for debugging in REPL. An example f
 
 ```clj
 (ns app.core
-  (:require [app.spec :as spec]
+  (:require [app.blueprint :as blueprint]
             [carry-atom-sync.core :as atom-sync]
             ; ...
             )) 
@@ -457,11 +457,11 @@ to create a helper "model atom" specifically for debugging in REPL. An example f
 
 (defn main
   []
-  (let [app-spec (-> (spec/new-spec ...)
-                     ; ...
-                     ; Apply middleware to setup a sync with "model atom".
-                     (atom-sync/add model))
-        app (carry/app app-spec)
+  (let [blueprint (-> (blueprint/new-blueprint ...)
+                       ; ...
+                       ; Apply middleware to setup a sync with "model atom".
+                       (atom-sync/add model))
+        app (carry/app blueprint)
         ; ...
         ]
     ; ...
@@ -501,16 +501,16 @@ true
 # Advanced
 
 ## Middleware
-**Middleware** is a function that gets an app spec and returns an updated spec
+**Middleware** is a function that gets an app blueprint and returns an updated blueprint
 in order to introduce some new app behavior (such as logging, syncing with server, crash reporting).
 
 >&#128172; Also see: [ready-to-use middleware packages](/index.html#middleware).
 
-Multiple middleware can be applied in a chain to produce a new spec.
-For instance, [TodoMVC](/examples/#todomvc) app spec is wrapped by three middleware:
+Multiple middleware can be applied in a chain to produce a new blueprint.
+For instance, [TodoMVC](/examples/#todomvc) app blueprint is wrapped by three middleware:
 
 ```clj
-(defn new-spec
+(defn new-blueprint
   [history storage storage-key todo-titles]
   (-> {:initial-model (model/new-model todo-titles)
        :on-signal     on-signal
@@ -526,13 +526,12 @@ For instance, [TodoMVC](/examples/#todomvc) app spec is wrapped by three middlew
       (h/add history)))
 ```
 
-An order in which middleware are applied matters. One can think of it as an onion: each middleware is a layer that wraps a spec
+An order in which middleware are applied matters. One can think of it as an onion: each middleware is a layer that wraps a blueprint
 and handles bypassing signals and actions:
 
-![spec](/graphs/middleware.svg)
+![middleware](/graphs/middleware.svg)
 
 As an example, this is a simple middleware which logs all actions and signals coming through an app:
-
 
 ```clj
 (ns carry-logging.core
@@ -540,9 +539,9 @@ As an example, this is a simple middleware which logs all actions and signals co
 
 (defn add
   "Will print all signals and actions to console using the specified prefix string."
-  ([spec] (add spec ""))
-  ([spec prefix]
-   (-> spec
+  ([blueprint] (add blueprint ""))
+  ([blueprint prefix]
+   (-> blueprint
        ; Wrap signal handler to log signals.
        (update :on-signal
                (fn wrap-on-signal [app-on-signal]
@@ -568,7 +567,6 @@ As an example, this is a simple middleware which logs all actions and signals co
                    ; Let app handle the action.
                    (app-on-action model action)))))))
 ```
-
 
 More complex middleware can:
   
@@ -660,8 +658,8 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
 
 ; History is an injected dependency.
 (defn add
-  [spec history]
-  (-> spec
+  [blueprint history]
+  (-> blueprint
       (update :initial-model -wrap-initial-model)
       (update :on-signal -wrap-on-signal history)
       (update :on-action -wrap-on-action)))
@@ -723,12 +721,12 @@ connect a debugger view and render it alongside an app view:
         storage hp/local-storage
         
         ; Apply middleware.
-        app-spec (-> my-spec
-                     ; Middleware requires a storage and a unique storage key.
-                     (debugger/add storage :my-debugger-model))
+        app-blueprint (-> my-blueprint
+                          ; Middleware requires a storage and a unique storage key.
+                          (debugger/add storage :my-debugger-model))
                      
         ; App and UI.
-        app (carry/app app-spec)
+        app (carry/app app-blueprint)
         [_ app-view] (carry-reagent/connect app my-view-model my-view)
         
         ; Connect debugger UI.
@@ -815,7 +813,7 @@ on receiving `:on-enter` signal:
   on-navigation-updates-query-and-searches
   (f/with-fakes
     (let [search (f/fake [[:_new-token (f/arg ifn?)] #(%2 :_found-friends)])
-          {:keys [on-signal]} (friend-list/new-spec :_history search)
+          {:keys [on-signal]} (friend-list/new-blueprint :_history search)
           dispatch-signal (f/recorded-fake)
           dispatch-action (f/recorded-fake)]
       ; act
@@ -829,13 +827,13 @@ on receiving `:on-enter` signal:
 * Test is written using [Arrange-Act-Assert (AAA)](http://c2.com/cgi/wiki?ArrangeActAssert) pattern.
 Comments are added to better separate these logical blocks.
  
-* Signal handler is taken from the spec created by `friend-list/new-spec`.
+* Signal handler is taken from the blueprint created by `friend-list/new-blueprint`.
 It could be tempting to instead test by using `friend-list/-new-on-signal` helper function.
 But accessing private members is a bad practice
-and there can also be middleware applied inside `new-spec` which can affect the tested behavior. Thus:
+and there can also be middleware applied inside `new-blueprint` which can affect the tested behavior. Thus:
 
 ```clj
-{:keys [on-signal]} (friend-list/new-spec :_history search)
+{:keys [on-signal]} (friend-list/new-blueprint :_history search)
 ```
 
 * Instead of using a real async API client we create a fake `search` 
@@ -862,12 +860,12 @@ Action handler is the easiest function to test because it's pure:
 ```clj
 (deftest
   sets-query
-  (let [{:keys [initial-model on-action]} (friend-list/new-spec :_history :_search)]
+  (let [{:keys [initial-model on-action]} (friend-list/new-blueprint :_history :_search)]
     (is (= "new query"
            (:query (on-action initial-model [:set-query "new query"]))))))
 ```
 
-Here again we first create a spec in order to get `initial-model` value and `on-action` function.
+Here again we first create a blueprint in order to get `initial-model` value and `on-action` function.
 
 Notice that it's impossible to use `:_new_query` "metaconstant" because app uses 
 [carry-schema](https://github.com/metametadata/carry/tree/master/contrib/schema)
@@ -893,7 +891,7 @@ at `:query` and `:friends` keys:
 
 (defn test-view-model-tracks-model-key
   [model-key action expected-view-model-value]
-  (let [{:keys [initial-model on-action]} (friend-list/new-spec :_history :_search)
+  (let [{:keys [initial-model on-action]} (friend-list/new-blueprint :_history :_search)
         model (r/atom initial-model)
         view-model (friend-list/view-model (reaction @model))
         witness (atom nil)]
@@ -962,9 +960,9 @@ and don't forget to start the app:
 ; ...
 
 (let [history (h/new-hash-history)
-      app-spec (-> my-spec
-                   (h/add history))
-      app (carry/app app-spec)
+      app-blueprint (-> my-blueprint
+                        (h/add history))
+      app (carry/app app-blueprint)
       ; ...
       ]
     ((:dispatch-signal app) :on-start)
@@ -1013,9 +1011,9 @@ An example from [TodoMVC](/examples/#todomvc):
 
 ```clj
 (defn -footer-filters
-  [visibility-spec history]
+  [visibility-config history]
   [:ul.filters
-   (for [{:keys [title route selected?]} visibility-spec]
+   (for [{:keys [title route selected?]} visibility-config]
      ^{:key route}
      [:li [h/link history (router/route->token route)
            {:class (if selected? "selected")}
@@ -1056,7 +1054,7 @@ This is a simplest card for the app which uses `carry-reagent` for UI:
 
 (defcard-rg
   counter
-  (let [app (carry/app counter/spec)
+  (let [app (carry/app counter/blueprint)
         [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
     app-view))
 ```
@@ -1075,7 +1073,7 @@ This example lacks dispatching standard `:on-start`/`:on-stop` signals, let's fi
 
 (defcard-rg
   counter
-  (let [app (carry/app (-> counter/spec
+  (let [app (carry/app (-> counter/blueprint
                            (logging/add "[counter] ")))
         [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
 
@@ -1128,7 +1126,7 @@ which creates a bidirectionally sync between the "data atom" created by Devcards
   "Preserves model value between hot reloads."
   (fn [data-atom _]
     ; Create app instance.
-    (let [app (carry/app (-> counter/spec
+    (let [app (carry/app (-> counter/blueprint
 
                              ; Get model value from data atom.
                              (assoc :initial-model @data-atom)
@@ -1149,7 +1147,7 @@ which creates a bidirectionally sync between the "data atom" created by Devcards
        #((:dispatch-signal app) :on-stop)]))
 
   ; Create data atom with initial model value.
-  (atom (:initial-model counter/spec))
+  (atom (:initial-model counter/blueprint))
 
   ; Card options.
   {:inspect-data true
@@ -1278,7 +1276,7 @@ app/
 
 There are many ways to organize Carry application code and it's up to you to choose what works best for your project.
 
-## Spec Splitting
+## Blueprint Splitting
 
 Let's take the project structure example mentioned earlier:
 
@@ -1299,15 +1297,15 @@ app/
   core.cljs
 ```
 
-How to define a single Carry spec from the code scattered over all these files?
+How to define a single Carry blueprint from the code scattered over all these files?
 It is simple to merge all initial models to get a full model,
 but there can be different ways to assemble handler functions:
 
 ```clj
-(def spec {:initial-model (merge app.foo.model/initial-model
+(def blueprint {:initial-model (merge app.foo.model/initial-model
                                  app.bar.model/initial-model)
-           :signal-halder ??? 
-           :action-handler ???}
+                :signal-halder ??? 
+                :action-handler ???}
 ```
 
 There are two conceptual ways of splitting a handler:
@@ -1343,7 +1341,7 @@ leave implementing the second approach as an exercise to the reader.
 <h3>HOF</h3>
 
 One of the solutions is to use a higher-order function (HOF) `dispatching-to-either`
-which will assemble a handler (see [example](/examples/#spec-splitting-hof)):
+which will assemble a handler (see [example](/examples/#blueprint-splitting-hof)):
 
 ```clj
 (ns app.utils)
@@ -1390,7 +1388,7 @@ which will assemble a handler (see [example](/examples/#spec-splitting-hof)):
 ```
 
 ```clj
-(ns app.spec
+(ns app.blueprint
   (:require [app.common.model]
             [app.common.signals]
             [app.common.actions]
@@ -1405,51 +1403,51 @@ which will assemble a handler (see [example](/examples/#spec-splitting-hof)):
 
             [app.utils]))
 
-(def spec {:initial-model (merge app.common.model/initial-model
-                                 app.home.model/initial-model
-                                 app.settings.model/initial-model)
-           :on-signal     (app.utils/dispatching-to-either #{app.common.signals/on-signal
-                                                             app.home.signals/on-signal
-                                                             app.settings.signals/on-signal})
-           :on-action     (app.utils/dispatching-to-either #{app.common.actions/on-action
-                                                             app.home.actions/on-action
-                                                             app.settings.actions/on-action})})
+(def blueprint {:initial-model (merge app.common.model/initial-model
+                                      app.home.model/initial-model
+                                      app.settings.model/initial-model)
+                :on-signal     (app.utils/dispatching-to-either #{app.common.signals/on-signal
+                                                                  app.home.signals/on-signal
+                                                                  app.settings.signals/on-signal})
+                :on-action     (app.utils/dispatching-to-either #{app.common.actions/on-action
+                                                                  app.home.actions/on-action
+                                                                  app.settings.actions/on-action})})
 ```
 
-The drawback of this solution is that a spec must be edited every time a new handler file is added.
+The drawback of this solution is that a blueprint must be edited every time a new handler file is added.
 
 <h3>Multimethods</h3>
 
-Multimethods can help by allowing to not type the names of all the handlers manually (see [example](/examples/#spec-splitting-multimethods)):
+Multimethods can help by allowing to not type the names of all the handlers manually (see [example](/examples/#blueprint-splitting-multimethods)):
 
 ```clj
-(ns app.spec
+(ns app.blueprint
   (:require [app.common.model]
             [app.common.actions]
             [app.common.signals]
 
             [app.home.model]
-            [app.settings.actions]
+            [app.home.actions]
             [app.home.signals]
 
             [app.settings.model]
             [app.settings.actions]
             [app.settings.signals]
 
-            [app.spec-methods]))
+            [app.blueprint-methods]))
 
-(def spec {:initial-model (merge app.common.model/initial-model
-                                 app.home.model/initial-model
-                                 app.settings.model/initial-model)
-                                 
-           ; Voilà:
-           :on-signal     app.spec-methods/on-signal
-           :on-action     app.spec-methods/on-action})
+(def blueprint {:initial-model (merge app.common.model/initial-model
+                                      app.home.model/initial-model
+                                      app.settings.model/initial-model)
+                                      
+                ; Voilà:
+                :on-signal     app.blueprint-methods/on-signal
+                :on-action     app.blueprint-methods/on-action})
 ```
 
 ```clj
 (ns app.common.signals
-  (:require [app.spec-methods :refer [on-signal]]))
+  (:require [app.blueprint-methods :refer [on-signal]]))
 
 (defmethod on-signal :on-start
   [_model _ _dispatch-signal _dispatch-action]
@@ -1470,7 +1468,7 @@ Multimethods can help by allowing to not type the names of all the handlers manu
 
 ```clj
 (ns app.common.actions
-  (:require [app.spec-methods :refer [on-action]]))
+  (:require [app.blueprint-methods :refer [on-action]]))
 
 (defmethod on-action :navigate
   [model [_ pane]]
@@ -1478,7 +1476,7 @@ Multimethods can help by allowing to not type the names of all the handlers manu
 ```
 
 ```clj
-(ns app.spec-methods)
+(ns app.blueprint-methods)
 
 (defn -tag
   "Returns a tag of a variant (read http://jneen.net/posts/2014-11-23-clojure-conj-variants-errata). Examples:
@@ -1502,10 +1500,10 @@ Unfortunately, now there's more cruft in handler files. It's especially obvious 
 <h3>Multimethods and core.match</h3>
 
 Let's try to reduce boilerplate by grouping events with the same namespace and using `core.match`
-(see [example](/examples/#spec-splitting-multimethods-core-match)):
+(see [example](/examples/#blueprint-splitting-multimethods-core-match)):
 
 ```clj
-(ns app.spec-methods)
+(ns app.blueprint-methods)
 
 (defn -tag-ns
   "Returns variant tag's namespace string. Examples:
@@ -1528,7 +1526,7 @@ Let's try to reduce boilerplate by grouping events with the same namespace and u
 
 ```clj
 (ns app.common.signals
-  (:require [app.spec-methods :refer [on-signal]]
+  (:require [app.blueprint-methods :refer [on-signal]]
             [cljs.core.match :refer-macros [match]]))
 
 ; Standard signals have no namespace.
@@ -1547,7 +1545,7 @@ Let's try to reduce boilerplate by grouping events with the same namespace and u
 
 ```clj
 (ns app.common.actions
-  (:require [app.spec-methods :refer [on-action]]
+  (:require [app.blueprint-methods :refer [on-action]]
             [cljs.core.match :refer-macros [match]]))
 
 (defmethod on-action (namespace ::_)
@@ -1598,9 +1596,9 @@ As an alternative, instead of grouping we could use macros to simplify method de
 
 We've covered several ways of assembling handler functions from multiple files:
 
-* `dispatching-to-either` helper ([example](/examples/#spec-splitting-hof))
-* multimethods for individual events ([example](/examples/#spec-splitting-multimethods))
-* multimethods for groups of events ([example](/examples/#spec-splitting-multimethods-core-match))
+* `dispatching-to-either` helper ([example](/examples/#blueprint-splitting-hof))
+* multimethods for individual events ([example](/examples/#blueprint-splitting-multimethods))
+* multimethods for groups of events ([example](/examples/#blueprint-splitting-multimethods-core-match))
 * macros on top of multimethods
 
 The takeaway is that handlers are just functions and you can refactor them in any way you want.
@@ -1754,7 +1752,7 @@ on inserting/removing subapps. But in this example we omit this because counter 
          :on-remove (dispatch-action :remove)
 
          [[:on-counter-signal id] s]
-         ((:on-signal counter/spec)
+         ((:on-signal counter/blueprint)
            (carry/entangle model #(get-in % [:counters id]))
            s
            (tagged dispatch-signal [:on-counter-signal id])
@@ -1783,27 +1781,27 @@ Action handler uses counter's initial model and action handler:
   (match action
          :insert
          (let [newest-counter-id (apply max -1 (-> model :counters keys))]
-           (assoc-in model [:counters (inc newest-counter-id)] (:initial-model counter/spec)))
+           (assoc-in model [:counters (inc newest-counter-id)] (:initial-model counter/blueprint)))
 
          :remove
          (let [oldest-counter-id (apply min (-> model :counters keys))]
            (update model :counters dissoc oldest-counter-id))
 
          [[:counter-action id] a]
-         (update-in model [:counters id] (:on-action counter/spec) a)))
+         (update-in model [:counters id] (:on-action counter/blueprint) a)))
 ```
 
-<h3>spec</h3>
+<h3>blueprint</h3>
 
-Let's define a spec in a separate namespace:
+Let's define a blueprint in a separate namespace:
 
 ```clj
-(ns app.spec
+(ns app.blueprint
   (:require [app.model :refer [initial-model]]
             [app.signals :refer [on-signal]]
             [app.actions :refer [on-action]]))
 
-(def spec
+(def blueprint
   {:initial-model initial-model
    :on-signal     on-signal
    :on-action     on-action})
@@ -1815,7 +1813,7 @@ And finally, here's the app instantiation code:
 
 ```clj
 (ns app.core
-  (:require [app.spec :refer [spec]]
+  (:require [app.blueprint :refer [blueprint]]
             [app.view-model :refer [view-model]]
             [app.view :refer [view]]
             
@@ -1826,7 +1824,7 @@ And finally, here's the app instantiation code:
 
 (defn main
   []
-  (let [app (carry/app spec)
+  (let [app (carry/app blueprint)
         [app-view-model app-view] (carry-reagent/connect app view-model view)]
     (r/render app-view (.getElementById js/document "root"))
     (assoc app :view-model app-view-model)))

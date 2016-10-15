@@ -76,8 +76,8 @@
 (defn ^:no-doc -update-action-events
   [model pred f & args]
   (s/transform [::debugger :action-events ALL pred]
-             #(apply f % args)
-             model))
+               #(apply f % args)
+               model))
 
 (defn ^:no-doc -update-action-event
   [model id f & args]
@@ -539,9 +539,9 @@
    Custom keyboard shortcut can toggle the visibility.
 
    Applying debugger middleware more than once will lead to undefined behaviour."
-  ([spec storage storage-key] (add spec storage storage-key "ctrl+h"))
-  ([spec storage storage-key toggle-visibility-shortcut]
-   (-> spec
+  ([blueprint storage storage-key] (add blueprint storage storage-key "ctrl+h"))
+  ([blueprint storage storage-key toggle-visibility-shortcut]
+   (-> blueprint
        (update :initial-model -wrap-initial-model toggle-visibility-shortcut)
        (update :on-signal -wrap-on-signal storage storage-key toggle-visibility-shortcut)
        (update :on-action -wrap-on-action)

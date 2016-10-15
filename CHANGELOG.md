@@ -1,6 +1,11 @@
 # Changelog
 
+## 0.7.0
+
+- Rename term *spec* to *blueprint* in order to eliminate confusion with *clojure.spec*.
+
 ## 0.6.0
+
 - Fix: allow using multimethods for signal and action handlers.
 
 ## 0.5.0

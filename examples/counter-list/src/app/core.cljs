@@ -1,5 +1,5 @@
 (ns app.core
-  (:require [app.spec :refer [spec]]
+  (:require [app.blueprint :refer [blueprint]]
             [app.view-model :refer [view-model]]
             [app.view :refer [view]]
 
@@ -12,7 +12,7 @@
 
 (defn main
   []
-  (let [app (carry/app spec)
+  (let [app (carry/app blueprint)
         [app-view-model app-view] (carry-reagent/connect app view-model view)]
     (r/render app-view (.getElementById js/document "root"))
     (assoc app :view-model app-view-model)))

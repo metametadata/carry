@@ -1,0 +1,12 @@
+@startuml
+object blueprint
+blueprint : :initial-model : map
+blueprint : :on-signal : function
+blueprint : :on-action : function
+
+object app
+app : :model : read-only map reference
+app : :dispatch-signal : function
+
+blueprint .> app : defines
+@enduml

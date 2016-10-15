@@ -44,6 +44,6 @@
    [:button {:on-click #(dispatch :on-increment-if-odd)} "Increment if odd"] " "
    [:button {:on-click #(dispatch :on-increment-async)} "Increment async"]])
 
-(def spec {:initial-model -initial-model
-           :on-signal     -on-signal
-           :on-action     -on-action})
+(def blueprint {:initial-model -initial-model
+                :on-signal     -on-signal
+                :on-action     -on-action})

@@ -81,7 +81,7 @@ Main file:
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]))
 
-(let [app (carry/app counter/spec)
+(let [app (carry/app counter/blueprint)
       [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
     (r/render app-view (.getElementById js/document "root"))
     ((:dispatch-signal app) :on-start))
@@ -108,7 +108,7 @@ UI (using [Reagent](https://github.com/reagent-project/reagent) and [carry-reage
    [:button {:on-click #(dispatch :on-increment-async)} "Increment async"]])
 ```
 
-Spec:
+Blueprint:
 
 ```clj
 (def -initial-model {:val 0})
@@ -138,9 +138,9 @@ Spec:
          :increment (update model :val inc)
          :decrement (update model :val dec)))
 
-(def spec {:initial-model -initial-model
-           :on-signal     -on-signal
-           :on-action     -on-action})
+(def blueprint {:initial-model -initial-model
+                :on-signal     -on-signal
+                :on-action     -on-action})
 ```
 
 ## Packages

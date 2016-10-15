@@ -54,10 +54,9 @@
 
 (defn main
   []
-  (let [app-spec {:initial-model initial-model
-                  :on-signal     on-signal
-                  :on-action     on-action}
-        app (carry/app app-spec)
+  (let [app (carry/app {:initial-model initial-model
+                        :on-signal     on-signal
+                        :on-action     on-action})
         [app-view-model app-view] (carry-reagent/connect app view-model view)]
     (r/render app-view (.getElementById js/document "root"))
     (assoc app :view-model app-view-model)))

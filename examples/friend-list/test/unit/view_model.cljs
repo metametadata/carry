@@ -8,7 +8,7 @@
 
 (defn test-view-model-tracks-model-key
   [model-key action expected-view-model-value]
-  (let [{:keys [initial-model on-action]} (friend-list/new-spec :_history :_search)
+  (let [{:keys [initial-model on-action]} (friend-list/new-blueprint :_history :_search)
         model (r/atom initial-model)
         view-model (friend-list/view-model (reaction @model))
         witness (atom nil)]

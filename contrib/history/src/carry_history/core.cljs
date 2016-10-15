@@ -155,8 +155,8 @@
   You can still force sending this signal by passing `{:treat-as-browser-event? true}` event-data to these functions.
 
   Middleware is friendly to `carry-debugger`: it won't automatically dispatch initial signal on app start if debugger's replay mode is on."
-  [spec history]
-  (-> spec
+  [blueprint history]
+  (-> blueprint
       (update :initial-model -wrap-initial-model)
       (update :on-signal -wrap-on-signal history)
       (update :on-action -wrap-on-action)))

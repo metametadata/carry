@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+- Rename term *spec* to *blueprint*.
+
 ## 0.3.0
 
 - BREAKING CHANGE: updated to support Carry 0.5.0.

@@ -8,7 +8,7 @@
 
 (defn main
   []
-  (let [app (carry/app counter/spec)
+  (let [app (carry/app counter/blueprint)
         [app-view-model app-view] (carry-reagent/connect app counter/view-model counter/view)]
     (r/render app-view (.getElementById js/document "root"))
     ((:dispatch-signal app) :on-start)

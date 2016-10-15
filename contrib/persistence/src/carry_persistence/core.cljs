@@ -59,10 +59,10 @@
 (defn add
   "On start the middleware will load model from the specified storage.
   Saves model into storage on every change.
-  Multiple middleware can safely wrap the same spec as long as different storage keys are specified.
+  Multiple middleware can safely wrap the same blueprint as long as different storage keys are specified.
 
   Storage is expected to be a transient map (e.g. as provided by [hodgepodge](https://github.com/funcool/hodgepodge)).
-  If this middleware is applied to spec several times then all keys must differ; otherwise, behavior is undefined.
+  If this middleware is applied to blueprint several times then all keys must differ; otherwise, behavior is undefined.
 
   Optional `:blacklist` set should contain model keys which will not be saved and loaded.
 
@@ -84,13 +84,13 @@
 
   * it won't persist debugger data in order to not conflict with debugger's persistence implementation
   * it won't load model from storage on app start if debugger's replay mode is on"
-  ([spec storage key]
-   (add spec storage key nil))
-  ([spec storage key {:keys [blacklist load-wrapper] :or {blacklist #{} load-wrapper identity} :as _options}]
+  ([blueprint storage key]
+   (add blueprint storage key nil))
+  ([blueprint storage key {:keys [blacklist load-wrapper] :or {blacklist #{} load-wrapper identity} :as _options}]
    {:pre [(set? blacklist)]}
    (let [blacklist (conj blacklist :carry-debugger.core/debugger)]
-     (-> spec
-         ; Key is injected into wrappers in case several persistence middleware are applied to the same spec.
+     (-> blueprint
+         ; Key is injected into wrappers in case several persistence middleware are applied to the same blueprint.
          ; Without key the load signal would be always handled by the "top" persistence layer.
          (update :on-signal -wrap-on-signal storage key blacklist load-wrapper)
          (update :on-action -wrap-on-action key blacklist)))))

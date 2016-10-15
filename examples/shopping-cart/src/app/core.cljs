@@ -1,5 +1,5 @@
 (ns app.core
-  (:require [app.spec :as spec]
+  (:require [app.blueprint :as blueprint]
             [app.api :as api]
             [app.view-model :as view-model]
             [app.view :as view]
@@ -11,8 +11,8 @@
 
 (defn main
   []
-  (let [spec (spec/new-spec api/shop-api-stub)
-        app (carry/app spec)
+  (let [blueprint (blueprint/new-blueprint api/shop-api-stub)
+        app (carry/app blueprint)
         [app-view-model app-view] (carry-reagent/connect app view-model/view-model view/view)]
     (r/render app-view (.getElementById js/document "root"))
     ((:dispatch-signal app) :on-start)

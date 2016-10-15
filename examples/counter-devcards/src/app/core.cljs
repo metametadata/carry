@@ -21,7 +21,7 @@
 
 (defcard-rg
   counter
-  (let [app (carry/app (-> counter/spec
+  (let [app (carry/app (-> counter/blueprint
                            (logging/add "[counter] ")))
         [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
 
@@ -35,7 +35,7 @@
   "Preserves model value between hot reloads."
   (fn [data-atom _]
     ; Create app instance.
-    (let [app (carry/app (-> counter/spec
+    (let [app (carry/app (-> counter/blueprint
 
                              ; Get model value from data atom.
                              (assoc :initial-model @data-atom)
@@ -56,7 +56,7 @@
        #((:dispatch-signal app) :on-stop)]))
 
   ; Create data atom with initial model value.
-  (atom (:initial-model counter/spec))
+  (atom (:initial-model counter/blueprint))
 
   ; Card options.
   {:inspect-data true

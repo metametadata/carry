@@ -1,5 +1,5 @@
 (defproject
-  carry-atom-sync "0.3.0"
+  carry-atom-sync "0.4.0"
   :description "Carry middleware for creating a bidirectional sync between an app model and a specified atom-like reference."
   :url "https://github.com/metametadata/carry/tree/master/contrib/atom-sync"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}

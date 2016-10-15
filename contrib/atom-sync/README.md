@@ -14,7 +14,7 @@ It is useful for [hacking with app model in REPL](https://metametadata.github.io
 Maybe it would be more logical to *connect* a synced atom similarly to how views are connected:
 
 ```clj
-(def my-app (carry/app my-spec))
+(def my-app (carry/app my-blueprint))
 (def my-atom (atom nil)
 
 (connect-atom my-app my-atom)

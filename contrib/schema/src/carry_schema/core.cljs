@@ -6,9 +6,9 @@
   Strives to provide a better logging than `s/defn`.
   Logs problems and throws an exception if validation fails effectively prohibiting model change to unallowed state.
   
-  Apply it as close to spec as possible in order to not propagate the invalid model to other middleware."
-  [spec schema]
-  (update spec :on-action
+  Apply it as close to blueprint as possible in order to not propagate the invalid model to other middleware."
+  [blueprint schema]
+  (update blueprint :on-action
           (fn wrap-on-action [app-on-action]
             (fn on-action [model action]
               (let [new-model (app-on-action model action)]

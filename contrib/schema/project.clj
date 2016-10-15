@@ -1,5 +1,5 @@
 (defproject
-  carry-schema "0.5.0"
+  carry-schema "0.6.0"
   :description "Carry middleware for model validation using Schema."
   :url "https://github.com/metametadata/carry/tree/master/contrib/schema"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}

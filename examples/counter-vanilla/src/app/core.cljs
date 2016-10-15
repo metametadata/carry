@@ -30,10 +30,9 @@
 
 (defn main
   []
-  (let [spec {:initial-model initial-model
-              :on-signal     on-signal
-              :on-action     on-action}
-        app (carry/app spec)
+  (let [app (carry/app {:initial-model initial-model
+                        :on-signal     on-signal
+                        :on-action     on-action})
         value-el (.getElementById js/document "value")
         render (fn [model] (set! (.-innerHTML value-el) (str "#" (:val model))))]
     (render @(:model app))
