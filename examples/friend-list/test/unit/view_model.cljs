@@ -2,9 +2,9 @@
   (:require
     [friend-list.core :as friend-list]
     [reagent.core :as r]
+    [reagent.ratom :refer [run! reaction]]
     [schema-generators.generators :as g]
-    [cljs.test :refer-macros [deftest is]])
-  (:require-macros [reagent.ratom :refer [run! reaction]]))
+    [clojure.test :refer [deftest is]]))
 
 (defn test-view-model-tracks-model-key
   [model-key action expected-view-model-value]

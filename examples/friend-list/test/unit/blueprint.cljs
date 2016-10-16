@@ -1,7 +1,7 @@
 (ns unit.blueprint
   (:require
     [friend-list.core :as friend-list]
-    [cljs.test :refer-macros [deftest is]]))
+    [clojure.test :refer [deftest is]]))
 
 (defn test-routing-middleware-is-applied
   [blueprint]

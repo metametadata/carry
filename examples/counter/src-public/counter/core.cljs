@@ -1,7 +1,7 @@
 ; namespace is extracted into a separate src folder in order to be reused in composite app examples
 (ns counter.core
-  (:require [cljs.core.match :refer-macros [match]])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  (:require [cljs.core.match :refer-macros [match]]
+            [reagent.ratom :refer [reaction]]))
 
 (def -initial-model {:val 0})
 

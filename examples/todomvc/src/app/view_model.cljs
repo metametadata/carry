@@ -1,7 +1,7 @@
 (ns app.view-model
   (:require [app.router :as router]
-            [carry-reagent.core :as carry-reagent])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+            [carry-reagent.core :as carry-reagent]
+            [reagent.ratom :refer [reaction]]))
 
 (defn view-model
   [model]

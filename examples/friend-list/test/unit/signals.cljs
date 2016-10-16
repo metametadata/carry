@@ -2,9 +2,9 @@
   (:require
     [friend-list.core :as friend-list]
     [carry-history.core :as h]
-    [cljs.test :refer-macros [deftest is testing async]]
-    [clj-fakes.core :as f :include-macros true]
-    [clj-fakes.context :as fc :include-macros true]))
+    [clojure.test :refer [deftest is testing async]]
+    [clj-fakes.core :as f]
+    [clj-fakes.context :as fc]))
 
 (deftest
   on-navigation-updates-query-and-searches

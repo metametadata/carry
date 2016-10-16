@@ -2,7 +2,7 @@
   (:require
     [friend-list.core :as friend-list]
     [schema-generators.generators :as g]
-    [cljs.test :refer-macros [deftest is]]))
+    [clojure.test :refer [deftest is]]))
 
 (deftest
   sets-query

@@ -91,8 +91,8 @@ UI (using [Reagent](https://github.com/reagent-project/reagent) and [carry-reage
 
 ```clj
 (ns counter.core
-  (:require [cljs.core.match :refer-macros [match]])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  (:require [cljs.core.match :refer-macros [match]]
+            [reagent.ratom :refer [reaction]]))
 
 (defn view-model
   [model]

@@ -1,6 +1,6 @@
 (ns carry-reagent.core
-  (:require [reagent.core :as r])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  (:require [reagent.core :as r]
+            [reagent.ratom :refer [reaction]]))
 
 (defn -atom->reaction
   "Creates a reaction which syncs its value with the specified atom."

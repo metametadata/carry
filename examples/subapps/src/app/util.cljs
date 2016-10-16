@@ -1,8 +1,8 @@
 ; Helpers for implementing subapps
 (ns app.util
   (:require [carry.core :as carry]
-            [cljs.core.match :refer-macros [match]])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+            [cljs.core.match :refer-macros [match]]
+            [reagent.ratom :refer [reaction]]))
 
 (defn -tagged
   "Helper function decorator which prepends a tag to the single argument.

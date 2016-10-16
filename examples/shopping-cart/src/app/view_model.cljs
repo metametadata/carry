@@ -1,6 +1,6 @@
 (ns app.view-model
-  (:require [datascript.core :as d])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  (:require [datascript.core :as d]
+            [reagent.ratom :refer [reaction]]))
 
 (defn -q
   "Queries Datascript db and returns result as a map with specified keys."

@@ -1,7 +1,6 @@
 (ns app.view-model
   (:require [counter.core :as counter]
-            [reagent.core :as r])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+            [reagent.ratom :refer [reaction]]))
 
 #_(defn view-model
     "Naive nonoptimal implementation:

@@ -1,8 +1,7 @@
 (ns app.ui
   (:require [app.common.ui]
             [app.home.ui]
-            [app.settings.ui]
-            [carry-reagent.core :as carry-reagent]))
+            [app.settings.ui]))
 
 (defn view-model
   [model]

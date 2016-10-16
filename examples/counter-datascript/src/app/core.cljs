@@ -2,9 +2,9 @@
   (:require [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]
+            [reagent.ratom :refer [reaction]]
             [cljs.core.match :refer-macros [match]]
-            [datascript.core :as d])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+            [datascript.core :as d]))
 
 (enable-console-print!)
 

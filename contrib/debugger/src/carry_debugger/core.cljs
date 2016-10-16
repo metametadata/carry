@@ -6,13 +6,13 @@
             [cljs.reader]
             [com.rpl.specter :as s :refer [ALL]]            ; ALL is refered explicitly because otherwise Codox cannot generate API docs
             [reagent.core :as r]
+            [reagent.ratom :refer [reaction]]
             [goog.events]
             [goog.ui.KeyboardShortcutHandler.EventType :as EventType]
             cljsjs.jquery-ui
             cljsjs.filesaverjs
             cljs.pprint)
-  (:import goog.ui.KeyboardShortcutHandler)
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  (:import goog.ui.KeyboardShortcutHandler))
 
 ;;;;;;;;;;;;;;;;;;; Model
 (def ^:no-doc -Schema

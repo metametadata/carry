@@ -6,8 +6,7 @@
             [carry-logging.core :as logging]
             [reagent.core :as r]
             [cljs.core.match :refer-macros [match]]
-            [devcards.core])
-  (:require-macros [devcards.core :refer [defcard-rg]]))
+            [devcards.core :refer-macros [defcard-rg]]))
 
 (enable-console-print!)
 

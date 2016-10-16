@@ -285,8 +285,8 @@ Usually view model is a map of Reagent reactions. An example from [TodoMVC](/exa
 ```clj
 (ns app.view-model
   (:require ; ...
-            [carry-reagent.core :as carry-reagent])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+            [carry-reagent.core :as carry-reagent]
+            [reagent.ratom :refer [reaction]]))
 
 (defn view-model
   [model]
@@ -804,8 +804,8 @@ on receiving `:on-enter` signal:
     [friend-list.core :as friend-list]
     [carry.core :as carry]
     [carry-history.core :as h]
-    [cljs.test :refer-macros [deftest is testing]]
-    [clj-fakes.core :as f :include-macros true]
+    [clojure.test :refer [deftest is testing]]
+    [clj-fakes.core :as f]
     ;...
     ))
     
@@ -885,9 +885,9 @@ at `:query` and `:friends` keys:
   (:require
     [friend-list.core :as friend-list]
     [reagent.core :as r]
+    [reagent.ratom :refer [run! reaction]]
     [schema-generators.generators :as g]
-    [cljs.test :refer-macros [deftest is]])
-  (:require-macros [reagent.ratom :refer [run! reaction]]))
+    [clojure.test :refer [deftest is]]))
 
 (defn test-view-model-tracks-model-key
   [model-key action expected-view-model-value]
@@ -1047,8 +1047,7 @@ This is a simplest card for the app which uses `carry-reagent` for UI:
             [carry.core :as carry]
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]
-            [devcards.core])
-  (:require-macros [devcards.core :refer [defcard-rg]]))
+            [devcards.core :refer-macros [defcard-rg]]))
 
 ; ...
 
@@ -1116,8 +1115,7 @@ which creates a bidirectionally sync between the "data atom" created by Devcards
             [carry-atom-sync.core :as carry-atom-sync]
             [carry-reagent.core :as carry-reagent]
             [cljs.core.match :refer-macros [match]]
-            [devcards.core])
-  (:require-macros [devcards.core :refer [defcard-rg]]))
+            [devcards.core :refer-macros [defcard-rg]]))
   
 ; ...
 
@@ -1659,8 +1657,8 @@ The view model will contain `:counters` reaction with a sorted map of `[id count
 ```clj
 (ns app.view-model
   (:require [counter.core :as counter]
-            [reagent.core :as r])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+            [reagent.core :as r]
+            [reagent.ratom :refer [reaction]]))
 
 ;(defn view-model
 ;  "Naive nonoptimal implementation:
