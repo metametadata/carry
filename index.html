@@ -244,7 +244,7 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
             [carry-reagent.core :as carry-reagent]
             [reagent.core :as r]))
 
-(let [app (carry/app counter/spec)
+(let [app (carry/app counter/blueprint)
       [_ app-view] (carry-reagent/connect app counter/view-model counter/view)]
     (r/render app-view (.getElementById js/document &quot;root&quot;))
     ((:dispatch-signal app) :on-start))
@@ -252,8 +252,8 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
 
 <p>UI (using <a href="https://github.com/reagent-project/reagent">Reagent</a> and <a href="https://github.com/metametadata/carry/tree/master/contrib/reagent/">carry-reagent</a>):</p>
 <pre><code class="clj">(ns counter.core
-  (:require [cljs.core.match :refer-macros [match]])
-  (:require-macros [reagent.ratom :refer [reaction]]))
+  (:require [cljs.core.match :refer-macros [match]]
+            [reagent.ratom :refer [reaction]]))
 
 (defn view-model
   [model]
@@ -269,7 +269,7 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
    [:button {:on-click #(dispatch :on-increment-async)} &quot;Increment async&quot;]])
 </code></pre>
 
-<p>Spec:</p>
+<p>Blueprint:</p>
 <pre><code class="clj">(def -initial-model {:val 0})
 
 (defn -on-signal
@@ -297,9 +297,9 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
          :increment (update model :val inc)
          :decrement (update model :val dec)))
 
-(def spec {:initial-model -initial-model
-           :on-signal     -on-signal
-           :on-action     -on-action})
+(def blueprint {:initial-model -initial-model
+                :on-signal     -on-signal
+                :on-action     -on-action})
 </code></pre>
 
 <h2 id="packages">Packages</h2>
@@ -387,5 +387,5 @@ inspired by <a href="https://github.com/gaearon/redux-devtools">Redux DevTools</
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-10-13 18:26:57.982922
+Build Date UTC : 2016-10-16 16:30:40.112039
 -->
