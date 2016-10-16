@@ -1301,7 +1301,7 @@ but there can be different ways to assemble handler functions:
 
 ```clj
 (def blueprint {:initial-model (merge app.foo.model/initial-model
-                                 app.bar.model/initial-model)
+                                      app.bar.model/initial-model)
                 :signal-halder ??? 
                 :action-handler ???}
 ```

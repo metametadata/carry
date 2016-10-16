@@ -3,7 +3,7 @@
             [app.signals :as signals]
             [app.actions :as actions]))
 
-(defn blueprint
+(defn new-blueprint
   [shop]
   {:initial-model model/initial-model
    :on-signal     (signals/new-on-signal shop)
