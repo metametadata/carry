@@ -10,8 +10,8 @@
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.9.229" :scope "provided"]
 
-                 [carry-schema "0.4.0"]
-                 [carry-reagent "0.5.0"]
+                 [carry-schema "0.6.0"]
+                 [carry-reagent "0.7.0"]
 
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [reagent "0.6.0"]
