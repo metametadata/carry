@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0
+
+- Fix exception when on-stop signal is called before on-start.
+
 ## 0.5.0
 
 - Rename term *spec* to *blueprint*.
