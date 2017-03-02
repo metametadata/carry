@@ -29,7 +29,7 @@
              :clojars-deps {:dependencies [[carry "0.7.0"]
                                            [carry-atom-sync "0.4.0"]
                                            [carry-debugger "0.7.0"]
-                                           [carry-history "0.5.0"]
+                                           [carry-history "0.6.0"]
                                            [carry-logging "0.3.0"]
                                            [carry-persistence "0.5.0"]
                                            [carry-reagent "0.7.0"]
