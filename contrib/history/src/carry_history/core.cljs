@@ -116,7 +116,8 @@
 
              :on-stop
              (do
-               (@unlisten)
+               (when (ifn? @unlisten)
+                 (@unlisten))
 
                (app-on-signal model signal dispatch-signal dispatch-action))
 
