@@ -7,11 +7,11 @@
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.9.229" :scope "provided"]]
 
+  :pedantic? :abort
+
   :plugins [[com.jakemccrary/lein-test-refresh "0.17.0"]
             [lein-doo "0.1.7"]
             [lein-codox "0.10.0"]]
-
-  :pedantic? :abort
 
   :source-paths ["src" "test"]
 
