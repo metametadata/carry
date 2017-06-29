@@ -34,11 +34,10 @@
                 (fn on-signal [model signal dispatch-signal dispatch-action]
                   (match signal
                          :on-start
-                         (do
-                           (app-on-signal model signal dispatch-signal dispatch-action)
-
+                         (let [original-signal-result (app-on-signal model signal dispatch-signal dispatch-action)]
                            (reset! r @model)
-                           (-start-syncing r model dispatch-signal))
+                           (-start-syncing r model dispatch-signal)
+                           original-signal-result)
 
                          :on-stop
                          (do

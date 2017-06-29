@@ -86,12 +86,12 @@
     (is (= {:val 101} @(:model app)))))
 
 (deftest
-  dispatch-signal-returns-nil
+  dispatch-signal-returns-the-result-of-handler-function-call
   (let [blueprint {:initial-model {:val 100}
                    :on-signal     (constantly :on-signal-return-value)
                    :on-action     (constantly :on-action-return-value)}
         app (carry/app blueprint)]
-    (is (nil? ((:dispatch-signal app) :some-signal)))))
+    (is (= :on-signal-return-value ((:dispatch-signal app) :some-signal)))))
 
 (deftest
   dispatch-action-returns-nil

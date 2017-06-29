@@ -1,5 +1,5 @@
 (defproject
-  carry-persistence "0.5.0"
+  carry-persistence "0.6.0-SNAPSHOT"
   :description "Carry middleware for automatic model saving/loading using browser storage."
   :url "https://github.com/metametadata/carry/tree/master/contrib/persistence"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}

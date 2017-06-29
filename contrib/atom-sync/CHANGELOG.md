@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0-SNAPSHOT
+
+- Must not change return value on `:on-start` signal.
+
 ## 0.4.0
 
 - Rename term *spec* to *blueprint*.

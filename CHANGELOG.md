@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0-SNAPSHOT
+
+- BREAKING CHANGE: `dispatch-signal` now returns the result of signal handler invocation
+(previously it always returned `nil`).
+
 ## 0.7.0
 
 - Rename term *spec* to *blueprint* in order to eliminate confusion with *clojure.spec*.

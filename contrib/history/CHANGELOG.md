@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0-SNAPSHOT
+
+- Must not change return value on `:on-start` signal.
+
 ## 0.6.0
 
 - Fix exception when on-stop signal is called before on-start.

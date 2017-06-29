@@ -70,19 +70,21 @@
   It performs side effects, can dispatch actions and new signals.
   By convention, it must be able to handle `:on-start` and `:on-stop` signals in order to be wrappable by middleware.
   Read-only model atom is useful for reading actual model values in async code and to subscribe to model changes.
-  Functions `dispatch-signal` and `dispatch-action` always return `nil`.
+  Function `dispatch-signal` returns the result of the underlying `on-signal` call.
+  Function `dispatch-action` always returns `nil`.
   * `:on-action` - Action handler. Pure function of args: `[model action]`.
   Given an action and current model value, it must return the new model value.
 
   Returns a map with keys:
 
   * `:model` - An object that supports `IDeref` and `IWatchable` protocols.
-  * `:dispatch-signal` - Function with a single arg: a signal to be sent to an app. Returns `nil`."
+  * `:dispatch-signal` - Function with a single arg: a signal to be sent to an app.
+  Returns the result of the underlying `on-signal` call."
   [{:keys [initial-model on-signal on-action] :as _blueprint}]
   {:pre [(map? initial-model) (ifn? on-signal) (ifn? on-action)]}
   (let [model-atom (atom initial-model)
         read-only-model-atom (entangle model-atom identity)]
     (letfn [(dispatch-action [action] (reset! model-atom (on-action @model-atom action)) nil)
-            (dispatch-signal [signal] (on-signal read-only-model-atom signal dispatch-signal dispatch-action) nil)]
+            (dispatch-signal [signal] (on-signal read-only-model-atom signal dispatch-signal dispatch-action))]
       {:model           read-only-model-atom
        :dispatch-signal dispatch-signal})))

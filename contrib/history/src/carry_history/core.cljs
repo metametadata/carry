@@ -99,9 +99,7 @@
       [model signal dispatch-signal dispatch-action]
       (match signal
              :on-start
-             (do
-               (app-on-signal model signal dispatch-signal dispatch-action)
-
+             (let [original-signal-result (app-on-signal model signal dispatch-signal dispatch-action)]
                (add-watch model ::token-watch
                           (fn [_key _ref old-state new-state]
                             (when (not= (::token old-state) (::token new-state))
@@ -112,7 +110,9 @@
 
                ; initial signal
                (when (not (-> @model :carry-debugger.core/debugger :replay-mode?))
-                 (dispatch-signal [::on-history-event {:token (token history) :browser-event? true :event-data nil}])))
+                 (dispatch-signal [::on-history-event {:token (token history) :browser-event? true :event-data nil}]))
+
+               original-signal-result)
 
              :on-stop
              (do

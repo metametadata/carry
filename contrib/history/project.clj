@@ -1,5 +1,5 @@
 (defproject
-  carry-history "0.6.0"
+  carry-history "0.7.0-SNAPSHOT"
   :description "Carry middleware which simplifies working with browser history."
   :url "https://github.com/metametadata/carry/tree/master/contrib/history"
   :license {:name "MIT" :url "http://opensource.org/licenses/MIT"}

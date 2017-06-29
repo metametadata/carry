@@ -19,9 +19,7 @@
               (dispatch-signal [::on-load-from-storage key loaded-model]))]
       (match signal
              :on-start
-             (do
-               (app-on-signal model signal dispatch-signal dispatch-action)
-
+             (let [original-signal-result (app-on-signal model signal dispatch-signal dispatch-action)]
                (when (not (-> @model :carry-debugger.core/debugger :replay-mode?))
                  (let [loaded-model (get storage key :not-found)]
                    (when (not= loaded-model :not-found)
@@ -35,7 +33,9 @@
                             (let [old-state (-whitelist old-state blacklist)
                                   new-state (-whitelist new-state blacklist)]
                               (when (not= old-state new-state)
-                                (-save storage key new-state))))))
+                                (-save storage key new-state)))))
+
+               original-signal-result)
 
              [::on-load-from-storage key loaded-model]
              (dispatch-action [::load-from-storage key loaded-model])
