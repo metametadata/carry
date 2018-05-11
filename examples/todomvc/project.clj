@@ -22,13 +22,13 @@
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private" "target"]
 
-  :profiles {:local-deps   {:dependencies [; required by carry-debugger:
+  :profiles {:local-deps   {:dependencies [; Required by carry-debugger:
                                            [cljsjs/jquery-ui "1.11.4-0"]
                                            [cljsjs/filesaverjs "1.1.20151003-0"]]}
 
              :clojars-deps {:dependencies [[carry "0.8.0"]
                                            [carry-atom-sync "0.5.0"]
-                                           [carry-debugger "0.7.0"]
+                                           [carry-debugger "0.8.0"]
                                            [carry-history "0.7.0"]
                                            [carry-logging "0.3.0"]
                                            [carry-persistence "0.6.0"]

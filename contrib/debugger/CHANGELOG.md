@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0
+
+- UI: do not show initial model and truncate output of big signals and actions.
+
 ## 0.7.0
 
 - Rename term *spec* to *blueprint*.

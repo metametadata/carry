@@ -1,4 +1,4 @@
-(def version "0.7.0")
+(def version "0.8.0")
 
 (defproject
   carry-debugger

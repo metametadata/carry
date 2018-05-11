@@ -3,16 +3,22 @@
             [carry-schema.core :as schema-middleware]
             [schema.core :as schema]
             [cljs.core.match :refer-macros [match]]
-            [cljs.reader]
-            [com.rpl.specter :as s :refer [ALL]]            ; ALL is refered explicitly because otherwise Codox cannot generate API docs
+            [cljs.reader :as reader]
+            [com.rpl.specter :as s :refer [ALL]]            ; ALL is referred explicitly because otherwise Codox cannot generate API docs
             [reagent.core :as r]
-            [reagent.ratom :refer [reaction]]
-            [goog.events]
+            [goog.events :as goog-events]
             [goog.ui.KeyboardShortcutHandler.EventType :as EventType]
-            cljsjs.jquery-ui
-            cljsjs.filesaverjs
-            cljs.pprint)
+            [cljs.pprint :as pp]
+            [cljsjs.jquery-ui]
+            [cljsjs.filesaverjs]
+            [reagent.ratom :refer [reaction]])
   (:import goog.ui.KeyboardShortcutHandler))
+
+(defn -trunc
+  "Truncates a string adding ellipsis character if needed."
+  [s n]
+  (str (subs s 0 (min (count s) n))
+       (when (> (count s) n) "…")))
 
 ;;;;;;;;;;;;;;;;;;; Model
 (def ^:no-doc -Schema
@@ -157,11 +163,11 @@
                (do
                  ; init keyboard shortcuts
                  (let [shortcut-handler (KeyboardShortcutHandler. js/document)
-                       key (goog.events/listen shortcut-handler
+                       key (goog-events/listen shortcut-handler
                                                EventType/SHORTCUT_TRIGGERED
                                                #(when (= (.-identifier %) toggle-visibility-shortcut)
-                                                 (dispatch-signal ::on-toggle-visibility)))]
-                   (reset! unlisten-shortcuts #(goog.events/unlistenByKey key))
+                                                  (dispatch-signal ::on-toggle-visibility)))]
+                   (reset! unlisten-shortcuts #(goog-events/unlistenByKey key))
                    (.registerShortcut shortcut-handler toggle-visibility-shortcut toggle-visibility-shortcut))
 
                  ; load debugger model from storage and replay if it's in replay mode
@@ -225,10 +231,10 @@
                (dispatch-action ::toggle-visibility)
 
                ::on-save
-               (-save-file "debugger-session.txt" (with-out-str (cljs.pprint/pprint @model)))
+               (-save-file "debugger-session.txt" (with-out-str (pp/pprint @model)))
 
                [::on-open content]
-               (dispatch-action [::load (cljs.reader/read-string content)])
+               (dispatch-action [::load (reader/read-string content)])
 
                [::on-highlight-signal id]
                (dispatch-action [::highlight-signal id])
@@ -336,7 +342,7 @@
         highlighted-signal-ids (reaction (into #{@highlighted-signal-id}
                                                (-signal-parent-ids @signal-id->parent-id @highlighted-signal-id)))]
     (-> (carry-reagent/track-keys debugger
-                                  [:initial-model :replay-mode? :visible? :toggle-visibility-shortcut :action-events])
+                                  [:replay-mode? :visible? :toggle-visibility-shortcut :action-events])
         (assoc :signal-events (reaction
                                 ; mapv instead of map is essential, without it referenced reactions will be recalculated several times
                                 (mapv #(assoc % :highlighted? (contains? @highlighted-signal-ids (:id %))
@@ -411,8 +417,11 @@
          [:span {:style {:color -color-replay} :title "Marked for replaying before next app start"} "⥀"])
 
        (if (coll? action)
-         (str (pr-str (first action)) " " (clojure.string/join " " (map pr-str (rest action))))
-         (pr-str action))]
+         [:span
+          [:strong (pr-str (first action))]
+          " " (-trunc (clojure.string/join " " (map pr-str (rest action))) 20)]
+
+         [:strong (pr-str action)])]
 
       (when enabled?
         [:div {:style    {:display          "flex"          ; for text centering
@@ -439,8 +448,11 @@
      [:span {:title "Signal was dispatched from another signal"} "↳"])
 
    (if (coll? signal)
-     [:span (pr-str (first signal)) " " (clojure.string/join " " (map pr-str (rest signal)))]
-     (pr-str signal))])
+     [:span
+      [:strong (pr-str (first signal))]
+      " " (-trunc (clojure.string/join " " (map pr-str (rest signal))) 20)]
+
+     [:strong (pr-str signal)])])
 
 (defn ^:no-doc -signals-view
   [signal-events action-events dispatch]
@@ -451,12 +463,6 @@
        [:div {:style {:margin-left (* (:indent signal-event) 15)}}
         [-signal-view signal-event dispatch]
         [-actions-view action-events (:id signal-event) dispatch]]))])
-
-(defn ^:no-doc -initial-model-view
-  [initial-model]
-  [:div {:style {:border-bottom "thin solid grey"}
-         :title "Initial model"}
-   [:div (pr-str initial-model)]])
 
 (defn ^:no-doc -resizable-div
   "Uses jQuery UI."
@@ -498,7 +504,7 @@
         body))
 
 (defn ^:no-doc -view
-  [{:keys [visible? toggle-visibility-shortcut replay-mode? initial-model signal-events action-events]}
+  [{:keys [visible? toggle-visibility-shortcut replay-mode? signal-events action-events]}
    dispatch]
   [-overlay
    [-resizable-div {:style {:display          (if @visible? "block" "none") ; using CSS instead of React in order to persist resized frame on toggling visibility
@@ -523,7 +529,6 @@
               :right      0
               :overflow   "auto"
               :border-top "thin solid grey"}}
-     [-initial-model-view @initial-model]
      [-signals-view @signal-events @action-events dispatch]]]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;; Middleware
