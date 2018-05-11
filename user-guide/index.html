@@ -299,9 +299,8 @@ It is free to contain an asynchronous code. The signature of a signal handler fu
 <ul>
 <li><code>model</code> - a read-only reference, the same as app's <code>:model</code></li>
 <li><code>signal</code> - an incoming signal </li>
-<li><code>dispatch-signal</code> - a synchronous function for dispatching new signals, always returns <code>nil</code>, the same as app's <code>:dispatch-signal</code></li>
+<li><code>dispatch-signal</code> - a synchronous function for dispatching new signals, the same as app's <code>:dispatch-signal</code>, can return some value</li>
 <li><code>dispatch-action</code> - a synchronous function for modifying a model, always returns <code>nil</code></li>
-<li>return value will not be used</li>
 </ul>
 <p>By convention, signal handler should be able to at least handle <code>:on-start</code> and <code>:on-stop</code> signals.
 As we'll see later, it's required by middleware with setup/teardown logic and to support hot reloading.</p>
@@ -369,6 +368,9 @@ As an example, this is a handler from <a href="../examples/#friend-list">friend-
 ((:dispatch-signal app) :on-start)
 </code></pre>
 
+<p>You're free to return any value from a signal handler. 
+E.g. an asynchronous signal can return a <code>core.async</code> channel or a promise
+so that other code can wait for it.</p>
 <h2 id="actions">Actions</h2>
 <p><strong>Action</strong> is an object which represents an intention to modify a model.
 Actions can be dispatched only from within a signal handler via <code>dispatch-action</code>.</p>
@@ -735,10 +737,8 @@ By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/
       (match signal
              ; Intercept :on-start signal.
              :on-start
-             (do
-               ; Let the wrapped app start first.
-               (app-on-signal model signal dispatch-signal dispatch-action)
-
+             ; Let the wrapped app start first.
+             (let [original-signal-result (app-on-signal model signal dispatch-signal dispatch-action)]
                ; Start listening to model updates.
                (add-watch model ::token-watch
                           (fn [_key _ref old-state new-state]
@@ -750,8 +750,10 @@ By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/
                        (listen history #(dispatch-signal [::on-history-event ; ...
                                                           ])))
 
-               ; ...               
-               )
+               ; ...      
+
+               ; Preserve the return value of the wrapped signal.
+               original-signal-result)
 
       ; Intercept clean up signal.
       :on-stop
@@ -804,7 +806,8 @@ By convention, they must use namespaced keywords (e.g. <code>:my-middlware.core/
 
 <p>Especially note how <code>:on-start</code>/<code>:on-stop</code> signals are intercepted:</p>
 <ul>
-<li>The middleware let's the wrapped app start first and then runs its own additional initialization code.</li>
+<li>The middleware let's the wrapped app start first and then runs its own additional initialization code.
+It doesn't modify the return value of the underlying signal handler.</li>
 <li>The order is "reversed" on stopping: the middleware first cleans up after itself and only then let's the wrapped app shutdown.</li>
 </ul>
 <h2 id="debugger">Debugger</h2>
@@ -1384,7 +1387,7 @@ business logic domains or even single use cases
 It is simple to merge all initial models to get a full model,
 but there can be different ways to assemble handler functions:</p>
 <pre><code class="clj">(def blueprint {:initial-model (merge app.foo.model/initial-model
-                                 app.bar.model/initial-model)
+                                      app.bar.model/initial-model)
                 :signal-halder ??? 
                 :action-handler ???}
 </code></pre>
