@@ -111,9 +111,8 @@ It is free to contain an asynchronous code. The signature of a signal handler fu
 
 * `model` - a read-only reference, the same as app's `:model`
 * `signal` - an incoming signal 
-* `dispatch-signal` - a synchronous function for dispatching new signals, always returns `nil`, the same as app's `:dispatch-signal`
+* `dispatch-signal` - a synchronous function for dispatching new signals, the same as app's `:dispatch-signal`, can return some value
 * `dispatch-action` - a synchronous function for modifying a model, always returns `nil`
-* return value will not be used
 
 By convention, signal handler should be able to at least handle `:on-start` and `:on-stop` signals.
 As we'll see later, it's required by middleware with setup/teardown logic and to support hot reloading.
@@ -183,6 +182,10 @@ As an example, this is a handler from [friend-list](/examples/#friend-list) demo
 (def my-app (carry/app (new-blueprint my-history my-api-client)))
 ((:dispatch-signal app) :on-start)
 ```
+
+You're free to return any value from a signal handler. 
+E.g. an asynchronous signal can return a `core.async` channel or a promise
+so that other code can wait for it.
 
 ## Actions
 **Action** is an object which represents an intention to modify a model.
@@ -598,10 +601,8 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
       (match signal
              ; Intercept :on-start signal.
              :on-start
-             (do
-               ; Let the wrapped app start first.
-               (app-on-signal model signal dispatch-signal dispatch-action)
-
+             ; Let the wrapped app start first.
+             (let [original-signal-result (app-on-signal model signal dispatch-signal dispatch-action)]
                ; Start listening to model updates.
                (add-watch model ::token-watch
                           (fn [_key _ref old-state new-state]
@@ -613,8 +614,10 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
                        (listen history #(dispatch-signal [::on-history-event ; ...
                                                           ])))
 
-               ; ...               
-               )
+               ; ...      
+               
+               ; Preserve the return value of the wrapped signal.
+               original-signal-result)
 
       ; Intercept clean up signal.
       :on-stop
@@ -668,6 +671,7 @@ All these cases are demonstrated by [carry-history](https://github.com/metametad
 Especially note how `:on-start`/`:on-stop` signals are intercepted:
 
 * The middleware let's the wrapped app start first and then runs its own additional initialization code.
+It doesn't modify the return value of the underlying signal handler.
 * The order is "reversed" on stopping: the middleware first cleans up after itself and only then let's the wrapped app shutdown.
 
 ## Debugger

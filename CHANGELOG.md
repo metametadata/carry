@@ -1,9 +1,11 @@
 # Changelog
 
-## 0.8.0-SNAPSHOT
+## 0.8.0
 
 - BREAKING CHANGE: `dispatch-signal` now returns the result of signal handler invocation
-(previously it always returned `nil`).
+(previously it always returned `nil`). 
+This is handy if signal is asynchronous and some other code has to wait for it via returned `core.async` channel or promise. 
+This change means that now any middleware must be updated to preserve `on-signal` return values.
 
 ## 0.7.0
 
