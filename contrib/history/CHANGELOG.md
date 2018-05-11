@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.0-SNAPSHOT
+## 0.7.0
 
 - Must not change return value on `:on-start` signal.
 
