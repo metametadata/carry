@@ -15,6 +15,12 @@ UI bindings, routing, debugger, etc. are implemented as separate optional [packa
 [![Gitter](https://img.shields.io/gitter/room/metametadata/carry.svg?maxAge=2592000?style=plastic)](https://gitter.im/metametadata/carry)
 [![Slack](https://img.shields.io/badge/chat-on_slack-brightgreen.svg?style=flat)](https://clojurians.slack.com/messages/carry/)
 
+## Status
+
+Stable. Seems to be used in production by some companies.
+
+I now plan to focus on the successor [Aide](https://github.com/metametadata/aide) framework instead.
+
 ## Features
 
 * Functional API without globals and macros.
