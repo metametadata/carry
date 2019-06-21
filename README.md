@@ -17,9 +17,9 @@ UI bindings, routing, debugger, etc. are implemented as separate optional [packa
 
 ## Status
 
-Stable. Seems to be used in production by some companies.
+Stable. Was used in production.
 
-I now plan to focus on the successor [Aide](https://github.com/metametadata/aide) framework instead.
+I now focus on the successor [Aide](https://github.com/metametadata/aide) framework instead.
 
 ## Features
 
